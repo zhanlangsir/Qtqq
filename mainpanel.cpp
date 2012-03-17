@@ -154,7 +154,8 @@ void QQMainPanel::changeFriendStatus(QString id, FriendStatus state)
     else
         category->children_.push_back(item);
 
-    ui->friends->repaint();
+    ui->friends->setUpdatesEnabled(false);
+    ui->friends->setUpdatesEnabled(true);
 }
 
 QQItem* QQMainPanel::findQQItemById(QString id)
