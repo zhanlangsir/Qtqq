@@ -7,6 +7,12 @@
 #include <QComboBox>
 #include <QMutex>
 #include <QMap>
+#include <QPoint>
+
+namespace Ui
+{
+class QQMsgTip;
+}
 
 class QQMsgTip : public QWidget
 {
@@ -27,9 +33,19 @@ public:
     void setConvertor(NameConvertor *convertor)
     { convertor_ = convertor; }
 
+protected:
+    void mousePressEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
+    void mouseMoveEvent(QMouseEvent *);
+    void enterEvent(QEvent *);
+    void leaveEvent(QEvent *);
+    bool eventFilter(QObject *obj, QEvent *e);
+
 private:
-    QComboBox box_;
+    Ui::QQMsgTip *ui;
     QMutex lock;
     NameConvertor *convertor_;
+
+    QPoint distance_pos_;
 };
 

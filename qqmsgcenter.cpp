@@ -86,8 +86,10 @@ QVector<QQMsg*> QQMsgCenter::getOldMsg(QQMsgListener *listener)
     foreach(msg, old_msg_)
     {
         if (msg->talkTo() == listener->talkTo())
+        {
             msgs.append(msg);
-        old_msg_.removeOne(msg);
+            old_msg_.removeOne(msg);
+        }
     }
     return msgs;
 }

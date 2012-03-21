@@ -20,6 +20,10 @@ void QQParseThread::run()
             continue;
         }    
 
+        if (root["retcode"].asInt() == 121)
+        {
+            //¿Îœﬂ
+        }
         for (unsigned int i = 0; i < root["result"].size(); ++i)
         {
             const Json::Value result = root["result"][i];

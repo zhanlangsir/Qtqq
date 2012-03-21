@@ -1,8 +1,7 @@
-#include <QtGui/QApplication>
+#include <QApplication>
 #include <QTextCodec>
 #include "login.h"
 #include "mainpanel.h"
-#include <QDebug>
 
 int main(int argc, char *argv[])
 {

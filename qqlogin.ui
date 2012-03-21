@@ -155,7 +155,7 @@ border-image: url(:/new/login/images/LoginPanel/btn_mini_down.png);
 }</string>
    </property>
    <property name="text">
-    <string>...</string>
+    <string/>
    </property>
   </widget>
   <widget class="QToolButton" name="tb_close_">

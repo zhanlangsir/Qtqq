@@ -7,6 +7,7 @@
 #include <QTextEdit>
 #include <QTextCursor>
 #include <QDebug>
+#include <QMouseEvent>
 #include <QFileDialog>
 
 QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user_info, CaptchaInfo cap_info) :
@@ -23,11 +24,45 @@ QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user
    connect(ui->tb_send_img_, SIGNAL(clicked(bool)), this, SLOT(openPathDialog(bool)));
    connect(ui->pb_send_msg_, SIGNAL(clicked()), this, SLOT(sendMsg()));
    connect(ui->tb_qqface_, SIGNAL(clicked()), this, SLOT(openQQFacePanel()));
+   connect(ui->pb_close_, SIGNAL(clicked()), this, SLOT(close()));
+
+   connect(ui->tb_close_, SIGNAL(clicked()), this, SLOT(close()));
+   connect(ui->tb_mini_, SIGNAL(clicked()), this, SLOT(showMinimized()));
+
+   setWindowOpacity(1);
+   setWindowFlags(Qt::FramelessWindowHint);
+
+   ui->lbl_name_->setText(name_);
+
    send_url_ = "/channel/send_buddy_msg2";
 }
 
 QQFriendChatDlg::~QQFriendChatDlg()
 {
+    delete ui;
+}
+
+void QQFriendChatDlg::mousePressEvent(QMouseEvent *event)
+{
+  QPoint origin_pos = this->pos();
+
+  QPoint origin_mouse_pos = QCursor::pos();
+  distance_pos_ = origin_mouse_pos - origin_pos;
+}
+
+void QQFriendChatDlg::mouseMoveEvent(QMouseEvent *event)
+{
+    if (distance_pos_.isNull())
+    {
+        return;
+    }
+
+    this->move(event->globalPos() - distance_pos_);
+}
+
+void QQFriendChatDlg::mouseReleaseEvent(QMouseEvent *)
+{
+    distance_pos_ = QPoint(0, 0);
 }
 
 QString QQFriendChatDlg::converToJson(const QString &raw_msg)
@@ -71,7 +106,7 @@ QString QQFriendChatDlg::converToJson(const QString &raw_msg)
         }
     }
 
-    msg_template = msg_template +  "\\\"\\\",\\\"\\\\n%E3%80%90%E6%8F%90%E7%A4%BA%EF%BC%9A%E6%AD%A4%E7%94%A8%E6%88%B7%E6%AD%A3%E5%9C%A8%E4%BD%BF%E7%94%A8Q%2B%20Web%EF%BC%9Ahttp:%2F%2Fweb.qq.com%2F%E3%80%91\\\","
+    msg_template = msg_template +
             "[\\\"font\\\",{\\\"name\\\":\\\"%E5%AE%8B%E4%BD%93\\\",\\\"size\\\":\\\"10\\\",\\\"style\\\":[0,0,0],\\\"color\\\":\\\"000000\\\"}]]\","
             "\"msg_id\":" + QString::number(msg_id_++) + ",\"clientid\":\"5412354841\","
             "\"psessionid\":\""+ cap_info_.psessionid_ +"\"}"

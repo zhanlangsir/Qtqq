@@ -38,6 +38,8 @@ private slots:
     void getFriendListDone(bool err);
     void getGroupListDone(bool err);
     void getOnlineBuddyDone(bool err);
+    void getPersonalFaceDone(bool err);
+    void getPersonalInfoDone(bool err);
     void openChatDlg(QQMsg::MsgType type, QString gid);
     void closeChatDlg(QQMsgListener *listener);
     void openChatDlgByDoubleClick(const QModelIndex& index);
@@ -48,6 +50,8 @@ private:
     void getFriendList();
     void getGroupList();
     void getOnlineBuddy();
+    void getPersonalFace();
+    void getPersonalInfo();
     void parseFriendsInfo(const QByteArray &array, QQItem *root_item);
     void parseGroupsInfo(const QByteArray &array, QQItem *root_item);
 

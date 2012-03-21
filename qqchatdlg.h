@@ -16,7 +16,7 @@ class QQChatDlg : public QDialog, public QQMsgListener
 {
     Q_OBJECT
 signals:
-    void close(QQMsgListener *listener);
+    void chatFinish(QQMsgListener *listener);
 
 public:
     QQChatDlg(QString id, QString name, FriendInfo curr_user_info, CaptchaInfo cap_info, QWidget *parent = 0);
@@ -43,6 +43,7 @@ public:
 
 protected:
     void closeEvent(QCloseEvent *);
+    void keyPressEvent(QKeyEvent *e);
 
 protected:
     QString send_url_;
@@ -52,6 +53,7 @@ protected:
 
     QString id_;
     int msg_id_;
+    QString name_;
     CaptchaInfo cap_info_;
     QTcpSocket fd_;
     NameConvertor convertor_;
@@ -72,7 +74,6 @@ private:
     virtual ImgSender* createImgSender() = 0;
 
 private:    
-    QString name_;
     FriendInfo curr_user_info_;
     ImgLoader *img_loader_;
     ImgSender *img_sender_;

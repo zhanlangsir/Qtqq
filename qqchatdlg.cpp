@@ -2,14 +2,15 @@
 #include "imgloader.h"
 
 #include <QFileDialog>
+#include <QKeyEvent>
 
 QQChatDlg::QQChatDlg(QString id, QString name, FriendInfo curr_user_info, 
                      CaptchaInfo cap_info, QWidget *parent) : 
     QDialog(parent),
     id_(id),
     msg_id_(4462000),
-    cap_info_(cap_info),
     name_(name),
+    cap_info_(cap_info), 
     curr_user_info_(curr_user_info),
     img_loader_(NULL),
     img_sender_(NULL),
@@ -44,7 +45,26 @@ QQChatDlg::~QQChatDlg()
 
 void QQChatDlg::closeEvent(QCloseEvent *)
 {
-    emit close(this);
+    emit chatFinish(this);
+}
+
+void QQChatDlg::keyPressEvent(QKeyEvent *e)
+{
+    switch (e->key())
+    {
+    case Qt::Key_Return:
+        if (e->modifiers()& Qt::ControlModifier)
+        {
+            sendMsg();
+        }
+        break;
+    case Qt::Key_C:
+        if (e->modifiers()& Qt::AltModifier)
+        {
+            close();
+        }
+        break;
+    }
 }
 
 void QQChatDlg::showQQFace(QString face_id)
@@ -84,7 +104,7 @@ void QQChatDlg::showMsg(const QQMsg *msg)
 {
     const QQChatMsg *chat_msg = static_cast<const QQChatMsg*>(msg);
 
-    long time = chat_msg->time_;
+    qint64 time = chat_msg->time_;
 
     QDateTime date_time;
     date_time.setMSecsSinceEpoch(time * 1000);
@@ -112,6 +132,7 @@ void QQChatDlg::showMsg(const QQMsg *msg)
                 img_loader_ = new ImgLoader();
                 connect(img_loader_, SIGNAL(loadDone(const QString&, const QString&)), &te_messages_, SLOT(setRealImg(const QString&, const QString&)));
                 img_loader_->setCaptchaInfo(cap_info_);
+                img_loader_->start();
             }
 
             if (te_messages_.containsImg(chat_msg->msg_[i].content()))
@@ -170,6 +191,8 @@ void QQChatDlg::sendMsg()
     
     msg_sender_->send(req);
 
+
+    //清除te_input,添加到te_messages中
     QTextDocument *mes_doc = te_messages_.document();
     QTextDocument *inp_doc = te_input_.document();
 
@@ -181,7 +204,11 @@ void QQChatDlg::sendMsg()
 
     QTextCursor cursor(mes_doc);
     cursor.movePosition(QTextCursor::End);
-    cursor.insertText("\n");
+    if (!mes_doc->isEmpty())
+        cursor.insertText("\n");
+
+    if (!te_messages_.document()->isEmpty())
+        cursor.insertText(curr_user_info_.name() + " " + QDateTime::currentDateTime().toString("dd ap hh:mm:ss") + "\n");
     cursor.insertHtml(te_input_.toHtml());
 
     te_input_.clearAll();

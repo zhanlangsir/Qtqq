@@ -1,7 +1,10 @@
 #include "qqmsgtip.h"
 #include "qqmsg.h"
+#include <ui_qqmsgtip.h>
 #include <QDebug>
 #include <QVBoxLayout>
+#include <QCursor>
+#include <QMouseEvent>
 
 void QQMsgTip::pushMsg(QQMsg* new_msg)
 {
@@ -17,9 +20,9 @@ void QQMsgTip::pushMsg(QQMsg* new_msg)
     }
 
     lock.lock();
-    for (int i = 0; i < box_.count(); ++i)
+    for (int i = 0; i < ui->cb_msgs_->count(); ++i)
     {
-        QQMsg* msg = box_.itemData(i).value<QQMsg*>();
+        QQMsg* msg = ui->cb_msgs_->itemData(i).value<QQMsg*>();
 
         if (msg->talkTo() == new_msg->talkTo())
         {
@@ -41,13 +44,13 @@ void QQMsgTip::addItem(QQMsg* msg)
     case QQMsg::kFriend:
     {
         QQChatMsg *chat_msg = static_cast<QQChatMsg*>(msg);
-        box_.addItem("[" + convertor_->convert(chat_msg->from_uin_) + "]" + " send message to " + "[" + convertor_->convert(chat_msg->to_uin_) + "]", QVariant::fromValue(msg));
+        ui->cb_msgs_->addItem("[" + convertor_->convert(chat_msg->from_uin_) + "]" + " send message to " + "[" + convertor_->convert(chat_msg->to_uin_) + "]", QVariant::fromValue(msg));
         break;
     }
     case QQMsg::kGroup:
     {
         QQChatMsg *g_chat_msg = static_cast<QQChatMsg*>(msg);
-        box_.addItem("[" + convertor_->convert(g_chat_msg->to_uin_) + "]" + " send message to " + "[" + tr("you") + "]", QVariant::fromValue(msg));
+        ui->cb_msgs_->addItem("[" + convertor_->convert(g_chat_msg->to_uin_) + "]" + " send message to " + "[" + tr("you") + "]", QVariant::fromValue(msg));
         break;
     }
     }
@@ -58,22 +61,73 @@ void QQMsgTip::addItem(QQMsg* msg)
     }
 }
 
+void QQMsgTip::mousePressEvent(QMouseEvent *event)
+{
+  QPoint origin_pos = this->pos();
+
+  QPoint origin_mouse_pos = QCursor::pos();
+  distance_pos_ = origin_mouse_pos - origin_pos;
+}
+
+void QQMsgTip::mouseMoveEvent(QMouseEvent *event)
+{
+    if (distance_pos_.isNull())
+    {
+        return;
+    }
+
+    this->move(event->globalPos() - distance_pos_);
+}
+
+void QQMsgTip::enterEvent(QEvent *)
+{
+    setCursor(Qt::SizeAllCursor);
+}
+
+void QQMsgTip::leaveEvent(QEvent *)
+{
+    setCursor(Qt::ArrowCursor);
+}
+
+bool QQMsgTip::eventFilter(QObject *obj, QEvent *e)
+{
+    if (e->type() == QEvent::Enter)
+    {
+        setCursor(Qt::ArrowCursor);
+        return true;
+    }
+    if (e->type() == QEvent::Leave)
+    {
+        setCursor(Qt::SizeAllCursor);
+        return true;
+    }
+    else
+        return QWidget::eventFilter(obj, e);
+}
+
+void QQMsgTip::mouseReleaseEvent(QMouseEvent *)
+{
+    distance_pos_ = QPoint(0, 0);
+}
+
 void QQMsgTip::openChatDlg(int index)
 {
-    QQMsg *msg = box_.itemData(index).value<QQMsg*>();
-    box_.removeItem(index);
+    QQMsg *msg = ui->cb_msgs_->itemData(index).value<QQMsg*>();
+    ui->cb_msgs_->removeItem(index);
 
-    if (box_.count() == 0)
+    if (ui->cb_msgs_->count() == 0)
     {
         this->hide();
     }
     emit activatedChatDlg(msg->type(), msg->talkTo());
 }
 
-QQMsgTip::QQMsgTip(QWidget *parent) : QWidget(parent), box_(this)
+QQMsgTip::QQMsgTip(QWidget *parent) : QWidget(parent), ui(new Ui::QQMsgTip)
 {
-    setWindowFlags(Qt::Dialog);
-    this->setLayout(new QVBoxLayout(this));
-    connect(&box_, SIGNAL(activated(int)), this, SLOT(openChatDlg(int)));
+    ui->setupUi(this);
+    setWindowOpacity(1);
+    setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+    ui->cb_msgs_->installEventFilter(this);
+    connect(ui->cb_msgs_, SIGNAL(activated(int)), this, SLOT(openChatDlg(int)));
     connect(this, SIGNAL(addItemDone()), this, SLOT(show()));
 }

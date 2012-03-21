@@ -47,12 +47,15 @@ HEADERS += cookie.h \
     qqfacepanel.h \
     qqchatdlg.h \
     friendimgsender.h \
-    qqmsgsender.h
+    qqmsgsender.h \
+    friendimgloader.h \
+    groupimgloader.h
 
 FORMS += captcha.ui qqlogin.ui qqmainpanel.ui qqfriendchatdlg.ui \
     qqgroupchatdlg.ui \
     friendinfodlg.ui \
-    qqfacepanel.ui
+    qqfacepanel.ui \
+    qqmsgtip.ui
 SOURCES += cookie.cpp \
            login.cpp \
            main.cpp \

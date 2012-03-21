@@ -6,8 +6,17 @@
 
 #include <QThread>
 #include <QTcpSocket>
-#include <QHttp>
-#include <QUrl>
+#include <QSemaphore>
+#include <QQueue>
+
+struct LoadInfo
+{
+    QString path_;
+    QString img_name_;
+    Request header_;
+    QString host_;
+    QString url_;
+};
 
 class ImgLoader : public QThread
 {
@@ -25,10 +34,8 @@ protected:
     void run();
 
 private:
+    QSemaphore img_count_;
+    QQueue<LoadInfo> infos_;
     CaptchaInfo cap_info_;
-    QString path_;
-    QString img_name_;
-    Request header_;
-    QString host_;
     bool has_error_;
 };
