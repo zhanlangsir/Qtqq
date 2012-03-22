@@ -4,7 +4,7 @@
 #include <QDir>
 #include <QFileInfoList>
 
-QQFacePanel::QQFacePanel(QWidget *parent) : QWidget(parent), ui_(new Ui::QQFacePanel), qqface_path_("./images/qqface/default/")
+QQFacePanel::QQFacePanel(QWidget *parent) : QDialog(parent), ui_(new Ui::QQFacePanel), qqface_path_("./images/qqface/default/")
 {
     ui_->setupUi(this);
     ui_->tbw_qqface_->setIconSize(QSize(30,30));
@@ -13,6 +13,8 @@ QQFacePanel::QQFacePanel(QWidget *parent) : QWidget(parent), ui_(new Ui::QQFaceP
     ui_->tbw_qqface_->setEditTriggers(QTableWidget::NoEditTriggers);
     connect(ui_->tbw_qqface_, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(onItemClicked(QTableWidgetItem*)));
     loadFace();
+    setWindowOpacity(1);
+    setWindowFlags(Qt::FramelessWindowHint);
 }
 
 void QQFacePanel::onItemClicked(QTableWidgetItem *item)

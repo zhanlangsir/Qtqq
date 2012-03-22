@@ -11,6 +11,7 @@
 #include <QTcpSocket>
 #include <assert.h>
 #include <QMessageBox>
+#include <QDesktopWidget>
 
 QQLogin::QQLogin(QWidget *parent) :
     QDialog(parent),
@@ -22,6 +23,9 @@ QQLogin::QQLogin(QWidget *parent) :
     connect(ui->tb_close_, SIGNAL(clicked()), this, SLOT(reject()));
     setWindowOpacity(1);
     setWindowFlags(Qt::FramelessWindowHint);
+
+
+    move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
 }
 
 QQLogin::~QQLogin()
@@ -77,6 +81,7 @@ void QQLogin::checkStateRead()
 
 void QQLogin::mousePressEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event)
   QPoint origin_pos = this->pos();
 
   QPoint origin_mouse_pos = QCursor::pos();

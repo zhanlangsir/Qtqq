@@ -34,6 +34,8 @@ private:
     ImgSender* createImgSender();
     void getGfaceSig();
     void getGroupMemberList();
+    void createSql();
+    void readFromSql();
 
 private:
     Ui::QQGroupChatDlg *ui;

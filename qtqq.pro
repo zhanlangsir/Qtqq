@@ -7,9 +7,10 @@ TARGET =
 DEPENDPATH += .
 INCLUDEPATH += .
 
-LIBS += "F:/projects/qt/libjson/debug/libjson.a"
+LIBS += "./libs/libjson.so"
 
 QT += network \
+      sql \
 
 # Input
 HEADERS += cookie.h \

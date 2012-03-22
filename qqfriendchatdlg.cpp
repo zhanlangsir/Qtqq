@@ -44,6 +44,7 @@ QQFriendChatDlg::~QQFriendChatDlg()
 
 void QQFriendChatDlg::mousePressEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event)
   QPoint origin_pos = this->pos();
 
   QPoint origin_mouse_pos = QCursor::pos();

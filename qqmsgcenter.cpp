@@ -39,7 +39,7 @@ void QQMsgCenter::run()
             QQMsgListener *listener;
             foreach(listener, listener_)
             {
-                if (msg->talkTo() == listener->talkTo())
+                if (msg->talkTo() == listener->id())
                 {
                     is_msg_processed = true;
                     emit distributeMsgInMainThread(listener, msg);
@@ -85,7 +85,7 @@ QVector<QQMsg*> QQMsgCenter::getOldMsg(QQMsgListener *listener)
     QVector<QQMsg*> msgs;
     foreach(msg, old_msg_)
     {
-        if (msg->talkTo() == listener->talkTo())
+        if (msg->talkTo() == listener->id())
         {
             msgs.append(msg);
             old_msg_.removeOne(msg);
@@ -107,6 +107,7 @@ void QQMsgCenter::setMsgTip(QQMsgTip *msg_tip)
 
 void QQMsgCenter::writeToSql(QQMsg *msg)
 {
+    Q_UNUSED(msg)
 }
 
 QQMsgCenter::QQMsgCenter(QQMsgTip *msg_tip,

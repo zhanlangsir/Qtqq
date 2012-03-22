@@ -5,10 +5,10 @@ namespace Ui
     class QQFacePanel;
 }
 
-#include <QWidget>
+#include <QDialog>
 #include <QTableWidgetItem>
 
-class QQFacePanel : public QWidget
+class QQFacePanel : public QDialog
 {
     Q_OBJECT
 

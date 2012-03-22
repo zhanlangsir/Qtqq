@@ -1,5 +1,11 @@
-#ifndef MAINPANEL_H
-#define MAINPANEL_H
+#pragma once
+
+#include <QWidget>
+#include <QMutex>
+#include <QCloseEvent>
+#include <QQueue>
+#include <QMap>
+#include <QVector>
 
 #include "qqmsgtip.h"
 #include "qqmsgcenter.h"
@@ -8,12 +14,6 @@
 #include "types.h"
 #include "qqpollthread.h"
 #include "qqparsethread.h"
-
-#include <QWidget>
-#include <QMutex>
-#include <QQueue>
-#include <QMap>
-#include <QVector>
 
 class QHttp;
 class QSemaphore;
@@ -33,6 +33,9 @@ public:
 
 public:
     void initialize();
+
+protected:
+    void closeEvent(QCloseEvent *);
 
 private slots:
     void getFriendListDone(bool err);
@@ -72,6 +75,7 @@ private:
     NameConvertor convertor_;
     QVector<GroupInfo*> groups_info_;
     QVector<QQItem*> friends_info_;
+    QStringList opening_chat_dlg_ids_;
 };
 
 #endif // MAINPANEL_H

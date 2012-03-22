@@ -6,12 +6,14 @@
 #include "qqfriendchatdlg.h"
 #include "qqgroupchatdlg.h"
 
+#include <QDesktopWidget>
 #include <QHttp>
 #include <QDebug>
 #include <QTreeWidgetItem>
 #include <QSemaphore>
 #include <QDateTime>
 #include <assert.h>
+#include <QFile>
 
 QQMainPanel::QQMainPanel(CaptchaInfo cap_info, FriendInfo user_info, QWidget *parent) :
     QWidget(parent),
@@ -33,12 +35,27 @@ QQMainPanel::QQMainPanel(CaptchaInfo cap_info, FriendInfo user_info, QWidget *pa
     connect(msg_center_, SIGNAL(buddiesStateChange(QString,FriendStatus)), this, SLOT(changeFriendStatus(QString,FriendStatus)));
     convertor_.addUinNameMap(user_info.id(), tr("you"));
     msg_tip_->setConvertor(&convertor_);
+
+    move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
+
+    if (QFile::exists("qqgroupdb"))
+    {
+        QFile::remove("qqgroupdb");
+    }
 }
 
 QQMainPanel::~QQMainPanel()
 {
     main_http_->close();
     delete ui;
+}
+
+void QQMainPanel::closeEvent(QCloseEvent *)
+{
+    if (QFile::exists("qqgroupdb"))
+    {
+        QFile::remove("qqgroupdb");
+    }
 }
 
 void QQMainPanel::getFriendList()
@@ -73,6 +90,7 @@ void QQMainPanel::getPersonalInfo()
 
 void QQMainPanel::getPersonalInfoDone(bool err)
 {
+    Q_UNUSED(err)
     disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getPersonalInfoDone(bool)));
     QByteArray array = main_http_->readAll();
 
@@ -104,6 +122,7 @@ void QQMainPanel::getPersonalFace()
 
 void QQMainPanel::getPersonalFaceDone(bool err)
 {
+    Q_UNUSED(err)
     disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getPersonalFaceDone(bool)));
     QByteArray array = main_http_->readAll();
 
@@ -116,6 +135,7 @@ void QQMainPanel::getPersonalFaceDone(bool err)
 
 void QQMainPanel::getFriendListDone(bool err)
 {
+    Q_UNUSED(err)
     disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getFriendListDone(bool)));
     QByteArray friends_info = main_http_->readAll();
     QQItemModel *model = new QQItemModel(this);
@@ -146,6 +166,7 @@ void QQMainPanel::getGroupList()
 
 void QQMainPanel::getGroupListDone(bool err)
 {
+    Q_UNUSED(err)
     disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getGroupListDone(bool)));
     QByteArray groups_info = main_http_->readAll();
 
@@ -362,9 +383,13 @@ void QQMainPanel::openChatDlgByDoubleClick(const QModelIndex& index)
 
 void QQMainPanel::openChatDlg(QQMsg::MsgType type, QString id)
 {
+    if (opening_chat_dlg_ids_.contains(id))
+        return;
+
+    QQChatDlg *dlg = NULL;
     if (type == QQMsg::kFriend)
     {
-        QQFriendChatDlg *dlg= new QQFriendChatDlg(id, convertor_.convert(id), curr_user_info_, cap_info_);
+        dlg= new QQFriendChatDlg(id, convertor_.convert(id), curr_user_info_, cap_info_);
         connect(dlg, SIGNAL(chatFinish(QQMsgListener*)), this, SLOT(closeChatDlg(QQMsgListener*)));
         msg_center_->registerListener(dlg);
     }
@@ -374,17 +399,21 @@ void QQMainPanel::openChatDlg(QQMsg::MsgType type, QString id)
         foreach(info, groups_info_)
         {
             if (info->id() == id)
-                break;
+                break; //跳出foreach,而不是if
         }
 
-        QQGroupChatDlg *dlg = new QQGroupChatDlg(id, convertor_.convert(id), info->code(), curr_user_info_, cap_info_);
+        dlg = new QQGroupChatDlg(id, convertor_.convert(id), info->code(), curr_user_info_, cap_info_);
         connect(dlg, SIGNAL(chatFinish(QQMsgListener*)), this, SLOT(closeChatDlg(QQMsgListener*)));
         msg_center_->registerListener(dlg);
     }
+
+    opening_chat_dlg_ids_.append(id);
+    dlg->move((QApplication::desktop()->width() - dlg->width()) /2, (QApplication::desktop()->height() - dlg->height()) /2);
 }
 
 void QQMainPanel::closeChatDlg(QQMsgListener *listener)
 {
+    opening_chat_dlg_ids_.removeOne(listener->id());
     msg_center_->removeListener(listener);
     delete listener;
 }

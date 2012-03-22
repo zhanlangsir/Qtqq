@@ -12,6 +12,6 @@ public:
 public:
     virtual void showOldMsg(QVector<QQMsg*> msg) = 0;
     virtual void showMsg(const QQMsg *msg) = 0;
-    virtual QString talkTo() const = 0;
+    virtual QString id() const = 0;
 };
 

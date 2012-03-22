@@ -33,7 +33,7 @@ public:
     void showMsg(const QQMsg *msg);
     void showQQFace(QString face_id);
     void showOldMsg(QVector<QQMsg*> msgs);
-    QString talkTo() const
+    QString id() const
     { return id_; }
     QString getUniqueId()
     {

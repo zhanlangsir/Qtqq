@@ -42,7 +42,7 @@ public:
     virtual FriendStatus state() const
     { return kOnline; }
     virtual void set_state(FriendStatus state)
-    {}
+    { Q_UNUSED(state)}
 
 private:
     QString name_;

@@ -8,6 +8,9 @@
 #include <QHttpRequestHeader>
 #include <QMouseEvent>
 #include <QDebug>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
 
 QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, FriendInfo curr_user_info, CaptchaInfo cap_info) : 
     QQChatDlg(gid, name, curr_user_info, cap_info),
@@ -46,6 +49,7 @@ QQGroupChatDlg::~QQGroupChatDlg()
 
 void QQGroupChatDlg::mousePressEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event)
   QPoint origin_pos = this->pos();
 
   QPoint origin_mouse_pos = QCursor::pos();
@@ -54,6 +58,7 @@ void QQGroupChatDlg::mousePressEvent(QMouseEvent *event)
 
 void QQGroupChatDlg::mouseMoveEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event)
     if (distance_pos_.isNull())
     {
         return;
@@ -90,6 +95,7 @@ void QQGroupChatDlg::getGfaceSig()
 
 void QQGroupChatDlg::getGfaceSigDone(bool err)
 {
+    Q_UNUSED(err)
     disconnect(&http_, SIGNAL(done(bool)), this, SLOT(getGfaceSigDone(bool)));
 
     QByteArray array = http_.readAll();
@@ -104,24 +110,105 @@ void QQGroupChatDlg::getGfaceSigDone(bool err)
     gface_sig_ = array.mid(gface_sig_idx, gface_sig_end_idx - gface_sig_idx);
 }
 
+void QQGroupChatDlg::createSql()
+{
+    QSqlQuery query;
+
+    query.exec("CREATE TABLE IF NOT EXISTS groupmemberinfo ("
+        "uin INTEGER,"
+        "gid INTERGER,"
+        "name VARCHAR(15),"
+        "avatarpath VARCHAR(20),"
+        "PRIMARY KEY (uin))");
+
+    if (query.lastError().isValid())
+    {
+        qDebug()<<query.lastError();
+    }
+    else
+    {
+        qDebug()<<"create groupmemberinfo db success"<<endl;
+    }
+}
+
+void QQGroupChatDlg::readFromSql()
+{
+    QSqlQuery query;
+    QString read_command = "SELECT * FROM groupmemberinfo WHERE groupmemberinfo.gid == %1";
+    query.exec(read_command.arg(id_));
+    
+    while (query.next())
+    {
+        QString uin = query.value(0).toString();
+        QString nick = query.value(2).toString();
+
+        QListWidgetItem *item = new QListWidgetItem(nick, ui->lw_members_);
+        item->setData(Qt::UserRole, uin);
+        convertor_.addUinNameMap(uin, nick);
+        item->setIcon(QIcon("1.bmp"));
+    }
+}
+
 void QQGroupChatDlg::getGroupMemberList()
 {
-    QString get_group_member_url = "/api/get_group_info_ext2?gcode=" + group_code_ + "&vfwebqq=" + cap_info_.vfwebqq_ + "&t="+ QString::number(QDateTime::currentMSecsSinceEpoch());
+    {
+        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+        db.setDatabaseName("qqgroupdb");
 
-    QHttpRequestHeader header("GET", get_group_member_url);
-    header.addValue("Host", "s.web2.qq.com");
-    header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001");
-    header.addValue("Cookie", cap_info_.cookie_);
+        if (!db.open())
+            return;
 
-    http_.setHost("s.web2.qq.com");
-    connect(&http_, SIGNAL(done(bool)), this, SLOT(getGroupMemberListDone(bool)));
+        QSqlQuery query;
+        query.exec("SELECT count(*) FROM sqlite_master WHERE type='table' and name='groupmemberinfo'");
 
-    http_.request(header);
+        if (!query.first())
+            qDebug()<<query.lastError()<<endl;
+
+        bool exist_group_member_table = query.value(0).toBool();
+
+        bool need_create_table = true;
+        if (exist_group_member_table)
+        {
+            query.exec("SELECT count(*) FROM groupmemberinfo WHERE gid == " + id_);
+
+            if (!query.first())
+                qDebug()<<query.lastError()<<endl;
+
+            int exist_record_count = query.value(0).toInt();
+
+            if (exist_record_count != 0)
+            {
+                need_create_table = false;
+                readFromSql();
+            }
+        }
+        if (need_create_table)
+        {
+            QString get_group_member_url = "/api/get_group_info_ext2?gcode=" + group_code_ + "&vfwebqq=" + cap_info_.vfwebqq_ + "&t="+ QString::number(QDateTime::currentMSecsSinceEpoch());
+
+            QHttpRequestHeader header("GET", get_group_member_url);
+            header.addValue("Host", "s.web2.qq.com");
+            header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001");
+            header.addValue("Cookie", cap_info_.cookie_);
+
+            http_.setHost("s.web2.qq.com");
+            connect(&http_, SIGNAL(done(bool)), this, SLOT(getGroupMemberListDone(bool)));
+
+            http_.request(header);
+        }
+    }
+    QString name; 
+    {
+        name = QSqlDatabase::database().connectionName();
+        QSqlDatabase::database(name).close();
+    }
+    QSqlDatabase::removeDatabase(name);
 }
 
 void QQGroupChatDlg::getGroupMemberListDone(bool err)
 {
     disconnect(&http_, SIGNAL(done(bool)), this, SLOT(getGroupMemberListDone(bool)));
+
     QByteArray array = http_.readAll();
     http_.close();
 
@@ -133,6 +220,17 @@ void QQGroupChatDlg::getGroupMemberListDone(bool err)
 
     Json::Value members = root["result"]["minfo"];
 
+    {
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName("qqgroupdb");
+
+    if (!db.open())
+        return;
+
+    QSqlQuery query;
+    QSqlDatabase::database().transaction();
+
+    createSql();
     for (unsigned int i = 0; i < members.size(); ++i)
     {
         QString nick = QString::fromStdString(members[i]["nick"].asString());
@@ -143,7 +241,18 @@ void QQGroupChatDlg::getGroupMemberListDone(bool err)
         convertor_.addUinNameMap(uin, nick);
 
         item->setIcon(QIcon("1.bmp"));
+        QString insert_command = "INSERT INTO groupmemberinfo VALUES (%1, %2, '%3', '%4')";
+        query.exec(insert_command.arg(uin).arg(id_).arg(nick).arg("test"));
     }
+    QSqlDatabase::database().commit();
+    }
+
+    QString name;{
+        name = QSqlDatabase::database().connectionName();
+        QSqlDatabase::database().close();
+    }
+    QSqlDatabase::removeDatabase(name);
+
     getGfaceSig();
 }
 

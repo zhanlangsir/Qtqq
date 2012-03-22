@@ -23,11 +23,17 @@ QQChatDlg::QQChatDlg(QString id, QString name, FriendInfo curr_user_info,
 QQChatDlg::~QQChatDlg()
 {
     if (img_sender_)
+    {
+        img_sender_->quit(); 
         delete img_sender_;
+    }
     img_sender_ = NULL;
 
     if (img_loader_)
+    {
+        img_sender_->quit(); 
         delete img_loader_;
+    }
     img_loader_ = NULL;
 
     if (qqface_panel_)
@@ -36,8 +42,7 @@ QQChatDlg::~QQChatDlg()
 
     if (msg_sender_)
     {
-        if(msg_sender_->isRunning())
-            msg_sender_->quit();
+        msg_sender_->quit();
         delete msg_sender_;
     }
     msg_sender_ = NULL;
@@ -218,9 +223,16 @@ void QQChatDlg::openQQFacePanel()
 {
     if (!qqface_panel_)
     {
-        qqface_panel_ = new QQFacePanel(this);
+        qqface_panel_ = new QQFacePanel();
         connect(qqface_panel_, SIGNAL(qqfaceClicked(QString)), &te_input_, SLOT(insertQQFace(QString)));
     }
+
+    //移动QQ表情面板位置
+    QPoint face_btn_pos = QCursor::pos();
+    QRect qqface_panel_geometry = qqface_panel_->frameGeometry();
+    int new_x = face_btn_pos.x() - qqface_panel_geometry.width() / 2;
+    int new_y = face_btn_pos.y() - qqface_panel_geometry.height() + 5;
+    qqface_panel_->setGeometry(new_x, new_y, qqface_panel_geometry.width(), qqface_panel_geometry.height());
     qqface_panel_->show();
 }
 
