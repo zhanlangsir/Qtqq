@@ -77,5 +77,3 @@ private:
     QVector<QQItem*> friends_info_;
     QStringList opening_chat_dlg_ids_;
 };
-
-#endif // MAINPANEL_H

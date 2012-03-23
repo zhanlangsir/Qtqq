@@ -30,7 +30,7 @@ QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user
    connect(ui->tb_mini_, SIGNAL(clicked()), this, SLOT(showMinimized()));
 
    setWindowOpacity(1);
-   setWindowFlags(Qt::FramelessWindowHint);
+   setWindowFlags(Qt::SubWindow|Qt::FramelessWindowHint);
 
    ui->lbl_name_->setText(name_);
 

@@ -35,7 +35,7 @@ QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, Fr
 
     ui->lbl_name_->setText(name_);
    setWindowOpacity(1);
-   setWindowFlags(Qt::FramelessWindowHint);
+   setWindowFlags(Qt::SubWindow | Qt::FramelessWindowHint);
 
    send_url_ = "/channel/send_qun_msg2";
 
