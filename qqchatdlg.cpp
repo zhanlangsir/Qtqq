@@ -44,6 +44,7 @@ QQChatDlg::~QQChatDlg()
     {
         msg_sender_->terminate();
         msg_sender_->quit();
+        msg_sender_->wait();
         delete msg_sender_;
     }
     msg_sender_ = NULL;
@@ -192,7 +193,6 @@ void QQChatDlg::sendMsg()
     if (!msg_sender_)
     {
         msg_sender_ = new QQMsgSender();
-        msg_sender_->start();
     }
     
     msg_sender_->send(req);
@@ -213,8 +213,7 @@ void QQChatDlg::sendMsg()
     if (!mes_doc->isEmpty())
         cursor.insertText("\n");
 
-    if (!te_messages_.document()->isEmpty())
-        cursor.insertText(curr_user_info_.name() + " " + QDateTime::currentDateTime().toString("dd ap hh:mm:ss") + "\n");
+    cursor.insertText(curr_user_info_.name() + " " + QDateTime::currentDateTime().toString("dd ap hh:mm:ss") + "\n");
     cursor.insertHtml(te_input_.toHtml());
 
     te_input_.clearAll();
