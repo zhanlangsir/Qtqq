@@ -31,7 +31,7 @@ QQChatDlg::~QQChatDlg()
 
     if (img_loader_)
     {
-        img_sender_->quit(); 
+        img_loader_->quit();
         delete img_loader_;
     }
     img_loader_ = NULL;
@@ -42,6 +42,7 @@ QQChatDlg::~QQChatDlg()
 
     if (msg_sender_)
     {
+        msg_sender_->terminate();
         msg_sender_->quit();
         delete msg_sender_;
     }

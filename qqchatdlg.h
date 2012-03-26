@@ -16,7 +16,7 @@ class QQChatDlg : public QDialog, public QQMsgListener
 {
     Q_OBJECT
 signals:
-    void chatFinish(QQMsgListener *listener);
+    void chatFinish(QQChatDlg *listener);
 
 public:
     QQChatDlg(QString id, QString name, FriendInfo curr_user_info, CaptchaInfo cap_info, QWidget *parent = 0);

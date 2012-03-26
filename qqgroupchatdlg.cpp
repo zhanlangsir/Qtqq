@@ -35,7 +35,7 @@ QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, Fr
 
     ui->lbl_name_->setText(name_);
    setWindowOpacity(1);
-   setWindowFlags(Qt::SubWindow | Qt::FramelessWindowHint);
+   setWindowFlags(Qt::FramelessWindowHint);
 
    send_url_ = "/channel/send_qun_msg2";
 
@@ -149,6 +149,87 @@ void QQGroupChatDlg::readFromSql()
     }
 }
 
+/*void QQGroupChatDlg::getGroupMemberList()
+{
+    QString get_group_member_url = "/api/get_group_info_ext2?gcode=" + group_code_ + "&vfwebqq=" + cap_info_.vfwebqq_ + "&t="+ QString::number(QDateTime::currentMSecsSinceEpoch());
+
+    Request req;
+    req.create(kGet, get_group_member_url);
+    req.addHeaderItem("Host", "s.web2.qq.com");
+    req.addHeaderItem("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001");
+    req.addHeaderItem("Cookie", cap_info_.cookie_);
+
+    fd_.connectToHost("s.web2.qq.com", 80);
+    fd_.write(req.toByteArray());
+
+    fd_.waitForReadyRead();
+
+    QByteArray result;
+    result.append(fd_.readAll());
+    result = result.mid(result.indexOf("\r\n\r\n")+4);
+
+    QByteArray encryed_content;
+    int chunk_size = 0;
+    bool need_read_more =false;
+    while (true)
+    {
+        if (need_read_more)
+        {
+            fd_.waitForReadyRead();
+            result.append(fd_.readAll());
+        }
+
+        if ( result.length() < chunk_size )
+        {
+            need_read_more = true;
+            continue;
+        }
+
+        if (chunk_size == 0)
+        {
+            int len_idx = result.indexOf("\r\n");
+            if (len_idx == -1)
+            {
+                need_read_more = true;
+                continue;
+            }
+
+            chunk_size = result.mid(0,len_idx).toInt();
+            result = result.mid(len_idx + 2);
+
+            if (chunk_size == 0)
+                break;
+        }
+
+        int n = result.length();
+        //确保可以读取到chunked后面的\r\n终止符，否则读取chunk_size-2个字节，剩余
+        //1-2字节下次再读取
+        if ((n == chunk_size) || (n == chunk_size + 1))
+            n = chunk_size - 2;
+
+        int to_read = qMin(n, chunk_size);
+        encryed_content.append(result.mid(0,to_read));
+
+        chunk_size -= to_read;
+
+        if (chunk_size <= 0)
+        {
+            chunk_size = 0;
+            result = result.mid(chunk_size + 2);
+        }
+        else
+        {
+            need_read_more = true;
+            result = result.mid(to_read);
+        }
+    }
+
+    QFile file("chunk");
+    file.open(QIODevice::WriteOnly);
+    file.write(encryed_content);
+    file.close();
+}*/
+
 void QQGroupChatDlg::getGroupMemberList()
 {
     {
@@ -251,9 +332,9 @@ void QQGroupChatDlg::getGroupMemberListDone(bool err)
         name = QSqlDatabase::database().connectionName();
         QSqlDatabase::database().close();
     }
-    QSqlDatabase::removeDatabase(name);
+   QSqlDatabase::removeDatabase(name);
 
-    getGfaceSig();
+   getGfaceSig();
 }
 
 QString QQGroupChatDlg::converToJson(const QString &raw_msg)

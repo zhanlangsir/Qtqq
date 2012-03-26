@@ -13,6 +13,7 @@ void QQMsgSender::run()
     while(true)
     {
         msg_count_.acquire();
+
         Request req = msgs_be_send_.dequeue();
 
         QTcpSocket fd;

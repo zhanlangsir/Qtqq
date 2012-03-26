@@ -13,6 +13,7 @@
 #include "nameconvertor.h"
 #include "types.h"
 #include "qqpollthread.h"
+#include "qqchatdlg.h"
 #include "qqparsethread.h"
 
 class QHttp;
@@ -44,7 +45,7 @@ private slots:
     void getPersonalFaceDone(bool err);
     void getPersonalInfoDone(bool err);
     void openChatDlg(QQMsg::MsgType type, QString gid);
-    void closeChatDlg(QQMsgListener *listener);
+    void closeChatDlg(QQChatDlg *listener);
     void openChatDlgByDoubleClick(const QModelIndex& index);
     void changeFriendStatus(QString id, FriendStatus state);
 
@@ -75,5 +76,5 @@ private:
     NameConvertor convertor_;
     QVector<GroupInfo*> groups_info_;
     QVector<QQItem*> friends_info_;
-    QStringList opening_chat_dlg_ids_;
+    QVector<QQChatDlg*> opening_chatdlg_;
 };

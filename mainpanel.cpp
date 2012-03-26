@@ -45,13 +45,19 @@ QQMainPanel::QQMainPanel(CaptchaInfo cap_info, FriendInfo user_info, QWidget *pa
 }
 
 QQMainPanel::~QQMainPanel()
-{
+{  
     main_http_->close();
     delete ui;
 }
 
 void QQMainPanel::closeEvent(QCloseEvent *)
 {
+    QQChatDlg *dlg = NULL;
+    foreach(dlg, opening_chatdlg_)
+    {
+        dlg->close();
+    }
+
     if (QFile::exists("qqgroupdb"))
     {
         QFile::remove("qqgroupdb");
@@ -383,14 +389,18 @@ void QQMainPanel::openChatDlgByDoubleClick(const QModelIndex& index)
 
 void QQMainPanel::openChatDlg(QQMsg::MsgType type, QString id)
 {
-    if (opening_chat_dlg_ids_.contains(id))
-        return;
+    QQChatDlg *chatdlg = NULL;
+    foreach(chatdlg, opening_chatdlg_)
+    {
+        if (chatdlg->id() == id)
+            return;
+    }
 
     QQChatDlg *dlg = NULL;
     if (type == QQMsg::kFriend)
     {
         dlg= new QQFriendChatDlg(id, convertor_.convert(id), curr_user_info_, cap_info_);
-        connect(dlg, SIGNAL(chatFinish(QQMsgListener*)), this, SLOT(closeChatDlg(QQMsgListener*)));
+        connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
         msg_center_->registerListener(dlg);
     }
     else //kGroup
@@ -401,19 +411,18 @@ void QQMainPanel::openChatDlg(QQMsg::MsgType type, QString id)
             if (info->id() == id)
                 break; //跳出foreach,而不是if
         }
-
         dlg = new QQGroupChatDlg(id, convertor_.convert(id), info->code(), curr_user_info_, cap_info_);
-        connect(dlg, SIGNAL(chatFinish(QQMsgListener*)), this, SLOT(closeChatDlg(QQMsgListener*)));
+        connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
+
         msg_center_->registerListener(dlg);
     }
-
-    opening_chat_dlg_ids_.append(id);
+    opening_chatdlg_.append(dlg);
     dlg->move((QApplication::desktop()->width() - dlg->width()) /2, (QApplication::desktop()->height() - dlg->height()) /2);
 }
 
-void QQMainPanel::closeChatDlg(QQMsgListener *listener)
+void QQMainPanel::closeChatDlg(QQChatDlg *listener)
 {
-    opening_chat_dlg_ids_.removeOne(listener->id());
+    opening_chatdlg_.remove(opening_chatdlg_.indexOf(listener));
     msg_center_->removeListener(listener);
     delete listener;
 }
