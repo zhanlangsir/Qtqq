@@ -9,6 +9,9 @@
 class QQMsgSender : public QThread
 {
 public:
+    ~QQMsgSender();
+
+public:
     void send(const Request &msg);
 
 protected:
@@ -16,5 +19,5 @@ protected:
 
 private:
     QQueue<Request> msgs_be_send_;
-    QSemaphore msg_count_;
+    //QSemaphore msg_count_;
 };

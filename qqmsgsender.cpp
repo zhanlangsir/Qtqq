@@ -2,6 +2,11 @@
 
 #include <QTcpSocket>
 
+
+QQMsgSender::~QQMsgSender()
+{
+}
+
 void QQMsgSender::send(const Request &req)
 {
     msgs_be_send_.enqueue(req);
@@ -9,7 +14,7 @@ void QQMsgSender::send(const Request &req)
 }
 
 void QQMsgSender::run()
-{
+{  
     Request req = msgs_be_send_.dequeue();
 
     QTcpSocket fd;
@@ -17,7 +22,7 @@ void QQMsgSender::run()
     fd.write(req.toByteArray());
 
     fd.waitForReadyRead();
-    qDebug()<<fd.readAll();
+    fd.readAll();
 
     fd.close();
 }
