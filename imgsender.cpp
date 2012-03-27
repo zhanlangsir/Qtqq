@@ -45,9 +45,21 @@ void ImgSender::run()
     fd.connectToHost(host_, 80);
     fd.write(req_.toByteArray(), req_.toByteArray().length());
 
+    fd.waitForReadyRead();
     QByteArray array;
-    while(fd.waitForReadyRead(5000))
+    array.append(fd.readAll());
+    int length_idx = array.indexOf("Content-Length") + 16;
+    int length_end_idx = array.indexOf("\r\n", length_idx);
+
+    QString length_str = array.mid(length_idx, length_end_idx - length_idx);
+    int content_length = length_str.toInt();
+
+    int img_idx = array.indexOf("\r\n\r\n")+4;
+    array = array.mid(img_idx);
+
+    while (array.length() < content_length)
     {
+        fd.waitForReadyRead();
         array.append(fd.readAll());
     }
 

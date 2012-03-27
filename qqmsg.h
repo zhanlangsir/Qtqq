@@ -18,7 +18,7 @@ struct FontInfo
 class QQChatItem
 {
 public:
-    enum ChatItemType {kQQFace, kFriendChatImg, kGroupChatImg, kWord};
+    enum ChatItemType {kQQFace, kFriendOffpic, kFriendCface, kGroupChatImg, kWord};
     QQChatItem(ChatItemType type, QString content) : type_(type), content_(content) {}
     QQChatItem() {}
 

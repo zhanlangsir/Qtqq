@@ -36,6 +36,8 @@ QQMainPanel::QQMainPanel(CaptchaInfo cap_info, FriendInfo user_info, QWidget *pa
     convertor_.addUinNameMap(user_info.id(), tr("you"));
     msg_tip_->setConvertor(&convertor_);
 
+    setWindowTitle(curr_user_info_.name());
+
     move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
 
     if (QFile::exists("qqgroupdb"))

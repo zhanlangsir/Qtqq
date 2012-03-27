@@ -5,24 +5,19 @@
 void QQMsgSender::send(const Request &req)
 {
     msgs_be_send_.enqueue(req);
-    msg_count_.release();
+    start();
 }
 
 void QQMsgSender::run()
 {
-    while(true)
-    {
-        msg_count_.acquire();
+    Request req = msgs_be_send_.dequeue();
 
-        Request req = msgs_be_send_.dequeue();
+    QTcpSocket fd;
+    fd.connectToHost("d.web2.qq.com", 80);
+    fd.write(req.toByteArray());
 
-        QTcpSocket fd;
-        fd.connectToHost("d.web2.qq.com", 80);
-        fd.write(req.toByteArray());
+    fd.waitForReadyRead();
+    qDebug()<<fd.readAll();
 
-        fd.waitForReadyRead();
-        fd.readAll();
-
-        fd.close();
-    }
+    fd.close();
 }

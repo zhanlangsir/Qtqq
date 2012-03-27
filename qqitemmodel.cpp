@@ -17,18 +17,25 @@ QVariant QQItemModel::data(const QModelIndex &index, int role) const
         if (item->type() == QQItem::kCategory)
             return QVariant();
 
-        QIcon icon("1.bmp");
         QPixmap pix;
         if (item->type() == QQItem::kFriend)
         {
+            QIcon icon("1.bmp");
+
             if (item->state() == kLeave)
             {
                 pix = icon.pixmap(QSize(60, 60), QIcon::Disabled, QIcon::On);
-                return pix;
             }
+            else
+                pix = icon.pixmap(QSize(60,60));
         }
 
-        pix = icon.pixmap(QSize(60,60));
+        if (item->type() == QQItem::kGroup)
+        {
+            QIcon icon("group.png");
+
+            pix = icon.pixmap(QSize(60,60));
+        }
 
         return pix;
     }
@@ -38,9 +45,7 @@ QVariant QQItemModel::data(const QModelIndex &index, int role) const
 
         return QVariant();
     }
-
-
-   else
+    else
     {
         return item->name();
     }

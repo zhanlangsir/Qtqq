@@ -4,13 +4,13 @@
 #include <QFile>
 #include <QDebug>
 
-void ImgLoader::loadFriendChatImg(const QString &file_name, const QString &to_uin, const QString &msg_id)
+void ImgLoader::loadFriendCface(const QString &file_name, const QString &to_uin, const QString &msg_id)
 {
     LoadInfo info;
+
     info.img_name_ = file_name;
     info.path_ = "temp/" + file_name;
     info.url_ = "/channel/get_cface2?lcid="+msg_id+"&guid="+file_name+"&to="+ to_uin+ "&count=5&time=1&clientid=5412354841&psessionid="+cap_info_.psessionid_;
-
     info.host_ = "d.web2.qq.com";
 
     info.header_.create(kGet, info.url_);
@@ -22,6 +22,26 @@ void ImgLoader::loadFriendChatImg(const QString &file_name, const QString &to_ui
 
     img_count_.release();
 }
+
+void ImgLoader::loadFriendOffpic(const QString &file_name, const QString &to_uin, const QString &msg_id)
+{
+    LoadInfo info;
+    info.img_name_ = file_name;
+    info.path_ = "temp/" + file_name;
+
+    info.url_ = "/channel/get_offpic2?file_path=" +file_name + "&f_uin=" + to_uin + "&clientid=5412354841&psessionid="+cap_info_.psessionid_;
+    info.host_ = "d.web2.qq.com";
+
+    info.header_.create(kGet, info.url_);
+    info.header_.addHeaderItem("Host", info.host_);
+    info.header_.addHeaderItem("Referer", "http://web.qq.com");
+    info.header_.addHeaderItem("Cookie", cap_info_.cookie_);
+
+    infos_.enqueue(info);
+
+    img_count_.release();
+}
+
 
 void ImgLoader::loadGroupChatImg(const QString &file_name, const QString &gid, const QString &time)
 {
@@ -59,10 +79,21 @@ void ImgLoader::run()
         int end_idx = array.indexOf("\r\n", idx);
         QByteArray url = array.mid(idx, end_idx - idx);
 
-        int host_end_idx = url.indexOf("com")+3;
-        QString host = url.mid(0, host_end_idx);
+        int host_end_idx = url.indexOf("com");
 
-        QString file_url = url.mid(host_end_idx);
+        QString host;
+        if (host_end_idx == -1)
+        {
+            host_end_idx  = url.indexOf(":");
+            host = url.mid(0, host_end_idx);
+        }
+        else
+        {
+            host = url.mid(0, host_end_idx+3);
+        }
+
+        int file_idx = url.indexOf("/");
+        QString file_url = url.mid(file_idx);
         fd_.close();
 
         Request req;

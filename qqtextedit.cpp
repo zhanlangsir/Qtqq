@@ -64,8 +64,17 @@ void QQTextEdit::setRealImg(const QString &unique_id, const QString &path)
 {
     file_ids_.append(unique_id);
 
+    QFile file(path);
+    file.open(QIODevice::ReadOnly);
+    QByteArray data = file.readAll();
+    file.close();
+
+    QImage real_img;
+    real_img.loadFromData(data);
+
     document()->addResource(QTextDocument::ImageResource,   //�滻ͼƬΪ��ǰ֡
-                            QUrl(unique_id), QImage(path));
+                            QUrl(unique_id), real_img);
+    this->update();
     QMovie *mov = id_mov_hash_.value(unique_id);
     mov->stop();
     mov->setFileName(path);

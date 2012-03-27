@@ -44,6 +44,7 @@ QQChatDlg::~QQChatDlg()
     {
         msg_sender_->terminate();
         msg_sender_->quit();
+        msg_sender_->wait();
         delete msg_sender_;
     }
     msg_sender_ = NULL;
@@ -152,8 +153,11 @@ void QQChatDlg::showMsg(const QQMsg *msg)
                     const QQGroupChatMsg *chat_msg = static_cast<const QQGroupChatMsg*>(msg);
                     img_loader_->loadGroupChatImg(chat_msg->msg_[i].content(), chat_msg->info_seq_, QString::number(chat_msg->time_));
                 }
-                else //kFriendChatImg
-                    img_loader_->loadGroupChatImg(chat_msg->msg_[i].content(), id_, chat_msg->msg_id_);
+                else if (chat_msg->msg_[i].type() == QQChatItem::kFriendCface)
+                    img_loader_->loadFriendCface(chat_msg->msg_[i].content(), id_, chat_msg->msg_id_);
+                else
+                    img_loader_->loadFriendOffpic(chat_msg->msg_[i].content(), id_, chat_msg->msg_id_);
+
                 te_messages_.showProxyFor(chat_msg->msg_[i].content());
             }
         }
@@ -192,11 +196,9 @@ void QQChatDlg::sendMsg()
     if (!msg_sender_)
     {
         msg_sender_ = new QQMsgSender();
-        msg_sender_->start();
     }
     
     msg_sender_->send(req);
-
 
     //清除te_input,添加到te_messages中
     QTextDocument *mes_doc = te_messages_.document();
@@ -213,8 +215,7 @@ void QQChatDlg::sendMsg()
     if (!mes_doc->isEmpty())
         cursor.insertText("\n");
 
-    if (!te_messages_.document()->isEmpty())
-        cursor.insertText(curr_user_info_.name() + " " + QDateTime::currentDateTime().toString("dd ap hh:mm:ss") + "\n");
+    cursor.insertText(curr_user_info_.name() + " " + QDateTime::currentDateTime().toString("dd ap hh:mm:ss") + "\n");
     cursor.insertHtml(te_input_.toHtml());
 
     te_input_.clearAll();

@@ -19,6 +19,7 @@ void QQParseThread::run()
         {
             continue;
         }    
+        qDebug()<<"reader parse done"<<endl;
 
         if (root["retcode"].asInt() == 121)
         {
@@ -107,6 +108,7 @@ QQMsg* QQParseThread::createMsg(QString type, const Json::Value result)
     }
     else if (type == "message")
     {
+        qDebug()<<"message parseing"<<endl;
         QQChatMsg *chat_msg = new QQChatMsg();
         chat_msg->set_type(QQMsg::kFriend);
         chat_msg->from_uin_ = QString::number(result["value"]["from_uin"].asLargestInt());
@@ -136,14 +138,20 @@ QQMsg* QQParseThread::createMsg(QString type, const Json::Value result)
                     item.set_type(QQChatItem::kQQFace);
                     item.set_content(QString::number(content[1].asInt()));
                 }
+                else if (face_type == "offpic")
+                {
+                    item.set_type(QQChatItem::kFriendOffpic);
+                    item.set_content(QString::fromStdString(content[1]["file_path"].asString()));
+                }
                 else
                 {
-                    item.set_type(QQChatItem::kFriendChatImg);
+                    item.set_type(QQChatItem::kFriendCface);
                     item.set_content(QString::fromStdString(content[1].asString()));
                 }
             }
             chat_msg->msg_.append(item);
         }
+
         return chat_msg;
     }
     else

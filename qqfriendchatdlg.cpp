@@ -32,8 +32,11 @@ QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user
    setWindowOpacity(1);
    setWindowFlags(Qt::FramelessWindowHint);
 
+   setWindowTitle(name_);
+
    ui->lbl_name_->setText(name_);
 
+   convertor_.addUinNameMap(id_, name_);
    send_url_ = "/channel/send_buddy_msg2";
 }
 
