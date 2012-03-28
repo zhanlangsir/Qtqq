@@ -251,7 +251,14 @@ void QQChatDlg::showOldMsg(QVector<QQMsg *> msgs)
 {
     QQMsg *msg;
     foreach(msg, msgs)
+    {
         showMsg(msg);
+
+        if (type() == kGroup)
+        {
+            unconvert_ids_.append(msg->sendUin());
+        }
+    }
 
     this->show();
 }

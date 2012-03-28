@@ -36,6 +36,7 @@ private:
     void getGroupMemberList();
     void createSql();
     void readFromSql();
+    void replaceUnconverId();
 
 private:
     Ui::QQGroupChatDlg *ui;

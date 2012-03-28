@@ -18,9 +18,17 @@ QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, Fr
     group_code_(group_code)
 {
    ui->setupUi(this);
+   set_type(QQChatDlg::kGroup);
 
    ui->split_left_->insertWidget(0, &te_messages_);
-   ui->spliter_main_->setStretchFactor(0, 1);
+
+   ui->spliter_main_->setChildrenCollapsible(false);
+
+   QList<int> sizes;
+   sizes.append(1000);
+   sizes.append(ui->spliter_right_->midLineWidth());
+   ui->spliter_main_->setSizes(sizes);
+
    ui->v_layout_left_->insertWidget(3, &te_input_);
 
    QScrollBar *bar = te_messages_.verticalScrollBar();
@@ -33,7 +41,7 @@ QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, Fr
    connect(ui->tb_close_, SIGNAL(clicked()), this, SLOT(close()));
    connect(ui->tb_mini_, SIGNAL(clicked()), this, SLOT(showMinimized()));
 
-    ui->lbl_name_->setText(name_);
+   ui->lbl_name_->setText(name_);
    setWindowOpacity(1);
    setWindowFlags(Qt::FramelessWindowHint);
    setWindowTitle(name_);
@@ -150,6 +158,16 @@ void QQGroupChatDlg::readFromSql()
         convertor_.addUinNameMap(uin, nick);
         item->setIcon(QIcon("1.bmp"));
     }
+    replaceUnconverId();
+}
+
+void QQGroupChatDlg::replaceUnconverId()
+{
+    QString id;
+    foreach (id, unconvert_ids_)
+    {
+        te_messages_.replaceIdToName(id, convertor_.convert(id));
+    }
 }
 
 void QQGroupChatDlg::getGroupMemberList()
@@ -255,6 +273,8 @@ void QQGroupChatDlg::getGroupMemberListDone(bool err)
         QSqlDatabase::database().close();
     }
    QSqlDatabase::removeDatabase(name);
+
+   replaceUnconverId();
 }
 
 QString QQGroupChatDlg::converToJson(const QString &raw_msg)

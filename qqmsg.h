@@ -47,6 +47,7 @@ public:
     void set_type(MsgType type)
     { type_ = type; }
 
+    virtual QString sendUin() const { return ""; }
     virtual QString talkTo() const { return ""; }
 
 protected:
@@ -60,7 +61,7 @@ class QQChatMsg : public QQMsg
 public:
     QString talkTo() const
     { return from_uin_; }
-    virtual QString sendUin() const
+    QString sendUin() const
     { return from_uin_; }
     QString msg_id_;
     QString msg_id2_;
@@ -92,13 +93,9 @@ public:
 class QQStatusChangeMsg : public QQMsg
 {
 public:
-    /*
-    FriendStatus status() const
-    { return status_; }
-    void set_status(FriendStatus status)
-    { status_ = status; }
+    QString sendUin() const
+    { return uin_; }
 
-private:*/
     QString uin_;
     FriendStatus status_;
     int client_type_;

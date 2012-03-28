@@ -19,6 +19,7 @@ signals:
     void chatFinish(QQChatDlg *listener);
 
 public:
+    enum ChatDlgType {kGroup, kFriend};
     QQChatDlg(QString id, QString name, FriendInfo curr_user_info, CaptchaInfo cap_info, QWidget *parent = 0);
     virtual ~QQChatDlg();
 
@@ -40,6 +41,11 @@ public:
         return QDateTime::currentDateTime().toString("MM-dd-hh-mm-ss");
     }
 
+    void set_type(ChatDlgType type)
+    { type_ = type; }
+    ChatDlgType type() const
+    { return type_; }
+
 
 protected:
     void closeEvent(QCloseEvent *);
@@ -57,6 +63,7 @@ protected:
     CaptchaInfo cap_info_;
     QTcpSocket fd_;
     NameConvertor convertor_;
+    QVector<QString> unconvert_ids_;
 
 private slots:
     void openPathDialog(bool);
@@ -80,4 +87,6 @@ private:
     ImgSender *img_sender_;
     QQFacePanel *qqface_panel_;
     QQMsgSender *msg_sender_;
+
+    ChatDlgType type_;
 };

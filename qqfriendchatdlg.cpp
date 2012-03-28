@@ -15,6 +15,7 @@ QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user
     ui(new Ui::QQFriendChatDlg())
 {
    ui->setupUi(this);
+   set_type(QQChatDlg::kFriend);
 
    ui->v_show_layout_->insertWidget(ui->v_show_layout_->indexOf(ui->second_line_)+1, &te_messages_);
    ui->v_bottom_layout_->insertWidget(ui->v_bottom_layout_->indexOf(ui->fourth_line_)+1, &te_input_);

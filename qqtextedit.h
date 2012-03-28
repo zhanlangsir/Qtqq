@@ -27,6 +27,8 @@ public:
     void insertWord(const QString &text, QFont font, QColor color, int size);
     void addAnimaImg(const QString& unique_id, const QVariant &resource, QMovie *mov);
     void appendDocument(const QTextDocument *doc);
+    void replaceIdToName(QString id, QString name);
+
     void clearAll()
     {
         file_ids_.clear();

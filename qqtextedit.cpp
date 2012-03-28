@@ -115,6 +115,17 @@ void QQTextEdit::insertImgProxy(const QString &unique_id)
     movie->start();
 }
 
+void QQTextEdit::replaceIdToName(QString id, QString name)
+{
+    QTextDocument *doc = this->document();
+    QTextCursor cursor = doc->find(id, QTextCursor());
+
+    if (cursor.isNull())
+        return;
+
+    cursor.insertText(name);
+}
+
 void QQTextEdit::setRealImg(const QString &unique_id, const QString &path)
 {
     file_ids_.append(unique_id);
