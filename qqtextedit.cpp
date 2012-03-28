@@ -3,10 +3,65 @@
 
 #include <QHelpEvent>
 #include <QToolTip>
+#include <QTextCursor>
+#include <QTextDocument>
+#include <QTextBlock>
+#include <QTextBlockFormat>
+#include <QTextCharFormat>
 
 QQTextEdit::QQTextEdit(QWidget *parent) : QTextEdit(parent)
 {
 
+}
+
+void QQTextEdit::appendDocument(const QTextDocument *doc)
+{
+    QTextCursor cursor(this->document());
+
+    QTextBlockFormat format;
+    format.setLeftMargin(8);
+    format.setTopMargin(5);
+    format.setLineHeight(5, QTextBlockFormat::LineDistanceHeight);
+    cursor.movePosition(QTextCursor::End);
+    cursor.mergeBlockFormat(format);
+    cursor.insertHtml(doc->toHtml());
+}
+
+void QQTextEdit::insertNameLine(const QString &name, QColor color)
+{
+    QTextBlockFormat block_format;
+
+    QTextCharFormat char_format;
+    char_format.setForeground(QBrush(color));
+
+    QTextCursor cursor(this->document());
+
+    cursor.movePosition(QTextCursor::End);
+    cursor.insertBlock(block_format, char_format);
+
+    cursor.insertText(name);
+
+    cursor.movePosition(QTextCursor::End);
+    cursor.insertBlock();
+}
+
+void QQTextEdit::insertWord(const QString &text, QFont font, QColor color, int size)
+{
+    QTextBlockFormat block_format;
+    block_format.setLeftMargin(8);
+    block_format.setTopMargin(5);
+    block_format.setLineHeight(5, QTextBlockFormat::LineDistanceHeight);
+
+    QTextCharFormat char_format;
+    char_format.setForeground(color);
+    char_format.setFont(font);
+    char_format.setFontPointSize(size);
+
+    QTextCursor cursor(this->document());
+    cursor.movePosition(QTextCursor::End);
+    cursor.setBlockFormat(block_format);
+    cursor.setBlockCharFormat(char_format);
+    cursor.insertText(text);
 }
 
 void QQTextEdit::insertQQFace(const QString &face_id)
@@ -38,7 +93,7 @@ void QQTextEdit::insertQQFace(const QString &face_id)
    movie->start();
 }
 
-void QQTextEdit::showProxyFor(const QString &unique_id)
+void QQTextEdit::insertImgProxy(const QString &unique_id)
 {
     QTextDocument *doc = document();
     QTextCursor cursor(doc);
@@ -81,15 +136,6 @@ void QQTextEdit::setRealImg(const QString &unique_id, const QString &path)
     mov->setCacheMode(QMovie::CacheNone);
     connect(mov, SIGNAL(frameChanged(int)), this, SLOT(animate(int)));
     mov->start();
-}
-
-void QQTextEdit::insertText(const QString &text)
-{
-    QTextDocument *doc = document();
-    QTextCursor cursor(doc);
-    cursor.movePosition(QTextCursor::End);
-
-    cursor.insertText(text);
 }
 
 void QQTextEdit::addAnimaImg(const QString &unique_id, const QVariant &resource, QMovie *mov)

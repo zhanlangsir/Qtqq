@@ -18,6 +18,9 @@ QQChatDlg::QQChatDlg(QString id, QString name, FriendInfo curr_user_info,
     msg_sender_(NULL)
 {
     qRegisterMetaType<FileInfo>("FileInfo");
+    setFontStyle(QFont(), Qt::black, 9);
+
+    te_messages_.setReadOnly(true);
 }
 
 QQChatDlg::~QQChatDlg()
@@ -99,12 +102,28 @@ void QQChatDlg::openPathDialog(bool)
 
     QString unique_id = getUniqueId();
     img_sender_->send(unique_id, file_path, curr_user_info_.id(), cap_info_);
-    te_input_.showProxyFor(unique_id);
+    te_input_.insertImgProxy(unique_id);
 }
 
 void QQChatDlg::setFileInfo(QString unique_id, FileInfo file_info)
 {
     id_file_hash_.insert(unique_id, file_info);
+}
+
+void QQChatDlg::setFontStyle(QFont font, QColor color, int size)
+{
+    QTextBlockFormat block_format;
+    block_format.setTopMargin(5);
+    block_format.setLineHeight(5, QTextBlockFormat::LineDistanceHeight);
+
+    QTextCharFormat char_format;
+    char_format.setForeground(color);
+    char_format.setFont(font);
+    char_format.setFontPointSize(size);
+
+    QTextCursor cursor(te_input_.document());
+    cursor.setBlockFormat(block_format);
+    cursor.setBlockCharFormat(char_format);
 }
 
 void QQChatDlg::showMsg(const QQMsg *msg)
@@ -117,12 +136,7 @@ void QQChatDlg::showMsg(const QQMsg *msg)
     date_time.setMSecsSinceEpoch(time * 1000);
     QString time_str = date_time.toString("dd ap hh:mm:ss");
 
-    te_messages_.append(convertor_.convert(chat_msg->sendUin()) + " " + time_str);
-
-    QTextDocument *doc = te_messages_.document();
-    QTextCursor cursor(doc);
-    cursor.movePosition(QTextCursor::End);
-    cursor.insertText("\n");
+    te_messages_.insertNameLine(convertor_.convert(chat_msg->sendUin()) + " " + time_str, Qt::blue);
 
     for (int i = 0; i < chat_msg->msg_.size(); ++i)
     {
@@ -131,7 +145,7 @@ void QQChatDlg::showMsg(const QQMsg *msg)
             te_messages_.insertQQFace(chat_msg->msg_[i].content());
         }
         else if (chat_msg->msg_[i].type() == QQChatItem::kWord)
-            te_messages_.insertText(chat_msg->msg_[i].content());
+            te_messages_.insertWord(chat_msg->msg_[i].content(), QFont(), Qt::black, 9);
         else
         {
             if (!img_loader_)
@@ -158,7 +172,7 @@ void QQChatDlg::showMsg(const QQMsg *msg)
                 else
                     img_loader_->loadFriendOffpic(chat_msg->msg_[i].content(), id_, chat_msg->msg_id_);
 
-                te_messages_.showProxyFor(chat_msg->msg_[i].content());
+                te_messages_.insertImgProxy(chat_msg->msg_[i].content());
             }
         }
     }
@@ -201,7 +215,6 @@ void QQChatDlg::sendMsg()
     msg_sender_->send(req);
 
     //清除te_input,添加到te_messages中
-    QTextDocument *mes_doc = te_messages_.document();
     QTextDocument *inp_doc = te_input_.document();
 
     for (int i = 0; i < te_input_.resourceIds().size(); ++i)
@@ -210,15 +223,11 @@ void QQChatDlg::sendMsg()
         te_messages_.addAnimaImg(file_id, inp_doc->resource(QTextDocument::ImageResource, QUrl(file_id)), te_input_.getMovieById(file_id));
     }
 
-    QTextCursor cursor(mes_doc);
-    cursor.movePosition(QTextCursor::End);
-    if (!mes_doc->isEmpty())
-        cursor.insertText("\n");
-
-    cursor.insertText(curr_user_info_.name() + " " + QDateTime::currentDateTime().toString("dd ap hh:mm:ss") + "\n");
-    cursor.insertHtml(te_input_.toHtml());
+    te_messages_.insertNameLine(curr_user_info_.name() + " " + QDateTime::currentDateTime().toString("dd ap hh:mm:ss"), Qt::darkGreen);
+    te_messages_.appendDocument(te_input_.document());
 
     te_input_.clearAll();
+    te_input_.setFocus();
 }
 
 void QQChatDlg::openQQFacePanel()

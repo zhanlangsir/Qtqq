@@ -12,6 +12,8 @@
 #include <QEvent>
 #include <QToolTip>
 
+class QTextDocument;
+
 class QQTextEdit : public QTextEdit
 {
     Q_OBJECT
@@ -20,9 +22,11 @@ public:
     QQTextEdit(QWidget *parent = 0);
 
 public:
-    void showProxyFor(const QString &unique_id);
-    void insertText(const QString &text);
+    void insertImgProxy(const QString &unique_id);
+    void insertNameLine(const QString &text, QColor color);
+    void insertWord(const QString &text, QFont font, QColor color, int size);
     void addAnimaImg(const QString& unique_id, const QVariant &resource, QMovie *mov);
+    void appendDocument(const QTextDocument *doc);
     void clearAll()
     {
         file_ids_.clear();

@@ -62,6 +62,7 @@ private slots:
     void openPathDialog(bool);
     void openQQFacePanel();
     void sendMsg();
+    void setFontStyle(QFont font, QColor color, int size);
     void setFileInfo(QString unique_id, FileInfo file_info);
     void silderToBottom(int min, int max)
     { 
