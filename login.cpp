@@ -24,7 +24,6 @@ QQLogin::QQLogin(QWidget *parent) :
     setWindowOpacity(1);
     setWindowFlags(Qt::FramelessWindowHint);
 
-
     move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
 }
 

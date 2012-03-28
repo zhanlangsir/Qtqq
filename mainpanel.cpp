@@ -70,9 +70,18 @@ void QQMainPanel::getFriendList()
 {
     QString get_friendlist_url = "/api/get_user_friends2";
     QString msg_content = "r={\"h\":\"hello\",\"vfwebqq\":\"" + cap_info_.vfwebqq_ + "\"}";
+
     QHttpRequestHeader header("POST", get_friendlist_url);
     header.addValue("Host", "s.web2.qq.com");
-    header.addValue("Referer", "http://s.web2.qq.com/api/get_user_friends2");
+    header.addValue("User-Agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.3 Safari/535.19");
+    header.addValue("Accept", "text/html, application/xml;q=0.9, "
+                    "application/xhtml+xml, image/png, "
+                    "image/jpeg, image/gif, "
+                    "image/x-xbitmap, */*;q=0.1");
+    header.addValue("Accept-Language", "en-US,zh-CN,zh;q=0.9,en;q=0.8");
+    header.addValue("Accept-Charset", "GBK, utf-8, utf-16, *;q=0.1");
+    header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
+    header.addValue("Cookie", cap_info_.cookie_);
     header.setContentType("application/x-www-form-urlencoded");
     header.setContentLength(msg_content.length());
 
@@ -81,12 +90,39 @@ void QQMainPanel::getFriendList()
     main_http_->request(header, msg_content.toAscii());
 }
 
+void QQMainPanel::getFriendListDone(bool err)
+{
+    Q_UNUSED(err)
+    disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getFriendListDone(bool)));
+    QByteArray friends_info = main_http_->readAll();
+    qDebug()<<"friend list:"<<endl;
+    qDebug()<<friends_info<<endl;
+
+    QQItemModel *model = new QQItemModel(this);
+    QQItem *root_item = new QQItem;
+    parseFriendsInfo(friends_info, root_item);
+    model->setRoot(root_item);
+
+    ui->tv_friendlist_->setModel(model);
+
+    //在这里而不在initrialite调用因为用QHttp请求是异步的，无法确定那一个请求结果会先到，会引起解析混乱
+    getGroupList();
+}
+
 void QQMainPanel::getPersonalInfo()
 {
     QString get_personalinfo_url = "/api/get_friend_info2?tuin="+ curr_user_info_.id() +"&verifysession=&code=&vfwebqq=" + cap_info_.vfwebqq_ + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
     QHttpRequestHeader header("GET", get_personalinfo_url);
     header.addValue("Host", "s.web2.qq.com");
-    header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=2");
+    header.addValue("User-Agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.3 Safari/535.19");
+    header.addValue("Accept", "text/html, application/xml;q=0.9, "
+                     "application/xhtml+xml, image/png, "
+                     "image/jpeg, image/gif, "
+                     "image/x-xbitmap, */*;q=0.1");
+    header.addValue("Accept-Language", "en-US,zh-CN,zh;q=0.9,en;q=0.8");
+    header.addValue("Accept-Charset", "GBK, utf-8, utf-16, *;q=0.1");
+    header.addValue("Accept-Encoding", "deflate, gzip, x-gzip, identity, *;q=0");
+    header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
     header.addValue("Cookie", cap_info_.cookie_);
     header.addValue("Connection", "keep-live");
     header.setContentType("utf-8");
@@ -119,6 +155,14 @@ void QQMainPanel::getPersonalFace()
     QString get_face_url = "/cgi/svr/face/getface?cache=1&type=1&fid=0&uin="+ curr_user_info_.id() + "&vfwebqq=" + cap_info_.vfwebqq_ + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
     QHttpRequestHeader header("GET", get_face_url);
     header.addValue("Host", "face2.qun.qq.com");
+    header.addValue("User-Agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.3 Safari/535.19");
+    header.addValue("Accept", "text/html, application/xml;q=0.9, "
+                     "application/xhtml+xml, image/png, "
+                     "image/jpeg, image/gif, "
+                     "image/x-xbitmap, */*;q=0.1");
+    header.addValue("Accept-Language", "en-US,zh-CN,zh;q=0.9,en;q=0.8");
+    header.addValue("Accept-Charset", "GBK, utf-8, utf-16, *;q=0.1");
+    header.addValue("Accept-Encoding", "deflate, gzip, x-gzip, identity, *;q=0");
     header.addValue("Referer", "http://web2.qq.com/");
     header.addValue("Cookie", cap_info_.cookie_);
 
@@ -141,29 +185,21 @@ void QQMainPanel::getPersonalFaceDone(bool err)
     getFriendList();
 }
 
-void QQMainPanel::getFriendListDone(bool err)
-{
-    Q_UNUSED(err)
-    disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getFriendListDone(bool)));
-    QByteArray friends_info = main_http_->readAll();
-    QQItemModel *model = new QQItemModel(this);
-    QQItem *root_item = new QQItem;
-    parseFriendsInfo(friends_info, root_item);
-    model->setRoot(root_item);
-
-    ui->tv_friendlist_->setModel(model); 
-
-    //在这里而不在initrialite调用因为用QHttp请求是异步的，无法确定那一个请求结果会先到，会引起解析混乱
-    getGroupList();
-}
-
 void QQMainPanel::getGroupList()
 {
     QString get_grouplist_url = "/api/get_group_name_list_mask2";
     QString msg_content = "r={\"h\":\"hello\",\"vfwebqq\":\"" + cap_info_.vfwebqq_ + "\"}";
     QHttpRequestHeader header("POST", get_grouplist_url);
     header.addValue("Host", "s.web2.qq.com");
-    header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001");
+    header.addValue("User-Agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.3 Safari/535.19");
+    header.addValue("Accept", "text/html, application/xml;q=0.9, "
+                    "application/xhtml+xml, image/png, "
+                    "image/jpeg, image/gif, "
+                    "image/x-xbitmap, */*;q=0.1");
+    header.addValue("Accept-Language", "en-US,zh-CN,zh;q=0.9,en;q=0.8");
+    header.addValue("Accept-Charset", "GBK, utf-8, utf-16, *;q=0.1");
+    header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
+    header.addValue("Cookie", cap_info_.cookie_);
     header.setContentType("application/x-www-form-urlencoded");
     header.setContentLength(msg_content.length());
 
@@ -178,6 +214,7 @@ void QQMainPanel::getGroupListDone(bool err)
     disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getGroupListDone(bool)));
     QByteArray groups_info = main_http_->readAll();
 
+    qDebug()<<"group list :\n"<<groups_info<<endl;
     QQItemModel *model = new QQItemModel(this);
     QQItem *root_item = new QQItem;
     parseGroupsInfo(groups_info, root_item);
@@ -292,6 +329,7 @@ void QQMainPanel::parseFriendsInfo(const QByteArray &str, QQItem *root_item)
     {
         return;
     }
+
     const Json::Value category = root["result"]["categories"];
 
     ItemInfo *friend_item = new ItemInfo;

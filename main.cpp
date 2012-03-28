@@ -1,5 +1,7 @@
 #include <QApplication>
 #include <QTextCodec>
+#include <QtMsgHandler>
+
 #include "login.h"
 #include "mainpanel.h"
 
@@ -9,7 +11,9 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForLocale(codec);
     QTextCodec::setCodecForTr(codec);
     QTextCodec::setCodecForCStrings(codec);
+
     QApplication a(argc, argv);
+
     QQLogin *login = new QQLogin;
     if (login->exec() == QDialog::Rejected)
     {
