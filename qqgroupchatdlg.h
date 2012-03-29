@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QHttp>
+#include <QSqlDatabase>
 
 #include "qqmsg.h"
 #include "nameconvertor.h"
@@ -35,7 +36,9 @@ private:
     void getGfaceSig();
     void getGroupMemberList();
     void createSql();
+    void createSigSql();
     void readFromSql();
+    void readSigFromSql();
     void replaceUnconverId();
 
 private:
@@ -45,4 +48,6 @@ private:
     QString gface_key_;
     QString gface_sig_;
     QPoint distance_pos_;
+
+    QString connection_name_;
 };

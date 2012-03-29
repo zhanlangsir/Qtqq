@@ -5,6 +5,7 @@
 #include "qqitemmodel.h"
 #include "qqfriendchatdlg.h"
 #include "qqgroupchatdlg.h"
+#include "qqmsg.h"
 
 #include <QDesktopWidget>
 #include <QHttp>
@@ -32,7 +33,11 @@ QQMainPanel::QQMainPanel(CaptchaInfo cap_info, FriendInfo user_info, QWidget *pa
     connect(msg_tip_, SIGNAL(activatedChatDlg(QQMsg::MsgType, QString)), this, SLOT(openChatDlg(QQMsg::MsgType,QString)));
     connect(ui->tv_friendlist_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openChatDlgByDoubleClick(QModelIndex)));
     connect(ui->lv_grouplist_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openChatDlgByDoubleClick(QModelIndex)));
-    connect(msg_center_, SIGNAL(buddiesStateChange(QString,FriendStatus)), this, SLOT(changeFriendStatus(QString,FriendStatus)));
+    connect(ui->lv_recents_list_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openChatDlgByDoubleClick(QModelIndex)));
+    connect(msg_center_, SIGNAL(buddiesStateChangeMsgArrive(QString,FriendStatus)), this, SLOT(changeFriendStatus(QString,FriendStatus)));
+    connect(msg_center_, SIGNAL(groupChatMsgArrive(const QQGroupChatMsg*)), this, SLOT(changeRecentList(const QQGroupChatMsg*)));
+    connect(msg_center_, SIGNAL(friendChatMsgArrive(const QQChatMsg*)), this, SLOT(changeRecentList(const QQChatMsg*)));
+
     convertor_.addUinNameMap(user_info.id(), tr("you"));
     msg_tip_->setConvertor(&convertor_);
 
@@ -50,6 +55,76 @@ QQMainPanel::~QQMainPanel()
 {  
     main_http_->close();
     delete ui;
+}
+
+void QQMainPanel::changeFriendStatus(QString id, FriendStatus state)
+{
+    QQItem *item = findFriendItemById(id);
+    if (!item)
+    {
+        return;
+    }
+
+    item->set_state(state);
+
+    QQItem *category = item->parent();
+    int idx = category->indexOf(item);
+    category->children_.remove(idx);
+
+    if (state == kOnline)
+        category->children_.push_front(item);
+    else
+        category->children_.push_back(item);
+
+    ui->friends->setUpdatesEnabled(false);
+    ui->friends->setUpdatesEnabled(true);
+
+    ui->recents->setUpdatesEnabled(false);
+    ui->recents->setUpdatesEnabled(true);
+}
+
+void QQMainPanel::changeRecentList(const QQChatMsg *msg)
+{
+    QQItem *item = findRecentListItemById(msg->talkTo());
+    if (!item)
+    {
+        item = findFriendItemById(msg->talkTo());
+        if (!item) return;
+
+        QQItem *recent_list_item = item->shallowCopy();
+        recent_list_item->set_parent(recent_list_root_);
+        recent_list_root_->append(recent_list_item);
+    }
+    else
+    {
+        int idx = recent_list_root_->indexOf(item);
+        recent_list_root_->children_.remove(idx);
+        recent_list_root_->children_.push_front(item);
+    }
+    ui->recents->setUpdatesEnabled(false);
+    ui->recents->setUpdatesEnabled(true);
+}
+
+void QQMainPanel::changeRecentList(const QQGroupChatMsg *msg)
+{
+    QQItem *item = findRecentListItemById(msg->talkTo());
+    if (!item)
+    {
+        item = findGroupItemById(msg->talkTo());
+        if (!item) return;
+
+        QQItem *recent_list_item = item->shallowCopy();
+        recent_list_item->set_parent(recent_list_root_);
+        recent_list_root_->append(recent_list_item);
+    }
+    else
+    {
+        int idx = recent_list_root_->indexOf(item);
+        recent_list_root_->children_.remove(idx);
+        recent_list_root_->children_.push_front(item);
+    }
+    ui->recents->setUpdatesEnabled(false);
+    ui->recents->setUpdatesEnabled(true);
 }
 
 void QQMainPanel::closeEvent(QCloseEvent *)
@@ -73,13 +148,7 @@ void QQMainPanel::getFriendList()
 
     QHttpRequestHeader header("POST", get_friendlist_url);
     header.addValue("Host", "s.web2.qq.com");
-    header.addValue("User-Agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.3 Safari/535.19");
-    header.addValue("Accept", "text/html, application/xml;q=0.9, "
-                    "application/xhtml+xml, image/png, "
-                    "image/jpeg, image/gif, "
-                    "image/x-xbitmap, */*;q=0.1");
-    header.addValue("Accept-Language", "en-US,zh-CN,zh;q=0.9,en;q=0.8");
-    header.addValue("Accept-Charset", "GBK, utf-8, utf-16, *;q=0.1");
+    setDefaultHeaderValue(header);
     header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
     header.addValue("Cookie", cap_info_.cookie_);
     header.setContentType("application/x-www-form-urlencoded");
@@ -95,8 +164,6 @@ void QQMainPanel::getFriendListDone(bool err)
     Q_UNUSED(err)
     disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getFriendListDone(bool)));
     QByteArray friends_info = main_http_->readAll();
-    qDebug()<<"friend list:"<<endl;
-    qDebug()<<friends_info<<endl;
 
     QQItemModel *model = new QQItemModel(this);
     QQItem *root_item = new QQItem;
@@ -109,19 +176,46 @@ void QQMainPanel::getFriendListDone(bool err)
     getGroupList();
 }
 
+void QQMainPanel::getSingleLongNick()
+{
+    QString single_long_nick_url = "/api/get_single_long_nick2?tuin=" + curr_user_info_.id()+ "&vfwebqq=" + cap_info_.vfwebqq_ + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
+
+    QHttpRequestHeader header("GET", single_long_nick_url);
+    header.addValue("Host", "s.web2.qq.com");
+    setDefaultHeaderValue(header);
+    header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
+    header.addValue("Cookie", cap_info_.cookie_);
+    header.addValue("Connection", "keep-live");
+    header.setContentType("utf-8");
+
+    main_http_->setHost("s.web2.qq.com");
+    connect(main_http_, SIGNAL(done(bool)), this, SLOT(getSingleLongNickDone(bool)));
+    main_http_->request(header);
+}
+
+void QQMainPanel::getSingleLongNickDone(bool err)
+{
+    Q_UNUSED(err)
+    disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getSingleLongNickDone(bool)));
+    QByteArray array = main_http_->readAll();
+
+    Json::Reader reader;
+    Json::Value root;
+
+    if (reader.parse(QString(array).toStdString(), root, false))
+    {
+        ui->le_mood_->setText(QString::fromStdString(root["result"][0]["lnick"].asString()));
+    }
+
+    getFriendList();
+}
+
 void QQMainPanel::getPersonalInfo()
 {
     QString get_personalinfo_url = "/api/get_friend_info2?tuin="+ curr_user_info_.id() +"&verifysession=&code=&vfwebqq=" + cap_info_.vfwebqq_ + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
     QHttpRequestHeader header("GET", get_personalinfo_url);
     header.addValue("Host", "s.web2.qq.com");
-    header.addValue("User-Agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.3 Safari/535.19");
-    header.addValue("Accept", "text/html, application/xml;q=0.9, "
-                     "application/xhtml+xml, image/png, "
-                     "image/jpeg, image/gif, "
-                     "image/x-xbitmap, */*;q=0.1");
-    header.addValue("Accept-Language", "en-US,zh-CN,zh;q=0.9,en;q=0.8");
-    header.addValue("Accept-Charset", "GBK, utf-8, utf-16, *;q=0.1");
-    header.addValue("Accept-Encoding", "deflate, gzip, x-gzip, identity, *;q=0");
+    setDefaultHeaderValue(header);
     header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
     header.addValue("Cookie", cap_info_.cookie_);
     header.addValue("Connection", "keep-live");
@@ -150,54 +244,13 @@ void QQMainPanel::getPersonalInfoDone(bool err)
     getPersonalFace();
 }
 
-void QQMainPanel::getPersonalFace()
-{
-    QString get_face_url = "/cgi/svr/face/getface?cache=1&type=1&fid=0&uin="+ curr_user_info_.id() + "&vfwebqq=" + cap_info_.vfwebqq_ + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
-    QHttpRequestHeader header("GET", get_face_url);
-    header.addValue("Host", "face2.qun.qq.com");
-    header.addValue("User-Agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.3 Safari/535.19");
-    header.addValue("Accept", "text/html, application/xml;q=0.9, "
-                     "application/xhtml+xml, image/png, "
-                     "image/jpeg, image/gif, "
-                     "image/x-xbitmap, */*;q=0.1");
-    header.addValue("Accept-Language", "en-US,zh-CN,zh;q=0.9,en;q=0.8");
-    header.addValue("Accept-Charset", "GBK, utf-8, utf-16, *;q=0.1");
-    header.addValue("Accept-Encoding", "deflate, gzip, x-gzip, identity, *;q=0");
-    header.addValue("Referer", "http://web2.qq.com/");
-    header.addValue("Cookie", cap_info_.cookie_);
-
-    main_http_->setHost("face2.qun.qq.com");
-    connect(main_http_, SIGNAL(done(bool)), this, SLOT(getPersonalFaceDone(bool)));
-    main_http_->request(header);
-
-}
-
-void QQMainPanel::getPersonalFaceDone(bool err)
-{
-    Q_UNUSED(err)
-    disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getPersonalFaceDone(bool)));
-    QByteArray array = main_http_->readAll();
-
-    QPixmap pix;
-    pix.loadFromData(array);
-    ui->lbl_avatar_->setPixmap(pix);
-
-    getFriendList();
-}
-
 void QQMainPanel::getGroupList()
 {
     QString get_grouplist_url = "/api/get_group_name_list_mask2";
     QString msg_content = "r={\"h\":\"hello\",\"vfwebqq\":\"" + cap_info_.vfwebqq_ + "\"}";
     QHttpRequestHeader header("POST", get_grouplist_url);
     header.addValue("Host", "s.web2.qq.com");
-    header.addValue("User-Agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.3 Safari/535.19");
-    header.addValue("Accept", "text/html, application/xml;q=0.9, "
-                    "application/xhtml+xml, image/png, "
-                    "image/jpeg, image/gif, "
-                    "image/x-xbitmap, */*;q=0.1");
-    header.addValue("Accept-Language", "en-US,zh-CN,zh;q=0.9,en;q=0.8");
-    header.addValue("Accept-Charset", "GBK, utf-8, utf-16, *;q=0.1");
+    setDefaultHeaderValue(header);
     header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
     header.addValue("Cookie", cap_info_.cookie_);
     header.setContentType("application/x-www-form-urlencoded");
@@ -214,7 +267,6 @@ void QQMainPanel::getGroupListDone(bool err)
     disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getGroupListDone(bool)));
     QByteArray groups_info = main_http_->readAll();
 
-    qDebug()<<"group list :\n"<<groups_info<<endl;
     QQItemModel *model = new QQItemModel(this);
     QQItem *root_item = new QQItem;
     parseGroupsInfo(groups_info, root_item);
@@ -223,7 +275,7 @@ void QQMainPanel::getGroupListDone(bool err)
     msg_tip_->setConvertor(&convertor_);
     ui->lv_grouplist_->setModel(model);
 
-    getOnlineBuddy();
+    getRecentList();
 }
 
 void QQMainPanel::getOnlineBuddy()
@@ -231,6 +283,7 @@ void QQMainPanel::getOnlineBuddy()
     QString get_online_buddy = "/channel/get_online_buddies2?clientid=5412354841&psessionid=" + cap_info_.psessionid_ + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
     QHttpRequestHeader header("GET", get_online_buddy);
     header.addValue("Host", "d.web2.qq.com");
+    setDefaultHeaderValue(header);
     header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=2011033100");
     header.addValue("Cookie", cap_info_.cookie_);
 
@@ -270,33 +323,99 @@ void QQMainPanel::getOnlineBuddyDone(bool err)
     msg_center_->start();
 }
 
-void QQMainPanel::changeFriendStatus(QString id, FriendStatus state)
+void QQMainPanel::getPersonalFace()
 {
-    QQItem *item = findQQItemById(id);
-    if (!item)
-    {
-        return;
-    }
+    QString get_face_url = "/cgi/svr/face/getface?cache=1&type=1&fid=0&uin="+ curr_user_info_.id() + "&vfwebqq=" + cap_info_.vfwebqq_ + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
+    QHttpRequestHeader header("GET", get_face_url);
+    header.addValue("Host", "face2.qun.qq.com");
+    setDefaultHeaderValue(header);
+    header.addValue("Referer", "http://web2.qq.com/");
+    header.addValue("Cookie", cap_info_.cookie_);
 
-    item->set_state(state);
+    main_http_->setHost("face2.qun.qq.com");
+    connect(main_http_, SIGNAL(done(bool)), this, SLOT(getPersonalFaceDone(bool)));
+    main_http_->request(header);
 
-    QQItem *category = item->parent();
-    int idx = category->indexOf(item);
-    category->children_.remove(idx);
-
-    if (state == kOnline)
-        category->children_.push_front(item);
-    else
-        category->children_.push_back(item);
-
-    ui->friends->setUpdatesEnabled(false);
-    ui->friends->setUpdatesEnabled(true);
 }
 
-QQItem* QQMainPanel::findQQItemById(QString id)
+void QQMainPanel::getPersonalFaceDone(bool err)
+{
+    Q_UNUSED(err)
+    disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getPersonalFaceDone(bool)));
+    QByteArray array = main_http_->readAll();
+
+    QPixmap pix;
+    pix.loadFromData(array);
+    ui->lbl_avatar_->setPixmap(pix);
+
+    getSingleLongNick();
+}
+
+void QQMainPanel::getRecentList()
+{
+    QString recent_list_url ="/channel/get_recent_list2";
+    QString msg_content = "r={\"vfwebqq\":\"" + cap_info_.vfwebqq_ + "\",\"clientid\":\"5412354841\",\"psessionid\":\"" + cap_info_.psessionid_ + "\"}&cliendid=5412354841&psessionid=" + cap_info_.psessionid_;
+
+    QHttpRequestHeader header("POST", recent_list_url);
+    header.addValue("Host", "d.web2.qq.com");
+    setDefaultHeaderValue(header);
+    header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1");
+    header.addValue("Cookie", cap_info_.cookie_);
+    header.setContentType("application/x-www-form-urlencoded");
+    header.setContentLength(msg_content.length());
+
+    main_http_->setHost("d.web2.qq.com");
+    connect(main_http_, SIGNAL(done(bool)), this, SLOT(getRecentListDone(bool)));
+    main_http_->request(header, msg_content.toAscii());
+}
+
+void QQMainPanel::getRecentListDone(bool err)
+{
+    Q_UNUSED(err)
+    disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getRecentListDone(bool)));
+    QByteArray recent_list = main_http_->readAll();
+
+    QQItemModel *model = new QQItemModel(this);
+    QQItem *root_item = new QQItem;
+    parseRecentList(recent_list, root_item);
+    recent_list_root_ = root_item;
+    model->setRoot(root_item);
+
+    ui->lv_recents_list_->setModel(model);
+
+    getOnlineBuddy();
+}
+
+QQItem* QQMainPanel::findRecentListItemById(QString id)
+{
+    QQItem *item = NULL;
+    foreach (item, recents_info_)
+    {
+        if (item->id() == id)
+        {
+            return item;
+        }
+    }
+    return NULL;
+}
+
+QQItem* QQMainPanel::findFriendItemById(QString id)
 {
     QQItem *item = NULL;
     foreach (item, friends_info_)
+    {
+        if (item->id() == id)
+        {
+            return item;
+        }
+    }
+    return NULL;
+}
+
+QQItem* QQMainPanel::findGroupItemById(QString id)
+{
+    QQItem *item = NULL;
+    foreach (item, groups_info_)
     {
         if (item->id() == id)
         {
@@ -377,6 +496,42 @@ void QQMainPanel::parseFriendsInfo(const QByteArray &str, QQItem *root_item)
     }
 }
 
+void QQMainPanel::parseRecentList(const QByteArray &str, QQItem *root_item)
+{
+    Json::Reader reader;
+    Json::Value root;
+
+    if (!reader.parse(QString(str).toStdString(), root, false))
+    {
+        return;
+    }
+
+    const Json::Value result = root["result"];
+
+    for (unsigned int i = 0; i < result.size(); ++i)
+    {  
+        QString id = QString::number(result[i]["uin"].asLargestInt());
+        int type = result[i]["type"].asInt();
+
+        QQItem *item = NULL;
+        if (type == 1)
+        {
+            item = findGroupItemById(id);
+        }
+        else if(type == 0)
+        {
+            item = findFriendItemById(id);
+        }
+        if (!item)
+            continue;
+
+        QQItem *recent_list_item =  item->shallowCopy();
+        recent_list_item->set_parent(root_item);
+        recents_info_.append(recent_list_item);
+        root_item->append(recent_list_item);
+    }
+}
+
 void QQMainPanel::parseGroupsInfo(const QByteArray &str, QQItem *root_item)
 {
     Json::Reader reader;
@@ -396,19 +551,30 @@ void QQMainPanel::parseGroupsInfo(const QByteArray &str, QQItem *root_item)
         QString gid = QString::number(gnamelist[i]["gid"].asLargestInt());
         QString code = QString::number(gnamelist[i]["code"].asLargestInt());
 
-        GroupInfo *item = new GroupInfo;
-        item->set_name(name);
-        item->set_id(gid);
-        item->set_code(code);
+        GroupInfo *info= new GroupInfo;
+        info->set_name(name);
+        info->set_id(gid);
+        info->set_code(code);
 
-        QQItem *group = new QQItem(QQItem::kGroup, item, root_item);
+        QQItem *group = new QQItem(QQItem::kGroup, info, root_item);
 
-        groups_info_.append(item);
+        groups_info_.append(group);
 
         convertor_.addUinNameMap(gid, name);;
 
         root_item->append(group);
     }
+}
+
+void QQMainPanel::setDefaultHeaderValue(QHttpRequestHeader &header)
+{
+    header.addValue("User-Agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.3 Safari/535.19");
+    header.addValue("Accept", "text/html, application/xml;q=0.9, "
+                    "application/xhtml+xml, image/png, "
+                    "image/jpeg, image/gif, "
+                    "image/x-xbitmap, */*;q=0.1");
+    header.addValue("Accept-Language", "en-US,zh-CN,zh;q=0.9,en;q=0.8");
+    header.addValue("Accept-Charset", "GBK, utf-8, utf-16, *;q=0.1");
 }
 
 void QQMainPanel::openChatDlgByDoubleClick(const QModelIndex& index)
@@ -445,12 +611,13 @@ void QQMainPanel::openChatDlg(QQMsg::MsgType type, QString id)
     }
     else //kGroup
     {
-        GroupInfo *info = NULL;
-        foreach(info, groups_info_)
+        QQItem *item = NULL;
+        foreach(item, groups_info_)
         {
-            if (info->id() == id)
+            if (item->id() == id)
                 break; //跳出foreach,而不是if
         }
+        const GroupInfo *info = static_cast<const GroupInfo*>(item->itemInfo());
         dlg = new QQGroupChatDlg(id, convertor_.convert(id), info->code(), curr_user_info_, cap_info_);
         connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
 

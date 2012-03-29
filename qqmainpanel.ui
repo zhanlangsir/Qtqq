@@ -121,7 +121,7 @@ background-image: url(:/new/login/images/LoginPanel/bg_white.png);</string>
       <string notr="true">background-image: url(:/new/login/images/LoginPanel/bg_white.png);</string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="friends">
       <attribute name="title">
@@ -150,10 +150,15 @@ background-image: url(:/new/login/images/LoginPanel/bg_white.png);</string>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="recent">
+     <widget class="QWidget" name="recents">
       <attribute name="title">
-       <string>Recent</string>
+       <string>Recents</string>
       </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QListView" name="lv_recents_list_"/>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="terms">
       <attribute name="title">

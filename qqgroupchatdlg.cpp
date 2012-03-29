@@ -88,18 +88,83 @@ ImgSender* QQGroupChatDlg::createImgSender()
 
 void QQGroupChatDlg::getGfaceSig()
 {
-    QString gface_sig_url = "/channel/get_gface_sig2?clientid=5412354841&psessionid="+cap_info_.psessionid_ +"&t="+QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
+    bool need_create_table = true;
+    {
+        QStringList connection_names = QSqlDatabase::connectionNames();
+        QSqlDatabase db;
+        if (connection_names.isEmpty())
+        {
+            db = QSqlDatabase::addDatabase("QSQLITE");
+            db.setDatabaseName("qqgroupdb");
+        }
+        else
+        {
+            db = QSqlDatabase::database(connection_names[0]);
+        }
 
-    QHttpRequestHeader header;
-    header.setRequest("GET", gface_sig_url);
-    header.addValue("Host", "d.web2.qq.com");
-    header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002");
-    header.addValue("Cookie", cap_info_.cookie_);
+        if (!db.open())
+            return;
 
-    http_.setHost("d.web2.qq.com");
-    connect(&http_, SIGNAL(done(bool)), this, SLOT(getGfaceSigDone(bool)));
+        connection_name_ = db.connectionName();
+        QSqlQuery query;
+        query.exec("SELECT count(*) FROM sqlite_master WHERE type='table' and name='groupmemberinfo'");
 
-    http_.request(header);
+        if (!query.first())
+            qDebug()<<query.lastError()<<endl;
+
+        bool exist_group_sig_table = query.value(0).toBool();
+
+        if (exist_group_sig_table)
+        {
+            QSqlQuery query;
+            QString command = "SELECT count(*) FROM groupsig WHERE gid == %1";
+            query.exec(command.arg(id_));
+
+            if (!query.first())
+                qDebug()<<query.lastError()<<endl;
+
+            int exist_record_count = query.value(0).toInt();
+
+            if (exist_record_count != 0)
+            {
+                need_create_table = false;
+                readSigFromSql();
+            }
+        }
+    }
+    if (need_create_table)
+    {
+        QString gface_sig_url = "/channel/get_gface_sig2?clientid=5412354841&psessionid="+cap_info_.psessionid_ +"&t="+QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
+
+        QHttpRequestHeader header;
+        header.setRequest("GET", gface_sig_url);
+        header.addValue("Host", "d.web2.qq.com");
+        header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002");
+        header.addValue("Cookie", cap_info_.cookie_);
+
+        http_.setHost("d.web2.qq.com");
+        connect(&http_, SIGNAL(done(bool)), this, SLOT(getGfaceSigDone(bool)));
+
+        http_.request(header);
+    }
+    else
+        getGroupMemberList();
+}
+
+void QQGroupChatDlg::readSigFromSql()
+{
+    QSqlQuery query;
+    QString read_command = "SELECT * FROM groupsig WHERE gid == %1";
+    query.exec(read_command.arg(id_));
+
+    while (query.next())
+    {
+        QString key = query.value(1).toString();
+        QString sig = query.value(2).toString();
+
+        gface_key_ = key;
+        gface_sig_ = sig;
+    }
 }
 
 void QQGroupChatDlg::getGfaceSigDone(bool err)
@@ -118,7 +183,44 @@ void QQGroupChatDlg::getGfaceSigDone(bool err)
     gface_key_ = array.mid(gface_key_idx, gface_key_end_idx - gface_key_idx);
     gface_sig_ = array.mid(gface_sig_idx, gface_sig_end_idx - gface_sig_idx);
 
-    getGroupMemberList();
+    {
+    QSqlDatabase db = QSqlDatabase::database(connection_name_);
+
+    if (!db.open())
+        return;
+
+    QSqlQuery query;
+    QSqlDatabase::database().transaction();
+
+    createSigSql();
+
+    QString insert_command = "INSERT INTO groupsig VALUES (%1, '%2', '%3')";
+    query.exec(insert_command.arg(id_).arg(gface_key_).arg(gface_sig_));
+
+    QSqlDatabase::database().commit();
+    }
+
+   getGroupMemberList();
+}
+
+void QQGroupChatDlg::createSigSql()
+{
+    QSqlQuery query;
+
+    query.exec("CREATE TABLE IF NOT EXISTS groupsig ("
+        "gid INTERGER,"
+        "key VARCHAR(15),"
+        "sig VARCHAR(50),"
+        "PRIMARY KEY (gid))");
+
+    if (query.lastError().isValid())
+    {
+        qDebug()<<query.lastError();
+    }
+    else
+    {
+        qDebug()<<"create groupsig db success"<<endl;
+    }
 }
 
 void QQGroupChatDlg::createSql()
@@ -173,8 +275,7 @@ void QQGroupChatDlg::replaceUnconverId()
 void QQGroupChatDlg::getGroupMemberList()
 {
     {
-        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-        db.setDatabaseName("qqgroupdb");
+        QSqlDatabase db = QSqlDatabase::database(connection_name_);
 
         if (!db.open())
             return;
@@ -218,12 +319,12 @@ void QQGroupChatDlg::getGroupMemberList()
             http_.request(header);
         }
     }
-    QString name; 
-    {
+
+    QString name;{
         name = QSqlDatabase::database().connectionName();
-        QSqlDatabase::database(name).close();
+        QSqlDatabase::database().close();
     }
-    QSqlDatabase::removeDatabase(name);
+   QSqlDatabase::removeDatabase(name);
 }
 
 void QQGroupChatDlg::getGroupMemberListDone(bool err)
@@ -241,33 +342,41 @@ void QQGroupChatDlg::getGroupMemberListDone(bool err)
 
     Json::Value members = root["result"]["minfo"];
 
-    {
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("qqgroupdb");
+    { 
+        QStringList connection_names = QSqlDatabase::connectionNames();
+        QSqlDatabase db;
+        if (connection_names.isEmpty())
+        {
+            db = QSqlDatabase::addDatabase("QSQLITE");
+            db.setDatabaseName("qqgroupdb");
+        }
+        else
+        {
+            db = QSqlDatabase::database(connection_names[0]);
+        }
 
-    if (!db.open())
-        return;
+        if (!db.open())
+            return;
 
-    QSqlQuery query;
-    QSqlDatabase::database().transaction();
+        QSqlQuery query;
+        QSqlDatabase::database().transaction();
 
-    createSql();
-    for (unsigned int i = 0; i < members.size(); ++i)
-    {
-        QString nick = QString::fromStdString(members[i]["nick"].asString());
-        QString uin = QString::number(members[i]["uin"].asLargestInt());
-        QListWidgetItem *item = new QListWidgetItem(nick, ui->lw_members_);
-        item->setData(Qt::UserRole, uin);
+        createSql();
+        for (unsigned int i = 0; i < members.size(); ++i)
+        {
+            QString nick = QString::fromStdString(members[i]["nick"].asString());
+            QString uin = QString::number(members[i]["uin"].asLargestInt());
+            QListWidgetItem *item = new QListWidgetItem(nick, ui->lw_members_);
+            item->setData(Qt::UserRole, uin);
 
-        convertor_.addUinNameMap(uin, nick);
+            convertor_.addUinNameMap(uin, nick);
 
-        item->setIcon(QIcon("1.bmp"));
-        QString insert_command = "INSERT INTO groupmemberinfo VALUES (%1, %2, '%3', '%4')";
-        query.exec(insert_command.arg(uin).arg(id_).arg(nick).arg("test"));
+            item->setIcon(QIcon("1.bmp"));
+            QString insert_command = "INSERT INTO groupmemberinfo VALUES (%1, %2, '%3', '%4')";
+            query.exec(insert_command.arg(uin).arg(id_).arg(nick).arg("test"));
+        }
+        QSqlDatabase::database().commit();
     }
-    QSqlDatabase::database().commit();
-    }
-
     QString name;{
         name = QSqlDatabase::database().connectionName();
         QSqlDatabase::database().close();

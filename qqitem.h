@@ -17,6 +17,12 @@ public:
     QQItem(QQItem *parent = 0) : parent_(parent) {}
 
 public:
+    QQItem* shallowCopy()
+    {
+        QQItem *item = new QQItem(type(), itemInfo(), parent());
+        return item;
+    }
+
     ItemType type() const
     { return type_; }
     void set_type(ItemType type)
@@ -36,7 +42,7 @@ public:
     QString mood() const
     { return item_->mood(); }
 
-    const ItemInfo *itemInfo() const
+    ItemInfo *itemInfo() const
     {   return item_; }
     void set_itemInfo(ItemInfo *item)
     { item_ = item; }

@@ -3,6 +3,7 @@
 #include <QPixmap>
 #include <QIcon>
 #include <assert.h>
+#include <QDebug>
 
 QVariant QQItemModel::data(const QModelIndex &index, int role) const
 {
