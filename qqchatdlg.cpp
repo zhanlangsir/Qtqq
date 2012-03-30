@@ -3,6 +3,7 @@
 
 #include <QFileDialog>
 #include <QKeyEvent>
+#include <QApplication>
 
 QQChatDlg::QQChatDlg(QString id, QString name, FriendInfo curr_user_info, 
                      CaptchaInfo cap_info, QWidget *parent) : 
@@ -176,6 +177,9 @@ void QQChatDlg::showMsg(const QQMsg *msg)
             }
         }
     }
+
+    if (this->isHidden())
+        QApplication::alert(this, 3000);
 }
 
 void QQChatDlg::sendMsg()
