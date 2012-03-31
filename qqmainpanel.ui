@@ -20,7 +20,7 @@
    <string>LinuxQQ</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QWidget {
+   <string notr="true">QWidget#QQMainPanel {
 background-image: url(:/new/mainpanel/images/Skins/system/1.45_4/main.jpg);
 border:none
 }</string>
@@ -36,11 +36,7 @@ border:none
        <item>
         <widget class="QLabel" name="lbl_avatar_">
          <property name="styleSheet">
-          <string notr="true">background-image: url(:/new/login/images/LoginPanel/bg_white.png);
-
-QLabel {
-
-}</string>
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>TextLabel</string>
@@ -61,7 +57,7 @@ QLabel {
            <item>
             <widget class="QLabel" name="lbl_name_">
              <property name="styleSheet">
-              <string notr="true">background-image: url(:/new/login/images/LoginPanel/bg_white.png);</string>
+              <string notr="true"/>
              </property>
              <property name="text">
               <string>LinuxQQ</string>
@@ -71,7 +67,7 @@ QLabel {
            <item>
             <widget class="QLabel" name="lbl_state_">
              <property name="styleSheet">
-              <string notr="true">background-image: url(:/new/login/images/LoginPanel/bg_white.png);</string>
+              <string notr="true"/>
              </property>
              <property name="text">
               <string>Online</string>
@@ -83,8 +79,7 @@ QLabel {
          <item>
           <widget class="QLineEdit" name="le_mood_">
            <property name="styleSheet">
-            <string notr="true">background-color: rgba(255, 255, 255, 0);
-background-image: url(:/new/login/images/LoginPanel/bg_white.png);</string>
+            <string notr="true"/>
            </property>
           </widget>
          </item>
@@ -97,14 +92,14 @@ background-image: url(:/new/login/images/LoginPanel/bg_white.png);</string>
        <item>
         <widget class="QLineEdit" name="le_search_">
          <property name="styleSheet">
-          <string notr="true">background-image: url(:/new/login/images/LoginPanel/bg_white.png);</string>
+          <string notr="true"/>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="pb_search_">
          <property name="styleSheet">
-          <string notr="true">background-image: url(:/new/login/images/LoginPanel/bg_white.png);</string>
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>Search</string>
@@ -118,10 +113,10 @@ background-image: url(:/new/login/images/LoginPanel/bg_white.png);</string>
    <item>
     <widget class="QTabWidget" name="tab_main_">
      <property name="styleSheet">
-      <string notr="true">background-image: url(:/new/login/images/LoginPanel/bg_white.png);</string>
+      <string notr="true"/>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="friends">
       <attribute name="title">
@@ -181,7 +176,7 @@ background-image: url(:/new/login/images/LoginPanel/bg_white.png);</string>
         </sizepolicy>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-image: url(:/new/login/images/LoginPanel/bg_white.png);</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>MainMenu</string>
@@ -204,7 +199,7 @@ background-image: url(:/new/login/images/LoginPanel/bg_white.png);</string>
      <item>
       <widget class="QToolButton" name="toolButton_2">
        <property name="styleSheet">
-        <string notr="true">background-image: url(:/new/login/images/LoginPanel/bg_white.png);</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>...</string>
@@ -214,7 +209,7 @@ background-image: url(:/new/login/images/LoginPanel/bg_white.png);</string>
      <item>
       <widget class="QToolButton" name="toolButton">
        <property name="styleSheet">
-        <string notr="true">background-image: url(:/new/login/images/LoginPanel/bg_white.png);</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>...</string>

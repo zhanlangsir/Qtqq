@@ -643,7 +643,7 @@ void QQMainPanel::openChatDlg(QQMsg::MsgType type, QString id)
     QQChatDlg *dlg = NULL;
     if (type == QQMsg::kFriend)
     {
-        dlg= new QQFriendChatDlg(id, convertor_.convert(id), curr_user_info_);
+        dlg= new QQFriendChatDlg(id, convertor_.convert(id), curr_user_info_, this);
         connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
         msg_center_->registerListener(dlg);
     }
@@ -656,7 +656,8 @@ void QQMainPanel::openChatDlg(QQMsg::MsgType type, QString id)
                 break; //跳出foreach,而不是if
         }
         const GroupInfo *info = static_cast<const GroupInfo*>(item->itemInfo());
-        dlg = new QQGroupChatDlg(id, convertor_.convert(id), info->code(), curr_user_info_);
+
+        dlg = new QQGroupChatDlg(id, convertor_.convert(id), info->code(), curr_user_info_, this);
         connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
 
         msg_center_->registerListener(dlg);
@@ -669,5 +670,4 @@ void QQMainPanel::closeChatDlg(QQChatDlg *listener)
 {
     opening_chatdlg_.remove(opening_chatdlg_.indexOf(listener));
     msg_center_->removeListener(listener);
-    delete listener;
 }

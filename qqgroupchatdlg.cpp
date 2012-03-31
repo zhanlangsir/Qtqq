@@ -12,8 +12,8 @@
 #include <QSqlQuery>
 #include <QSqlError>
 
-QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, FriendInfo curr_user_info) :
-    QQChatDlg(gid, name, curr_user_info),
+QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, FriendInfo curr_user_info, QWidget *parent) :
+    QQChatDlg(gid, name, curr_user_info, parent),
     ui(new Ui::QQGroupChatDlg()),
     group_code_(group_code)
 {
@@ -43,7 +43,7 @@ QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, Fr
 
    ui->lbl_name_->setText(name_);
    setWindowOpacity(1);
-   setWindowFlags(Qt::FramelessWindowHint);
+   setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
    setWindowTitle(name_);
 
    send_url_ = "/channel/send_qun_msg2";

@@ -10,8 +10,8 @@
 #include <QMouseEvent>
 #include <QFileDialog>
 
-QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user_info) :
-    QQChatDlg(uin, name, curr_user_info),
+QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user_info, QWidget *parent) :
+    QQChatDlg(uin, name, curr_user_info, parent),
     ui(new Ui::QQFriendChatDlg())
 {
    ui->setupUi(this);
@@ -31,7 +31,7 @@ QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user
    connect(ui->tb_mini_, SIGNAL(clicked()), this, SLOT(showMinimized()));
 
    setWindowOpacity(1);
-   setWindowFlags(Qt::FramelessWindowHint);
+   setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 
    setWindowTitle(name_);
 
