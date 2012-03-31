@@ -162,11 +162,9 @@ void QQTextEdit::animate(int)
 {
     if (QMovie* movie = qobject_cast<QMovie*>(sender()))
     {
+        document()->addResource(QTextDocument::ImageResource,   //替换图片为当前帧
+                                id_mov_hash_.key(movie), movie->currentPixmap());
 
-       // qDebug()<<"No."<<lstMovie.indexOf(movie)<<a<<"time is"<<QTime::currentTime();
-           document()->addResource(QTextDocument::ImageResource,   //替换图片为当前帧
-                    id_mov_hash_.key(movie), movie->currentPixmap());
-
-           setLineWrapColumnOrWidth(lineWrapColumnOrWidth()); // ..刷新显示
+        setLineWrapColumnOrWidth(lineWrapColumnOrWidth()); // ..刷新显示
     }
 }

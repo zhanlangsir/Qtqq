@@ -7,7 +7,7 @@ TARGET =
 DEPENDPATH += .
 INCLUDEPATH += .
 
-LIBS += "./libs/libjson.so"
+LIBS += "./libs/libjson.a"
 
 QT += network \
       sql \
@@ -41,7 +41,6 @@ HEADERS += cookie.h \
     qqtextedit.h \
     imgloader.h \
     imgsender.h \
-    utility.h \
     groupimgsender.h \
     qqitem.h \
     friendinfodlg.h \
@@ -50,7 +49,10 @@ HEADERS += cookie.h \
     friendimgsender.h \
     qqmsgsender.h \
     friendimgloader.h \
-    groupimgloader.h
+    groupimgloader.h \
+    qqsystemtray.h \
+    qqavatarrequester.h \
+    networkhelper.h
 
 FORMS += captcha.ui qqlogin.ui qqmainpanel.ui qqfriendchatdlg.ui \
     qqgroupchatdlg.ui \
@@ -81,7 +83,10 @@ SOURCES += cookie.cpp \
     qqfacepanel.cpp \
     friendimgsender.cpp \
     qqchatdlg.cpp \
-    qqmsgsender.cpp
+    qqmsgsender.cpp \
+    qqsystemtray.cpp \
+    qqavatarrequester.cpp \
+    networkhelper.cpp
 
 RESOURCES += \
     img.qrc

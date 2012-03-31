@@ -6,6 +6,8 @@
 #include <QQueue>
 #include <QMap>
 #include <QVector>
+#include <QSystemTrayIcon>
+#include <QMenu>
 
 #include "qqmsgtip.h"
 #include "qqmsgcenter.h"
@@ -15,6 +17,7 @@
 #include "qqpollthread.h"
 #include "qqchatdlg.h"
 #include "qqparsethread.h"
+#include "qqsystemtray.h"
 
 class QHttp;
 class QSemaphore;
@@ -30,7 +33,7 @@ class QQMainPanel : public QWidget
     Q_OBJECT
 
 public:
-    explicit QQMainPanel(CaptchaInfo cap_info, FriendInfo user_info, QWidget *parent = NULL);
+    explicit QQMainPanel(FriendInfo user_info, QWidget *parent = NULL);
     ~QQMainPanel();
 
 public:
@@ -53,6 +56,7 @@ private slots:
     void changeFriendStatus(QString id, FriendStatus state);
     void changeRecentList(const QQChatMsg *msg);
     void changeRecentList(const QQGroupChatMsg *msg);
+    void trayActivated(QSystemTrayIcon::ActivationReason reason);
 
 private:
     QQItem* findFriendItemById(QString id);
@@ -68,12 +72,12 @@ private:
     void parseFriendsInfo(const QByteArray &array, QQItem *root_item);
     void parseGroupsInfo(const QByteArray &array, QQItem *root_item);
     void parseRecentList(const QByteArray &array, QQItem *root_item);
-    void setDefaultHeaderValue(QHttpRequestHeader &header);
+    void createTray();
+    void createActions();
 
 private:
     Ui::QQMainPanel *ui;
     QHttp *main_http_;
-    CaptchaInfo cap_info_;
     FriendInfo curr_user_info_;
     QSemaphore *poll_semapore_;
     QSemaphore *parse_semapore_;
@@ -90,4 +94,11 @@ private:
     QVector<QQItem*> recents_info_;
     QVector<QQChatDlg*> opening_chatdlg_;
     QQItem *recent_list_root_;
+
+    //system tray
+    QQSystemTray *trayIcon;
+    QAction *minimizeAction;
+    QAction *restoreAction;
+    QAction *quitAction;
+    QMenu *trayIconMenu;
 };

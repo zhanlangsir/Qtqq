@@ -8,9 +8,9 @@ class QQItem
 {
 public:
     enum ItemType {kCategory, kFriend, kGroup};
-    QQItem(ItemType type, ItemInfo *item, QQItem *parent = 0) :
+    QQItem(ItemType type, ItemInfo *info, QQItem *parent = 0) :
         type_(type),
-        item_(item),
+        info_(info),
         parent_(parent)
     {
     }
@@ -23,6 +23,11 @@ public:
         return item;
     }
 
+    QString avatarPath() const
+    { return info_->avatarPath(); }
+    void set_avatarPath(QString avatar_path)
+    { info_->set_avatarPath(avatar_path); }
+
     ItemType type() const
     { return type_; }
     void set_type(ItemType type)
@@ -34,23 +39,23 @@ public:
     { parent_ = parent; }
 
     QString name() const
-    { return item_->name(); }
+    { return info_->name(); }
 
     QString id() const
-    { return item_->id(); }
+    { return info_->id(); }
 
     QString mood() const
-    { return item_->mood(); }
+    { return info_->mood(); }
 
     ItemInfo *itemInfo() const
-    {   return item_; }
-    void set_itemInfo(ItemInfo *item)
-    { item_ = item; }
+    {   return info_; }
+    void set_itemInfo(ItemInfo *info)
+    { info_ = info; }
 
     FriendStatus state() const
-    { return item_->state(); }
+    { return info_->state(); }
     void set_state(FriendStatus state)
-    { item_->set_state(state);}
+    { info_->set_state(state);}
 
     void append(QQItem *item)
     { children_.append(item); }
@@ -68,7 +73,7 @@ public:
 
 private:
     ItemType type_;
-    ItemInfo *item_;
+    ItemInfo *info_;
     QQItem *parent_;
 };
 

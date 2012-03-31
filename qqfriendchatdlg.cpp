@@ -10,8 +10,8 @@
 #include <QMouseEvent>
 #include <QFileDialog>
 
-QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user_info, CaptchaInfo cap_info) :
-    QQChatDlg(uin, name, curr_user_info, cap_info),
+QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user_info) :
+    QQChatDlg(uin, name, curr_user_info),
     ui(new Ui::QQFriendChatDlg())
 {
    ui->setupUi(this);
@@ -114,8 +114,8 @@ QString QQFriendChatDlg::converToJson(const QString &raw_msg)
     msg_template = msg_template +
             "[\\\"font\\\",{\\\"name\\\":\\\"%E5%AE%8B%E4%BD%93\\\",\\\"size\\\":\\\"10\\\",\\\"style\\\":[0,0,0],\\\"color\\\":\\\"000000\\\"}]]\","
             "\"msg_id\":" + QString::number(msg_id_++) + ",\"clientid\":\"5412354841\","
-            "\"psessionid\":\""+ cap_info_.psessionid_ +"\"}"
-            "&clientid=5412354841&psessionid="+cap_info_.psessionid_;
+            "\"psessionid\":\""+ CaptchaInfo::singleton()->psessionid() +"\"}"
+            "&clientid=5412354841&psessionid="+CaptchaInfo::singleton()->psessionid();
     //msg_template.replace("/", "%2F");
     return msg_template;
 }

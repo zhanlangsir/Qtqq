@@ -15,14 +15,17 @@ void QQMsgSender::send(const Request &req)
 
 void QQMsgSender::run()
 {  
-    Request req = msgs_be_send_.dequeue();
+    while (msgs_be_send_.count() != 0)
+    {
+        Request req = msgs_be_send_.dequeue();
 
-    QTcpSocket fd;
-    fd.connectToHost("d.web2.qq.com", 80);
-    fd.write(req.toByteArray());
+        QTcpSocket fd;
+        fd.connectToHost("d.web2.qq.com", 80);
+        fd.write(req.toByteArray());
 
-    fd.waitForReadyRead();
-    fd.readAll();
+        fd.waitForReadyRead();
+        fd.readAll();
 
-    fd.close();
+        fd.close();
+    }
 }

@@ -102,11 +102,6 @@ void QQLogin::mouseReleaseEvent(QMouseEvent *)
     distance_pos_ = QPoint(0, 0);
 }
 
-CaptchaInfo QQLogin::getCaptchaInfo() const
-{
-    return captcha_info_;
-}
-
 FriendInfo QQLogin::getCurrentUserInfo() const
 {
     return curr_user_info_;
@@ -133,7 +128,7 @@ void QQLogin::getCaptchaImg(QByteArray sum)
 
     int cookie_idx = result.indexOf("Set-Cookie") + 12;
     int idx = result.indexOf(';', cookie_idx)+1;
-    captcha_info_.cookie_ = result.mid(cookie_idx, idx - cookie_idx);
+    CaptchaInfo::singleton()->set_cookie(result.mid(cookie_idx, idx - cookie_idx));
 
     QDialog *captcha_dialog = new QDialog(this);
     Ui::QQCaptcha *ui = new Ui::QQCaptcha;
@@ -164,7 +159,7 @@ void QQLogin::getLoginInfo(QString ptwebqq)
     Request req;
     req.create(kPost, login_info_path);
     req.addHeaderItem("Host", "d.web2.qq.com");
-    req.addHeaderItem("Cookie", captcha_info_.cookie_);
+    req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
     req.addHeaderItem("Referer", "http://d.web2.qq.com/channel/login2");
     req.addHeaderItem("Content-Length", QString::number(msg.length()));
     req.addHeaderItem("Content-Type", "application/x-www-form-urlencoded");
@@ -194,7 +189,7 @@ void QQLogin::login()
     Request req;
     req.create(kGet, login_url);
     req.addHeaderItem("Host", "ptlogin2.qq.com");
-    req.addHeaderItem("Cookie", captcha_info_.cookie_);
+    req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
 
     fd_->connectToHost("ptlogin2.qq.com", 80);
     connect(fd_, SIGNAL(readyRead()), this, SLOT(loginRead()));
@@ -263,9 +258,9 @@ void QQLogin::loginRead()
             ptwebqq = value;
 
         if (key == "skey")
-            captcha_info_.skey_ = value;
+            CaptchaInfo::singleton()->set_skey(value);
 
-        captcha_info_.cookie_ = captcha_info_.cookie_ + key + "=" + value + ";";
+        CaptchaInfo::singleton()->set_cookie(CaptchaInfo::singleton()->cookie() + key + "=" + value + ";");
     }
 
     disconnect(fd_, SIGNAL(readyRead()), this, SLOT(loginRead()));
@@ -277,11 +272,12 @@ void QQLogin::loginInfoRead()
     QByteArray result = fd_->readAll();
     int vfwebqq_f_idx = result.indexOf("vfwebqq") + 10;
     int vfwebqq_s_idx = result.indexOf(',', vfwebqq_f_idx) - 1;
-    captcha_info_.vfwebqq_ = result.mid(vfwebqq_f_idx, vfwebqq_s_idx - vfwebqq_f_idx);
+
+    CaptchaInfo::singleton()->set_vfwebqq(result.mid(vfwebqq_f_idx, vfwebqq_s_idx - vfwebqq_f_idx));
 
     int psessionid_f_idx = result.indexOf("psessionid") + 13;
     int  psessionid_s_idx = result.indexOf(',',  psessionid_f_idx) - 1;
-    captcha_info_.psessionid_ = result.mid( psessionid_f_idx,  psessionid_s_idx -  psessionid_f_idx);
+    CaptchaInfo::singleton()->set_psessionid(result.mid( psessionid_f_idx,  psessionid_s_idx -  psessionid_f_idx));
 
     disconnect(fd_, SIGNAL(readyRead()), this, SLOT(loginInfoRead()));
     this->accept();

@@ -12,15 +12,13 @@ class QQPollThread : public QThread
     Q_OBJECT
 
 public:
-    QQPollThread(CaptchaInfo captcha_info, 
-                 QQueue<QByteArray> *message_queue, 
+    QQPollThread(QQueue<QByteArray> *message_queue,
                  QSemaphore *semaphore);
 
 protected:
     void run();
 
-private:
-   CaptchaInfo captcha_info_; 
+private: 
    QTcpSocket *poll_fd_;
    QByteArray msg_;
    Request req_;

@@ -1,15 +1,19 @@
-#ifndef QQItemModel_H
-#define QQItemModel_H
+#ifndef QTQQ_QQITEMMODEL_H
+#define QTQQ_QQITEMMODEL_H
 
 #include <QAbstractItemModel>
 #include <QString>
-#include <QVector>
 
-#include "types.h"
-#include "qqitem.h"
+#include "qqavatarrequester.h"
+
+class QQItem;
 
 class QQItemModel : public QAbstractItemModel
 {
+    Q_OBJECT
+signals:
+    void noAvatar(QQItem *item) const;
+
 public:
     QQItemModel(QObject *parent = 0);
 
@@ -26,9 +30,15 @@ public:
 
 private:
     QQItem* itemFromIndex(const QModelIndex &index) const ;
+    QPixmap getDefaultPixmap(const QQItem *item) const;
+    QPixmap getPixmap(const QQItem *item) const;
+
+private slots:
+    void requestAvatar(QQItem *item);
 
 private:
+    QQAvatarRequester avatar_requester_;
     QQItem *root_;
 };
 
-#endif // QQItemModel_H
+#endif //QTQQ_QQITEMMODEL_H 

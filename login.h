@@ -22,7 +22,6 @@ public:
     ~QQLogin();
 
 public:
-    CaptchaInfo getCaptchaInfo() const;
     FriendInfo getCurrentUserInfo() const ;
 
 protected:
@@ -46,7 +45,6 @@ private:
     
 private:
     FriendInfo curr_user_info_;
-    CaptchaInfo captcha_info_;
     Ui::QQLogin *ui;
     QString check_url_;
     QTcpSocket *fd_;

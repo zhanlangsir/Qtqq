@@ -9,14 +9,13 @@
 #include <QDebug>
 #include <QHttp>
 
-void ImgSender::send(const QString uinque_id, const QString full_path, const QString id, const CaptchaInfo cap_info)
+void ImgSender::send(const QString uinque_id, const QString full_path, const QString id)
 {
     is_sending_ = true;
     QString send_url = base_send_url_+QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
     unique_id_ = uinque_id;
     full_path_ = full_path;
     id_ = id;
-    cap_info_ = cap_info;
 
     QFile file(full_path);
     file.open(QIODevice::ReadOnly);
@@ -27,12 +26,12 @@ void ImgSender::send(const QString uinque_id, const QString full_path, const QSt
     
     req_.create(kPost, send_url);
     req_.addHeaderItem("Host", host_);
-    req_.addHeaderItem("Content-Length", " "+QString::number(msg.length()));
+    req_.addHeaderItem("Content-Length", QString::number(msg.length()));
     req_.addHeaderItem("Cache-Control", "max-age=0");
     req_.addHeaderItem("Origin", "http://web.qq.com");
     req_.addHeaderItem("Content-Type", "multipart/form-data; boundary="+boundary);
     req_.addHeaderItem("Referer", "http://web.qq.com/");
-    req_.addHeaderItem("Cookie", cap_info.cookie_);
+    req_.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
     req_.addRequestContent(msg);
 
     start();

@@ -28,7 +28,7 @@ void QQPollThread::run()
             int ptwebqq_fir_idx = result.indexOf("p", retcode_sec_idx) + 3;
             int ptwebqq_sec_idx = result.indexOf("\"", ptwebqq_fir_idx);
             QString ptwebqq = result.mid(ptwebqq_fir_idx, ptwebqq_sec_idx - ptwebqq_fir_idx);
-            captcha_info_.vfwebqq_ = ptwebqq;
+            CaptchaInfo::singleton()->set_vfwebqq(ptwebqq);
 
         }
         message_queue_->enqueue(result);
@@ -38,19 +38,18 @@ void QQPollThread::run()
     }
 }
 
-QQPollThread::QQPollThread(CaptchaInfo captcha_info, QQueue<QByteArray> *message_queue,
+QQPollThread::QQPollThread(QQueue<QByteArray> *message_queue,
                            QSemaphore *semaphore) : 
-    captcha_info_(captcha_info),
     semaphore_(semaphore),
     message_queue_(message_queue)
 {
     QString poll_path = "/channel/poll2";
-    msg_ = "r={\"clientid\":\"5412354841\",\"psessionid\":\"" + captcha_info_.psessionid_.toAscii() + "\","
-        "\"key\":0,\"ids\":[]}&clientid=" + "5412354841" + "&psessionid=" + captcha_info_.psessionid_.toAscii();
+    msg_ = "r={\"clientid\":\"5412354841\",\"psessionid\":\"" + CaptchaInfo::singleton()->psessionid().toAscii() + "\","
+        "\"key\":0,\"ids\":[]}&clientid=" + "5412354841" + "&psessionid=" + CaptchaInfo::singleton()->psessionid().toAscii();
 
     req_.create(kPost, poll_path);
     req_.addHeaderItem("Host", "d.web2.qq.com");
-    req_.addHeaderItem("Cookie", captcha_info_.cookie_);
+    req_.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
     req_.addHeaderItem("Referer", "http://d.web2.qq.com/proxy.html");
     req_.addHeaderItem("Content-Length", QString::number(msg_.length()));
     req_.addHeaderItem("Content-Type", "application/x-www-form-urlencoded");

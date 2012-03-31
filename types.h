@@ -13,8 +13,43 @@ struct FileInfo
     QString network_path_;
 };
 
-struct CaptchaInfo
+class CaptchaInfo
 {
+public:
+    static CaptchaInfo* singleton()
+    { 
+        if (!instance_)
+            instance_ = new CaptchaInfo();
+        return instance_;
+    }
+
+public:
+    QString vfwebqq() const
+    { return vfwebqq_; }
+    void set_vfwebqq(QString vfwebqq)
+    { vfwebqq_ = vfwebqq; }
+
+    QString psessionid() const
+    { return psessionid_; }
+    void set_psessionid(QString psessionid)
+    { psessionid_ = psessionid; }
+
+    QString skey() const
+    { return skey_; }
+    void set_skey(QString skey)
+    { skey_ = skey; }
+
+    QString cookie() const
+    { return cookie_; }
+    void set_cookie(QString cookie)
+    { cookie_= cookie; }
+
+protected:
+    CaptchaInfo() {}
+
+private:
+    static CaptchaInfo* instance_;
+
     QString vfwebqq_;
     QString psessionid_;
     QString skey_;
@@ -24,6 +59,13 @@ struct CaptchaInfo
 class ItemInfo
 {
 public:
+    QString avatarPath() const
+    {
+        return avatar_path_;
+    }
+    void set_avatarPath(QString avatar_path)
+    { avatar_path_ = avatar_path; }
+
     QString name() const
     { return name_; }
     void set_name(QString name)
@@ -48,6 +90,7 @@ private:
     QString name_;
     QString id_;
     QString mood_;
+    QString avatar_path_;
 };
 
 class FriendInfo : public ItemInfo
