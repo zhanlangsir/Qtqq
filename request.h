@@ -17,7 +17,6 @@ public:
     void addHeaderItem(QString key, QString value);
     void addRequestContent(QByteArray content);
     void create(RequestModes mode, QString url);
-    void setCookie(const Cookie& cookie);
 
     QByteArray toByteArray();
 

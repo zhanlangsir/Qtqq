@@ -6,12 +6,11 @@
 #include <QApplication>
 
 QQChatDlg::QQChatDlg(QString id, QString name, FriendInfo curr_user_info, 
-                     CaptchaInfo cap_info, QWidget *parent) : 
+                     QWidget *parent) :
     QDialog(parent),
     id_(id),
     msg_id_(4462000),
     name_(name),
-    cap_info_(cap_info), 
     curr_user_info_(curr_user_info),
     img_loader_(NULL),
     img_sender_(NULL),
@@ -102,7 +101,7 @@ void QQChatDlg::openPathDialog(bool)
     }
 
     QString unique_id = getUniqueId();
-    img_sender_->send(unique_id, file_path, curr_user_info_.id(), cap_info_);
+    img_sender_->send(unique_id, file_path, curr_user_info_.id());
     te_input_.insertImgProxy(unique_id);
 }
 
@@ -153,7 +152,6 @@ void QQChatDlg::showMsg(const QQMsg *msg)
             {
                 img_loader_ = new ImgLoader();
                 connect(img_loader_, SIGNAL(loadDone(const QString&, const QString&)), &te_messages_, SLOT(setRealImg(const QString&, const QString&)));
-                img_loader_->setCaptchaInfo(cap_info_);
                 img_loader_->start();
             }
 
@@ -205,7 +203,7 @@ void QQChatDlg::sendMsg()
     Request req;
     req.create(kPost, send_url_);
     req.addHeaderItem("Host", "d.web2.qq.com");
-    req.addHeaderItem("Cookie", cap_info_.cookie_);
+    req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
     req.addHeaderItem("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002");
     req.addHeaderItem("Content-Length", QString::number(json_msg.length()));
     req.addHeaderItem("Content-Type", "application/x-www-form-urlencoded");

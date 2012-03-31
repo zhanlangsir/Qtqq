@@ -18,7 +18,7 @@ class QQGroupChatDlg : public QQChatDlg
 {
     Q_OBJECT
 public:
-    QQGroupChatDlg(QString gid, QString name, QString group_code, FriendInfo curr_user_info, CaptchaInfo cap_info);
+    QQGroupChatDlg(QString gid, QString name, QString group_code, FriendInfo curr_user_info);
     ~QQGroupChatDlg();
 
 protected:

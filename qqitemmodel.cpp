@@ -4,6 +4,9 @@
 #include <QIcon>
 #include <assert.h>
 #include <QDebug>
+#include <QFile>
+
+#include "qqitem.h"
 
 QVariant QQItemModel::data(const QModelIndex &index, int role) const
 {
@@ -19,25 +22,15 @@ QVariant QQItemModel::data(const QModelIndex &index, int role) const
             return QVariant();
 
         QPixmap pix;
-        if (item->type() == QQItem::kFriend)
+        if (item->avatarPath().isEmpty())
         {
-            QIcon icon("1.bmp");
-
-            if (item->state() == kLeave)
-            {
-                pix = icon.pixmap(QSize(60, 60), QIcon::Disabled, QIcon::On);
-            }
-            else
-                pix = icon.pixmap(QSize(60,60));
+            if (!avatar_requester_.isRequesting(item->id()))
+                emit noAvatar(item);
+            pix = getDefaultPixmap(item);
         }
-
-        if (item->type() == QQItem::kGroup)
-        {
-            QIcon icon("group.png");
-
-            pix = icon.pixmap(QSize(60,60));
-        }
-
+        else
+            pix = getPixmap(item);
+      
         return pix;
     }
 
@@ -51,6 +44,56 @@ QVariant QQItemModel::data(const QModelIndex &index, int role) const
         return item->name();
     }
     return QVariant();
+}
+
+QPixmap QQItemModel::getDefaultPixmap(const QQItem *item) const
+{
+    QPixmap pix;
+    if (item->type() == QQItem::kFriend)
+    {
+        QIcon icon("images/avatar/1.bmp");
+
+        if (item->state() == kLeave)
+        {
+            pix = icon.pixmap(QSize(60, 60), QIcon::Disabled, QIcon::On);
+        }
+        else
+            pix = icon.pixmap(QSize(60,60));
+    }
+
+    if (item->type() == QQItem::kGroup)
+    {
+        QIcon icon("images/avatar/group.png");
+        pix = icon.pixmap(QSize(60,60));
+    }
+    return pix;
+}
+
+QPixmap QQItemModel::getPixmap(const QQItem *item) const
+{
+    QFile file(item->avatarPath());
+    file.open(QIODevice::ReadOnly);
+
+    QPixmap pix(60, 60);
+    pix.loadFromData(file.readAll(), 0, Qt::MonoOnly);
+    file.close();
+
+    QIcon icon;
+    icon.addPixmap(pix);
+
+    if (item->state() == kLeave)
+    {
+        pix = icon.pixmap(QSize(60, 60), QIcon::Disabled, QIcon::On);
+    }
+    else
+        pix = icon.pixmap(QSize(60,60));
+
+    return pix;
+}
+
+void QQItemModel::requestAvatar(QQItem *item)
+{
+    avatar_requester_.request(item);
 }
 
 void QQItemModel::setRoot(QQItem *root)
@@ -116,7 +159,7 @@ QQItem* QQItemModel::itemFromIndex(const QModelIndex &index) const
         return root_;
 }
 
-QQItemModel::QQItemModel(QObject *parent) : QAbstractItemModel(parent)
+QQItemModel::QQItemModel(QObject *parent) : QAbstractItemModel(parent), avatar_requester_()
 {
-
+    connect(this, SIGNAL(noAvatar(QQItem*)), this, SLOT(requestAvatar(QQItem*)));
 }

@@ -19,7 +19,6 @@ void QQParseThread::run()
         {
             continue;
         }    
-        qDebug()<<"reader parse done"<<endl;
 
         if (root["retcode"].asInt() == 121)
         {
@@ -108,7 +107,6 @@ QQMsg* QQParseThread::createMsg(QString type, const Json::Value result)
     }
     else if (type == "message")
     {
-        qDebug()<<"message parseing"<<endl;
         QQChatMsg *chat_msg = new QQChatMsg();
         chat_msg->set_type(QQMsg::kFriend);
         chat_msg->from_uin_ = QString::number(result["value"]["from_uin"].asLargestInt());

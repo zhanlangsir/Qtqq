@@ -20,15 +20,10 @@ signals:
 
 public:
     enum ChatDlgType {kGroup, kFriend};
-    QQChatDlg(QString id, QString name, FriendInfo curr_user_info, CaptchaInfo cap_info, QWidget *parent = 0);
+    QQChatDlg(QString id, QString name, FriendInfo curr_user_info, QWidget *parent = 0);
     virtual ~QQChatDlg();
 
 public:
-    void setCaptchaInfo(CaptchaInfo cap_info)
-    {
-        cap_info_ = cap_info;
-        te_messages_.setCaptchaInfo(cap_info);
-    }
     void setNameConvertor(NameConvertor convertor)
     { convertor_ = convertor; }
     void showMsg(const QQMsg *msg);
@@ -60,7 +55,6 @@ protected:
     QString id_;
     int msg_id_;
     QString name_;
-    CaptchaInfo cap_info_;
     QTcpSocket fd_;
     NameConvertor convertor_;
     QVector<QString> unconvert_ids_;

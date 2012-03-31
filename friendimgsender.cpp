@@ -21,12 +21,12 @@ QByteArray FriendImgSender::createSendMsg(const QByteArray &file_data, const QSt
         "parent.EQQ.Model.ChatMsg.callbackSendPic\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"locallangid\"\r\n\r\n"
         "2052\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"clientversion\"\r\n\r\n"
         "1409\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"uin\"\r\n\r\n" + id_.toAscii() + "\r\n"
-        +boundary_convenience+"Content-Disposition: form-data; name=\"skey\"\r\n\r\n" + cap_info_.skey_.toAscii() + "\r\n"
+        +boundary_convenience+"Content-Disposition: form-data; name=\"skey\"\r\n\r\n" + CaptchaInfo::singleton()->skey().toAscii() + "\r\n"
         +boundary_convenience+"Content-Disposition: form-data; name=\"appid\"\r\n\r\n"
         "1002101\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"peeruin\"\r\n\r\n"
         "593023668\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"file\"; filename=\""+ QFileInfo(full_path_).fileName().toAscii() + "\"\r\n"
         "Content-Type: image/jpeg\r\n\r\n" + file_data +"\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"fileid\"\r\n\r\n"
-        "1\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"vfwebqq\"\r\n\r\n" + cap_info_.vfwebqq_.toAscii() + "\r\n"
+        "1\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"vfwebqq\"\r\n\r\n" + CaptchaInfo::singleton()->vfwebqq().toAscii() + "\r\n"
         +boundary_convenience+"Content-Disposition: form-data; name=\"senderviplevel\"\r\n\r\n"
         "0\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"reciverviplevel\"\r\n\r\n"
         "0\r\n--"+boundary.toAscii() +"--\r\n\r\n";
@@ -50,7 +50,8 @@ FileInfo FriendImgSender::parseResult(const QByteArray &array)
 
     QTcpSocket fd;
     QString apply_offline_pic_url = "/channel/apply_offline_pic_dl2?f_uin=" +
-        id_ + "&file_path=" + network_path + "&clientid=5412354841&psessionid="+cap_info_.psessionid_ + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
+        id_ + "&file_path=" + network_path + "&clientid=5412354841&psessionid="+CaptchaInfo::singleton()->psessionid() +
+            "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
 
     Request req;
     req.create(kGet, apply_offline_pic_url);
@@ -58,7 +59,7 @@ FileInfo FriendImgSender::parseResult(const QByteArray &array)
     req.addHeaderItem("Connection", "keep-alive");
     req.addHeaderItem("Content-Type", "utf-8");
     req.addHeaderItem("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002");
-    req.addHeaderItem("Cookie", cap_info_.cookie_);
+    req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
 
     fd.connectToHost("d.web2.qq.com", 80);
     fd.write(req.toByteArray());

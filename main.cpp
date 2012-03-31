@@ -20,11 +20,10 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    CaptchaInfo captcha_info = login->getCaptchaInfo();
     FriendInfo user_info = login->getCurrentUserInfo();
     login->close();
 
-    QQMainPanel *main_panel = new QQMainPanel(captcha_info, user_info);
+    QQMainPanel *main_panel = new QQMainPanel(user_info);
     main_panel->initialize();
     main_panel->show();
 

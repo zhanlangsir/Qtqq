@@ -40,8 +40,6 @@ public:
     { return file_ids_; }
     QMovie * getMovieById(const QString &id)
     { return id_mov_hash_.value(id); }
-    void setCaptchaInfo(CaptchaInfo cap_info)
-    { cap_info_ = cap_info; }
     void showToolTip()
     { QToolTip::showText(QCursor::pos(), toolTip()); }
     bool containsImg(const QString &file_id)
@@ -64,5 +62,4 @@ private slots:
 private:
     QList<QString> file_ids_;
     QHash<QString, QMovie*> id_mov_hash_;
-    CaptchaInfo cap_info_;
 };

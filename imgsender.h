@@ -13,7 +13,7 @@ public:
     ~ImgSender() {}
 
 public:
-    void send(const QString uinque_id, const QString full_path, const QString id, const CaptchaInfo cap_info);
+    void send(const QString uinque_id, const QString full_path, const QString id);
 
     bool hasError()
     { return has_error_; }
@@ -29,7 +29,6 @@ protected:
 
 protected:
     QString base_send_url_;
-    CaptchaInfo cap_info_;
     QString full_path_;
     QString host_;
     QString id_;

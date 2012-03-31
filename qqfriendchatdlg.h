@@ -17,7 +17,7 @@ class QQFriendChatDlg : public QQChatDlg
 {
     Q_OBJECT
 public:
-    QQFriendChatDlg(QString uin, QString from_name, FriendInfo curr_user_info, CaptchaInfo cap_info);
+    QQFriendChatDlg(QString uin, QString from_name, FriendInfo curr_user_info);
     ~QQFriendChatDlg();
 
 protected:

@@ -10,13 +10,14 @@ void ImgLoader::loadFriendCface(const QString &file_name, const QString &to_uin,
 
     info.img_name_ = file_name;
     info.path_ = "temp/" + file_name;
-    info.url_ = "/channel/get_cface2?lcid="+msg_id+"&guid="+file_name+"&to="+ to_uin+ "&count=5&time=1&clientid=5412354841&psessionid="+cap_info_.psessionid_;
+    info.url_ = "/channel/get_cface2?lcid="+msg_id+"&guid="+file_name+"&to="+ to_uin+
+            "&count=5&time=1&clientid=5412354841&psessionid="+CaptchaInfo::singleton()->psessionid();
     info.host_ = "d.web2.qq.com";
 
     info.header_.create(kGet, info.url_);
     info.header_.addHeaderItem("Host", info.host_);
     info.header_.addHeaderItem("Referer", "http://web.qq.com");
-    info.header_.addHeaderItem("Cookie", cap_info_.cookie_);
+    info.header_.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
 
     infos_.enqueue(info);
 
@@ -29,13 +30,14 @@ void ImgLoader::loadFriendOffpic(const QString &file_name, const QString &to_uin
     info.img_name_ = file_name;
     info.path_ = "temp/" + file_name;
 
-    info.url_ = "/channel/get_offpic2?file_path=" +file_name + "&f_uin=" + to_uin + "&clientid=5412354841&psessionid="+cap_info_.psessionid_;
+    info.url_ = "/channel/get_offpic2?file_path=" +file_name + "&f_uin=" + to_uin + "&clientid=5412354841&psessionid="+
+            CaptchaInfo::singleton()->psessionid();
     info.host_ = "d.web2.qq.com";
 
     info.header_.create(kGet, info.url_);
     info.header_.addHeaderItem("Host", info.host_);
     info.header_.addHeaderItem("Referer", "http://web.qq.com");
-    info.header_.addHeaderItem("Cookie", cap_info_.cookie_);
+    info.header_.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
 
     infos_.enqueue(info);
 
@@ -53,7 +55,7 @@ void ImgLoader::loadGroupChatImg(const QString &file_name, const QString &gid, c
     info.header_.create(kGet, info.url_);
     info.header_.addHeaderItem("Host", info.host_);
     info.header_.addHeaderItem("Referer", "http://web.qq.com");
-    info.header_.addHeaderItem("Cookie", cap_info_.cookie_);
+    info.header_.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
 
     infos_.enqueue(info);
 
@@ -100,7 +102,7 @@ void ImgLoader::run()
         req.create(kGet, file_url);
         req.addHeaderItem("Host", host);
         req.addHeaderItem("Referer", "http://web.qq.com");
-        req.addHeaderItem("Cookie", cap_info_.cookie_);
+        req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
         fd_.connectToHost(host, 80);
         fd_.write(req.toByteArray());
         array.clear();

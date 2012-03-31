@@ -14,6 +14,7 @@
         <file>images/LoginPanel/btn_mini_down.png</file>
         <file>images/LoginPanel/btn_mini_highlight.png</file>
         <file>images/LoginPanel/btn_mini_normal.png</file>
+        <file>images/WebQQ.ico</file>
     </qresource>
     <qresource prefix="/new/mainpanel">
         <file>images/Skins/system/1.45_4/main.jpg</file>

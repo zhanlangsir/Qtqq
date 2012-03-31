@@ -12,8 +12,8 @@
 #include <QSqlQuery>
 #include <QSqlError>
 
-QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, FriendInfo curr_user_info, CaptchaInfo cap_info) : 
-    QQChatDlg(gid, name, curr_user_info, cap_info),
+QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, FriendInfo curr_user_info) :
+    QQChatDlg(gid, name, curr_user_info),
     ui(new Ui::QQGroupChatDlg()),
     group_code_(group_code)
 {
@@ -134,13 +134,14 @@ void QQGroupChatDlg::getGfaceSig()
     }
     if (need_create_table)
     {
-        QString gface_sig_url = "/channel/get_gface_sig2?clientid=5412354841&psessionid="+cap_info_.psessionid_ +"&t="+QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
+        QString gface_sig_url = "/channel/get_gface_sig2?clientid=5412354841&psessionid="+CaptchaInfo::singleton()->psessionid() +
+                "&t="+QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
 
         QHttpRequestHeader header;
         header.setRequest("GET", gface_sig_url);
         header.addValue("Host", "d.web2.qq.com");
         header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002");
-        header.addValue("Cookie", cap_info_.cookie_);
+        header.addValue("Cookie", CaptchaInfo::singleton()->cookie());
 
         http_.setHost("d.web2.qq.com");
         connect(&http_, SIGNAL(done(bool)), this, SLOT(getGfaceSigDone(bool)));
@@ -306,12 +307,13 @@ void QQGroupChatDlg::getGroupMemberList()
         }
         if (need_create_table)
         {
-            QString get_group_member_url = "/api/get_group_info_ext2?gcode=" + group_code_ + "&vfwebqq=" + cap_info_.vfwebqq_ + "&t="+ QString::number(QDateTime::currentMSecsSinceEpoch());
+            QString get_group_member_url = "/api/get_group_info_ext2?gcode=" + group_code_ + "&vfwebqq=" +
+                    CaptchaInfo::singleton()->vfwebqq() + "&t="+ QString::number(QDateTime::currentMSecsSinceEpoch());
 
             QHttpRequestHeader header("GET", get_group_member_url);
             header.addValue("Host", "s.web2.qq.com");
             header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001");
-            header.addValue("Cookie", cap_info_.cookie_);
+            header.addValue("Cookie", CaptchaInfo::singleton()->cookie());
 
             http_.setHost("s.web2.qq.com");
             connect(&http_, SIGNAL(done(bool)), this, SLOT(getGroupMemberListDone(bool)));
@@ -431,8 +433,8 @@ QString QQGroupChatDlg::converToJson(const QString &raw_msg)
     msg_template = msg_template +
             "[\\\"font\\\",{\\\"name\\\":\\\"%E5%AE%8B%E4%BD%93\\\",\\\"size\\\":\\\"10\\\",\\\"style\\\":[0,0,0],\\\"color\\\":\\\"000000\\\"}]]\","
             "\"msg_id\":" + QString::number(msg_id_++) + ",\"clientid\":\"5412354841\","
-            "\"psessionid\":\""+ cap_info_.psessionid_ +"\"}"
-            "&clientid=5412354841&psessionid="+cap_info_.psessionid_;
+            "\"psessionid\":\""+ CaptchaInfo::singleton()->psessionid() +"\"}"
+            "&clientid=5412354841&psessionid="+CaptchaInfo::singleton()->psessionid();
 
     if (has_gface)
         msg_template = "r={\"group_uin\":" + id_ +",\"group_code\":" + group_code_ + "," + "\"key\":\"" + gface_key_ + "\"," +
