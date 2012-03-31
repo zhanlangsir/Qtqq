@@ -176,7 +176,7 @@ void QQChatDlg::showMsg(const QQMsg *msg)
         }
     }
 
-    if (this->isHidden())
+    if (this->isHidden() || this->isMinimized())
         QApplication::alert(this, 3000);
 }
 
