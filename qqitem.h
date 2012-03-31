@@ -15,6 +15,13 @@ public:
     {
     }
     QQItem(QQItem *parent = 0) : parent_(parent) {}
+    ~QQItem()
+    {
+        if (info_)
+            delete info_;
+
+        info_ = NULL;
+    }
 
 public:
     QQItem* shallowCopy()
@@ -52,10 +59,10 @@ public:
     void set_itemInfo(ItemInfo *info)
     { info_ = info; }
 
-    FriendStatus state() const
-    { return info_->state(); }
-    void set_state(FriendStatus state)
-    { info_->set_state(state);}
+    FriendStatus status() const
+    { return info_->status(); }
+    void set_status(FriendStatus status)
+    { info_->set_status(status);}
 
     void append(QQItem *item)
     { children_.append(item); }

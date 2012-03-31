@@ -413,7 +413,7 @@ margin:0 2 2 2;
         </item>
        </layout>
       </widget>
-      <widget class="QListWidget" name="lw_members_">
+      <widget class="QListView" name="lv_members_">
        <property name="minimumSize">
         <size>
          <width>160</width>

@@ -169,7 +169,7 @@ void QQChatDlg::showMsg(const QQMsg *msg)
                 else if (chat_msg->msg_[i].type() == QQChatItem::kFriendCface)
                     img_loader_->loadFriendCface(chat_msg->msg_[i].content(), id_, chat_msg->msg_id_);
                 else
-                    img_loader_->loadFriendOffpic(chat_msg->msg_[i].content(), id_, chat_msg->msg_id_);
+                    img_loader_->loadFriendOffpic(chat_msg->msg_[i].content(), id_);
 
                 te_messages_.insertImgProxy(chat_msg->msg_[i].content());
             }

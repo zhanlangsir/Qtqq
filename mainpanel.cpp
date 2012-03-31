@@ -63,7 +63,7 @@ QQMainPanel::~QQMainPanel()
     delete ui;
 }
 
-void QQMainPanel::changeFriendStatus(QString id, FriendStatus state)
+void QQMainPanel::changeFriendStatus(QString id, FriendStatus status)
 {
     QQItem *item = findFriendItemById(id);
     if (!item)
@@ -71,13 +71,13 @@ void QQMainPanel::changeFriendStatus(QString id, FriendStatus state)
         return;
     }
 
-    item->set_state(state);
+    item->set_status(status);
 
     QQItem *category = item->parent();
     int idx = category->indexOf(item);
     category->children_.remove(idx);
 
-    if (state == kOnline)
+    if (status == kOnline)
         category->children_.push_front(item);
     else
         category->children_.push_back(item);
@@ -502,13 +502,13 @@ void QQMainPanel::parseFriendsInfo(const QByteArray &str, QQItem *root_item)
         QString name = QString::fromStdString(info[i]["nick"].asString());
         QString uin = QString::number(info[i]["uin"].asLargestInt());
 
-        FriendInfo *item = new FriendInfo;
-        item->set_name(name);
-        item->set_id(uin);
-        item->set_state(kLeave);
+        FriendInfo *info = new FriendInfo;
+        info->set_name(name);
+        info->set_id(uin);
+        info->set_status(kLeave);
         int category_num = friends[i]["categories"].asInt();
         QQItem* parent = root_item->value(index_map.key(category_num));
-        QQItem *myfriend = new QQItem(QQItem::kFriend, item, parent);
+        QQItem *myfriend = new QQItem(QQItem::kFriend, info, parent);
 
         friends_info_.append(myfriend);
         convertor_.addUinNameMap(uin, name);

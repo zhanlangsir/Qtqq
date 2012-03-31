@@ -53,7 +53,7 @@ QPixmap QQItemModel::getDefaultPixmap(const QQItem *item) const
     {
         QIcon icon("images/avatar/1.bmp");
 
-        if (item->state() == kLeave)
+        if (item->status() == kLeave)
         {
             pix = icon.pixmap(QSize(60, 60), QIcon::Disabled, QIcon::On);
         }
@@ -81,7 +81,7 @@ QPixmap QQItemModel::getPixmap(const QQItem *item) const
     QIcon icon;
     icon.addPixmap(pix);
 
-    if (item->state() == kLeave)
+    if (item->status() == kLeave)
     {
         pix = icon.pixmap(QSize(60, 60), QIcon::Disabled, QIcon::On);
     }
@@ -146,6 +146,7 @@ int QQItemModel::rowCount(const QModelIndex &parent) const
 
 int QQItemModel::columnCount(const QModelIndex &parent) const
 {
+    Q_UNUSED(parent)
     return 1;
 }
 
@@ -162,4 +163,16 @@ QQItem* QQItemModel::itemFromIndex(const QModelIndex &index) const
 QQItemModel::QQItemModel(QObject *parent) : QAbstractItemModel(parent), avatar_requester_()
 {
     connect(this, SIGNAL(noAvatar(QQItem*)), this, SLOT(requestAvatar(QQItem*)));
+}
+
+QQItemModel::~QQItemModel()
+{
+    QQItem *item = NULL;
+    foreach (item, root_->children_)
+    {
+        delete item;
+        item = NULL;
+    }
+    delete root_;
+    root_ = NULL;
 }

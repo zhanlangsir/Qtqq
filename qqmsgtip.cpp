@@ -63,10 +63,11 @@ void QQMsgTip::addItem(QQMsg* msg)
 
 void QQMsgTip::mousePressEvent(QMouseEvent *event)
 {
-  QPoint origin_pos = this->pos();
+    Q_UNUSED(event)
+    QPoint origin_pos = this->pos();
 
-  QPoint origin_mouse_pos = QCursor::pos();
-  distance_pos_ = origin_mouse_pos - origin_pos;
+     QPoint origin_mouse_pos = QCursor::pos();
+    distance_pos_ = origin_mouse_pos - origin_pos;
 }
 
 void QQMsgTip::mouseMoveEvent(QMouseEvent *event)

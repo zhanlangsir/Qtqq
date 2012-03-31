@@ -14,6 +14,7 @@ namespace Ui
 
 class QMouseEvent;
 class QWidget;
+class QQItem;
 
 class QQGroupChatDlg : public QQChatDlg
 {
@@ -38,6 +39,7 @@ private:
     void getGroupMemberList();
     void createSql();
     void createSigSql();
+    void parseGroupMemberList(const QByteArray &array, QQItem *root_item);
     void readFromSql();
     void readSigFromSql();
     void replaceUnconverId();

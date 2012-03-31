@@ -24,7 +24,7 @@ void ImgLoader::loadFriendCface(const QString &file_name, const QString &to_uin,
     img_count_.release();
 }
 
-void ImgLoader::loadFriendOffpic(const QString &file_name, const QString &to_uin, const QString &msg_id)
+void ImgLoader::loadFriendOffpic(const QString &file_name, const QString &to_uin)
 {
     LoadInfo info;
     info.img_name_ = file_name;

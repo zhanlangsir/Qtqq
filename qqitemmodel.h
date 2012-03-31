@@ -16,6 +16,7 @@ signals:
 
 public:
     QQItemModel(QObject *parent = 0);
+    ~QQItemModel();
 
 public:
     void setRoot(QQItem *root);

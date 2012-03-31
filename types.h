@@ -59,6 +59,14 @@ private:
 class ItemInfo
 {
 public:
+    ItemInfo(QString id, QString name, QString mood = "") :
+        id_(id),
+        name_(name),
+        mood_(mood)
+    {}
+    ItemInfo() {}
+
+public:
     QString avatarPath() const
     {
         return avatar_path_;
@@ -81,14 +89,14 @@ public:
     void set_mood(QString mood)
     { mood_ = mood; }
 
-    virtual FriendStatus state() const
+    virtual FriendStatus status() const
     { return kOnline; }
-    virtual void set_state(FriendStatus state)
-    { Q_UNUSED(state)}
+    virtual void set_status(FriendStatus status)
+    { Q_UNUSED(status)}
 
 private:
-    QString name_;
     QString id_;
+    QString name_;    
     QString mood_;
     QString avatar_path_;
 };
@@ -96,17 +104,22 @@ private:
 class FriendInfo : public ItemInfo
 {
 public:
+    FriendInfo(QString id, QString name, QString mark_name = "", QString mood = "", FriendStatus status=kOnline) :
+        ItemInfo(id, name, mood),
+        mark_name_(mark_name),
+        status_(status)
+    {}
     FriendInfo() {}
 
 public:
-    FriendStatus state() const
-    { return state_; }
-    void set_state(FriendStatus state)
-    { state_ = state; }
+    FriendStatus status() const
+    { return status_; }
+    void set_status(FriendStatus status)
+    { status_ = status; }
 
 private:
     QString mark_name_;
-    FriendStatus state_;
+    FriendStatus status_;
 };
 
 class GroupInfo : public ItemInfo
