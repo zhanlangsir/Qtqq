@@ -39,7 +39,7 @@ private:
     void getGroupMemberList();
     void createSql();
     void createSigSql();
-    void parseGroupMemberList(const QByteArray &array, QQItem *root_item);
+    void parseGroupMemberList(const QByteArray &array, QQItem *const root_item);
     void readFromSql();
     void readSigFromSql();
     void replaceUnconverId();

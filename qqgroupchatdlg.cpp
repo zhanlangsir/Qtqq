@@ -226,7 +226,7 @@ void QQGroupChatDlg::createSigSql()
     }
 }
 
-void QQGroupChatDlg::parseGroupMemberList(const QByteArray &array, QQItem *root_item)
+void QQGroupChatDlg::parseGroupMemberList(const QByteArray &array, QQItem *const root_item)
 {
     Json::Value root;
     Json::Reader reader;
@@ -328,6 +328,7 @@ void QQGroupChatDlg::readFromSql()
         convertor_.addUinNameMap(uin, nick);
     }
 
+    model->setRoot(root);
     ui->lv_members_->setModel(model);
 
     replaceUnconverId();
@@ -412,54 +413,6 @@ void QQGroupChatDlg::getGroupMemberListDone(bool err)
     model->setRoot(root_item);
 
     ui->lv_members_->setModel(model);
-//    Json::Value root;
-//    Json::Reader reader;
-
-//    if (!reader.parse(QString(array).toStdString(), root, false))
-//        return;
-
-//    Json::Value members = root["result"]["minfo"];
-
-//    {
-//        QStringList connection_names = QSqlDatabase::connectionNames();
-//        QSqlDatabase db;
-//        if (connection_names.isEmpty())
-//        {
-//            db = QSqlDatabase::addDatabase("QSQLITE");
-//            db.setDatabaseName("qqgroupdb");
-//        }
-//        else
-//        {
-//            db = QSqlDatabase::database(connection_names[0]);
-//        }
-
-//        if (!db.open())
-//            return;
-
-//        QSqlQuery query;
-//        QSqlDatabase::database().transaction();
-
-//        createSql();
-//        for (unsigned int i = 0; i < members.size(); ++i)
-//        {
-//            QString nick = QString::fromStdString(members[i]["nick"].asString());
-//            QString uin = QString::number(members[i]["uin"].asLargestInt());
-//            QListWidgetItem *item = new QListWidgetItem(nick, ui->lw_members_);
-//            item->setData(Qt::UserRole, uin);
-
-//            convertor_.addUinNameMap(uin, nick);
-
-//            item->setIcon(QIcon("1.bmp"));
-//            QString insert_command = "INSERT INTO groupmemberinfo VALUES (%1, %2, '%3', '%4')";
-//            query.exec(insert_command.arg(uin).arg(id_).arg(nick).arg("test"));
-//        }
-//        QSqlDatabase::database().commit();
-//    }
-//    QString name;{
-//        name = QSqlDatabase::database().connectionName();
-//        QSqlDatabase::database().close();
-//    }
-//   QSqlDatabase::removeDatabase(name);
 
    replaceUnconverId();
 }

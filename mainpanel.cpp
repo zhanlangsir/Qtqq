@@ -460,7 +460,7 @@ void QQMainPanel::initialize()
     msg_center_->start();*/
 }
 
-void QQMainPanel::parseFriendsInfo(const QByteArray &str, QQItem *root_item)
+void QQMainPanel::parseFriendsInfo(const QByteArray &str, QQItem *const root_item)
 {
     Json::Reader reader;
     Json::Value root;
@@ -517,7 +517,7 @@ void QQMainPanel::parseFriendsInfo(const QByteArray &str, QQItem *root_item)
     }
 }
 
-void QQMainPanel::parseRecentList(const QByteArray &str, QQItem *root_item)
+void QQMainPanel::parseRecentList(const QByteArray &str, QQItem *const root_item)
 {
     Json::Reader reader;
     Json::Value root;
@@ -553,7 +553,7 @@ void QQMainPanel::parseRecentList(const QByteArray &str, QQItem *root_item)
     }
 }
 
-void QQMainPanel::parseGroupsInfo(const QByteArray &str, QQItem *root_item)
+void QQMainPanel::parseGroupsInfo(const QByteArray &str, QQItem *const root_item)
 {
     Json::Reader reader;
     Json::Value root;

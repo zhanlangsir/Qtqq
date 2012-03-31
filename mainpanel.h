@@ -69,9 +69,9 @@ private:
     void getPersonalInfo();
     void getRecentList();
     void getSingleLongNick();
-    void parseFriendsInfo(const QByteArray &array, QQItem *root_item);
-    void parseGroupsInfo(const QByteArray &array, QQItem *root_item);
-    void parseRecentList(const QByteArray &array, QQItem *root_item);
+    void parseFriendsInfo(const QByteArray &array, QQItem *const root_item);
+    void parseGroupsInfo(const QByteArray &array, QQItem *const root_item);
+    void parseRecentList(const QByteArray &array, QQItem *const root_item);
     void createTray();
     void createActions();
 
