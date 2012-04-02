@@ -10,7 +10,7 @@
 #include <QMouseEvent>
 #include <QFileDialog>
 
-QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user_info, QWidget *parent) :
+QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user_info, QString avatar_path, QWidget *parent) :
     QQChatDlg(uin, name, curr_user_info, parent),
     ui(new Ui::QQFriendChatDlg())
 {
@@ -39,6 +39,17 @@ QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user
 
    convertor_.addUinNameMap(id_, name_);
    send_url_ = "/channel/send_buddy_msg2";
+
+   if (avatar_path.isEmpty())
+       avatar_path = "images/avatar/1.bmp";
+
+   QFile file(avatar_path);
+   file.open(QIODevice::ReadOnly);
+   QPixmap pix;
+   pix.loadFromData(file.readAll());
+   file.close();
+
+   ui->lbl_avatar_->setPixmap(pix);
 }
 
 QQFriendChatDlg::~QQFriendChatDlg()

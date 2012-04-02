@@ -1,6 +1,7 @@
 #include <QDebug>
 #include "qqparsethread.h"
 #include "include/json/json.h"
+#include "qqutility.h"
 
 void QQParseThread::run()
 {
@@ -45,6 +46,7 @@ QQMsg* QQParseThread::createMsg(QString type, const Json::Value result)
         g_chat_msg->from_uin_ = QString::number(result["value"]["from_uin"].asLargestInt());
         g_chat_msg->to_uin_ = QString::number(result["value"]["from_uin"].asLargestInt());
         g_chat_msg->info_seq_ = QString::number(result["value"]["info_seq"].asLargestInt());
+        g_chat_msg->group_code_ =QString::number(result["value"]["group_code"].asLargestInt());
         g_chat_msg->color_ = QString::fromStdString(result["value"]["content"][0][1]["color"].asString());
         g_chat_msg->size_ = result["value"]["content"][0][1]["size"].asInt();
         g_chat_msg->time_ = result["value"]["time"].asLargestInt();
@@ -84,16 +86,10 @@ QQMsg* QQParseThread::createMsg(QString type, const Json::Value result)
         QQStatusChangeMsg *status_msg = new QQStatusChangeMsg();
         status_msg->set_type(QQMsg::kBuddiesStatusChange);
         status_msg->uin_ = QString::number(result["value"]["uin"].asLargestInt());
-        status_msg->client_type_ = result["value"]["client_type"].asInt();
+        status_msg->client_type_ = (ClientType)result["value"]["client_type"].asInt();
         QString status_str = QString::fromStdString(result["value"]["status"].asString());
-        if (status_str == "online")
-        {
-            status_msg->status_ = kOnline;
-        }
-        else
-        {
-            status_msg->status_ = kLeave;
-        }
+        status_msg->status_ = QQUtility::stringToStatus(status_str);
+
         return status_msg;
     }
     else if (type == "sys_g_msg")

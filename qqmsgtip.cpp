@@ -6,6 +6,15 @@
 #include <QCursor>
 #include <QMouseEvent>
 
+struct MsgTipItem
+{
+    QQMsg::MsgType type_;
+    QString id_;
+    QString code_;
+};
+
+Q_DECLARE_METATYPE(MsgTipItem)
+
 void QQMsgTip::pushMsg(QQMsg* new_msg)
 {
     if (new_msg->type() == QQMsg::kSystem)
@@ -22,9 +31,9 @@ void QQMsgTip::pushMsg(QQMsg* new_msg)
     lock.lock();
     for (int i = 0; i < ui->cb_msgs_->count(); ++i)
     {
-        QQMsg* msg = ui->cb_msgs_->itemData(i).value<QQMsg*>();
+        MsgTipItem item = ui->cb_msgs_->itemData(i).value<MsgTipItem>();
 
-        if (msg->talkTo() == new_msg->talkTo())
+        if (item.id_ == new_msg->talkTo())
         {
             lock.unlock();
             return;
@@ -43,14 +52,14 @@ void QQMsgTip::addItem(QQMsg* msg)
         break;
     case QQMsg::kFriend:
     {
-        QQChatMsg *chat_msg = static_cast<QQChatMsg*>(msg);
-        ui->cb_msgs_->addItem("[" + convertor_->convert(chat_msg->from_uin_) + "]" + " send message to " + "[" + convertor_->convert(chat_msg->to_uin_) + "]", QVariant::fromValue(msg));
+        MsgTipItem item = {msg->type(), msg->talkTo(), msg->gCode()};
+        ui->cb_msgs_->addItem("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", QVariant::fromValue(item));
         break;
     }
     case QQMsg::kGroup:
     {
-        QQChatMsg *g_chat_msg = static_cast<QQChatMsg*>(msg);
-        ui->cb_msgs_->addItem("[" + convertor_->convert(g_chat_msg->to_uin_) + "]" + " send message to " + "[" + tr("you") + "]", QVariant::fromValue(msg));
+        MsgTipItem item = {msg->type(), msg->talkTo(), msg->gCode()};
+        ui->cb_msgs_->addItem("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", QVariant::fromValue(item));
         break;
     }
     }
@@ -61,12 +70,28 @@ void QQMsgTip::addItem(QQMsg* msg)
     }
 }
 
+void QQMsgTip::removeItem(QString id)
+{
+    for (int i = 0; i < ui->cb_msgs_->count(); ++i)
+    {
+        MsgTipItem item = ui->cb_msgs_->itemData(i).value<MsgTipItem>();
+
+        if (item.id_ == id)
+        {
+            ui->cb_msgs_->removeItem(i);
+        }
+    }
+
+    if (ui->cb_msgs_->count() == 0)
+        this->hide();
+}
+
 void QQMsgTip::mousePressEvent(QMouseEvent *event)
 {
     Q_UNUSED(event)
     QPoint origin_pos = this->pos();
 
-     QPoint origin_mouse_pos = QCursor::pos();
+    QPoint origin_mouse_pos = QCursor::pos();
     distance_pos_ = origin_mouse_pos - origin_pos;
 }
 
@@ -113,14 +138,14 @@ void QQMsgTip::mouseReleaseEvent(QMouseEvent *)
 
 void QQMsgTip::openChatDlg(int index)
 {
-    QQMsg *msg = ui->cb_msgs_->itemData(index).value<QQMsg*>();
+    MsgTipItem item = ui->cb_msgs_->itemData(index).value<MsgTipItem>();
     ui->cb_msgs_->removeItem(index);
 
     if (ui->cb_msgs_->count() == 0)
     {
         this->hide();
     }
-    emit activatedChatDlg(msg->type(), msg->talkTo());
+    emit activatedChatDlg(item.type_, item.id_, item.code_);
 }
 
 QQMsgTip::QQMsgTip(QWidget *parent) : QWidget(parent), ui(new Ui::QQMsgTip)

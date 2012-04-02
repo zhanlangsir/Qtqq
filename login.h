@@ -36,12 +36,14 @@ private slots:
     void login();
     char getResultState(const QByteArray &array);
     void getLoginInfo(QString ptwebqq);
-    void loginInfoRead();
+    void getLoginInfoDone();
     QByteArray getPwMd5();
 
 
 private:
+    QString getLoginStatus() const;
     void getCaptchaImg(QByteArray sum);
+    void setupStatus();
     
 private:
     FriendInfo curr_user_info_;

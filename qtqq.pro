@@ -35,7 +35,6 @@ HEADERS += cookie.h \
     qqmsg.h \
     qqmsglistener.h \
     qqgroupchatdlg.h \
-    qqnamelabel.h \
     nameconvertor.h \
     qqitemmodel.h \
     qqtextedit.h \
@@ -52,7 +51,8 @@ HEADERS += cookie.h \
     groupimgloader.h \
     qqsystemtray.h \
     qqavatarrequester.h \
-    networkhelper.h
+    networkhelper.h \
+    qqutility.h
 
 FORMS += captcha.ui qqlogin.ui qqmainpanel.ui qqfriendchatdlg.ui \
     qqgroupchatdlg.ui \
@@ -72,7 +72,6 @@ SOURCES += cookie.cpp \
            qqmsgcenter.cpp \
     qqmsg.cpp \
     qqgroupchatdlg.cpp \
-    qqnamelabel.cpp \
     qqitemmodel.cpp \
     qqtextedit.cpp \
     imgloader.cpp \

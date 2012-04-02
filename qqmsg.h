@@ -50,11 +50,11 @@ public:
     virtual QString sendUin() const { return ""; }
     virtual QString talkTo() const { return ""; }
 
+    virtual QString gCode() const {return ""; }
+
 protected:
     MsgType type_;
 };
-
-Q_DECLARE_METATYPE(QQMsg*)
 
 class QQChatMsg : public QQMsg
 {
@@ -85,6 +85,9 @@ public:
     { return to_uin_; }
     QString sendUin() const
     { return send_uin_; }
+
+    QString gCode() const {return group_code_; }
+
     QString group_code_;
     QString send_uin_;
     QString info_seq_;
@@ -98,7 +101,7 @@ public:
 
     QString uin_;
     FriendStatus status_;
-    int client_type_;
+    ClientType client_type_;
 };
 
 class QQSystemMsg : public QQMsg

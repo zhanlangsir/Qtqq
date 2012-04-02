@@ -4,7 +4,12 @@
 #include <QVector>
 #include <QMetaType>
 
-enum FriendStatus {kOnline, kLeave};
+enum FriendStatus {kCallMe=60, kOnline=10, kAway=30, kBusy=50, kSilent=70, kHidden=40, kOffline=100};
+
+enum ClientType{kPc=1, kPhone=21, kIphone=24, kWeb=41, kIpad};
+
+Q_DECLARE_METATYPE(FriendStatus)
+
 
 struct FileInfo
 {
@@ -94,6 +99,9 @@ public:
     virtual void set_status(FriendStatus status)
     { Q_UNUSED(status)}
 
+    virtual QString gCode() const
+    { return ""; }
+
 private:
     QString id_;
     QString name_;    
@@ -117,19 +125,25 @@ public:
     void set_status(FriendStatus status)
     { status_ = status; }
 
+    ClientType clientType() const
+    { return client_type_; }
+    void set_clientType(ClientType client_type)
+    { client_type_ = client_type; }
+
 private:
     QString mark_name_;
     FriendStatus status_;
+    ClientType client_type_;
 };
 
 class GroupInfo : public ItemInfo
 {
 public:
-    QString code() const
-    { return code_; }
-    void set_code(QString code)
-    { code_ = code; }
+    virtual QString gCode() const
+    { return gcode_; }
+    void set_gCode(QString gcode)
+    { gcode_ = gcode; }
 
 private:
-    QString code_;
+    QString gcode_;
 };

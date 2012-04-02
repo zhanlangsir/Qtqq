@@ -36,7 +36,7 @@ void QQAvatarRequester::run()
         else
         {
             GroupInfo *info = static_cast<GroupInfo*>(item->itemInfo());
-            req.create(kGet, avatar_url.arg(getTypeNumber(item)).arg(info->code()).arg(CaptchaInfo::singleton()->vfwebqq()));
+            req.create(kGet, avatar_url.arg(getTypeNumber(item)).arg(info->gCode()).arg(CaptchaInfo::singleton()->vfwebqq()));
         }
         req.addHeaderItem("Host", "face1.qun.qq.com");
         req.addHeaderItem("Referer", "http://web.qq.com");

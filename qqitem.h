@@ -54,6 +54,9 @@ public:
     QString mood() const
     { return info_->mood(); }
 
+    QString gCode() const
+    { return info_->gCode(); }
+
     ItemInfo *itemInfo() const
     {   return info_; }
     void set_itemInfo(ItemInfo *info)

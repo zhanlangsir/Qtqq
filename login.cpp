@@ -13,6 +13,8 @@
 #include <QMessageBox>
 #include <QDesktopWidget>
 
+#include "networkhelper.h"
+
 QQLogin::QQLogin(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::QQLogin)
@@ -25,6 +27,8 @@ QQLogin::QQLogin(QWidget *parent) :
     setWindowFlags(Qt::FramelessWindowHint);
 
     move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
+
+    setupStatus();
 }
 
 QQLogin::~QQLogin()
@@ -65,7 +69,9 @@ void QQLogin::checkStateRead()
 
     if (result.contains('!'))
     {
-        vc_ = result.indexOf('!');
+        int vc_idx = result.indexOf('!');
+        vc_ = result.mid(vc_idx, 4);
+        login();
     }
     else
     {
@@ -120,11 +126,7 @@ void QQLogin::getCaptchaImg(QByteArray sum)
 
     fd_->write(req.toByteArray());
 
-    QByteArray result;
-    while (fd_->waitForReadyRead())
-    {
-        result.append(fd_->readAll());
-    }
+    QByteArray result = NetWorkHelper::quickReceive(fd_);
 
     int cookie_idx = result.indexOf("Set-Cookie") + 12;
     int idx = result.indexOf(';', cookie_idx)+1;
@@ -149,10 +151,32 @@ void QQLogin::getCaptchaImg(QByteArray sum)
     login();
 }
 
+QString QQLogin::getLoginStatus() const
+{
+    int idx = ui->cb_status_->currentIndex();
+    switch (ui->cb_status_->itemData(idx).value<FriendStatus>())
+    {
+    case kOnline:
+        return "online";
+    case kCallMe:
+        return "callme";
+    case kAway:
+        return "away";
+    case kBusy:
+        return "busy";
+    case kSilent:
+        return "silent";
+    case kHidden:
+        return "hidden";
+    default:
+        break;
+    }
+}
+
 void QQLogin::getLoginInfo(QString ptwebqq)
 {
     QString login_info_path = "/channel/login2";
-    QByteArray msg = "r={\"status\":\"online\",\"ptwebqq\":\"" + ptwebqq.toAscii() + "\","
+    QByteArray msg = "r={\"status\":\""+ getLoginStatus().toAscii() +"\",\"ptwebqq\":\"" + ptwebqq.toAscii() + "\","
             "\"passwd_sig\":""\"\",\"clientid\":\"5412354841\""
             ",\"psessionid\":null}&clientid=12354654&psessionid=null";
 
@@ -166,8 +190,26 @@ void QQLogin::getLoginInfo(QString ptwebqq)
     req.addRequestContent(msg);
 
     fd_->connectToHost("d.web2.qq.com", 80);
-    connect(fd_, SIGNAL(readyRead()), this, SLOT(loginInfoRead()));
+    connect(fd_, SIGNAL(readyRead()), this, SLOT(getLoginInfoDone()));
     fd_->write(req.toByteArray());
+}
+
+void QQLogin::getLoginInfoDone()
+{
+    QByteArray result = fd_->readAll();
+    int vfwebqq_f_idx = result.indexOf("vfwebqq") + 10;
+    int vfwebqq_s_idx = result.indexOf(',', vfwebqq_f_idx) - 1;
+
+    CaptchaInfo::singleton()->set_vfwebqq(result.mid(vfwebqq_f_idx, vfwebqq_s_idx - vfwebqq_f_idx));
+
+    int psessionid_f_idx = result.indexOf("psessionid") + 13;
+    int  psessionid_s_idx = result.indexOf(',',  psessionid_f_idx) - 1;
+    CaptchaInfo::singleton()->set_psessionid(result.mid( psessionid_f_idx,  psessionid_s_idx -  psessionid_f_idx));
+
+    int idx = ui->cb_status_->currentIndex();
+    curr_user_info_.set_status(ui->cb_status_->itemData(idx).value<FriendStatus>());
+    disconnect(fd_, SIGNAL(readyRead()), this, SLOT(getLoginInfoDone()));
+    this->accept();
 }
 
 QByteArray QQLogin::getPwMd5()
@@ -183,8 +225,7 @@ QByteArray QQLogin::getPwMd5()
 void QQLogin::login()
 {
     QByteArray md5 = getPwMd5();
-    QString login_url ="/login?u=" + ui->le_username_->text() + "&p=" + md5 + "&verifycode="+vc_+"&webqq_type=40&remember_uin=0&aid=46000101&login2qq=1&u1=http%3A%2F%2Fweb.qq.com%2Floginproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&h=1&ptredirect=0&ptlang=2052&from_ui=1&pttype=1"
-           "&dumy=&fp=loginerroralert&action=4-30-764935&mibao_css=m_web";
+    QString login_url ="/login?u=" + ui->le_username_->text() + "&p=" + md5 + "&verifycode="+vc_+"&webqq_type=40&remember_uin=0&aid=46000101&login2qq=1&u1=http%3A%2F%2Fweb.qq.com%2Floginproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&h=1&ptredirect=0&ptlang=2052&from_ui=1&pttype=1&dumy=&fp=loginerroralert&action=4-30-764935&mibao_css=m_web";
 
     Request req;
     req.create(kGet, login_url);
@@ -267,18 +308,12 @@ void QQLogin::loginRead()
     getLoginInfo(ptwebqq);
 }
 
-void QQLogin::loginInfoRead()
+void QQLogin::setupStatus()
 {
-    QByteArray result = fd_->readAll();
-    int vfwebqq_f_idx = result.indexOf("vfwebqq") + 10;
-    int vfwebqq_s_idx = result.indexOf(',', vfwebqq_f_idx) - 1;
-
-    CaptchaInfo::singleton()->set_vfwebqq(result.mid(vfwebqq_f_idx, vfwebqq_s_idx - vfwebqq_f_idx));
-
-    int psessionid_f_idx = result.indexOf("psessionid") + 13;
-    int  psessionid_s_idx = result.indexOf(',',  psessionid_f_idx) - 1;
-    CaptchaInfo::singleton()->set_psessionid(result.mid( psessionid_f_idx,  psessionid_s_idx -  psessionid_f_idx));
-
-    disconnect(fd_, SIGNAL(readyRead()), this, SLOT(loginInfoRead()));
-    this->accept();
+    ui->cb_status_->addItem(tr("Online"), QVariant::fromValue<FriendStatus>(kOnline));
+    ui->cb_status_->addItem(tr("CallMe"), QVariant::fromValue<FriendStatus>(kCallMe));
+    ui->cb_status_->addItem(tr("Away"), QVariant::fromValue<FriendStatus>(kAway));
+    ui->cb_status_->addItem(tr("Busy"), QVariant::fromValue<FriendStatus>(kBusy));
+    ui->cb_status_->addItem(tr("Silent"), QVariant::fromValue<FriendStatus>(kSilent));
+    ui->cb_status_->addItem(tr("Hidden"), QVariant::fromValue<FriendStatus>(kHidden));
 }

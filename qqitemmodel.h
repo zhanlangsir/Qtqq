@@ -33,6 +33,7 @@ private:
     QQItem* itemFromIndex(const QModelIndex &index) const ;
     QPixmap getDefaultPixmap(const QQItem *item) const;
     QPixmap getPixmap(const QQItem *item) const;
+    void setPixmapDecoration(const QQItem *item, QPixmap &pixmap) const;
 
 private slots:
     void requestAvatar(QQItem *item);

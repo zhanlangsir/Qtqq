@@ -20,10 +20,11 @@ class QQGroupChatDlg : public QQChatDlg
 {
     Q_OBJECT
 public:
-    QQGroupChatDlg(QString gid, QString name, QString group_code, FriendInfo curr_user_info, QWidget *parent = 0);
+    QQGroupChatDlg(QString gid, QString name, QString group_code, FriendInfo curr_user_info, QString avatar_path, QWidget *parent = 0);
     ~QQGroupChatDlg();
 
 protected:
+    void closeEvent(QCloseEvent *);
     void mousePressEvent(QMouseEvent *);
     void mouseMoveEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
@@ -43,6 +44,8 @@ private:
     void readFromSql();
     void readSigFromSql();
     void replaceUnconverId();
+    void writeMemberInfoToSql();
+    QQItem *findItemById(QString id) const;
 
 private:
     Ui::QQGroupChatDlg *ui;
@@ -51,6 +54,8 @@ private:
     QString gface_key_;
     QString gface_sig_;
     QPoint distance_pos_;
+
+    QQItem *member_root_;
 
     QString connection_name_;
 };

@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <QDebug>
 #include <QFile>
+#include <QPainter>
 
 #include "qqitem.h"
 
@@ -46,6 +47,34 @@ QVariant QQItemModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
+void QQItemModel::setPixmapDecoration(const QQItem *item, QPixmap &pixmap) const
+{
+    QPainter painter(&pixmap);
+    QImage img;
+
+    if (item->status() == kCallMe)
+    {
+        img.load("images/ClientType/callme.png");
+    }
+    else if (item->status() == kBusy)
+    {
+        img.load("images/ClientType/busy.png");
+    }
+    else if (item->status() == kAway)
+    {
+        img.load("images/ClientType/away.png");
+    }
+    else if (item->status() == kSilent)
+    {
+        img.load("images/ClientType/silent.png");
+    }
+
+    QSize avatar_size = pixmap.size();
+    QSize decoration_size = img.size();
+    QPointF draw_point(avatar_size.width() - decoration_size.width(), avatar_size.height() - decoration_size.height());
+    painter.drawImage(draw_point, img);
+}
+
 QPixmap QQItemModel::getDefaultPixmap(const QQItem *item) const
 {
     QPixmap pix;
@@ -53,7 +82,7 @@ QPixmap QQItemModel::getDefaultPixmap(const QQItem *item) const
     {
         QIcon icon("images/avatar/1.bmp");
 
-        if (item->status() == kLeave)
+        if (item->status() == kOffline)
         {
             pix = icon.pixmap(QSize(60, 60), QIcon::Disabled, QIcon::On);
         }
@@ -75,18 +104,21 @@ QPixmap QQItemModel::getPixmap(const QQItem *item) const
     file.open(QIODevice::ReadOnly);
 
     QPixmap pix(60, 60);
-    pix.loadFromData(file.readAll(), 0, Qt::MonoOnly);
+    pix.loadFromData(file.readAll());
     file.close();
 
     QIcon icon;
     icon.addPixmap(pix);
 
-    if (item->status() == kLeave)
+    if (item->status() == kOffline)
     {
         pix = icon.pixmap(QSize(60, 60), QIcon::Disabled, QIcon::On);
     }
     else
+    {
         pix = icon.pixmap(QSize(60,60));
+        setPixmapDecoration(item,pix);
+    }
 
     return pix;
 }

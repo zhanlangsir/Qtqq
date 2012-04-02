@@ -29,7 +29,7 @@ class QQMsgCenter : public QThread
     Q_OBJECT
 signals:
     void distributeMsgInMainThread(QQMsgListener *listener, QQMsg *msg);
-    void buddiesStateChangeMsgArrive(QString uin, FriendStatus state);
+    void buddiesStateChangeMsgArrive(QString uin, FriendStatus state, ClientType client_type);
     void groupChatMsgArrive(const QQGroupChatMsg *msg);
     void friendChatMsgArrive(const QQChatMsg *msg);
 

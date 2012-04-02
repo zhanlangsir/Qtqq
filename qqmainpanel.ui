@@ -48,7 +48,7 @@ border:none
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout">
            <item>
-            <widget class="QComboBox" name="comboBox">
+            <widget class="QComboBox" name="cb_status_">
              <property name="styleSheet">
               <string notr="true"/>
              </property>
@@ -65,12 +65,12 @@ border:none
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="lbl_state_">
+            <widget class="QLabel" name="lbl_leave_">
              <property name="styleSheet">
               <string notr="true"/>
              </property>
              <property name="text">
-              <string>Online</string>
+              <string>Lv</string>
              </property>
             </widget>
            </item>
@@ -122,15 +122,12 @@ border:none
       <attribute name="title">
        <string>Friends</string>
       </attribute>
-      <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
         <widget class="QTreeView" name="tv_friendlist_">
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
-         <property name="headerHidden">
-          <bool>true</bool>
-         </property>
+         <attribute name="headerVisible">
+          <bool>false</bool>
+         </attribute>
         </widget>
        </item>
       </layout>
@@ -151,7 +148,7 @@ border:none
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <widget class="QListView" name="lv_recents_list_"/>
+        <widget class="QListView" name="lv_recentlist_"/>
        </item>
       </layout>
      </widget>

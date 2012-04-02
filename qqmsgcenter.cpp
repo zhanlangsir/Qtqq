@@ -29,7 +29,7 @@ void QQMsgCenter::run()
         case QQMsg::kBuddiesStatusChange:
         {
             QQStatusChangeMsg *status_changed_msg = static_cast<QQStatusChangeMsg*>(msg);
-            emit buddiesStateChangeMsgArrive(status_changed_msg->uin_, status_changed_msg->status_);
+            emit buddiesStateChangeMsgArrive(status_changed_msg->uin_, status_changed_msg->status_, status_changed_msg->client_type_);
             break;
         }
 

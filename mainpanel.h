@@ -43,6 +43,7 @@ protected:
     void closeEvent(QCloseEvent *);
 
 private slots:
+    void changeUserStatus(int idx);
     void getFriendListDone(bool err);
     void getGroupListDone(bool err);
     void getOnlineBuddyDone(bool err);
@@ -50,10 +51,10 @@ private slots:
     void getPersonalInfoDone(bool err);
     void getRecentListDone(bool err);
     void getSingleLongNickDone(bool err);
-    void openChatDlg(QQMsg::MsgType type, QString gid);
+    void openChatDlg(QQMsg::MsgType type, QString gid, QString gcode);
     void closeChatDlg(QQChatDlg *listener);
     void openChatDlgByDoubleClick(const QModelIndex& index);
-    void changeFriendStatus(QString id, FriendStatus status);
+    void changeFriendStatus(QString id, FriendStatus status, ClientType client_type);
     void changeRecentList(const QQChatMsg *msg);
     void changeRecentList(const QQGroupChatMsg *msg);
     void trayActivated(QSystemTrayIcon::ActivationReason reason);
@@ -62,6 +63,7 @@ private:
     QQItem* findFriendItemById(QString id);
     QQItem* findGroupItemById(QString id);
     QQItem* findRecentListItemById(QString id);
+    int getNewPosition(const QQItem *item) const;
     void getFriendList();
     void getGroupList();
     void getOnlineBuddy();
@@ -69,11 +71,14 @@ private:
     void getPersonalInfo();
     void getRecentList();
     void getSingleLongNick();
+    int getStatusIndex(FriendStatus status);
     void parseFriendsInfo(const QByteArray &array, QQItem *const root_item);
     void parseGroupsInfo(const QByteArray &array, QQItem *const root_item);
     void parseRecentList(const QByteArray &array, QQItem *const root_item);
     void createTray();
     void createActions();
+    void setupStatus();
+    QString getStatusByIndex(int idx) const;
 
 private:
     Ui::QQMainPanel *ui;

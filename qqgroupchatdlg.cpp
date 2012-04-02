@@ -13,8 +13,9 @@
 #include <QSqlError>
 
 #include "qqitemmodel.h"
+#include "qqutility.h"
 
-QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, FriendInfo curr_user_info, QWidget *parent) :
+QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, FriendInfo curr_user_info, QString avatar_path, QWidget *parent) :
     QQChatDlg(gid, name, curr_user_info, parent),
     ui(new Ui::QQGroupChatDlg()),
     group_code_(group_code)
@@ -50,12 +51,29 @@ QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, Fr
 
    send_url_ = "/channel/send_qun_msg2";
 
+   if (avatar_path.isEmpty())
+       avatar_path = "images/avatar/group.png";
+
+   QFile file(avatar_path);
+   file.open(QIODevice::ReadOnly);
+   QPixmap pix;
+   pix.loadFromData(file.readAll());
+   file.close();
+
+   ui->lbl_avatar_->setPixmap(pix);
+
    getGfaceSig();
 }
 
 QQGroupChatDlg::~QQGroupChatDlg()
 {
     delete ui;
+}
+
+void QQGroupChatDlg::closeEvent(QCloseEvent *)
+{
+    writeMemberInfoToSql();
+    emit chatFinish(this);
 }
 
 void QQGroupChatDlg::mousePressEvent(QMouseEvent *event)
@@ -236,51 +254,49 @@ void QQGroupChatDlg::parseGroupMemberList(const QByteArray &array, QQItem *const
 
     Json::Value members = root["result"]["minfo"];
 
+    for (unsigned int i = 0; i < members.size(); ++i)
     {
-        QStringList connection_names = QSqlDatabase::connectionNames();
-        QSqlDatabase db;
-        if (connection_names.isEmpty())
-        {
-            db = QSqlDatabase::addDatabase("QSQLITE");
-            db.setDatabaseName("qqgroupdb");
-        }
-        else
-        {
-            db = QSqlDatabase::database(connection_names[0]);
-        }
+        QString nick = QString::fromStdString(members[i]["nick"].asString());
+        QString uin = QString::number(members[i]["uin"].asLargestInt());
 
-        if (!db.open())
-            return;
+        FriendInfo *info = new FriendInfo();
+        info->set_name(nick);
+        info->set_id(uin);
+        info->set_status(kOffline);
 
-        QSqlQuery query;
-        QSqlDatabase::database().transaction();
+        QQItem *member = new QQItem(QQItem::kFriend, info, root_item);
+        root_item->append(member);
 
-        createSql();
-        for (unsigned int i = 0; i < members.size(); ++i)
-        {
-            QString nick = QString::fromStdString(members[i]["nick"].asString());
-            QString uin = QString::number(members[i]["uin"].asLargestInt());
-
-            FriendInfo *info = new FriendInfo();
-            info->set_name(nick);
-            info->set_id(uin);
-            info->set_status(kOnline);
-
-            QQItem *member = new QQItem(QQItem::kFriend, info, root_item);
-            root_item->append(member);
-
-            convertor_.addUinNameMap(uin, nick);
-
-            QString insert_command = "INSERT INTO groupmemberinfo VALUES (%1, %2, '%3', '%4')";
-            query.exec(insert_command.arg(uin).arg(id_).arg(nick).arg("test"));
-        }
-        QSqlDatabase::database().commit();
+        convertor_.addUinNameMap(uin, nick);
     }
-    QString name;{
-        name = QSqlDatabase::database().connectionName();
-        QSqlDatabase::database().close();
+
+    Json::Value stats = root["result"]["stats"];
+
+    for (unsigned int i = 0; i < stats.size(); ++i)
+    {
+        ClientType client_type = (ClientType)stats[i]["client_type"].asInt();
+
+        FriendStatus stat = (FriendStatus)stats[i]["stat"].asInt();
+        QString uin = QString::number(stats[i]["uin"].asLargestInt());
+
+        QQItem *item  = NULL;
+        int i;
+        for (i = 0; i < root_item->children_.count(); ++i)
+        {
+            if (root_item->children_[i]->id() == uin)
+            {
+                item = root_item->children_[i];
+                break;
+            }
+        }
+
+        FriendInfo *info = static_cast<FriendInfo*>(item->itemInfo());
+        info->set_status(stat);
+        info->set_clientType(client_type);
+
+        root_item->children_.remove(i);
+        root_item->children_.push_front(item);
     }
-   QSqlDatabase::removeDatabase(name);
 }
 
 void QQGroupChatDlg::createSql()
@@ -291,6 +307,7 @@ void QQGroupChatDlg::createSql()
         "uin INTEGER,"
         "gid INTERGER,"
         "name VARCHAR(15),"
+        "status INTEGER,"
         "avatarpath VARCHAR(20),"
         "PRIMARY KEY (uin))");
 
@@ -316,20 +333,30 @@ void QQGroupChatDlg::readFromSql()
     {
         QString uin = query.value(0).toString();
         QString nick = query.value(2).toString();
+        FriendStatus stat = (FriendStatus)query.value(3).toInt();
+        QString avatar_path = query.value(4).toString();
 
         FriendInfo *info = new FriendInfo();
         info->set_name(nick);
         info->set_id(uin);
-        info->set_status(kOnline);
+        info->set_status(stat);
+        info->set_avatarPath(avatar_path);
 
         QQItem *member = new QQItem(QQItem::kFriend, info, root);
-        root->append(member);
+        if (info->status() == kOffline)
+            root->children_.push_back(member);
+        else
+            root->children_.push_front(member);
 
         convertor_.addUinNameMap(uin, nick);
     }
 
+    member_root_ = root;
     model->setRoot(root);
     ui->lv_members_->setModel(model);
+
+    QString drop_command = "DROP TABLE IF EXISTS groupmemberinfo";
+    query.exec(drop_command);
 
     replaceUnconverId();
 }
@@ -341,6 +368,55 @@ void QQGroupChatDlg::replaceUnconverId()
     {
         te_messages_.replaceIdToName(id, convertor_.convert(id));
     }
+}
+
+void QQGroupChatDlg::writeMemberInfoToSql()
+{
+    {
+        QStringList connection_names = QSqlDatabase::connectionNames();
+        QSqlDatabase db;
+        if (connection_names.isEmpty())
+        {
+            db = QSqlDatabase::addDatabase("QSQLITE");
+            db.setDatabaseName("qqgroupdb");
+        }
+        else
+        {
+            db = QSqlDatabase::database(connection_names[0]);
+        }
+
+        if (!db.open())
+            return;
+
+        QSqlQuery query;
+        QSqlDatabase::database().transaction();
+
+        createSql();
+        for (int i = 0; i < member_root_->children_.count(); ++i)
+        {
+            QQItem *item = member_root_->children_[i];
+
+            QString insert_command = "INSERT INTO groupmemberinfo VALUES (%1, %2, '%3', %4, '%5')";
+            query.exec(insert_command.arg(item->id()).arg(id_).arg(item->name()).arg(item->status()).arg(item->avatarPath()));
+        }
+        QSqlDatabase::database().commit();
+    }
+    QString name;{
+        name = QSqlDatabase::database().connectionName();
+        QSqlDatabase::database().close();
+    }
+    QSqlDatabase::removeDatabase(name);
+}
+
+QQItem *QQGroupChatDlg::findItemById(QString id) const
+{
+    QQItem *item  = NULL;
+    foreach (item, member_root_->children_)
+    {
+        if (item->id() == id)
+            return item;
+    }
+    return NULL;
 }
 
 void QQGroupChatDlg::getGroupMemberList()
@@ -410,6 +486,7 @@ void QQGroupChatDlg::getGroupMemberListDone(bool err)
     QQItemModel *model = new QQItemModel(this);
     QQItem *root_item = new QQItem;
     parseGroupMemberList(groups_member_info, root_item);
+    member_root_ = root_item;
     model->setRoot(root_item);
 
     ui->lv_members_->setModel(model);

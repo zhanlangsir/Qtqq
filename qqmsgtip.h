@@ -22,7 +22,7 @@ public:
 
 signals:
     void addItemDone();
-    void activatedChatDlg(QQMsg::MsgType type, QString talk_to);
+    void activatedChatDlg(QQMsg::MsgType type, QString talk_to, QString gcode);
 
 public slots:
     void openChatDlg(int index);
@@ -30,6 +30,7 @@ public slots:
 public:
     void pushMsg(QQMsg *msg);
     void addItem(QQMsg *msg);
+    void removeItem(QString id);
     void setConvertor(NameConvertor *convertor)
     { convertor_ = convertor; }
 

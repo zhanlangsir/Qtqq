@@ -17,6 +17,8 @@
 #include <assert.h>
 #include <QFile>
 
+#include "qqutility.h"
+
 QQMainPanel::QQMainPanel(FriendInfo user_info, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::QQMainPanel),
@@ -30,13 +32,15 @@ QQMainPanel::QQMainPanel(FriendInfo user_info, QWidget *parent) :
     msg_center_(new QQMsgCenter(msg_tip_, check_old_msg_lock, parse_semapore_))
 {
     ui->setupUi(this);
-    connect(msg_tip_, SIGNAL(activatedChatDlg(QQMsg::MsgType, QString)), this, SLOT(openChatDlg(QQMsg::MsgType,QString)));
+
+    connect(msg_tip_, SIGNAL(activatedChatDlg(QQMsg::MsgType, QString, QString)), this, SLOT(openChatDlg(QQMsg::MsgType,QString, QString)));
     connect(ui->tv_friendlist_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openChatDlgByDoubleClick(QModelIndex)));
     connect(ui->lv_grouplist_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openChatDlgByDoubleClick(QModelIndex)));
-    connect(ui->lv_recents_list_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openChatDlgByDoubleClick(QModelIndex)));
-    connect(msg_center_, SIGNAL(buddiesStateChangeMsgArrive(QString,FriendStatus)), this, SLOT(changeFriendStatus(QString,FriendStatus)));
+    connect(ui->lv_recentlist_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openChatDlgByDoubleClick(QModelIndex)));
+    connect(msg_center_, SIGNAL(buddiesStateChangeMsgArrive(QString,FriendStatus, ClientType)), this, SLOT(changeFriendStatus(QString,FriendStatus, ClientType)));
     connect(msg_center_, SIGNAL(groupChatMsgArrive(const QQGroupChatMsg*)), this, SLOT(changeRecentList(const QQGroupChatMsg*)));
     connect(msg_center_, SIGNAL(friendChatMsgArrive(const QQChatMsg*)), this, SLOT(changeRecentList(const QQChatMsg*)));
+    connect(ui->cb_status_, SIGNAL(currentIndexChanged(int)), this, SLOT(changeUserStatus(int)));
 
     convertor_.addUinNameMap(user_info.id(), tr("you"));
     msg_tip_->setConvertor(&convertor_);
@@ -53,6 +57,10 @@ QQMainPanel::QQMainPanel(FriendInfo user_info, QWidget *parent) :
     createActions();
     createTray();
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(trayActivated(QSystemTrayIcon::ActivationReason)));
+
+    setupStatus();
+
+    qRegisterMetaType<ClientType>("ClientType");
 }
 
 QQMainPanel::~QQMainPanel()
@@ -63,7 +71,24 @@ QQMainPanel::~QQMainPanel()
     delete ui;
 }
 
-void QQMainPanel::changeFriendStatus(QString id, FriendStatus status)
+//不需要接收返回消息
+void QQMainPanel::changeUserStatus(int idx)
+{
+    QString change_status_url = "/channel/change_status2?newstatus=" + getStatusByIndex(idx) + 
+        "&clientid=5412354841&psessionid=" + CaptchaInfo::singleton()->psessionid() + 
+        "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
+
+    QHttpRequestHeader header("GET", change_status_url);
+    header.addValue("Host", "d.web2.qq.com");
+    NetWorkHelper::setDefaultHeaderValue(header);
+    header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1");
+    header.addValue("Cookie", CaptchaInfo::singleton()->cookie());
+
+    main_http_->setHost("d.web2.qq.com");
+    main_http_->request(header);
+}
+
+void QQMainPanel::changeFriendStatus(QString id, FriendStatus status, ClientType client_type)
 {
     QQItem *item = findFriendItemById(id);
     if (!item)
@@ -71,22 +96,35 @@ void QQMainPanel::changeFriendStatus(QString id, FriendStatus status)
         return;
     }
 
-    item->set_status(status);
+    FriendInfo *info = static_cast<FriendInfo*>(item->itemInfo());
+    info->set_clientType(client_type);
+    info->set_status(status);
 
     QQItem *category = item->parent();
     int idx = category->indexOf(item);
     category->children_.remove(idx);
 
-    if (status == kOnline)
-        category->children_.push_front(item);
-    else
-        category->children_.push_back(item);
 
+    int new_idx = getNewPosition(item);
+    category->children_.insert(new_idx, item);
+
+    //刷新好友列表，刷新最近联系列表
     ui->friends->setUpdatesEnabled(false);
     ui->friends->setUpdatesEnabled(true);
 
     ui->recents->setUpdatesEnabled(false);
     ui->recents->setUpdatesEnabled(true);
+}
+
+int QQMainPanel::getNewPosition(const QQItem *item) const
+{
+    QQItem *category = item->parent();
+    for ( int i = 0; i < category->children_.count(); ++i )
+    {
+        if (category->children_[i]->status() >= item->status())
+            return i;
+    }
+    return category->children_.count();
 }
 
 void QQMainPanel::changeRecentList(const QQChatMsg *msg)
@@ -191,6 +229,7 @@ void QQMainPanel::getFriendListDone(bool err)
     model->setRoot(root_item);
 
     ui->tv_friendlist_->setModel(model);
+
 
     //在这里而不在initrialite调用因为用QHttp请求是异步的，无法确定那一个请求结果会先到，会引起解析混乱
     getGroupList();
@@ -332,7 +371,9 @@ void QQMainPanel::getOnlineBuddyDone(bool err)
     for (unsigned int i = 0; i < result.size(); ++i)
     {
         QString id = QString::number(result[i]["uin"].asLargestInt());
-        changeFriendStatus(id, kOnline);
+        QString status = QString::fromStdString(result[i]["status"].asString());
+        ClientType client_type = (ClientType)result[i]["client_type"].asInt();
+        changeFriendStatus(id, QQUtility::stringToStatus(status), client_type);
     }
 
     poll_thread_ = new QQPollThread(message_queue_, poll_semapore_);
@@ -402,7 +443,7 @@ void QQMainPanel::getRecentListDone(bool err)
     recent_list_root_ = root_item;
     model->setRoot(root_item);
 
-    ui->lv_recents_list_->setModel(model);
+    ui->lv_recentlist_->setModel(model);
 
     getOnlineBuddy();
 }
@@ -505,7 +546,7 @@ void QQMainPanel::parseFriendsInfo(const QByteArray &str, QQItem *const root_ite
         FriendInfo *info = new FriendInfo;
         info->set_name(name);
         info->set_id(uin);
-        info->set_status(kLeave);
+        info->set_status(kOffline);
         int category_num = friends[i]["categories"].asInt();
         QQItem* parent = root_item->value(index_map.key(category_num));
         QQItem *myfriend = new QQItem(QQItem::kFriend, info, parent);
@@ -530,7 +571,7 @@ void QQMainPanel::parseRecentList(const QByteArray &str, QQItem *const root_item
     const Json::Value result = root["result"];
 
     for (unsigned int i = 0; i < result.size(); ++i)
-    {  
+    {
         QString id = QString::number(result[i]["uin"].asLargestInt());
         int type = result[i]["type"].asInt();
 
@@ -567,7 +608,7 @@ void QQMainPanel::parseGroupsInfo(const QByteArray &str, QQItem *const root_item
     const Json::Value gnamelist = result["gnamelist"];
 
     for (unsigned int i = 0; i < gnamelist.size(); ++i)
-    {  
+    {
         QString name = QString::fromStdString(gnamelist[i]["name"].asString());
         QString gid = QString::number(gnamelist[i]["gid"].asLargestInt());
         QString code = QString::number(gnamelist[i]["code"].asLargestInt());
@@ -575,7 +616,7 @@ void QQMainPanel::parseGroupsInfo(const QByteArray &str, QQItem *const root_item
         GroupInfo *info= new GroupInfo;
         info->set_name(name);
         info->set_id(gid);
-        info->set_code(code);
+        info->set_gCode(code);
 
         QQItem *group = new QQItem(QQItem::kGroup, info, root_item);
 
@@ -615,23 +656,72 @@ void QQMainPanel::createActions()
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
 }
 
+QString QQMainPanel::getStatusByIndex(int idx) const
+{
+    switch (ui->cb_status_->itemData(idx).value<FriendStatus>())
+    {
+    case kOnline:
+        return "online";
+    case kCallMe:
+        return "callme";
+    case kAway:
+        return "away";
+    case kBusy:
+        return "busy";
+    case kSilent:
+        return "silent";
+    case kHidden:
+        return "hidden";
+    case kOffline:
+        return "offline";
+    default:
+        break;
+    }
+    return "offline";
+}
+
+void QQMainPanel::setupStatus()
+{
+    ui->cb_status_->addItem(tr("Online"), QVariant::fromValue<FriendStatus>(kOnline));
+    ui->cb_status_->addItem(tr("CallMe"), QVariant::fromValue<FriendStatus>(kCallMe));
+    ui->cb_status_->addItem(tr("Away"), QVariant::fromValue<FriendStatus>(kAway));
+    ui->cb_status_->addItem(tr("Busy"), QVariant::fromValue<FriendStatus>(kBusy));
+    ui->cb_status_->addItem(tr("Silent"), QVariant::fromValue<FriendStatus>(kSilent));
+    ui->cb_status_->addItem(tr("Hidden"), QVariant::fromValue<FriendStatus>(kHidden));
+    ui->cb_status_->addItem(tr("Offline"), QVariant::fromValue<FriendStatus>(kOffline));
+
+    int status_idx = getStatusIndex(curr_user_info_.status());
+
+    ui->cb_status_->setCurrentIndex(status_idx);
+}
+
+int QQMainPanel::getStatusIndex(FriendStatus status)
+{
+    for (int i = 0; i < ui->cb_status_->count(); ++i)
+    {
+        if (ui->cb_status_->itemData(i).value<FriendStatus>() == status)
+            return i;
+    }
+    return -1;
+}
+
 void QQMainPanel::openChatDlgByDoubleClick(const QModelIndex& index)
 {
     QQItem *item =  static_cast<QQItem*>(index.internalPointer());
 
     if (item->type() == QQItem::kFriend)
     {
-        openChatDlg(QQMsg::kFriend, item->id());
+        openChatDlg(QQMsg::kFriend, item->id(), item->gCode());
     }
     else if (item->type() == QQItem::kGroup)
     {
-        openChatDlg(QQMsg::kGroup, item->id());
+        openChatDlg(QQMsg::kGroup, item->id(), item->gCode());
     }
     else
         return;
 }
 
-void QQMainPanel::openChatDlg(QQMsg::MsgType type, QString id)
+void QQMainPanel::openChatDlg(QQMsg::MsgType type, QString id, QString gcode)
 {
     QQChatDlg *chatdlg = NULL;
     foreach(chatdlg, opening_chatdlg_)
@@ -643,27 +733,34 @@ void QQMainPanel::openChatDlg(QQMsg::MsgType type, QString id)
     QQChatDlg *dlg = NULL;
     if (type == QQMsg::kFriend)
     {
-        dlg= new QQFriendChatDlg(id, convertor_.convert(id), curr_user_info_, this);
+        QString avatar_path = "";
+        QQItem *item = findFriendItemById(id);
+
+        if (item)
+            avatar_path = item->avatarPath();
+
+        dlg= new QQFriendChatDlg(id, convertor_.convert(id), curr_user_info_, avatar_path, this);
         connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
         msg_center_->registerListener(dlg);
     }
     else //kGroup
     {
-        QQItem *item = NULL;
-        foreach(item, groups_info_)
-        {
-            if (item->id() == id)
-                break; //跳出foreach,而不是if
-        }
-        const GroupInfo *info = static_cast<const GroupInfo*>(item->itemInfo());
+        QString avatar_path = "";
+        QQItem *item = findGroupItemById(id);
 
-        dlg = new QQGroupChatDlg(id, convertor_.convert(id), info->code(), curr_user_info_, this);
+        if (item)
+            avatar_path = item->avatarPath();
+
+
+        dlg = new QQGroupChatDlg(id, convertor_.convert(id), gcode, curr_user_info_, avatar_path, this);
         connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
 
         msg_center_->registerListener(dlg);
     }
     opening_chatdlg_.append(dlg);
     dlg->move((QApplication::desktop()->width() - dlg->width()) /2, (QApplication::desktop()->height() - dlg->height()) /2);
+
+    msg_tip_->removeItem(id);
 }
 
 void QQMainPanel::closeChatDlg(QQChatDlg *listener)
