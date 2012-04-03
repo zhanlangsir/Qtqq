@@ -94,6 +94,9 @@ public:
     void set_mood(QString mood)
     { mood_ = mood; }
 
+    virtual QString markName() const
+    { return name_; }
+
     virtual FriendStatus status() const
     { return kOnline; }
     virtual void set_status(FriendStatus status)
@@ -102,7 +105,7 @@ public:
     virtual QString gCode() const
     { return ""; }
 
-private:
+protected:
     QString id_;
     QString name_;    
     QString mood_;
@@ -129,6 +132,17 @@ public:
     { return client_type_; }
     void set_clientType(ClientType client_type)
     { client_type_ = client_type; }
+
+    QString markName() const
+    {
+        if (mark_name_.isEmpty())
+            return name_;
+
+        return mark_name_ + "-[ " + name_ + " ]";
+    }
+
+    void set_markName(QString mark_name)
+    { mark_name_ = mark_name; }
 
 private:
     QString mark_name_;

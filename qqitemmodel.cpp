@@ -42,7 +42,7 @@ QVariant QQItemModel::data(const QModelIndex &index, int role) const
     }
     else
     {
-        return item->name();
+        return item->markName();
     }
     return QVariant();
 }

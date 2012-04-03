@@ -535,6 +535,19 @@ void QQMainPanel::parseFriendsInfo(const QByteArray &str, QQItem *const root_ite
     QQItem *stranger_cat = new QQItem(QQItem::kCategory, stranger_item, root_item);
     root_item->append(stranger_cat);
 
+    //mark name
+    const Json::Value mark_names = root["result"]["marknames"];
+
+    QHash <QString, QString> uin_markname;
+    for (unsigned int i = 0; i < mark_names.size(); ++i)
+    {
+        QString uin = QString::number(mark_names[i]["uin"].asLargestInt());
+        QString mark_name = QString::fromStdString(mark_names[i]["markname"].asString());
+
+        uin_markname.insert(uin, mark_name);
+    }
+
+    //set friends
     const Json::Value friends = root["result"]["friends"];
     const Json::Value info = root["result"]["info"];
 
@@ -547,6 +560,12 @@ void QQMainPanel::parseFriendsInfo(const QByteArray &str, QQItem *const root_ite
         info->set_name(name);
         info->set_id(uin);
         info->set_status(kOffline);
+
+        if (!uin_markname[uin].isEmpty())
+        {
+            info->set_markName(uin_markname[uin]);
+        }
+
         int category_num = friends[i]["categories"].asInt();
         QQItem* parent = root_item->value(index_map.key(category_num));
         QQItem *myfriend = new QQItem(QQItem::kFriend, info, parent);
