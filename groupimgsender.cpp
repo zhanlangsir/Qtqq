@@ -30,7 +30,7 @@ QByteArray GroupImgSender::createSendMsg(const QByteArray &file_data, const QStr
 FileInfo GroupImgSender::parseResult(const QByteArray &array)
 {
     int file_name_idx = array.indexOf("'msg':")+7;
-     int file_name_end_idx = array.indexOf(" ", file_name_idx);
+     int file_name_end_idx = array.indexOf("'", file_name_idx+1);
 
     QString file_name = array.mid(file_name_idx, file_name_end_idx - file_name_idx);
 

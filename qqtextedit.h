@@ -20,6 +20,7 @@ class QQTextEdit : public QTextEdit
 
 public:
     QQTextEdit(QWidget *parent = 0);
+    ~QQTextEdit();
 
 public:
     void insertImgProxy(const QString &unique_id);
