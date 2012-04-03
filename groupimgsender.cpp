@@ -29,8 +29,17 @@ QByteArray GroupImgSender::createSendMsg(const QByteArray &file_data, const QStr
 
 FileInfo GroupImgSender::parseResult(const QByteArray &array)
 {
+    int ret_idx = array.indexOf("'ret':")+6;
+    int ret_end_idx = array.indexOf(",", ret_idx);
+    int ret = array.mid(ret_idx, ret_end_idx - ret_idx).toInt();
+
     int file_name_idx = array.indexOf("'msg':")+7;
-     int file_name_end_idx = array.indexOf("'", file_name_idx+1);
+    int file_name_end_idx;
+
+    if (ret == 4)
+         file_name_end_idx = array.indexOf(" ", file_name_idx+1);
+    else
+        file_name_end_idx = array.indexOf("'", file_name_idx+1);
 
     QString file_name = array.mid(file_name_idx, file_name_end_idx - file_name_idx);
 
