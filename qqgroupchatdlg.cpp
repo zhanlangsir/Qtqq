@@ -508,22 +508,29 @@ QString QQGroupChatDlg::converToJson(const QString &raw_msg)
     while (!content.isEmpty())
     {
         if (content[0] == '<')
-        {
-            int idx = content.indexOf("src") + 5;
-            int end_idx = content.indexOf("\"", idx);
-            QString src = content.mid(idx, end_idx - idx);
+        {           
+            int match_end_idx = content.indexOf('>')+1;
+            QString single_chat_item = content.mid(0, match_end_idx);
 
-            if (src.contains("-"))
+            int img_idx = single_chat_item.indexOf("src");
+            if (img_idx != -1)
             {
-                has_gface = true;
-                msg_template.append("[\\\"cface\\\",\\\"group\\\",\\\"" + id_file_hash_[src].name_ + "\\\"],");
-            }
-            else
-            {
-                msg_template.append("[\\\"face\\\"," + src + "],");
+                img_idx += 5;
+                int img_end_idx = content.indexOf("\"", img_idx);
+                QString src = content.mid(img_idx, img_end_idx - img_idx);
+
+                if (src.contains("-"))
+                {
+                    has_gface = true;
+                    msg_template.append("[\\\"cface\\\",\\\"group\\\",\\\"" + id_file_hash_[src].name_ + "\\\"],");
+                }
+                else
+                {
+                    msg_template.append("[\\\"face\\\"," + src + "],");
+                }
             }
 
-            content = content.mid(end_idx + 4);
+            content = content.mid(match_end_idx);
         }
         else
         {

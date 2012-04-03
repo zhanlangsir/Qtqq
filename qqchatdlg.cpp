@@ -112,18 +112,24 @@ void QQChatDlg::setFileInfo(QString unique_id, FileInfo file_info)
 
 void QQChatDlg::setFontStyle(QFont font, QColor color, int size)
 {
-    QTextBlockFormat block_format;
-    block_format.setTopMargin(5);
-    block_format.setLineHeight(5, QTextBlockFormat::LineDistanceHeight);
+//    QTextBlockFormat block_format;
+//    block_format.setTopMargin(5);
+//    block_format.setLineHeight(5, QTextBlockFormat::LineDistanceHeight);
 
-    QTextCharFormat char_format;
-    char_format.setForeground(color);
-    char_format.setFont(font);
-    char_format.setFontPointSize(size);
+//    QTextCharFormat char_format;
+//    char_format.setForeground(color);
+//    char_format.setFont(font);
+//    char_format.setFontPointSize(size);
 
-    QTextCursor cursor(te_input_.document());
-    cursor.setBlockFormat(block_format);
-    cursor.setBlockCharFormat(char_format);
+//    te_input_.setFont();
+//    te_input_.setForegroundRole();
+//    QTextCursor cursor(te_input_.document());
+//    cursor.movePosition(QTextCursor::End);
+//    cursor.setBlockFormat(block_format);
+//    cursor.setBlockCharFormat(char_format);
+    te_input_.setTextColor(color);
+    te_input_.setFont(font);
+    te_input_.setFontPointSize(size);
 }
 
 void QQChatDlg::showMsg(const QQMsg *msg)

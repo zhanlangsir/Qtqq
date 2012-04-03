@@ -68,14 +68,14 @@ void ImgLoader::run()
     {
         img_count_.acquire();
         LoadInfo info = infos_.dequeue();
-        QTcpSocket fd_;
-        fd_.connectToHost(info.host_, 80);
-        fd_.write(info.header_.toByteArray());
+        QTcpSocket fd;
+        fd.connectToHost(info.host_, 80);
+        fd.write(info.header_.toByteArray());
 
         QByteArray array;
-        fd_.waitForReadyRead();
+        fd.waitForReadyRead();
 
-        array.append(fd_.readAll());
+        array.append(fd.readAll());
 
         int idx = array.indexOf("http://") + 7;
         int end_idx = array.indexOf("\r\n", idx);
@@ -96,19 +96,19 @@ void ImgLoader::run()
 
         int file_idx = url.indexOf("/");
         QString file_url = url.mid(file_idx);
-        fd_.close();
+        fd.close();
 
         Request req;
         req.create(kGet, file_url);
         req.addHeaderItem("Host", host);
         req.addHeaderItem("Referer", "http://web.qq.com");
         req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
-        fd_.connectToHost(host, 80);
-        fd_.write(req.toByteArray());
+        fd.connectToHost(host, 80);
+        fd.write(req.toByteArray());
         array.clear();
 
-        fd_.waitForReadyRead();
-        array.append(fd_.readAll());
+        fd.waitForReadyRead();
+        array.append(fd.readAll());
 
         int length_idx = array.indexOf("Content-Length") + 16;
         int length_end_idx = array.indexOf("\r\n", length_idx);
@@ -116,13 +116,17 @@ void ImgLoader::run()
         QString length_str = array.mid(length_idx, length_end_idx - length_idx);
         int content_length = length_str.toInt();
 
+
         int img_idx = array.indexOf("\r\n\r\n")+4;
+
         array = array.mid(img_idx);
 
         while (array.length() < content_length)
         {
-            fd_.waitForReadyRead();
-            array.append(fd_.readAll());
+            if (fd.waitForReadyRead() == false)
+                break;
+
+            array.append(fd.readAll());
         }
 
         QFile file(info.path_);
@@ -130,6 +134,8 @@ void ImgLoader::run()
         QDataStream out(&file);
         out.writeRawData(array.data(), array.length());
         file.close();
+
+        fd.close();
 
         emit loadDone(info.img_name_, info.path_);
     }

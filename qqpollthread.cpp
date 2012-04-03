@@ -19,15 +19,15 @@ void QQPollThread::run()
         if (result.isEmpty())
             continue;
 
-        int retcode_fir_idx = result.indexOf("retcode") + 9;
-        int retcode_sec_idx = result.indexOf(",", retcode_fir_idx);
-        int retcode = result.mid(retcode_fir_idx, retcode_sec_idx - retcode_fir_idx).toInt();
+        int retcode_idx = result.indexOf("retcode") + 9;
+        int retcode_end_idx = result.indexOf(",", retcode_idx);
+        int retcode = result.mid(retcode_idx, retcode_end_idx - retcode_idx).toInt();
 
         if (retcode == 116)
         {
-            int ptwebqq_fir_idx = result.indexOf("p", retcode_sec_idx) + 3;
-            int ptwebqq_sec_idx = result.indexOf("\"", ptwebqq_fir_idx);
-            QString ptwebqq = result.mid(ptwebqq_fir_idx, ptwebqq_sec_idx - ptwebqq_fir_idx);
+            int ptwebqq_idx = result.indexOf("p", retcode_end_idx) + 4;
+            int ptwebqq_end_idx = result.indexOf("\"", ptwebqq_idx);
+            QString ptwebqq = result.mid(ptwebqq_idx, ptwebqq_end_idx - ptwebqq_idx);
             CaptchaInfo::singleton()->set_vfwebqq(ptwebqq);
 
         }
