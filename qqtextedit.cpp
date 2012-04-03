@@ -14,6 +14,16 @@ QQTextEdit::QQTextEdit(QWidget *parent) : QTextEdit(parent)
 
 }
 
+QQTextEdit::~QQTextEdit()
+{
+    QMovie *mov = NULL;
+    foreach (mov, id_mov_hash_.values())
+    {
+        delete mov;
+        mov = NULL;
+    }
+}
+
 void QQTextEdit::appendDocument(const QTextDocument *doc)
 {
     QTextCursor cursor(this->document());

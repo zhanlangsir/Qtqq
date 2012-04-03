@@ -7,7 +7,7 @@ TARGET =
 DEPENDPATH += .
 INCLUDEPATH += .
 
-LIBS += "./libs/libjson.a"
+LIBS += "./libs/libjson.so"
 
 QT += network \
       sql \
