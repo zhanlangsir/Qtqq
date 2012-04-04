@@ -28,7 +28,7 @@ void QQPollThread::run()
             int ptwebqq_idx = result.indexOf("p", retcode_end_idx) + 4;
             int ptwebqq_end_idx = result.indexOf("\"", ptwebqq_idx);
             QString ptwebqq = result.mid(ptwebqq_idx, ptwebqq_end_idx - ptwebqq_idx);
-            CaptchaInfo::singleton()->set_vfwebqq(ptwebqq);
+            //CaptchaInfo::singleton()->set_vfwebqq(ptwebqq);
 
         }
         message_queue_->enqueue(result);

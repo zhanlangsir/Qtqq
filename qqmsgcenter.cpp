@@ -1,13 +1,14 @@
 #include "qqmsgcenter.h"
-#include "qqmsg.h"
-#include "qqmsgtip.h"
-#include "qqmsglistener.h"
+
 
 #include <QMutex>
 #include <QWaitCondition>
 #include <QSemaphore>
 #include <QMetaType>
-#include <qqmsg.h>
+
+#include "qqmsg.h"
+#include "qqmsgtip.h"
+#include "qqmsglistener.h"
 
 void QQMsgCenter::pushMsg(QQMsg *msg)
 {

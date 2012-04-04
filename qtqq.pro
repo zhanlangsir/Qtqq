@@ -57,7 +57,8 @@ HEADERS += cookie.h \
     qqsystemtray.h \
     qqavatarrequester.h \
     networkhelper.h \
-    qqutility.h
+    qqutility.h \
+    soundplayer.h
 
 FORMS += captcha.ui qqlogin.ui qqmainpanel.ui qqfriendchatdlg.ui \
     qqgroupchatdlg.ui \

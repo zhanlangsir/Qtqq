@@ -1,10 +1,12 @@
 #include "qqmsgtip.h"
-#include "qqmsg.h"
-#include <ui_qqmsgtip.h>
+#include "ui_qqmsgtip.h"
+
 #include <QDebug>
 #include <QVBoxLayout>
 #include <QCursor>
 #include <QMouseEvent>
+
+#include "qqmsg.h"
 
 struct MsgTipItem
 {
