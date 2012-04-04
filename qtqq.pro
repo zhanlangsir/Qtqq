@@ -7,7 +7,12 @@ TARGET =
 DEPENDPATH += .
 INCLUDEPATH += .
 
-LIBS += "./libs/libjson.so"
+win32:LIBS += "./libs/libjson.a"
+unix:LIBS += "./libs/libjson.so"
+
+OBJECTS_DIR = ./intermediate/
+RCC_DIR = ./intermediate/
+UI_DIR = ./intermediate/
 
 QT += network \
       sql \
