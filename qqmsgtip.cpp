@@ -7,6 +7,7 @@
 #include <QMouseEvent>
 
 #include "qqmsg.h"
+#include "soundplayer.h"
 
 struct MsgTipItem
 {
@@ -30,6 +31,7 @@ void QQMsgTip::pushMsg(QQMsg* new_msg)
         return;
     }
 
+    emit bibibi();
     lock.lock();
     for (int i = 0; i < ui->cb_msgs_->count(); ++i)
     {
@@ -133,6 +135,11 @@ bool QQMsgTip::eventFilter(QObject *obj, QEvent *e)
         return QWidget::eventFilter(obj, e);
 }
 
+void QQMsgTip::beginBibibi()
+{
+    SoundPlayer::singleton()->play(SoundPlayer::kMsg);
+}
+
 void QQMsgTip::mouseReleaseEvent(QMouseEvent *)
 {
     distance_pos_ = QPoint(0, 0);
@@ -158,4 +165,5 @@ QQMsgTip::QQMsgTip(QWidget *parent) : QWidget(parent), ui(new Ui::QQMsgTip)
     ui->cb_msgs_->installEventFilter(this);
     connect(ui->cb_msgs_, SIGNAL(activated(int)), this, SLOT(openChatDlg(int)));
     connect(this, SIGNAL(addItemDone()), this, SLOT(show()));
+    connect(this, SIGNAL(bibibi()), this, SLOT(beginBibibi()));
 }

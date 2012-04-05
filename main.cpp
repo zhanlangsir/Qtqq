@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QTextCodec>
 #include <QtMsgHandler>
+#include <QSettings>
 
 #include "login.h"
 #include "mainpanel.h"
@@ -11,6 +12,9 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForLocale(codec);
     QTextCodec::setCodecForTr(codec);
     QTextCodec::setCodecForCStrings(codec);
+
+    QCoreApplication::setOrganizationName("FuckGFW");
+    QCoreApplication::setApplicationName("Qtqq");
 
     QApplication a(argc, argv);
 

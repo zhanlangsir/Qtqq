@@ -17,6 +17,11 @@ QQFacePanel::QQFacePanel(QWidget *parent) : QDialog(parent), ui_(new Ui::QQFaceP
     setWindowFlags(Qt::FramelessWindowHint);
 }
 
+QQFacePanel::~QQFacePanel()
+{
+    delete ui_;
+}
+
 void QQFacePanel::onItemClicked(QTableWidgetItem *item)
 {
     this->hide();

@@ -23,6 +23,7 @@ public:
 signals:
     void addItemDone();
     void activatedChatDlg(QQMsg::MsgType type, QString talk_to, QString gcode);
+    void bibibi();
 
 public slots:
     void openChatDlg(int index);
@@ -41,6 +42,9 @@ protected:
     void enterEvent(QEvent *);
     void leaveEvent(QEvent *);
     bool eventFilter(QObject *obj, QEvent *e);
+
+private slots:
+    void beginBibibi();
 
 private:
     Ui::QQMsgTip *ui;

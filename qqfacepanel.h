@@ -14,6 +14,7 @@ class QQFacePanel : public QDialog
 
 public:
     QQFacePanel(QWidget *parent = NULL);
+    ~QQFacePanel();
 
 public:
 

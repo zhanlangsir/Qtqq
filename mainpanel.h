@@ -58,6 +58,8 @@ private slots:
     void changeRecentList(const QQChatMsg *msg);
     void changeRecentList(const QQGroupChatMsg *msg);
     void trayActivated(QSystemTrayIcon::ActivationReason reason);
+    void openMainMenu();
+    void setMute(bool mute);
 
 private:
     QQItem* findFriendItemById(QString id);
@@ -106,4 +108,7 @@ private:
     QAction *restoreAction;
     QAction *quitAction;
     QMenu *trayIconMenu;
+
+    QMenu *main_menu_;
+    QAction *act_mute_;
 };

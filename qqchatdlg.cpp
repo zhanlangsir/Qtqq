@@ -5,6 +5,8 @@
 #include <QKeyEvent>
 #include <QApplication>
 
+#include "soundplayer.h"
+
 QQChatDlg::QQChatDlg(QString id, QString name, FriendInfo curr_user_info, 
                      QWidget *parent) :
     QDialog(parent),
@@ -182,8 +184,9 @@ void QQChatDlg::showMsg(const QQMsg *msg)
         }
     }
 
-    if (this->isHidden() || this->isMinimized())
+    if (this->isMinimized())
     {
+        SoundPlayer::singleton()->play(SoundPlayer::kMsg);
         QApplication::alert(this, 3000);
     }
 }

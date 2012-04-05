@@ -16,6 +16,7 @@
 #include <QDateTime>
 #include <assert.h>
 #include <QFile>
+#include <QSettings>
 
 #include "qqutility.h"
 
@@ -41,6 +42,7 @@ QQMainPanel::QQMainPanel(FriendInfo user_info, QWidget *parent) :
     connect(msg_center_, SIGNAL(groupChatMsgArrive(const QQGroupChatMsg*)), this, SLOT(changeRecentList(const QQGroupChatMsg*)));
     connect(msg_center_, SIGNAL(friendChatMsgArrive(const QQChatMsg*)), this, SLOT(changeRecentList(const QQChatMsg*)));
     connect(ui->cb_status_, SIGNAL(currentIndexChanged(int)), this, SLOT(changeUserStatus(int)));
+    connect(ui->pb_mainmenu_, SIGNAL(clicked()), this, SLOT(openMainMenu()));
 
     convertor_.addUinNameMap(user_info.id(), tr("you"));
     msg_tip_->setConvertor(&convertor_);
@@ -61,6 +63,27 @@ QQMainPanel::QQMainPanel(FriendInfo user_info, QWidget *parent) :
     setupStatus();
 
     qRegisterMetaType<ClientType>("ClientType");
+
+    QSettings setting("options.ini", QSettings::IniFormat);
+    main_menu_ = new QMenu(this);
+    act_mute_ = new QAction(tr("Mute"), main_menu_);
+    act_mute_->setCheckable(true);
+    act_mute_->setChecked(setting.value("mute").toBool());
+
+    connect(act_mute_, SIGNAL(toggled(bool)), this, SLOT(setMute(bool)));
+
+    main_menu_->addAction(act_mute_);
+}
+
+void QQMainPanel::setMute(bool mute)
+{
+    QSettings setting("options.ini", QSettings::IniFormat);
+    setting.setValue("mute", mute);
+}
+
+void QQMainPanel::openMainMenu()
+{
+    main_menu_->popup(QCursor::pos());
 }
 
 QQMainPanel::~QQMainPanel()
@@ -786,4 +809,5 @@ void QQMainPanel::closeChatDlg(QQChatDlg *listener)
 {
     opening_chatdlg_.remove(opening_chatdlg_.indexOf(listener));
     msg_center_->removeListener(listener);
+    listener->deleteLater();
 }

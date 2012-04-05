@@ -91,7 +91,8 @@ SOURCES += cookie.cpp \
     qqmsgsender.cpp \
     qqsystemtray.cpp \
     qqavatarrequester.cpp \
-    networkhelper.cpp
+    networkhelper.cpp \
+    soundplayer.cpp
 
 RESOURCES += \
     img.qrc
