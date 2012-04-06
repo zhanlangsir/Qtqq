@@ -280,12 +280,12 @@ void QQGroupChatDlg::parseGroupMemberList(const QByteArray &array, QQItem *const
         QString uin = QString::number(stats[i]["uin"].asLargestInt());
 
         QQItem *item  = NULL;
-        int i;
-        for (i = 0; i < root_item->children_.count(); ++i)
+        int j;
+        for (j = 0; j < root_item->children_.count(); ++j)
         {
-            if (root_item->children_[i]->id() == uin)
+            if (root_item->children_[j]->id() == uin)
             {
-                item = root_item->children_[i];
+                item = root_item->children_[j];
                 break;
             }
         }
@@ -294,7 +294,7 @@ void QQGroupChatDlg::parseGroupMemberList(const QByteArray &array, QQItem *const
         info->set_status(stat);
         info->set_clientType(client_type);
 
-        root_item->children_.remove(i);
+        root_item->children_.remove(j);
         root_item->children_.push_front(item);
     }
 }

@@ -1,12 +1,7 @@
 #ifndef QTQQ_SOUNDPLAYER_H
 #define QTQQ_SOUNDPLAYER_H
 
-#ifdef Q_OS_LINUX
 #include <QProcess>
-#else
-#include <QSound>
-#endif
-
 #include <QSettings>
 #include <QDebug>
 
@@ -18,9 +13,7 @@ public:
 protected:
     SoundPlayer()
     {
-#ifdef Q_OS_LINUX
          sound_pro_ = new QProcess;
-#endif
     }
 
   /*  ~SoundPlayer()
@@ -51,14 +44,10 @@ public:
             break;
         }
 
-#ifdef Q_OS_LINUX
         QStringList arg(file_be_play+".mp3");
         QProcess *sound_pro_ = new QProcess();
         sound_pro_->start("mpg123", arg);
         qDebug()<<"in linux"<<endl;
-#else
-        QSound::play(file_be_play+".wav");
-#endif
     }
 
     static SoundPlayer* singleton()
@@ -71,10 +60,7 @@ public:
 private:
     static SoundPlayer* instance_;
 
-
-#ifdef Q_OS_LINUX
-          QProcess *sound_pro_;
-#endif
+    QProcess *sound_pro_;
 };
 
 #endif // QTQQ_SOUNDPLAYER_H

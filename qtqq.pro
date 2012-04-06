@@ -13,6 +13,7 @@ unix:LIBS += "./libs/libjson.so"
 OBJECTS_DIR = ./intermediate/
 RCC_DIR = ./intermediate/
 UI_DIR = ./intermediate/
+MOC_DIR = ./intermediate/
 
 QT += network \
       sql \

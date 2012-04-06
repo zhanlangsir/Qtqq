@@ -127,7 +127,7 @@ void QQLogin::getCaptchaImg(QByteArray sum)
     fd_->write(req.toByteArray());
 
     QByteArray result = NetWorkHelper::quickReceive(fd_);
-
+    
     int cookie_idx = result.indexOf("Set-Cookie") + 12;
     int idx = result.indexOf(';', cookie_idx)+1;
     CaptchaInfo::singleton()->set_cookie(result.mid(cookie_idx, idx - cookie_idx));
