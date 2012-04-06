@@ -17,7 +17,7 @@ QQTextEdit::~QQTextEdit()
     QMovie *mov = NULL;
     foreach (mov, id_mov_hash_.values())
     {
-        delete mov;
+        mov->deleteLater();
         mov = NULL;
     }
 }
@@ -90,7 +90,7 @@ void QQTextEdit::insertQQFace(const QString &face_id)
        file_ids_.append(face_id);
     }
 
-   QMovie* movie = new QMovie(this);
+   QMovie* movie = new QMovie();
    movie->setFileName(path);
    movie->setCacheMode(QMovie::CacheNone);
 

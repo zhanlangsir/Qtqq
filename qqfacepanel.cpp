@@ -13,6 +13,7 @@ QQFacePanel::QQFacePanel(QWidget *parent) : QDialog(parent), ui_(new Ui::QQFaceP
     ui_->tbw_qqface_->setEditTriggers(QTableWidget::NoEditTriggers);
     connect(ui_->tbw_qqface_, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(onItemClicked(QTableWidgetItem*)));
     loadFace();
+
     setWindowOpacity(1);
     setWindowFlags(Qt::FramelessWindowHint);
 }
