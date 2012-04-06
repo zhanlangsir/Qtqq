@@ -62,7 +62,6 @@ private:
     QQueue<QQMsg*> old_msg_;
     QLinkedList<QQMsgListener*> listener_;
     QQMsgTip *msg_tip_;
-    //QWaitCondition *wait_for_check_done_, *wait_for_push_old_msg_;
     QMutex *lock_;
     QSemaphore *parse_done_smp_;
 };

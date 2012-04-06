@@ -21,9 +21,14 @@ void QQAvatarRequester::request(QQItem *item)
     start();
 }
 
+void QQAvatarRequester::finishRequest()
+{
+    finish_ = true;
+}
+
 void QQAvatarRequester::run()
 {
-    while (to_request_.count() != 0)
+    while (to_request_.count() != 0 && (!finish_))
     {
         QTcpSocket fd;
         QQItem *item = to_request_.dequeue();

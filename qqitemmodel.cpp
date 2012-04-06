@@ -199,6 +199,9 @@ QQItemModel::QQItemModel(QObject *parent) : QAbstractItemModel(parent), avatar_r
 
 QQItemModel::~QQItemModel()
 {
+    avatar_requester_.finishRequest();
+    avatar_requester_.wait();
+
     QQItem *item = NULL;
     foreach (item, root_->children_)
     {

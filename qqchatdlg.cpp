@@ -1,11 +1,12 @@
 #include "qqchatdlg.h"
-#include "imgloader.h"
 
 #include <QFileDialog>
 #include <QKeyEvent>
 #include <QApplication>
 
 #include "soundplayer.h"
+#include "imgloader.h"
+#include "imgsender.h"
 
 QQChatDlg::QQChatDlg(QString id, QString name, FriendInfo curr_user_info, 
                      QWidget *parent) :
@@ -160,7 +161,6 @@ void QQChatDlg::showMsg(const QQMsg *msg)
             {
                 img_loader_ = new ImgLoader();
                 connect(img_loader_, SIGNAL(loadDone(const QString&, const QString&)), &te_messages_, SLOT(setRealImg(const QString&, const QString&)));
-                img_loader_->start();
             }
 
             if (te_messages_.containsImg(chat_msg->msg_[i].content()))

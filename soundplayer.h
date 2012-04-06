@@ -36,7 +36,6 @@ public:
         }
 
         QStringList arg(file_be_play+".mp3");
-        QProcess *sound_pro_ = new QProcess();
         sound_pro_->start("mpg123", arg);
     }
 

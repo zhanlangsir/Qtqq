@@ -1,13 +1,11 @@
 #include "qqtextedit.h"
-#include "imgloader.h"
 
-#include <QHelpEvent>
-#include <QToolTip>
 #include <QTextCursor>
 #include <QTextDocument>
 #include <QTextBlock>
 #include <QTextBlockFormat>
 #include <QTextCharFormat>
+#include <QFile>
 
 QQTextEdit::QQTextEdit(QWidget *parent) : QTextEdit(parent)
 {

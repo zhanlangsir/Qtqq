@@ -14,7 +14,7 @@ public:
         parent_(parent)
     {
     }
-    QQItem(QQItem *parent = 0) : parent_(parent) {}
+    QQItem(QQItem *parent = 0) : info_(NULL), parent_(parent) {}
     ~QQItem()
     {
         if (info_)

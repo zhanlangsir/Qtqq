@@ -41,7 +41,9 @@ class QQMsg
 {
 public:
     enum MsgType{kGroup, kFriend, kBuddiesStatusChange, kSystem};
+    virtual ~QQMsg() {}
 
+public:
     MsgType type() const
     { return type_; }
     void set_type(MsgType type)

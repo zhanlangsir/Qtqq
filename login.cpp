@@ -71,6 +71,11 @@ void QQLogin::checkStateRead()
     {
         int vc_idx = result.indexOf('!');
         vc_ = result.mid(vc_idx, 4);
+
+        int cookie_idx = result.indexOf("Set-Cookie") + 12;
+        int idx = result.indexOf(';', cookie_idx)+1;
+        CaptchaInfo::singleton()->set_cookie(result.mid(cookie_idx, idx - cookie_idx));
+
         login();
     }
     else
@@ -134,7 +139,7 @@ void QQLogin::getCaptchaImg(QByteArray sum)
 
     QDialog *captcha_dialog = new QDialog(this);
     Ui::QQCaptcha *ui = new Ui::QQCaptcha;
-    QPixmap *pix = new QPixmap;
+    QPixmap *pix = new QPixmap();
     pix->loadFromData(result.mid(result.indexOf("\r\n\r\n") + 4));
     ui->setupUi(captcha_dialog);
     ui->lbl_captcha_->setPixmap(*pix);
@@ -144,7 +149,10 @@ void QQLogin::getCaptchaImg(QByteArray sum)
         vc_ = ui->le_captcha_->text().toUpper();
     }
 
+    delete pix;
+    pix = NULL;
     delete captcha_dialog;
+    captcha_dialog = NULL;
 
     fd_->disconnectFromHost();
 

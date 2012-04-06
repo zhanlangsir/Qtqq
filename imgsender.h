@@ -5,6 +5,7 @@
 
 #include <QThread>
 
+//快速上传两次图片可能会丢失，记得更改
 class ImgSender : public QThread
 {
     Q_OBJECT

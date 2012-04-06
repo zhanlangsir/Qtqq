@@ -70,6 +70,7 @@ public:
         mood_(mood)
     {}
     ItemInfo() {}
+    virtual ~ItemInfo() {}
 
 public:
     QString avatarPath() const

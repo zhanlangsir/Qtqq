@@ -1,5 +1,11 @@
 #pragma once
 
+#include <QDialog>
+#include <QHash>
+#include <QScrollBar>
+#include <QDateTime>
+#include <QTcpSocket>
+
 #include "qqfacepanel.h"
 #include "qqtextedit.h"
 #include "types.h"
@@ -7,10 +13,8 @@
 #include "qqmsglistener.h"
 #include "qqmsgsender.h"
 
-#include <QDialog>
-#include <QHash>
-#include <QScrollBar>
-#include <QDateTime>
+class ImgSender;
+class ImgLoader;
 
 class QQChatDlg : public QDialog, public QQMsgListener
 {

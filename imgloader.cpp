@@ -19,9 +19,11 @@ void ImgLoader::loadFriendCface(const QString &file_name, const QString &to_uin,
     info.header_.addHeaderItem("Referer", "http://web.qq.com");
     info.header_.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
 
+    lock_.lock();
     infos_.enqueue(info);
+    lock_.unlock();
 
-    img_count_.release();
+    start();
 }
 
 void ImgLoader::loadFriendOffpic(const QString &file_name, const QString &to_uin)
@@ -39,11 +41,12 @@ void ImgLoader::loadFriendOffpic(const QString &file_name, const QString &to_uin
     info.header_.addHeaderItem("Referer", "http://web.qq.com");
     info.header_.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
 
+    lock_.lock();
     infos_.enqueue(info);
+    lock_.unlock();
 
-    img_count_.release();
+    start();
 }
-
 
 void ImgLoader::loadGroupChatImg(const QString &file_name, const QString &gid, const QString &time)
 {
@@ -57,16 +60,24 @@ void ImgLoader::loadGroupChatImg(const QString &file_name, const QString &gid, c
     info.header_.addHeaderItem("Referer", "http://web.qq.com");
     info.header_.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
 
+    lock_.lock();
     infos_.enqueue(info);
+    lock_.unlock();
 
-    img_count_.release();
+    start();
 }
 
 void ImgLoader::run()
 {
     while(true)
     {
-        img_count_.acquire();
+        lock_.lock();
+        int to_load_count = infos_.count() ;
+        lock_.unlock();
+
+        if (to_load_count == 0)
+            break;
+
         LoadInfo info = infos_.dequeue();
         QTcpSocket fd;
         fd.connectToHost(info.host_, 80);

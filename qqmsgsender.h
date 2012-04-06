@@ -4,7 +4,6 @@
 
 #include <QThread>
 #include <QQueue>
-#include <QSemaphore>
 
 class QQMsgSender : public QThread
 {
@@ -19,5 +18,4 @@ protected:
 
 private:
     QQueue<Request> msgs_be_send_;
-    //QSemaphore msg_count_;
 };

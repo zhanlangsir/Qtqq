@@ -6,8 +6,8 @@
 
 #include <QThread>
 #include <QTcpSocket>
-#include <QSemaphore>
 #include <QQueue>
+#include <QMutex>
 
 struct LoadInfo
 {
@@ -33,7 +33,7 @@ protected:
     void run();
 
 private:
-    QSemaphore img_count_;
+    QMutex lock_;
     QQueue<LoadInfo> infos_;
     bool has_error_;
 };

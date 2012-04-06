@@ -6,32 +6,30 @@
 #include "login.h"
 #include "mainpanel.h"
 
-/*
-void customMessageHandler(QtMsgType type, const char *msg)
-{
-	QString txt;
-	switch (type) {
-	case QtDebugMsg:
-		txt = QString("Debug: %1").arg(msg);
-		break;
+//void customMessageHandler(QtMsgType type, const char *msg)
+//{
+//	QString txt;
+//	switch (type) {
+//	case QtDebugMsg:
+//		txt = QString("Debug: %1").arg(msg);
+//		break;
  
-	case QtWarningMsg:
-		txt = QString("Warning: %1").arg(msg);
-	break;
-	case QtCriticalMsg:
-		txt = QString("Critical: %1").arg(msg);
-	break;
-	case QtFatalMsg:
-		txt = QString("Fatal: %1").arg(msg);
-		abort();
-	}
+//	case QtWarningMsg:
+//		txt = QString("Warning: %1").arg(msg);
+//	break;
+//	case QtCriticalMsg:
+//		txt = QString("Critical: %1").arg(msg);
+//	break;
+//	case QtFatalMsg:
+//		txt = QString("Fatal: %1").arg(msg);
+//		abort();
+//	}
  
-	QFile outFile("debuglog.txt");
-	outFile.open(QIODevice::WriteOnly | QIODevice::Append);
-	QTextStream ts(&outFile);
-	ts << txt << endl;
-}
-*/
+//	QFile outFile("debuglog.txt");
+//	outFile.open(QIODevice::WriteOnly | QIODevice::Append);
+//	QTextStream ts(&outFile);
+//	ts << txt << endl;
+//}
 
 int main(int argc, char *argv[])
 {
@@ -44,7 +42,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("Qtqq");
 
     QApplication a(argc, argv);
- //   qInstallMsgHandler(customMessageHandler);
+    //qInstallMsgHandler(customMessageHandler);
 
     QQLogin *login = new QQLogin;
     if (login->exec() == QDialog::Rejected)

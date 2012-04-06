@@ -13,8 +13,12 @@
 class QQAvatarRequester : public QThread
 {
 public:
+    QQAvatarRequester() : finish_(false) {}
+
+public:
     bool isRequesting(QString id) const; 
     void request(QQItem *info);
+    void finishRequest();
 
 protected:
     void run();
@@ -26,4 +30,6 @@ private:
 private:
     QList<QString> requesting_list_;
     QQueue<QQItem*> to_request_;
+
+    bool finish_;
 };

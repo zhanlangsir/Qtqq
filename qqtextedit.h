@@ -1,17 +1,13 @@
-#pragma once
-
-#include "types.h"
-#include "imgloader.h"
-#include "imgsender.h"
+#ifndef QTQQ_QQTEXTEDIT
+#define QTQQ_QQTEXTEDIT
 
 #include <QTextEdit>
 #include <QList>
 #include <QMovie>
 #include <QUrl>
-#include <QWidget>
-#include <QEvent>
 #include <QToolTip>
 
+class QWidget;
 class QTextDocument;
 
 class QQTextEdit : public QTextEdit
@@ -64,3 +60,5 @@ private:
     QList<QString> file_ids_;
     QHash<QString, QMovie*> id_mov_hash_;
 };
+
+#endif //QTQQ_QQTEXTEDIT

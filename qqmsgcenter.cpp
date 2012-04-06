@@ -31,6 +31,8 @@ void QQMsgCenter::run()
         {
             QQStatusChangeMsg *status_changed_msg = static_cast<QQStatusChangeMsg*>(msg);
             emit buddiesStateChangeMsgArrive(status_changed_msg->uin_, status_changed_msg->status_, status_changed_msg->client_type_);
+            delete status_changed_msg;
+            status_changed_msg = NULL;
             break;
         }
 
@@ -128,8 +130,6 @@ void QQMsgCenter::writeToSql(QQMsg *msg)
 }
 
 QQMsgCenter::QQMsgCenter(QQMsgTip *msg_tip,
-//                         QWaitCondition *wait_for_check_done,
- //                        QWaitCondition *wait_for_push_old_msg) : 
                            QMutex *lock,
                            QSemaphore *parse_done_smp):
     msg_tip_(msg_tip), lock_(lock), parse_done_smp_(parse_done_smp)
