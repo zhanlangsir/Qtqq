@@ -16,15 +16,6 @@ protected:
          sound_pro_ = new QProcess;
     }
 
-  /*  ~SoundPlayer()
-    {
-#ifdef Q_OS_LINUX
-        sound_pro_->waitForFinished(3000);
-        delete sound_pro_;
-        sound_pro_ = NULL;
-#endif
-    }*/
-
 public:
     void play(SoundType type, QString file_name = "")
     {
@@ -47,7 +38,6 @@ public:
         QStringList arg(file_be_play+".mp3");
         QProcess *sound_pro_ = new QProcess();
         sound_pro_->start("mpg123", arg);
-        qDebug()<<"in linux"<<endl;
     }
 
     static SoundPlayer* singleton()
