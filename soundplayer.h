@@ -36,6 +36,10 @@ public:
         }
 
         QStringList arg(file_be_play+".mp3");
+
+        if (sound_pro_->state() == QProcess::Running)
+            return;
+
         sound_pro_->start("mpg123", arg);
     }
 
