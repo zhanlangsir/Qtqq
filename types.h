@@ -96,7 +96,7 @@ public:
     { mood_ = mood; }
 
     virtual void set_markName(QString mark_name)
-    {}
+    { Q_UNUSED(mark_name)}
     virtual QString markName() const
     { return name_; }
 

@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
     {
         return 0;
     }
+    login->deleteLater();
 
     FriendInfo user_info = login->getCurrentUserInfo();
     login->close();

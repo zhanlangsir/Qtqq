@@ -197,7 +197,7 @@ QQItem* QQItemModel::itemFromIndex(const QModelIndex &index) const
         return root_;
 }
 
-QQItemModel::QQItemModel(QObject *parent) : QAbstractItemModel(parent), avatar_requester_(), root_(new QQItem)
+QQItemModel::QQItemModel(QObject *parent) : QAbstractItemModel(parent), root_(new QQItem)
 {
     connect(this, SIGNAL(noAvatar(QQItem*)), this, SLOT(requestAvatar(QQItem*)));
 }
