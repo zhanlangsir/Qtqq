@@ -172,4 +172,5 @@ QQMsgTip::QQMsgTip(QWidget *parent) : QWidget(parent), ui(new Ui::QQMsgTip)
     connect(ui->cb_msgs_, SIGNAL(activated(int)), this, SLOT(slotActivated(int)));
     connect(this, SIGNAL(addItemDone()), this, SLOT(show()));
     connect(this, SIGNAL(bibibi(SoundPlayer::SoundType)), this, SLOT(beginBibibi(SoundPlayer::SoundType)));
+
 }
