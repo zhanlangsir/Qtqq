@@ -47,6 +47,8 @@ public:
 
     QString name() const
     { return info_->name(); }
+
+
     QString markName() const
     { return info_->markName(); }
 

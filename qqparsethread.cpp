@@ -94,12 +94,19 @@ QQMsg* QQParseThread::createMsg(QString type, const Json::Value result)
     }
     else if (type == "sys_g_msg")
     {
-        QQSystemMsg *system_msg = new QQSystemMsg();
-        system_msg->set_type(QQMsg::kSystem);
-        system_msg->from_ = QString::number(result["value"]["request_uin"].asLargestInt());
-        system_msg->aid_ = QString::number(result["value"]["gcode"].asLargestInt());
-        system_msg->msg_ = QString::fromStdString(result["value"]["msg"].asString());
-        return system_msg;
+        QQSystemGMsg *system_g_msg = new QQSystemGMsg();
+        system_g_msg->set_type(QQMsg::kSystemG);
+        system_g_msg->msg_id_ = QString::number(result["value"]["msg_id"].asInt());
+        system_g_msg->from_uin_ = QString::number(result["value"]["from_uin"].asLargestInt());
+        system_g_msg->to_uin_ = QString::number(result["value"]["from_uin"].asLargestInt());
+        system_g_msg->msg_id2_ = QString::number(result["value"]["msg_id2"].asInt());
+        system_g_msg->sys_g_type_ =QString::fromStdString(result["value"]["type"].asString());
+        system_g_msg->gcode_ = QString::number(result["value"]["gcode"].asLargestInt());
+        system_g_msg->t_gcode_ = QString::number(result["value"]["t_gcode"].asLargestInt());
+        system_g_msg->request_uin_ = QString::number(result["value"]["request_uin"].asLargestInt());
+        system_g_msg->t_request_uin_ = QString::fromStdString(result["value"]["t_request_uin"].asString());
+        system_g_msg->msg_ = QString::fromStdString(result["value"]["msg"].asString());
+        return system_g_msg;
     }
     else if (type == "message")
     {
@@ -147,6 +154,18 @@ QQMsg* QQParseThread::createMsg(QString type, const Json::Value result)
         }
 
         return chat_msg;
+    }
+    else if (type == "system_message")
+    {
+        QQSystemMsg *system_msg = new QQSystemMsg();
+        system_msg->set_type(QQMsg::kSystem);
+        system_msg->systemmsg_type_ = QString::fromStdString(result["value"]["type"].asString());
+        system_msg->from_ = QString::number(result["value"]["from_uin"].asLargestInt());
+        system_msg->account_ = QString::number(result["value"]["account"].asLargestInt());
+        system_msg->msg_ = QString::fromStdString(result["value"]["msg"].asString());
+        system_msg->status_ = (FriendStatus)(result["value"]["stat"].asInt());
+
+        return system_msg;
     }
     else
     {

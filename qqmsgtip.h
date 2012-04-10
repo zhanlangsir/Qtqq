@@ -9,6 +9,8 @@
 #include <QMap>
 #include <QPoint>
 
+#include "soundplayer.h"
+
 namespace Ui
 {
 class QQMsgTip;
@@ -23,10 +25,12 @@ public:
 signals:
     void addItemDone();
     void activatedChatDlg(QQMsg::MsgType type, QString talk_to, QString gcode);
-    void bibibi();
+    void activateFriendRequestDlg(QQMsg* msg);
+    void activateGroupRequestDlg(QQMsg *msg);
+    void bibibi(SoundPlayer::SoundType type);
 
 public slots:
-    void openChatDlg(int index);
+    void slotActivated(int index);
 
 public:
     void pushMsg(QQMsg *msg);
@@ -44,7 +48,7 @@ protected:
     bool eventFilter(QObject *obj, QEvent *e);
 
 private slots:
-    void beginBibibi();
+    void beginBibibi(SoundPlayer::SoundType type);
 
 private:
     Ui::QQMsgTip *ui;

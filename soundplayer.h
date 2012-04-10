@@ -8,7 +8,7 @@
 class SoundPlayer
 {
 public:
-    enum SoundType {kMsg, kUserType};
+    enum SoundType {kMsg, kSystem, kUserType};
 
 protected:
     SoundPlayer()
@@ -29,6 +29,9 @@ public:
         {
         case kMsg:
             file_be_play = "Sound/Classic/msg";
+            break;
+        case kSystem:
+            file_be_play = "Sound/Classic/system";
             break;
         case kUserType:
             file_be_play = file_name;

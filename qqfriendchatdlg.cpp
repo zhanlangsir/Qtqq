@@ -27,11 +27,8 @@ QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user
    connect(ui->tb_qqface_, SIGNAL(clicked()), this, SLOT(openQQFacePanel()));
    connect(ui->pb_close_, SIGNAL(clicked()), this, SLOT(close()));
 
-   connect(ui->tb_close_, SIGNAL(clicked()), this, SLOT(close()));
-   connect(ui->tb_mini_, SIGNAL(clicked()), this, SLOT(showMinimized()));
-
    setWindowOpacity(1);
-   setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+   setWindowFlags(Qt::Window);
 
    setWindowTitle(name_);
 

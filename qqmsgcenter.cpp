@@ -65,6 +65,11 @@ void QQMsgCenter::run()
             break;
 
         case QQMsg::kSystem:
+            msg_tip_->pushMsg(msg);
+            break;
+
+        case QQMsg::kSystemG:
+            msg_tip_->pushMsg(msg);
             break;
 
         default:

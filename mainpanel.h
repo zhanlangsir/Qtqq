@@ -22,6 +22,7 @@
 class QHttp;
 class QSemaphore;
 class QHttpRequestHeader;
+class QQItemModel;
 
 namespace Ui
 {
@@ -54,6 +55,8 @@ private slots:
     void openChatDlg(QQMsg::MsgType type, QString gid, QString gcode);
     void closeChatDlg(QQChatDlg *listener);
     void openChatDlgByDoubleClick(const QModelIndex& index);
+    void openFriendRequestDlg(QQMsg *msg);
+    void openGroupRequestDlg(QQMsg *msg);
     void changeFriendStatus(QString id, FriendStatus status, ClientType client_type);
     void changeRecentList(const QQChatMsg *msg);
     void changeRecentList(const QQGroupChatMsg *msg);
@@ -96,8 +99,10 @@ private:
     QQMsgCenter *msg_center_;
 
     NameConvertor convertor_;
-    QVector<QQItem*> groups_info_;
-    QVector<QQItem*> friends_info_;
+    //QVector<QQItem*> groups_info_;
+    //QVector<QQItem*> friends_info_;
+    QQItemModel *friend_model_;
+    QQItemModel *group_model_;
     QVector<QQItem*> recents_info_;
     QVector<QQChatDlg*> opening_chatdlg_;
     QQItem *recent_list_root_;

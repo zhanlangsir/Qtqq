@@ -40,7 +40,7 @@ private:
 class QQMsg
 {
 public:
-    enum MsgType{kGroup, kFriend, kBuddiesStatusChange, kSystem};
+    enum MsgType{kGroup, kFriend, kBuddiesStatusChange, kSystem, kSystemG};
     virtual ~QQMsg() {}
 
 public:
@@ -53,10 +53,13 @@ public:
     virtual QString talkTo() const { return ""; }
 
     virtual QString gCode() const {return ""; }
+    virtual QString msg() const { return ""; }
 
 protected:
     MsgType type_;
 };
+
+Q_DECLARE_METATYPE(QQMsg*)
 
 class QQChatMsg : public QQMsg
 {
@@ -109,13 +112,35 @@ public:
 class QQSystemMsg : public QQMsg
 {
 public:
+    QString talkTo() const
+    { return from_; }
+
     QString from_;
     QString aid_;
     QString msg_;
+    QString account_;
+    QString systemmsg_type_;
+    FriendStatus status_;
 };
 
 class QQSystemGMsg : public QQMsg
 {
 public:
+    QString sendUin() const
+    { return request_uin_; }
+    QString talkTo() const
+    { return from_uin_; }
+    QString msg() const
+    { return msg_; }
 
+    QString msg_id_;
+    QString msg_id2_;
+    QString from_uin_;
+    QString to_uin_;
+    QString sys_g_type_;
+    QString gcode_;
+    QString t_gcode_;
+    QString request_uin_;
+    QString t_request_uin_;
+    QString msg_;
 };

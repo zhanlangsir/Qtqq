@@ -7,37 +7,28 @@
 #include <QMouseEvent>
 
 #include "qqmsg.h"
-#include "soundplayer.h"
 
-struct MsgTipItem
+void QQMsgTip::pushMsg(QQMsg *new_msg)
 {
-    QQMsg::MsgType type_;
-    QString id_;
-    QString code_;
-};
-
-Q_DECLARE_METATYPE(MsgTipItem)
-
-void QQMsgTip::pushMsg(QQMsg* new_msg)
-{
-    if (new_msg->type() == QQMsg::kSystem)
-    {
-        addItem(new_msg);
-        return;
-    }
-
     if (new_msg->type() == QQMsg::kBuddiesStatusChange)
     {
         return;
     }
 
-    emit bibibi();
+    if (new_msg->type() == QQMsg::kSystem || new_msg->type() == QQMsg::kSystemG)
+    {
+        emit bibibi(SoundPlayer::kSystem);
+    }
+    else
+    {
+        emit bibibi(SoundPlayer::kMsg);
+    }
     lock.lock();
     for (int i = 0; i < ui->cb_msgs_->count(); ++i)
     {
-        MsgTipItem item = ui->cb_msgs_->itemData(i).value<MsgTipItem>();
+        QQMsg *msg = ui->cb_msgs_->itemData(i).value<QQMsg*>();
 
-        if (item.id_ == new_msg->talkTo())
+        if (msg->talkTo() == new_msg->talkTo())
         {
             lock.unlock();
             return;
@@ -52,18 +43,19 @@ void QQMsgTip::addItem(QQMsg* msg)
     switch(msg->type())
     {
     case QQMsg::kSystem:
-        //box_.addItem(msg->tip(), QVariant::fromValue(msg));
+        ui->cb_msgs_->addItem("[" + convertor_->convert(msg->talkTo()) + "]" + "request to add you", QVariant::fromValue(msg));
+        break;
+    case QQMsg::kSystemG:
+        ui->cb_msgs_->addItem("[" + convertor_->convert(msg->sendUin()) + "]" + "request to enter group [" + convertor_->convert(msg->talkTo()), QVariant::fromValue(msg));
         break;
     case QQMsg::kFriend:
     {
-        MsgTipItem item = {msg->type(), msg->talkTo(), msg->gCode()};
-        ui->cb_msgs_->addItem("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", QVariant::fromValue(item));
+        ui->cb_msgs_->addItem("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", QVariant::fromValue(msg));
         break;
     }
     case QQMsg::kGroup:
     {
-        MsgTipItem item = {msg->type(), msg->talkTo(), msg->gCode()};
-        ui->cb_msgs_->addItem("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", QVariant::fromValue(item));
+        ui->cb_msgs_->addItem("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", QVariant::fromValue(msg));
         break;
     }
     }
@@ -78,9 +70,9 @@ void QQMsgTip::removeItem(QString id)
 {
     for (int i = 0; i < ui->cb_msgs_->count(); ++i)
     {
-        MsgTipItem item = ui->cb_msgs_->itemData(i).value<MsgTipItem>();
+        QQMsg *msg = ui->cb_msgs_->itemData(i).value<QQMsg*>();
 
-        if (item.id_ == id)
+        if (msg->talkTo() == id)
         {
             ui->cb_msgs_->removeItem(i);
         }
@@ -135,9 +127,9 @@ bool QQMsgTip::eventFilter(QObject *obj, QEvent *e)
         return QWidget::eventFilter(obj, e);
 }
 
-void QQMsgTip::beginBibibi()
+void QQMsgTip::beginBibibi(SoundPlayer::SoundType type)
 {
-    SoundPlayer::singleton()->play(SoundPlayer::kMsg);
+    SoundPlayer::singleton()->play(type);
 }
 
 void QQMsgTip::mouseReleaseEvent(QMouseEvent *)
@@ -145,16 +137,29 @@ void QQMsgTip::mouseReleaseEvent(QMouseEvent *)
     distance_pos_ = QPoint(0, 0);
 }
 
-void QQMsgTip::openChatDlg(int index)
+void QQMsgTip::slotActivated(int index)
 {
-    MsgTipItem item = ui->cb_msgs_->itemData(index).value<MsgTipItem>();
+    QQMsg *msg = ui->cb_msgs_->itemData(index).value<QQMsg*>();
     ui->cb_msgs_->removeItem(index);
 
     if (ui->cb_msgs_->count() == 0)
     {
         this->hide();
     }
-    emit activatedChatDlg(item.type_, item.id_, item.code_);
+
+    switch (msg->type())
+    {
+    case QQMsg::kFriend:
+    case QQMsg::kGroup:
+        emit activatedChatDlg(msg->type(), msg->talkTo(), msg->gCode());
+        break;
+    case QQMsg::kSystem:
+        emit activateFriendRequestDlg(msg);
+        break;
+    case QQMsg::kSystemG:
+        emit activateGroupRequestDlg(msg);
+        break;
+    }
 }
 
 QQMsgTip::QQMsgTip(QWidget *parent) : QWidget(parent), ui(new Ui::QQMsgTip)
@@ -163,7 +168,7 @@ QQMsgTip::QQMsgTip(QWidget *parent) : QWidget(parent), ui(new Ui::QQMsgTip)
     setWindowOpacity(1);
     setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     ui->cb_msgs_->installEventFilter(this);
-    connect(ui->cb_msgs_, SIGNAL(activated(int)), this, SLOT(openChatDlg(int)));
+    connect(ui->cb_msgs_, SIGNAL(activated(int)), this, SLOT(slotActivated(int)));
     connect(this, SIGNAL(addItemDone()), this, SLOT(show()));
-    connect(this, SIGNAL(bibibi()), this, SLOT(beginBibibi()));
+    connect(this, SIGNAL(bibibi(SoundPlayer::SoundType)), this, SLOT(beginBibibi(SoundPlayer::SoundType)));
 }

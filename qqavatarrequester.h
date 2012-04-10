@@ -19,13 +19,11 @@ public:
     bool isRequesting(QString id) const; 
     void request(QQItem *info);
     void finishRequest();
+    static QString requestOne(int type, QString id, QString save_path);
+    static int getTypeNumber(QQItem::ItemType type);
 
 protected:
     void run();
-
-private:
-    int getTypeNumber(const QQItem *info) const;
-    QString getFileFormat(const QByteArray &array) const;
 
 private:
     QList<QString> requesting_list_;

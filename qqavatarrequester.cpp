@@ -26,62 +26,69 @@ void QQAvatarRequester::finishRequest()
     finish_ = true;
 }
 
+QString QQAvatarRequester::requestOne(int type, QString id, QString save_path)
+{
+    QTcpSocket fd;
+    QString avatar_url = "/cgi/svr/face/getface?cache=0&type=%1&fid=0&uin=%2&vfwebqq=%3";
+
+    Request req;
+
+    req.create(kGet, avatar_url.arg(type).arg(id).arg(CaptchaInfo::singleton()->vfwebqq()));
+    req.addHeaderItem("Host", "face1.qun.qq.com");
+    req.addHeaderItem("Referer", "http://web.qq.com");
+    req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+
+    fd.connectToHost("face1.qun.qq.com", 80);
+    fd.write(req.toByteArray());
+
+    QByteArray result = NetWorkHelper::quickReceive(&fd);
+
+    int content_idx = result.indexOf("\r\n\r\n")+4;
+
+
+    int format_idx = result.indexOf("image/") + 6;
+    int format_end_idx = result.indexOf("\r\n", format_idx);
+    QString format = result.mid(format_idx, format_end_idx - format_idx);
+
+    QString save_full_path = save_path + id + "." + format;
+    QFile file(save_full_path);
+    file.open(QIODevice::WriteOnly);
+    file.write(result.mid(content_idx));
+    file.close();
+    fd.close();
+
+    return save_full_path;
+}
+
 void QQAvatarRequester::run()
 {
     while (to_request_.count() != 0 && (!finish_))
     {
-        QTcpSocket fd;
-        QQItem *item = to_request_.dequeue();
+        QQItem *item = to_request_.dequeue(); 
 
-        QString avatar_url = "/cgi/svr/face/getface?cache=0&type=%1&fid=0&uin=%2&vfwebqq=%3";
-
-        Request req;
+        QString id;
         if (item->type() == QQItem::kFriend)
-            req.create(kGet, avatar_url.arg(getTypeNumber(item)).arg(item->id()).arg(CaptchaInfo::singleton()->vfwebqq()));
+            id = item->id();
         else
         {
-            GroupInfo *info = static_cast<GroupInfo*>(item->itemInfo());
-            req.create(kGet, avatar_url.arg(getTypeNumber(item)).arg(info->gCode()).arg(CaptchaInfo::singleton()->vfwebqq()));
+            id = item->gCode();
         }
-        req.addHeaderItem("Host", "face1.qun.qq.com");
-        req.addHeaderItem("Referer", "http://web.qq.com");
-        req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
-    
-        fd.connectToHost("face1.qun.qq.com", 80);
-        fd.write(req.toByteArray());
+        QString fold_path = "temp/avatar/";
+        QString full_path = requestOne(getTypeNumber(item->type()), id, fold_path);
 
-        QByteArray result = NetWorkHelper::quickReceive(&fd);
-
-        QString save_path = "temp/avatar/"+item->id()+"."+getFileFormat(result);
-
-        int content_idx = result.indexOf("\r\n\r\n")+4;
-        QFile file(save_path);
-        file.open(QIODevice::WriteOnly);
-        file.write(result.mid(content_idx));
-        file.close();
-        fd.close();
-
-        item->set_avatarPath(save_path);
+        item->set_avatarPath(full_path);
         requesting_list_.removeOne(item->id());
     }
 }
 
 inline
-QString QQAvatarRequester::getFileFormat(const QByteArray &array) const
+int QQAvatarRequester::getTypeNumber(QQItem::ItemType type)
 {
-    int format_idx = array.indexOf("image/") + 6;
-    int format_end_idx = array.indexOf("\r\n", format_idx);
-    return array.mid(format_idx, format_end_idx - format_idx);
-}
-
-inline
-int QQAvatarRequester::getTypeNumber(const QQItem *item) const
-{
-    if (item->type() == QQItem::kFriend)
+    if (type == QQItem::kFriend)
     {
         return 1;
     }
-    else if (item->type() == QQItem::kGroup)
+    else if (type == QQItem::kGroup)
     {
         return 4;
     }

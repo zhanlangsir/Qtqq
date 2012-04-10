@@ -47,6 +47,11 @@ QVariant QQItemModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
+QQItem* QQItemModel::find(QString id)
+{
+    return id_item_hash_.value(id, NULL);
+}
+
 void QQItemModel::setPixmapDecoration(const QQItem *item, QPixmap &pixmap) const
 {
     QPainter painter(&pixmap);
@@ -192,7 +197,7 @@ QQItem* QQItemModel::itemFromIndex(const QModelIndex &index) const
         return root_;
 }
 
-QQItemModel::QQItemModel(QObject *parent) : QAbstractItemModel(parent), avatar_requester_()
+QQItemModel::QQItemModel(QObject *parent) : QAbstractItemModel(parent), avatar_requester_(), root_(new QQItem)
 {
     connect(this, SIGNAL(noAvatar(QQItem*)), this, SLOT(requestAvatar(QQItem*)));
 }

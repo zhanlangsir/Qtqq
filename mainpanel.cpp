@@ -18,7 +18,11 @@
 #include <QFile>
 #include <QSettings>
 
+#include "qqfriendrequestdlg.h"
 #include "qqutility.h"
+#include "frienditemmodel.h"
+#include "groupitemmodel.h"
+#include "qqgrouprequestdlg.h"
 
 QQMainPanel::QQMainPanel(FriendInfo user_info, QWidget *parent) :
     QWidget(parent),
@@ -43,6 +47,8 @@ QQMainPanel::QQMainPanel(FriendInfo user_info, QWidget *parent) :
     connect(msg_center_, SIGNAL(friendChatMsgArrive(const QQChatMsg*)), this, SLOT(changeRecentList(const QQChatMsg*)));
     connect(ui->cb_status_, SIGNAL(currentIndexChanged(int)), this, SLOT(changeUserStatus(int)));
     connect(ui->pb_mainmenu_, SIGNAL(clicked()), this, SLOT(openMainMenu()));
+    connect(msg_tip_, SIGNAL(activateFriendRequestDlg(QQMsg*)), this, SLOT(openFriendRequestDlg(QQMsg*)));
+    connect(msg_tip_, SIGNAL(activateGroupRequestDlg(QQMsg*)), this, SLOT(openGroupRequestDlg(QQMsg*)));
 
     convertor_.addUinNameMap(user_info.id(), tr("you"));
     msg_tip_->setConvertor(&convertor_);
@@ -113,7 +119,7 @@ void QQMainPanel::changeUserStatus(int idx)
 
 void QQMainPanel::changeFriendStatus(QString id, FriendStatus status, ClientType client_type)
 {
-    QQItem *item = findFriendItemById(id);
+    QQItem *item = friend_model_->find(id);
     if (!item)
     {
         return;
@@ -155,7 +161,7 @@ void QQMainPanel::changeRecentList(const QQChatMsg *msg)
     QQItem *item = findRecentListItemById(msg->talkTo());
     if (!item)
     {
-        item = findFriendItemById(msg->talkTo());
+        item = friend_model_->find(msg->talkTo());
         if (!item) return;
 
         QQItem *recent_list_item = item->shallowCopy();
@@ -177,7 +183,7 @@ void QQMainPanel::changeRecentList(const QQGroupChatMsg *msg)
     QQItem *item = findRecentListItemById(msg->talkTo());
     if (!item)
     {
-        item = findGroupItemById(msg->talkTo());
+        item = group_model_->find(msg->talkTo());
         if (!item) return;
 
         QQItem *recent_list_item = item->shallowCopy();
@@ -246,13 +252,10 @@ void QQMainPanel::getFriendListDone(bool err)
     disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getFriendListDone(bool)));
     QByteArray friends_info = main_http_->readAll();
 
-    QQItemModel *model = new QQItemModel(this);
-    QQItem *root_item = new QQItem;
-    parseFriendsInfo(friends_info, root_item);
-    model->setRoot(root_item);
+    friend_model_ = new FriendItemModel(this);
+    friend_model_->parse(friends_info, &convertor_);
 
-    ui->tv_friendlist_->setModel(model);
-
+    ui->tv_friendlist_->setModel(friend_model_);
 
     //在这里而不在initrialite调用因为用QHttp请求是异步的，无法确定那一个请求结果会先到，会引起解析混乱
     getGroupList();
@@ -349,13 +352,11 @@ void QQMainPanel::getGroupListDone(bool err)
     disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getGroupListDone(bool)));
     QByteArray groups_info = main_http_->readAll();
 
-    QQItemModel *model = new QQItemModel(this);
-    QQItem *root_item = new QQItem;
-    parseGroupsInfo(groups_info, root_item);
-    model->setRoot(root_item);
+    group_model_ = new GroupItemModel(this);
+    group_model_->parse(groups_info, &convertor_);
 
     msg_tip_->setConvertor(&convertor_);
-    ui->lv_grouplist_->setModel(model);
+    ui->lv_grouplist_->setModel(group_model_);
 
     getRecentList();
 }
@@ -484,32 +485,6 @@ QQItem* QQMainPanel::findRecentListItemById(QString id)
     return NULL;
 }
 
-QQItem* QQMainPanel::findFriendItemById(QString id)
-{
-    QQItem *item = NULL;
-    foreach (item, friends_info_)
-    {
-        if (item->id() == id)
-        {
-            return item;
-        }
-    }
-    return NULL;
-}
-
-QQItem* QQMainPanel::findGroupItemById(QString id)
-{
-    QQItem *item = NULL;
-    foreach (item, groups_info_)
-    {
-        if (item->id() == id)
-        {
-            return item;
-        }
-    }
-    return NULL;
-}
-
 void QQMainPanel::initialize()
 {
     ui->lbl_name_->setText(curr_user_info_.name());
@@ -522,82 +497,6 @@ void QQMainPanel::initialize()
     poll_thread_->start();
     parse_thread_->start();
     msg_center_->start();*/
-}
-
-void QQMainPanel::parseFriendsInfo(const QByteArray &str, QQItem *const root_item)
-{
-    Json::Reader reader;
-    Json::Value root;
-
-    if (!reader.parse(QString(str).toStdString(), root, false))
-    {
-        return;
-    }
-
-    const Json::Value category = root["result"]["categories"];
-
-    ItemInfo *friend_item = new ItemInfo;
-    friend_item->set_name(tr("My Friends"));
-    QQItem *friend_cat = new QQItem(QQItem::kCategory, friend_item, root_item);
-
-    root_item->append(friend_cat);
-
-    QMap<int, int> index_map;
-    for (unsigned int i = 0; i < category.size(); ++i)
-    {
-        index_map.insert(i + 1, category[i]["index"].asInt());
-
-        ItemInfo *item = new ItemInfo;
-        item->set_name(QString::fromStdString(category[i]["name"].asString()));
-        QQItem *cat = new QQItem(QQItem::kCategory, item, root_item);
-        root_item->append(cat);
-    }
-
-    ItemInfo *stranger_item = new ItemInfo;
-    stranger_item->set_name(tr("Strangers"));
-    QQItem *stranger_cat = new QQItem(QQItem::kCategory, stranger_item, root_item);
-    root_item->append(stranger_cat);
-
-    //mark name
-    const Json::Value mark_names = root["result"]["marknames"];
-
-    QHash <QString, QString> uin_markname;
-    for (unsigned int i = 0; i < mark_names.size(); ++i)
-    {
-        QString uin = QString::number(mark_names[i]["uin"].asLargestInt());
-        QString mark_name = QString::fromStdString(mark_names[i]["markname"].asString());
-
-        uin_markname.insert(uin, mark_name);
-    }
-
-    //set friends
-    const Json::Value friends = root["result"]["friends"];
-    const Json::Value info = root["result"]["info"];
-
-    for (unsigned int i = 0; i < friends.size(); ++i)
-    {
-        QString name = QString::fromStdString(info[i]["nick"].asString());
-        QString uin = QString::number(info[i]["uin"].asLargestInt());
-
-        FriendInfo *info = new FriendInfo;
-        info->set_name(name);
-        info->set_id(uin);
-        info->set_status(kOffline);
-
-        if (!uin_markname[uin].isEmpty())
-        {
-            info->set_markName(uin_markname[uin]);
-        }
-
-        int category_num = friends[i]["categories"].asInt();
-        QQItem* parent = root_item->value(index_map.key(category_num));
-        QQItem *myfriend = new QQItem(QQItem::kFriend, info, parent);
-
-        friends_info_.append(myfriend);
-        convertor_.addUinNameMap(uin, name);
-
-        parent->append(myfriend);
-    }
 }
 
 void QQMainPanel::parseRecentList(const QByteArray &str, QQItem *const root_item)
@@ -620,11 +519,11 @@ void QQMainPanel::parseRecentList(const QByteArray &str, QQItem *const root_item
         QQItem *item = NULL;
         if (type == 1)
         {
-            item = findGroupItemById(id);
+            item = group_model_->find(id);
         }
         else if(type == 0)
         {
-            item = findFriendItemById(id);
+            item = friend_model_->find(id);
         }
         if (!item)
             continue;
@@ -633,40 +532,6 @@ void QQMainPanel::parseRecentList(const QByteArray &str, QQItem *const root_item
         recent_list_item->set_parent(root_item);
         recents_info_.append(recent_list_item);
         root_item->append(recent_list_item);
-    }
-}
-
-void QQMainPanel::parseGroupsInfo(const QByteArray &str, QQItem *const root_item)
-{
-    Json::Reader reader;
-    Json::Value root;
-
-    if (!reader.parse(QString(str).toStdString(), root, false))
-    {
-        return;
-    }
-
-    const Json::Value result = root["result"];
-    const Json::Value gnamelist = result["gnamelist"];
-
-    for (unsigned int i = 0; i < gnamelist.size(); ++i)
-    {
-        QString name = QString::fromStdString(gnamelist[i]["name"].asString());
-        QString gid = QString::number(gnamelist[i]["gid"].asLargestInt());
-        QString code = QString::number(gnamelist[i]["code"].asLargestInt());
-
-        GroupInfo *info= new GroupInfo;
-        info->set_name(name);
-        info->set_id(gid);
-        info->set_gCode(code);
-
-        QQItem *group = new QQItem(QQItem::kGroup, info, root_item);
-
-        groups_info_.append(group);
-
-        convertor_.addUinNameMap(gid, name);;
-
-        root_item->append(group);
     }
 }
 
@@ -763,6 +628,32 @@ void QQMainPanel::openChatDlgByDoubleClick(const QModelIndex& index)
         return;
 }
 
+void QQMainPanel::openFriendRequestDlg(QQMsg *msg)
+{
+    QQFriendRequestDlg dlg(msg, (FriendItemModel*)friend_model_);
+    if (dlg.exec() == QDialog::Accepted)
+    {
+
+    }
+    else
+    {
+
+    }
+}
+
+void QQMainPanel::openGroupRequestDlg(QQMsg *msg)
+{
+    QQGroupRequestDlg dlg(msg, (FriendItemModel*)friend_model_, (GroupItemModel*)group_model_);
+    if (dlg.exec() == QDialog::Accepted)
+    {
+
+    }
+    else
+    {
+
+    }
+}
+
 void QQMainPanel::openChatDlg(QQMsg::MsgType type, QString id, QString gcode)
 {
     QQChatDlg *chatdlg = NULL;
@@ -776,7 +667,7 @@ void QQMainPanel::openChatDlg(QQMsg::MsgType type, QString id, QString gcode)
     if (type == QQMsg::kFriend)
     {
         QString avatar_path = "";
-        QQItem *item = findFriendItemById(id);
+        QQItem *item = friend_model_->find(id);
 
         if (item)
             avatar_path = item->avatarPath();
@@ -788,7 +679,7 @@ void QQMainPanel::openChatDlg(QQMsg::MsgType type, QString id, QString gcode)
     else //kGroup
     {
         QString avatar_path = "";
-        QQItem *item = findGroupItemById(id);
+        QQItem *item = group_model_->find(id);
 
         if (item)
             avatar_path = item->avatarPath();

@@ -3,8 +3,11 @@
 
 #include <QAbstractItemModel>
 #include <QString>
+#include <QHash>
 
 #include "qqavatarrequester.h"
+
+class NameConvertor;
 
 class QQItem;
 
@@ -27,20 +30,22 @@ public:
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
 
-    void parse(const QByteArray &str);
+    virtual void parse(const QByteArray &str, NameConvertor *convertor) { }
+    QQItem *find(QString id);
 
 private:
     QQItem* itemFromIndex(const QModelIndex &index) const ;
-    QPixmap getDefaultPixmap(const QQItem *item) const;
-    QPixmap getPixmap(const QQItem *item) const;
+    virtual QPixmap getDefaultPixmap(const QQItem *item) const;
+    virtual QPixmap getPixmap(const QQItem *item) const;
     void setPixmapDecoration(const QQItem *item, QPixmap &pixmap) const;
 
 private slots:
     void requestAvatar(QQItem *item);
 
-private:
+protected:
     QQAvatarRequester avatar_requester_;
     QQItem *root_;
+    QHash<QString, QQItem*> id_item_hash_;
 };
 
 #endif //QTQQ_QQITEMMODEL_H 

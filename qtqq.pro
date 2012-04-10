@@ -59,13 +59,20 @@ HEADERS += cookie.h \
     qqavatarrequester.h \
     networkhelper.h \
     qqutility.h \
-    soundplayer.h
+    soundplayer.h \
+    qqfriendrequestdlg.h \
+    frienditemmodel.h \
+    groupitemmodel.h \
+    qqiteminfohelper.h \
+    qqgrouprequestdlg.h
 
 FORMS += captcha.ui qqlogin.ui qqmainpanel.ui qqfriendchatdlg.ui \
     qqgroupchatdlg.ui \
     friendinfodlg.ui \
     qqfacepanel.ui \
-    qqmsgtip.ui
+    qqmsgtip.ui \
+    friendrequestdlg.ui \
+    grouprequestdlg.ui
 SOURCES += cookie.cpp \
            login.cpp \
            main.cpp \
@@ -93,7 +100,12 @@ SOURCES += cookie.cpp \
     qqsystemtray.cpp \
     qqavatarrequester.cpp \
     networkhelper.cpp \
-    soundplayer.cpp
+    soundplayer.cpp \
+    qqfriendrequestdlg.cpp \
+    frienditemmodel.cpp \
+    groupitemmodel.cpp \
+    qqiteminfohelper.cpp \
+    qqgrouprequestdlg.cpp
 
 RESOURCES += \
     img.qrc

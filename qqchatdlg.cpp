@@ -24,6 +24,7 @@ QQChatDlg::QQChatDlg(QString id, QString name, FriendInfo curr_user_info,
     setFontStyle(QFont(), Qt::black, 9);
 
     te_messages_.setReadOnly(true);
+    te_input_.setMinimumHeight(70);
 }
 
 QQChatDlg::~QQChatDlg()

@@ -19,13 +19,7 @@ border:1px solid grey;
 border-radius:5px;
 }</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
-   <property name="spacing">
-    <number>6</number>
-   </property>
-   <property name="margin">
-    <number>0</number>
-   </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_6">
      <property name="spacing">
@@ -66,104 +60,6 @@ border-radius:5px;
           </widget>
          </item>
         </layout>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_5">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <item>
-          <spacer name="horizontalSpacer_4">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QToolButton" name="tb_mini_">
-           <property name="minimumSize">
-            <size>
-             <width>36</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QToolButton{
-margin:-2 0 0 0;
-border-image: url(:/new/login/images/LoginPanel/btn_mini_normal.png);
-}
-
-QToolButton:hover{
-border-image: url(:/new/login/images/LoginPanel/btn_mini_highlight.png);
-}
-
-QToolButton:pressed{
-border-image: url(:/new/login/images/LoginPanel/btn_mini_down.png);
-}</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="tb_close_">
-           <property name="minimumSize">
-            <size>
-             <width>36</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QToolButton{
-margin:-2 0 0 0;
-border-top-right-radius:5px;
-background-image: url(:/new/login/images/LoginPanel/btn_close_normal.png);
-}
-
-QToolButton:hover{
-border-top-right-radius:5px;
-background-image: url(:/new/login/images/LoginPanel/btn_close_highlight.png);
-}
-
-QToolButton:pressed{
-border-top-right-radius:5px;
-background-image: url(:/new/login/images/LoginPanel/btn_close_down.png);
-}
-</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Minimum</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </item>
