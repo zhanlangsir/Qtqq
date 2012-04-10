@@ -137,7 +137,7 @@ void QQLogin::getCaptchaImg(QByteArray sum)
     int idx = result.indexOf(';', cookie_idx)+1;
     CaptchaInfo::singleton()->set_cookie(result.mid(cookie_idx, idx - cookie_idx));
 
-    QDialog *captcha_dialog = new QDialog(this);
+    QDialog *captcha_dialog = new QDialog();
     Ui::QQCaptcha *ui = new Ui::QQCaptcha;
     QPixmap *pix = new QPixmap();
     pix->loadFromData(result.mid(result.indexOf("\r\n\r\n") + 4));

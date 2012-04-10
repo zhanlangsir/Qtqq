@@ -81,7 +81,6 @@ void QQAvatarRequester::run()
     }
 }
 
-inline
 int QQAvatarRequester::getTypeNumber(QQItem::ItemType type)
 {
     if (type == QQItem::kFriend)

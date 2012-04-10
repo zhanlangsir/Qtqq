@@ -165,6 +165,7 @@ void QQMsgTip::slotActivated(int index)
 QQMsgTip::QQMsgTip(QWidget *parent) : QWidget(parent), ui(new Ui::QQMsgTip)
 {
     ui->setupUi(this);
+    qRegisterMetaType<SoundPlayer::SoundType>("SoundPlayer::SoundType");
     setWindowOpacity(1);
     setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     ui->cb_msgs_->installEventFilter(this);

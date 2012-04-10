@@ -672,7 +672,7 @@ void QQMainPanel::openChatDlg(QQMsg::MsgType type, QString id, QString gcode)
         if (item)
             avatar_path = item->avatarPath();
 
-        dlg= new QQFriendChatDlg(id, convertor_.convert(id), curr_user_info_, avatar_path, this);
+        dlg= new QQFriendChatDlg(id, convertor_.convert(id), curr_user_info_, avatar_path);
         connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
         msg_center_->registerListener(dlg);
     }
@@ -685,7 +685,7 @@ void QQMainPanel::openChatDlg(QQMsg::MsgType type, QString id, QString gcode)
             avatar_path = item->avatarPath();
 
 
-        dlg = new QQGroupChatDlg(id, convertor_.convert(id), gcode, curr_user_info_, avatar_path, this);
+        dlg = new QQGroupChatDlg(id, convertor_.convert(id), gcode, curr_user_info_, avatar_path);
         connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
 
         msg_center_->registerListener(dlg);
