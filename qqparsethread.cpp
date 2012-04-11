@@ -3,15 +3,30 @@
 #include "include/json/json.h"
 #include "qqutility.h"
 
+void QQParseThread::pushRawMsg(QByteArray msg)
+{
+    lock_.lock();
+    message_queue_.enqueue(msg);   
+    lock_.unlock();
+
+    start();
+}
+
 void QQParseThread::run()
 {
     while (true)
     {
-        poll_done_smp_->acquire();
+        lock_.lock();
+        int rawmsg_count = message_queue_.count();
+        lock_.unlock();
+        
+        if (rawmsg_count == 0)
+            break;
+        
         Json::Reader reader;
         Json::Value root;
 
-        QByteArray unparse_msg = message_queue_->dequeue();
+        QByteArray unparse_msg = message_queue_.dequeue();
         qDebug()<<unparse_msg<<endl;
         int idx = unparse_msg.indexOf("\r\n\r\n");
         unparse_msg = unparse_msg.mid(idx+4);
@@ -172,13 +187,4 @@ QQMsg* QQParseThread::createMsg(QString type, const Json::Value result)
         qDebug()<<"unknow type"<<endl;
         return NULL;
     }
-}
-
-QQParseThread::QQParseThread(QQueue<QByteArray> *message_queue,
-                           QSemaphore *poll_done_smp,
-                           QSemaphore *parse_done_smp) :
-    poll_done_smp_(poll_done_smp),
-    parse_done_smp_(parse_done_smp),
-    message_queue_(message_queue)
-{
 }

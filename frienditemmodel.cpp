@@ -131,6 +131,34 @@ void FriendItemModel::addFriend(QString id, QString mark_name, QString groupidx,
     endInsertRows();
 }
 
+void FriendItemModel::changeFriendStatus(QString id, FriendStatus status, ClientType client_type)
+{
+    QQItem *item = find(id);
+    if (!item)
+    {
+        return;
+    }
+
+    FriendInfo *info = static_cast<FriendInfo*>(item->itemInfo());
+    info->set_clientType(client_type);
+    info->set_status(status);
+
+    QQItem *category = item->parent();
+    int idx = category->indexOf(item);
+
+    QModelIndex parent_mdl_idx = index(root_->indexOf(category), 0, QModelIndex());
+    beginRemoveRows(parent_mdl_idx, 0, 0);
+    category->children_.remove(idx);
+    endRemoveRows();
+
+     int new_idx = getNewPosition(item);
+     beginInsertRows(parent_mdl_idx, 0, 0);
+    category->children_.insert(new_idx, item);
+    endInsertRows();
+    //ui->recents->setUpdatesEnabled(false);
+    //ui->recents->setUpdatesEnabled(true);
+}
+
 int FriendItemModel::getNewPosition(const QQItem *item) const
 {
     QQItem *category = item->parent();

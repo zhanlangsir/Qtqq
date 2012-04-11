@@ -1,19 +1,19 @@
 #include "qqpollthread.h"
 
-//#include <QHttp>
+#include <QTcpSocket>
 
 void QQPollThread::run()
 {
     while (true)
     {
-        poll_fd_ = new QTcpSocket();
-        poll_fd_->connectToHost("d.web2.qq.com", 80);
-        poll_fd_->write(req_.toByteArray());
+        QTcpSocket fd;
+        fd.connectToHost("d.web2.qq.com", 80);
+        fd.write(req_.toByteArray());
 
         QByteArray result;
-        while(poll_fd_->waitForReadyRead(45000))
+        while(fd.waitForReadyRead(45000))
         {
-            result.append(poll_fd_->readAll()); 
+            result.append(fd.readAll());
         }
 
         if (result.isEmpty())
@@ -31,27 +31,22 @@ void QQPollThread::run()
             //CaptchaInfo::singleton()->set_vfwebqq(ptwebqq);
 
         }
-        message_queue_->enqueue(result);
-        poll_fd_->close();
-        delete poll_fd_;
-        semaphore_->release();
+        emit signalNewMsgArrive(result);
+        fd.close();
     }
 }
 
-QQPollThread::QQPollThread(QQueue<QByteArray> *message_queue,
-                           QSemaphore *semaphore) : 
-    semaphore_(semaphore),
-    message_queue_(message_queue)
+QQPollThread::QQPollThread()
 {
     QString poll_path = "/channel/poll2";
-    msg_ = "r={\"clientid\":\"5412354841\",\"psessionid\":\"" + CaptchaInfo::singleton()->psessionid().toAscii() + "\","
+    QByteArray msg = "r={\"clientid\":\"5412354841\",\"psessionid\":\"" + CaptchaInfo::singleton()->psessionid().toAscii() + "\","
         "\"key\":0,\"ids\":[]}&clientid=" + "5412354841" + "&psessionid=" + CaptchaInfo::singleton()->psessionid().toAscii();
 
     req_.create(kPost, poll_path);
     req_.addHeaderItem("Host", "d.web2.qq.com");
     req_.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
     req_.addHeaderItem("Referer", "http://d.web2.qq.com/proxy.html");
-    req_.addHeaderItem("Content-Length", QString::number(msg_.length()));
+    req_.addHeaderItem("Content-Length", QString::number(msg.length()));
     req_.addHeaderItem("Content-Type", "application/x-www-form-urlencoded");
-    req_.addRequestContent(msg_);
+    req_.addRequestContent(msg);
 }

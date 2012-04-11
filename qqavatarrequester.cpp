@@ -45,7 +45,6 @@ QString QQAvatarRequester::requestOne(int type, QString id, QString save_path)
 
     int content_idx = result.indexOf("\r\n\r\n")+4;
 
-
     int format_idx = result.indexOf("image/") + 6;
     int format_end_idx = result.indexOf("\r\n", format_idx);
     QString format = result.mid(format_idx, format_end_idx - format_idx);

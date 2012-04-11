@@ -14,13 +14,12 @@
 #include <QQueue>
 #include <QLinkedList>
 #include <QVector>
+#include <QMutex>
+#include <QSemaphore>
 
 class QQMsg;
 class QQMsgTip;
-class QMutex;
-class QWaitCondition;
 class QQMsgListener;
-class QSemaphore;
 class QQGroupChatMsg;
 class QQChatMsg;
 
@@ -35,9 +34,7 @@ signals:
 
 
 public:
-       QQMsgCenter(QQMsgTip *msg_tip, 
-                   QMutex *lock,
-                   QSemaphore *parse_done_smp);
+       QQMsgCenter(QQMsgTip *msg_tip);
 
 public:
        void registerListener(QQMsgListener *listener);
@@ -62,6 +59,6 @@ private:
     QQueue<QQMsg*> old_msg_;
     QLinkedList<QQMsgListener*> listener_;
     QQMsgTip *msg_tip_;
-    QMutex *lock_;
-    QSemaphore *parse_done_smp_;
+    QMutex lock_;
+    QSemaphore parse_done_smp_;
 };

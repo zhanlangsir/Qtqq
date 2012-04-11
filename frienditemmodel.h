@@ -7,6 +7,7 @@ class NameConvertor;
 
 class FriendItemModel : public QQItemModel
 {
+    Q_OBJECT
 public:
     FriendItemModel(QObject *parent = 0) : QQItemModel(parent) {}
 public:
@@ -16,6 +17,9 @@ public:
     QQItem *category(QString idx) const;
     QVector<QQItem*> categorys() const;
     int getNewPosition(const QQItem *item) const;
+    
+public slots:
+    void changeFriendStatus(QString id, FriendStatus status, ClientType client_type);
 
 private:
     QQItem* createItem(QQItem::ItemType type, QString name, QString id, QQItem *parent);

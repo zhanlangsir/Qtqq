@@ -13,15 +13,15 @@
 void QQMsgCenter::pushMsg(QQMsg *msg)
 {
     undispatch_msg_.enqueue(msg);
-    parse_done_smp_->release();
+    parse_done_smp_.release();
 }
 
 void QQMsgCenter::run()
 {
     while (true)
     {
-        parse_done_smp_->acquire();
-        lock_->lock();
+        parse_done_smp_.acquire();
+        lock_.lock();
 
         QQMsg *msg = undispatch_msg_.dequeue();
 
@@ -75,7 +75,7 @@ void QQMsgCenter::run()
         default:
             break;
         }
-        lock_->unlock();
+        lock_.unlock();
 
         writeToSql(msg);
     }
@@ -89,10 +89,10 @@ void QQMsgCenter::distributeMsg(QQMsgListener *listener, QQMsg *msg)
 
 void QQMsgCenter::registerListener(QQMsgListener *listener)
 {
-    lock_->lock();
+    lock_.lock();
     QVector<QQMsg*> old_msgs(getOldMsg(listener));
     listener->showOldMsg(old_msgs);
-    lock_->unlock();
+    lock_.unlock();
     listener_.append(listener);
 
     QQMsg *msg = NULL;
@@ -134,10 +134,8 @@ void QQMsgCenter::writeToSql(QQMsg *msg)
     Q_UNUSED(msg)
 }
 
-QQMsgCenter::QQMsgCenter(QQMsgTip *msg_tip,
-                           QMutex *lock,
-                           QSemaphore *parse_done_smp):
-    msg_tip_(msg_tip), lock_(lock), parse_done_smp_(parse_done_smp)
+QQMsgCenter::QQMsgCenter(QQMsgTip *msg_tip) :
+    msg_tip_(msg_tip)
 {
     qRegisterMetaType<FriendStatus>("FriendStatus");
     connect(this, SIGNAL(distributeMsgInMainThread(QQMsgListener*, QQMsg*)), this, SLOT(distributeMsg(QQMsgListener*, QQMsg*)));

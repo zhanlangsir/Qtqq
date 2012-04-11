@@ -13,8 +13,8 @@ class QQParseThread : public QThread
 {
     Q_OBJECT
 
-public:
-    QQParseThread(QQueue<QByteArray> *message_queue, QSemaphore *poll_done_smp, QSemaphore *parse_done_smp);
+public slots:
+    void pushRawMsg(QByteArray msg);
 
 signals:
     void parseDone(QQMsg *msg);
@@ -26,7 +26,6 @@ private:
     QQMsg *createMsg(QString type, const Json::Value result);
 
 private:
-   QSemaphore *poll_done_smp_;
-   QSemaphore *parse_done_smp_;
-   QQueue<QByteArray> *message_queue_;
+   QQueue<QByteArray> message_queue_;
+   QMutex lock_;
 };

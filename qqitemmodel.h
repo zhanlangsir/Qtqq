@@ -33,6 +33,9 @@ public:
     virtual void parse(const QByteArray &str, NameConvertor *convertor) { }
     QQItem *find(QString id);
 
+public slots:
+    virtual void changeFriendStatus(QString id, FriendStatus status, ClientType client_type) {}
+
 private:
     QQItem* itemFromIndex(const QModelIndex &index) const ;
     virtual QPixmap getDefaultPixmap(const QQItem *item) const;

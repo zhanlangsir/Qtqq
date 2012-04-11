@@ -1,27 +1,28 @@
-#pragma once
+#ifndef QTQQ_QQPOLLTHREAD_H
+#define QTQQ_QQPOLLTHREAD_H
+
+#include <QThread>
+#include <QString>
+#include <QSemaphore> 
+#include <QQueue> 
 
 #include "types.h"
 #include "request.h"
-#include <QThread>
-#include <QString>
-#include <QTcpSocket>
-#include <QSemaphore> 
-#include <QQueue> 
+
 class QQPollThread : public QThread
 {
     Q_OBJECT
-
+signals:
+    void signalNewMsgArrive(QByteArray msg);
+    
 public:
-    QQPollThread(QQueue<QByteArray> *message_queue,
-                 QSemaphore *semaphore);
+    QQPollThread();
 
 protected:
     void run();
 
 private: 
-   QTcpSocket *poll_fd_;
-   QByteArray msg_;
    Request req_;
-   QSemaphore *semaphore_;
-   QQueue<QByteArray> *message_queue_;
 };
+
+#endif //QTQQ_QQPOLLTHREAD_H
