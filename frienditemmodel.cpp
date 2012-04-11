@@ -25,7 +25,7 @@ void FriendItemModel::parse(const QByteArray &array, NameConvertor *convertor)
         createItem(QQItem::kCategory, name, QString::number(category[i]["index"].asInt()), root_);
     }
 
-    createItem(QQItem::kCategory, tr("Strangers"), QString::number(category.size()+1), root_);
+    createItem(QQItem::kCategory, tr("Strangers"), QString::number(99), root_);
 
     //mark name
     const Json::Value mark_names = root["result"]["marknames"];

@@ -98,6 +98,8 @@ QQMainPanel::~QQMainPanel()
     trayIcon = NULL;
     main_http_->close();
     delete ui;
+
+    poll_thread_->wait();
 }
 
 //不需要接收返回消息

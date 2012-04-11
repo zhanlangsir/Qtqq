@@ -112,7 +112,7 @@ void QQTextEdit::insertImgProxy(const QString &unique_id)
     doc->addResource(QTextDocument::ImageResource, url, img);
     cursor.insertImage(unique_id);
 
-    QMovie* movie = new QMovie(this);
+    QMovie* movie = new QMovie();
     movie->setFileName("images/loading/loading.gif");
     movie->setCacheMode(QMovie::CacheNone);
 
