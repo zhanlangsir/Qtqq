@@ -1,6 +1,7 @@
 #include "qqpollthread.h"
 
 #include <QTcpSocket>
+#include <QDebug>
 
 void QQPollThread::run()
 {
@@ -31,6 +32,7 @@ void QQPollThread::run()
             //CaptchaInfo::singleton()->set_vfwebqq(ptwebqq);
 
         }
+        qDebug()<<"poll thread emiting:\n"<<result<<endl;
         emit signalNewMsgArrive(result);
         fd.close();
     }

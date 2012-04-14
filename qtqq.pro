@@ -64,7 +64,7 @@ HEADERS += cookie.h \
     frienditemmodel.h \
     groupitemmodel.h \
     qqiteminfohelper.h \
-    qqgrouprequestdlg.h
+    qqgrouprequestdlg.h \
 
 FORMS += captcha.ui qqlogin.ui qqmainpanel.ui qqfriendchatdlg.ui \
     qqgroupchatdlg.ui \
@@ -105,7 +105,7 @@ SOURCES += cookie.cpp \
     frienditemmodel.cpp \
     groupitemmodel.cpp \
     qqiteminfohelper.cpp \
-    qqgrouprequestdlg.cpp
+    qqgrouprequestdlg.cpp \
 
 RESOURCES += \
     img.qrc

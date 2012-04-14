@@ -15,6 +15,8 @@
 
 class ImgSender;
 class ImgLoader;
+class QMenu;
+class QAction;
 
 class QQChatDlg : public QDialog, public QQMsgListener
 {
@@ -48,7 +50,8 @@ public:
 
 protected:
     void closeEvent(QCloseEvent *);
-    void keyPressEvent(QKeyEvent *e);
+    //void keyPressEvent(QKeyEvent *e);
+    bool eventFilter(QObject * obj, QEvent * e);
 
 protected:
     QString send_url_;
@@ -62,6 +65,7 @@ protected:
     QTcpSocket fd_;
     NameConvertor convertor_;
     QVector<QString> unconvert_ids_;
+    QMenu *send_type_menu_;
 
 private slots:
     void openPathDialog(bool);
@@ -74,6 +78,8 @@ private slots:
         Q_UNUSED(min);
         te_messages_.verticalScrollBar()->setValue(max); 
     }
+    void setSendByReturn(bool checked);
+    void setSendByCtrlReturn(bool checked);
 
 private:
     virtual QString converToJson(const QString &raw_msg) = 0;
@@ -87,4 +93,9 @@ private:
     QQMsgSender *msg_sender_;
 
     ChatDlgType type_;
+    
+    QAction *act_return_;
+    QAction *act_ctrl_return_;
+    
+    bool send_by_return_;
 };

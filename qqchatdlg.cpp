@@ -3,6 +3,8 @@
 #include <QFileDialog>
 #include <QKeyEvent>
 #include <QApplication>
+#include <QMenu>
+#include <QAction>
 
 #include "soundplayer.h"
 #include "imgloader.h"
@@ -25,6 +27,21 @@ QQChatDlg::QQChatDlg(QString id, QString name, FriendInfo curr_user_info,
 
     te_messages_.setReadOnly(true);
     te_input_.setMinimumHeight(70);
+
+    QSettings setting("options.ini", QSettings::IniFormat);
+    send_by_return_ = setting.value("send_by_return").toBool();
+    send_type_menu_ = new QMenu(this);
+    act_return_ = new QAction(tr("send by return"), send_type_menu_);
+    
+    act_ctrl_return_ = new QAction(tr("send by ctrl+return"), send_type_menu_);
+
+    connect(act_return_, SIGNAL(triggered(bool)), this, SLOT(setSendByReturn(bool)));
+    connect(act_ctrl_return_, SIGNAL(triggered(bool)), this, SLOT(setSendByCtrlReturn(bool)));
+
+    send_type_menu_->addAction(act_return_);
+    send_type_menu_->addAction(act_ctrl_return_);
+
+    te_input_.installEventFilter(this);
 }
 
 QQChatDlg::~QQChatDlg()
@@ -57,28 +74,68 @@ QQChatDlg::~QQChatDlg()
     msg_sender_ = NULL;
 }
 
+void QQChatDlg::setSendByReturn(bool checked)
+{
+    if (!send_by_return_)
+    {
+        QSettings setting("options.ini", QSettings::IniFormat);
+        setting.setValue("send_by_return", true);
+        send_by_return_ = true;
+    }
+}
+
+void QQChatDlg::setSendByCtrlReturn(bool checked)
+{
+    if (send_by_return_)
+    {
+        QSettings setting("options.ini", QSettings::IniFormat);
+        setting.setValue("send_by_return", false);
+        send_by_return_ = false;
+    }
+}
+
 void QQChatDlg::closeEvent(QCloseEvent *)
 {
     emit chatFinish(this);
 }
 
-void QQChatDlg::keyPressEvent(QKeyEvent *e)
+bool QQChatDlg::eventFilter(QObject *obj, QEvent *e)
 {
-    switch (e->key())
+    if (obj != &te_input_ || e->type() != QEvent::KeyPress)
+        return false;
+
+    QKeyEvent *key_event = static_cast<QKeyEvent *>(e);
+
+    switch (key_event->key())
     {
     case Qt::Key_Return:
-        if (e->modifiers()& Qt::ControlModifier)
+        if (key_event->modifiers()& Qt::ControlModifier)
         {
-            sendMsg();
+            if (send_by_return_)
+            {
+               te_input_.insertPlainText("\n");
+            }
+            else
+                sendMsg();
+            return true;
+        }
+        else
+        {
+            if (send_by_return_)
+            {
+                sendMsg();
+                return true;
+            }
         }
         break;
     case Qt::Key_C:
-        if (e->modifiers()& Qt::AltModifier)
+        if (key_event->modifiers()& Qt::AltModifier)
         {
             close();
         }
         break;
     }
+    return false;
 }
 
 void QQChatDlg::showQQFace(QString face_id)
@@ -116,24 +173,20 @@ void QQChatDlg::setFileInfo(QString unique_id, FileInfo file_info)
 
 void QQChatDlg::setFontStyle(QFont font, QColor color, int size)
 {
-//    QTextBlockFormat block_format;
-//    block_format.setTopMargin(5);
-//    block_format.setLineHeight(5, QTextBlockFormat::LineDistanceHeight);
+    QTextCursor cursor(te_input_.document());
+    cursor.movePosition(QTextCursor::End);
 
-//    QTextCharFormat char_format;
-//    char_format.setForeground(color);
-//    char_format.setFont(font);
-//    char_format.setFontPointSize(size);
+    QTextBlockFormat block_format;
+    block_format.setLeftMargin(8);
+    block_format.setLineHeight(5, QTextBlockFormat::LineDistanceHeight);
 
-//    te_input_.setFont();
-//    te_input_.setForegroundRole();
-//    QTextCursor cursor(te_input_.document());
-//    cursor.movePosition(QTextCursor::End);
-//    cursor.setBlockFormat(block_format);
-//    cursor.setBlockCharFormat(char_format);
-    te_input_.setTextColor(color);
-    te_input_.setFont(font);
-    te_input_.setFontPointSize(size);
+    QTextCharFormat char_format;
+    char_format.setForeground(color);
+    char_format.setFont(font);
+    char_format.setFontPointSize(size);
+
+    cursor.setBlockFormat(block_format);
+    cursor.setBlockCharFormat(char_format);
 }
 
 void QQChatDlg::showMsg(const QQMsg *msg)
@@ -242,6 +295,7 @@ void QQChatDlg::sendMsg()
 
     te_input_.clearAll();
     te_input_.setFocus();
+    setFontStyle(QFont(), Qt::black, 9);
 }
 
 void QQChatDlg::openQQFacePanel()

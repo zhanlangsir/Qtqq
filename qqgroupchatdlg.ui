@@ -126,7 +126,7 @@ border:1px solid grey;
     </widget>
    </item>
    <item>
-    <widget class="QSplitter" name="spliter_main_">
+    <widget class="QSplitter" name="splitter_main_">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
@@ -141,7 +141,7 @@ margin:0 2 2 2;
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QSplitter" name="split_left_">
+     <widget class="QSplitter" name="splitter_left_">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
@@ -237,6 +237,9 @@ margin:0 2 2 2;
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <property name="spacing">
+           <number>6</number>
+          </property>
           <item>
            <spacer name="horizontalSpacer_3">
             <property name="orientation">
@@ -267,12 +270,34 @@ margin:0 2 2 2;
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QToolButton" name="tb_send_type_">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>发送</string>
+            </property>
+            <property name="popupMode">
+             <enum>QToolButton::InstantPopup</enum>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonIconOnly</enum>
+            </property>
+            <property name="arrowType">
+             <enum>Qt::DownArrow</enum>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
        </layout>
       </widget>
      </widget>
-     <widget class="QSplitter" name="spliter_right_">
+     <widget class="QSplitter" name="splitter_right_">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -324,7 +349,7 @@ margin:0 2 2 2;
     </widget>
    </item>
   </layout>
-  <zorder>spliter_main_</zorder>
+  <zorder>splitter_main_</zorder>
   <zorder>line</zorder>
   <zorder></zorder>
   <zorder></zorder>

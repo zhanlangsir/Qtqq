@@ -6,6 +6,7 @@
 #include <QTextBlockFormat>
 #include <QTextCharFormat>
 #include <QFile>
+#include <QDebug>
 
 QQTextEdit::QQTextEdit(QWidget *parent) : QTextEdit(parent)
 {
@@ -29,15 +30,16 @@ void QQTextEdit::appendDocument(const QTextDocument *doc)
     QTextBlockFormat format;
     format.setLeftMargin(8);
     format.setTopMargin(5);
-    format.setLineHeight(5, QTextBlockFormat::LineDistanceHeight);
     cursor.movePosition(QTextCursor::End);
     cursor.mergeBlockFormat(format);
+
     cursor.insertHtml(doc->toHtml());
 }
 
 void QQTextEdit::insertNameLine(const QString &name, QColor color)
 {
     QTextBlockFormat block_format;
+    block_format.setTopMargin(5);
 
     QTextCharFormat char_format;
     char_format.setForeground(QBrush(color));
@@ -55,6 +57,9 @@ void QQTextEdit::insertNameLine(const QString &name, QColor color)
 
 void QQTextEdit::insertWord(const QString &text, QFont font, QColor color, int size)
 {
+    QTextCursor cursor(this->document());
+    cursor.movePosition(QTextCursor::End);
+
     QTextBlockFormat block_format;
     block_format.setLeftMargin(8);
     block_format.setTopMargin(5);
@@ -65,10 +70,9 @@ void QQTextEdit::insertWord(const QString &text, QFont font, QColor color, int s
     char_format.setFont(font);
     char_format.setFontPointSize(size);
 
-    QTextCursor cursor(this->document());
-    cursor.movePosition(QTextCursor::End);
     cursor.setBlockFormat(block_format);
     cursor.setBlockCharFormat(char_format);
+
     cursor.insertText(text);
 }
 

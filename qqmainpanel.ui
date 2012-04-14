@@ -115,8 +115,23 @@ border:none
      <property name="styleSheet">
       <string notr="true"/>
      </property>
+     <property name="tabPosition">
+      <enum>QTabWidget::North</enum>
+     </property>
+     <property name="tabShape">
+      <enum>QTabWidget::Rounded</enum>
+     </property>
      <property name="currentIndex">
       <number>0</number>
+     </property>
+     <property name="usesScrollButtons">
+      <bool>false</bool>
+     </property>
+     <property name="documentMode">
+      <bool>false</bool>
+     </property>
+     <property name="movable">
+      <bool>true</bool>
      </property>
      <widget class="QWidget" name="friends">
       <attribute name="title">
@@ -151,11 +166,6 @@ border:none
         <widget class="QListView" name="lv_recentlist_"/>
        </item>
       </layout>
-     </widget>
-     <widget class="QWidget" name="terms">
-      <attribute name="title">
-       <string>Terms</string>
-      </attribute>
      </widget>
     </widget>
    </item>

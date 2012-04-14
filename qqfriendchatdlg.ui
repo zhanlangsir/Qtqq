@@ -110,7 +110,7 @@ border-radius:5px;
     </layout>
    </item>
    <item>
-    <widget class="QSplitter" name="splitter">
+    <widget class="QSplitter" name="splitter_">
      <property name="styleSheet">
       <string notr="true">QSplitter#splitter{
 margin:0 3 0 3;
@@ -268,6 +268,19 @@ margin:0 3 0 3;
        </property>
        <property name="default">
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="tb_send_type_">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="popupMode">
+        <enum>QToolButton::InstantPopup</enum>
+       </property>
+       <property name="arrowType">
+        <enum>Qt::DownArrow</enum>
        </property>
       </widget>
      </item>

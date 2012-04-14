@@ -22,17 +22,23 @@ QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, Fr
 {
    ui->setupUi(this);
    set_type(QQChatDlg::kGroup);
+   ui->tb_send_type_->setMenu(send_type_menu_);
 
-   ui->split_left_->insertWidget(0, &te_messages_);
-
-   ui->spliter_main_->setChildrenCollapsible(false);
-
-   QList<int> sizes;
-   sizes.append(1000);
-   sizes.append(ui->spliter_right_->midLineWidth());
-   ui->spliter_main_->setSizes(sizes);
-
+   ui->splitter_left_->insertWidget(0, &te_messages_);
    ui->v_layout_left_->insertWidget(3, &te_input_);
+
+   ui->splitter_main_->setChildrenCollapsible(false);
+   ui->splitter_left_->setChildrenCollapsible(false);
+
+   QList<int> right_sizes;
+   right_sizes.append(1000);
+   right_sizes.append(ui->splitter_right_->midLineWidth());
+   ui->splitter_main_->setSizes(right_sizes);
+
+   QList<int> left_sizes;
+   left_sizes.append(1000);
+   left_sizes.append(ui->splitter_left_->midLineWidth());
+   ui->splitter_left_->setSizes(left_sizes);
 
    QScrollBar *bar = te_messages_.verticalScrollBar();
    connect(bar, SIGNAL(rangeChanged(int, int)), this, SLOT(silderToBottom(int, int)));
