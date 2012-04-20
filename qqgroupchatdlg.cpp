@@ -156,7 +156,8 @@ void QQGroupChatDlg::readFromSql()
         QListWidgetItem *item = new QListWidgetItem(nick, ui->lw_members_);
         item->setData(Qt::UserRole, uin);
         convertor_.addUinNameMap(uin, nick);
-        item->setIcon(QIcon("1.bmp"));
+        //item->setIcon(QIcon("1.bmp"));
+        item->setIcon(QIcon("default.png"));
     }
     replaceUnconverId();
 }
@@ -261,7 +262,8 @@ void QQGroupChatDlg::getGroupMemberListDone(bool err)
 
         convertor_.addUinNameMap(uin, nick);
 
-        item->setIcon(QIcon("1.bmp"));
+        //item->setIcon(QIcon("1.bmp"));
+        item->setIcon(QIcon("default.png"));
         QString insert_command = "INSERT INTO groupmemberinfo VALUES (%1, %2, '%3', '%4')";
         query.exec(insert_command.arg(uin).arg(id_).arg(nick).arg("test"));
     }

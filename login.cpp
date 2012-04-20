@@ -12,6 +12,8 @@
 #include <assert.h>
 #include <QMessageBox>
 #include <QDesktopWidget>
+#include <QSystemTrayIcon>
+
 
 QQLogin::QQLogin(QWidget *parent) :
     QDialog(parent),
@@ -21,10 +23,33 @@ QQLogin::QQLogin(QWidget *parent) :
     connect(ui->pb_login_, SIGNAL(clicked()), this, SLOT(on_pb_login_clicked()));
     connect(ui->tb_mini_, SIGNAL(clicked()), this, SLOT(showMinimized()));
     connect(ui->tb_close_, SIGNAL(clicked()), this, SLOT(reject()));
+
     setWindowOpacity(1);
     setWindowFlags(Qt::FramelessWindowHint);
 
     move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
+
+    //QAction
+    minimizeAction = new QAction(tr("Mi&nimize"), this);
+    connect(minimizeAction, SIGNAL(triggered()), this, SLOT(hide()));
+    helpAction = new QAction(tr("&Help"), this);
+    connect(helpAction, SIGNAL(triggered()), this, SLOT(help()));
+    quitAction = new QAction(tr("&Quit"), this);
+    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+
+
+    //system tray icon
+    trayIconMenu = new QMenu(this);
+    trayIconMenu->addAction(minimizeAction);
+    trayIconMenu->addAction(helpAction);
+    trayIconMenu->addSeparator();
+    trayIconMenu->addAction(quitAction);
+
+    trayIcon = new QSystemTrayIcon(this);
+    trayIcon->setContextMenu(trayIconMenu);
+    trayIcon->setIcon(QIcon("default.png"));
+    connect(trayIcon,SIGNAL(messageClicked()),this,SLOT(show()));
+    trayIcon->show();
 }
 
 QQLogin::~QQLogin()
@@ -111,6 +136,26 @@ FriendInfo QQLogin::getCurrentUserInfo() const
 {
     return curr_user_info_;
 }
+
+/*
+void QQLogin::createTrayIcon()
+{
+    trayIconMenu = new QMenu(this);
+    trayIconMenu->addAction(minimizeAction);
+    trayIconMenu->addAction(helpAction);
+    trayIconMenu->addSeparator();
+    trayIconMenu->addAction(quitAction);
+
+    trayIcon = new QSystemTrayIcon(this);
+    trayIcon->setContextMenu(trayIconMenu);
+    trayIcon->setContextMenu(trayIconMenu);
+    trayIcon->setIcon(QIcon("default.png"));
+    trayIcon->show();
+    qDebug() << "tray icon!" << endl;
+//    connect(trayIcon,SIGNAL(messageClicked()),this,SLOT(show()));
+}
+
+*/
 
 void QQLogin::getCaptchaImg(QByteArray sum)
 {
@@ -200,6 +245,13 @@ void QQLogin::login()
     connect(fd_, SIGNAL(readyRead()), this, SLOT(loginRead()));
     fd_->write(req.toByteArray());
 }
+
+void QQLogin::help()
+{
+        qDebug() << "help info";
+
+}
+
 
 char QQLogin::getResultState(const QByteArray &array)
 {

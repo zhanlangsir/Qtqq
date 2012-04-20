@@ -20,7 +20,8 @@ QVariant QQItemModel::data(const QModelIndex &index, int role) const
         QPixmap pix;
         if (item->type() == QQItem::kFriend)
         {
-            QIcon icon("1.bmp");
+            //QIcon icon("1.bmp");
+            QIcon icon("default.png");
 
             if (item->state() == kLeave)
             {

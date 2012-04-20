@@ -94,4 +94,10 @@ SOURCES += cookie.cpp \
 RESOURCES += \
     img.qrc
 
+OTHER_FILES += \
+    default.png \
+    macqq.png
+
+
+
 

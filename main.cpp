@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QTextCodec>
 #include <QtMsgHandler>
+#include <QMessageBox>
 
 #include "login.h"
 #include "mainpanel.h"
@@ -18,6 +19,13 @@ int main(int argc, char *argv[])
     if (login->exec() == QDialog::Rejected)
     {
         return 0;
+    }
+
+    //system tray icon
+    if (!QSystemTrayIcon::isSystemTrayAvailable()) {
+        QMessageBox::critical(0, QObject::tr("Systray"),
+            QObject::tr("I couldn't detect any system tray "
+                "on this system."));
     }
 
     CaptchaInfo captcha_info = login->getCaptchaInfo();
