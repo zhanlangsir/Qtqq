@@ -241,10 +241,6 @@ void QQGroupChatDlg::createSigSql()
     {
         qDebug()<<query.lastError();
     }
-    else
-    {
-        qDebug()<<"create groupsig db success"<<endl;
-    }
 }
 
 void QQGroupChatDlg::parseGroupMemberList(const QByteArray &array, QQItem *const root_item)
@@ -317,10 +313,6 @@ void QQGroupChatDlg::createSql()
     if (query.lastError().isValid())
     {
         qDebug()<<query.lastError();
-    }
-    else
-    {
-        qDebug()<<"create groupmemberinfo db success"<<endl;
     }
 }
 

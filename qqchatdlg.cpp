@@ -28,18 +28,23 @@ QQChatDlg::QQChatDlg(QString id, QString name, FriendInfo curr_user_info,
     te_messages_.setReadOnly(true);
     te_input_.setMinimumHeight(70);
 
-    QSettings setting("options.ini", QSettings::IniFormat);
-    send_by_return_ = setting.value("send_by_return").toBool();
     send_type_menu_ = new QMenu(this);
-    act_return_ = new QAction(tr("send by return"), send_type_menu_);
-    
+    act_return_ = new QAction(tr("send by return"), send_type_menu_);   
+    act_return_->setCheckable(true);
     act_ctrl_return_ = new QAction(tr("send by ctrl+return"), send_type_menu_);
+    act_ctrl_return_->setCheckable(true);
 
     connect(act_return_, SIGNAL(triggered(bool)), this, SLOT(setSendByReturn(bool)));
     connect(act_ctrl_return_, SIGNAL(triggered(bool)), this, SLOT(setSendByCtrlReturn(bool)));
 
     send_type_menu_->addAction(act_return_);
     send_type_menu_->addAction(act_ctrl_return_);
+
+    QSettings setting("options.ini", QSettings::IniFormat);
+    send_by_return_ = setting.value("send_by_return").toBool();
+
+    act_return_->setChecked(send_by_return_);
+    act_ctrl_return_->setChecked(!send_by_return_);
 
     te_input_.installEventFilter(this);
 }
@@ -76,21 +81,27 @@ QQChatDlg::~QQChatDlg()
 
 void QQChatDlg::setSendByReturn(bool checked)
 {
+    Q_UNUSED(checked)
     if (!send_by_return_)
     {
         QSettings setting("options.ini", QSettings::IniFormat);
         setting.setValue("send_by_return", true);
         send_by_return_ = true;
+
+        act_ctrl_return_->setChecked(false);
     }
 }
 
 void QQChatDlg::setSendByCtrlReturn(bool checked)
 {
+    Q_UNUSED(checked)
     if (send_by_return_)
     {
         QSettings setting("options.ini", QSettings::IniFormat);
         setting.setValue("send_by_return", false);
         send_by_return_ = false;
+
+        act_return_->setChecked(false);
     }
 }
 

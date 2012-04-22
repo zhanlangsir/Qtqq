@@ -1,4 +1,5 @@
-#pragma once
+#ifndef QTQQ_LOGIN_H
+#define QTQQ_LOGIN_H
 
 #include "types.h"
 
@@ -54,3 +55,4 @@ private:
     QPoint distance_pos_;
 };
 
+#endif //QTQQ_LOGIN_H

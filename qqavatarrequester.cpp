@@ -42,14 +42,15 @@ QString QQAvatarRequester::requestOne(int type, QString id, QString save_path)
     fd.write(req.toByteArray());
 
     QByteArray result = NetWorkHelper::quickReceive(&fd);
-
+    
     int content_idx = result.indexOf("\r\n\r\n")+4;
 
     int format_idx = result.indexOf("image/") + 6;
     int format_end_idx = result.indexOf("\r\n", format_idx);
-    QString format = result.mid(format_idx, format_end_idx - format_idx);
 
+    QString format = result.mid(format_idx, format_end_idx - format_idx);
     QString save_full_path = save_path + id + "." + format;
+
     QFile file(save_full_path);
     file.open(QIODevice::WriteOnly);
     file.write(result.mid(content_idx));

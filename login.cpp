@@ -179,6 +179,7 @@ QString QQLogin::getLoginStatus() const
     default:
         break;
     }
+    return "online";
 }
 
 void QQLogin::getLoginInfo(QString ptwebqq)

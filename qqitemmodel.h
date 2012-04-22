@@ -30,11 +30,11 @@ public:
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
 
-    virtual void parse(const QByteArray &str, NameConvertor *convertor) { }
+    virtual void parse(const QByteArray &str, NameConvertor *convertor) { Q_UNUSED(str) Q_UNUSED(convertor)}
     QQItem *find(QString id);
 
 public slots:
-    virtual void changeFriendStatus(QString id, FriendStatus status, ClientType client_type) {}
+    virtual void changeFriendStatus(QString id, FriendStatus status, ClientType client_type) { Q_UNUSED(id) Q_UNUSED(status) Q_UNUSED(client_type)}
 
 private:
     QQItem* itemFromIndex(const QModelIndex &index) const ;

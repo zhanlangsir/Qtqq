@@ -30,7 +30,10 @@ public:
     QString content() const
     { return content_; }
     void set_content(QString content)
-    { content_ = content; }
+    {
+        if (content_ != content)
+            content_ = content;
+    }
 
 private:
     ChatItemType type_;
@@ -47,7 +50,10 @@ public:
     MsgType type() const
     { return type_; }
     void set_type(MsgType type)
-    { type_ = type; }
+    {
+        if (type_ != type)
+            type_ = type;
+    }
 
     virtual QString sendUin() const { return ""; }
     virtual QString talkTo() const { return ""; }

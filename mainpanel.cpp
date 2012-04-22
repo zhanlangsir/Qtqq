@@ -330,9 +330,13 @@ void QQMainPanel::getOnlineBuddyDone(bool err)
 
 void QQMainPanel::getPersonalFace()
 {
-    QString avatar_path =    QQAvatarRequester::requestOne(QQAvatarRequester::getTypeNumber(QQItem::kFriend), curr_user_info_.id(),  "temp/avatar/");
+    QString avatar_path =   QQAvatarRequester::requestOne(QQAvatarRequester::getTypeNumber(QQItem::kFriend), curr_user_info_.id(),  "temp/avatar/");
 
-    QPixmap pix(avatar_path);
+    QFile file(avatar_path);
+    file.open(QIODevice::ReadOnly);
+    QPixmap pix;
+    pix.loadFromData(file.readAll());
+    file.close();
     ui->lbl_avatar_->setPixmap(pix);
 }
 
