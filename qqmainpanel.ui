@@ -19,6 +19,10 @@
   <property name="windowTitle">
    <string>LinuxQQ</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>macqq.png</normaloff>macqq.png</iconset>
+  </property>
   <property name="styleSheet">
    <string notr="true">QWidget {
 background-image: url(:/new/mainpanel/images/Skins/system/1.45_4/main.jpg);

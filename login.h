@@ -5,6 +5,9 @@
 #include <QDialog>
 #include <QMouseEvent>
 #include <QPoint>
+#include <QSystemTrayIcon>
+#include <QMenu>
+#include <QAction>
 
 class QByteArray;
 class QTcpSocket;
@@ -24,6 +27,7 @@ public:
 public:
     CaptchaInfo getCaptchaInfo() const;
     FriendInfo getCurrentUserInfo() const ;
+    void createTrayIcon();
 
 protected:
     void mousePressEvent(QMouseEvent *);
@@ -35,10 +39,12 @@ private slots:
     void checkStateRead();
     void loginRead();
     void login();
+    void help();
     char getResultState(const QByteArray &array);
     void getLoginInfo(QString ptwebqq);
     void loginInfoRead();
     QByteArray getPwMd5();
+
 
 
 private:
@@ -52,5 +58,13 @@ private:
     QTcpSocket *fd_;
     QString vc_;
     QPoint distance_pos_;
+    QSystemTrayIcon  *trayIcon;
+    QMenu *trayIconMenu;
+
+    QAction *minimizeAction;
+    QAction *helpAction;
+    QAction *quitAction;
+
+
 };
 

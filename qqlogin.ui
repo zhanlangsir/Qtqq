@@ -25,6 +25,10 @@
   <property name="windowTitle">
    <string/>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>macqq.png</normaloff>macqq.png</iconset>
+  </property>
   <property name="windowOpacity">
    <double>1.000000000000000</double>
   </property>
@@ -221,7 +225,7 @@ border-radius:2px;</string>
   <widget class="QComboBox" name="comboBox">
    <property name="geometry">
     <rect>
-     <x>70</x>
+     <x>50</x>
      <y>220</y>
      <width>61</width>
      <height>20</height>
@@ -293,7 +297,7 @@ border-radius:2px;</string>
      <x>260</x>
      <y>220</y>
      <width>84</width>
-     <height>17</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -318,10 +322,10 @@ border-radius:2px;</string>
   <widget class="QCheckBox" name="checkBox">
    <property name="geometry">
     <rect>
-     <x>140</x>
+     <x>120</x>
      <y>220</y>
-     <width>111</width>
-     <height>17</height>
+     <width>131</width>
+     <height>20</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -341,6 +345,32 @@ border-radius:2px;</string>
    </property>
    <property name="text">
     <string>Remember Password</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>140</y>
+     <width>61</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Username</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>180</y>
+     <width>61</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Password</string>
    </property>
   </widget>
  </widget>
