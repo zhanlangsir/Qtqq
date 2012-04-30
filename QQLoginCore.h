@@ -3,7 +3,7 @@
 
 #include <QTcpSocket>
 
-#include "types.H"
+#include "types.h"
 
 class QByteArray;
 class QTcpSocket;
