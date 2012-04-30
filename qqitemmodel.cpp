@@ -207,12 +207,10 @@ QQItemModel::~QQItemModel()
     avatar_requester_.finishRequest();
     avatar_requester_.wait();
 
-    QQItem *item = NULL;
-    foreach (item, root_->children_)
+    //root_会被递归删除子元素，在QQItem中可以看到
+    if (root_)
     {
-        delete item;
-        item = NULL;
+        delete root_;
+        root_ = NULL;
     }
-    delete root_;
-    root_ = NULL;
 }

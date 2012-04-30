@@ -273,7 +273,6 @@ void QQChatDlg::sendMsg()
     }
 
     QString msg = te_input_.toHtml();
-
     QString json_msg = converToJson(msg);
 
     Request req;

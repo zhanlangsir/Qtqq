@@ -7,6 +7,9 @@ void QQPollThread::run()
 {
     while (true)
     {
+        if (stop_)
+            break;
+
         QTcpSocket fd;
         fd.connectToHost("d.web2.qq.com", 80);
         fd.write(req_.toByteArray());
@@ -38,7 +41,7 @@ void QQPollThread::run()
     }
 }
 
-QQPollThread::QQPollThread()
+QQPollThread::QQPollThread() : stop_(false)
 {
     QString poll_path = "/channel/poll2";
     QByteArray msg = "r={\"clientid\":\"5412354841\",\"psessionid\":\"" + CaptchaInfo::singleton()->psessionid().toAscii() + "\","
@@ -51,4 +54,6 @@ QQPollThread::QQPollThread()
     req_.addHeaderItem("Content-Length", QString::number(msg.length()));
     req_.addHeaderItem("Content-Type", "application/x-www-form-urlencoded");
     req_.addRequestContent(msg);
+
+    setTerminationEnabled();
 }

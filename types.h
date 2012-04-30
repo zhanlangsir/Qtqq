@@ -10,7 +10,6 @@ enum ClientType{kPc=1, kPhone=21, kIphone=24, kWeb=41, kIpad};
 
 Q_DECLARE_METATYPE(FriendStatus)
 
-
 struct FileInfo
 {
     int size_;
@@ -105,6 +104,11 @@ public:
     virtual void set_status(FriendStatus status)
     { Q_UNUSED(status)}
 
+    virtual ClientType clientType() const
+    { return kPc; }
+    virtual void set_clientType(ClientType type)
+    { Q_UNUSED(type) }
+
     virtual QString gCode() const
     { return ""; }
 
@@ -133,8 +137,8 @@ public:
 
     ClientType clientType() const
     { return client_type_; }
-    void set_clientType(ClientType client_type)
-    { client_type_ = client_type; }
+    void set_clientType(ClientType type)
+    { client_type_ = type;  }
 
     QString markName() const
     {

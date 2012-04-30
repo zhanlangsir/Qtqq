@@ -4,8 +4,7 @@
 #include <QSettings>
 #include <QTextStream>
 
-#include "login.h"
-#include "mainpanel.h"
+#include "Qtqq.h"
 
 /*
 void customMessageHandler(QtMsgType type, const char *msg)
@@ -46,19 +45,8 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     //qInstallMsgHandler(customMessageHandler);
 
-    QQLogin *login = new QQLogin;
-    if (login->exec() == QDialog::Rejected)
-    {
-        return 0;
-    }
-    login->deleteLater();
-
-    FriendInfo user_info = login->getCurrentUserInfo();
-    login->close();
-
-    QQMainPanel *main_panel = new QQMainPanel(user_info);
-    main_panel->initialize();
-    main_panel->show();
+    Qtqq app;
+    app.start();
 
     return a.exec();
 }

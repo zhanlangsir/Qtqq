@@ -20,10 +20,7 @@
    <string>LinuxQQ</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QWidget#QQMainPanel {
-background-image: url(:/new/mainpanel/images/Skins/system/1.45_4/main.jpg);
-border:none
-}</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>

@@ -20,8 +20,6 @@ QT += network \
 
 # Input
 HEADERS += cookie.h \
-           login.h \
-           mainpanel.h \
            request.h \
            types.h \
            ui_login.h \
@@ -65,18 +63,21 @@ HEADERS += cookie.h \
     groupitemmodel.h \
     qqiteminfohelper.h \
     qqgrouprequestdlg.h \
+    QQLoginDlg.h \
+    QQLoginCore.h \
+    Qtqq.h \
+    QQMainPanel.h
 
-FORMS += captcha.ui qqlogin.ui qqmainpanel.ui qqfriendchatdlg.ui \
+FORMS += captcha.ui qqmainpanel.ui qqfriendchatdlg.ui \
     qqgroupchatdlg.ui \
     friendinfodlg.ui \
     qqfacepanel.ui \
     qqmsgtip.ui \
     friendrequestdlg.ui \
-    grouprequestdlg.ui
+    grouprequestdlg.ui \
+    QQLoginDlg.ui
 SOURCES += cookie.cpp \
-           login.cpp \
            main.cpp \
-           mainpanel.cpp \
            request.cpp \
            types.cpp \
            qqpollthread.cpp \
@@ -106,6 +107,10 @@ SOURCES += cookie.cpp \
     groupitemmodel.cpp \
     qqiteminfohelper.cpp \
     qqgrouprequestdlg.cpp \
+    QQLoginDlg.cpp \
+    QQLoginCore.cpp \
+    Qtqq.cpp \
+    QQMainPanel.cpp
 
 RESOURCES += \
     img.qrc

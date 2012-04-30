@@ -18,15 +18,26 @@ public:
     ~QQItem()
     {
         if (info_)
+        {
             delete info_;
+            info_ = NULL;
+        }
 
-        info_ = NULL;
+        QQItem *item = NULL;
+        foreach(item , children_)
+        {
+            if (item)
+            {
+                delete item;
+                item = NULL;
+            }
+        }
     }
 
 public:
-    QQItem* shallowCopy()
+    QQItem* deepCopy()
     {
-        QQItem *item = new QQItem(type(), itemInfo(), parent());
+        QQItem *item = new QQItem(type(), new ItemInfo(info_->id(), info_->name(), info_->mood()), parent());
         return item;
     }
 
@@ -70,6 +81,11 @@ public:
     { return info_->status(); }
     void set_status(FriendStatus status)
     { info_->set_status(status);}
+
+    ClientType clientType() const
+    { return info_->clientType(); }
+    void set_clientType(ClientType type)
+    { info_->set_clientType(type); }
 
     void append(QQItem *item)
     { children_.append(item); }

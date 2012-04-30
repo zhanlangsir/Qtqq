@@ -40,9 +40,9 @@ void QQMsgCenter::run()
         case QQMsg::kGroup:
         {
             if (msg->type() == QQMsg::kFriend)
-                emit friendChatMsgArrive((const QQChatMsg*)msg);
+                emit friendChatMsgArrive(msg->talkTo());
             else
-                emit groupChatMsgArrive((const QQGroupChatMsg*)msg);
+                emit groupChatMsgArrive(msg->talkTo());
 
             bool is_msg_processed = false;
             QQMsgListener *listener;

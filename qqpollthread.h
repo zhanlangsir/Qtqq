@@ -18,11 +18,18 @@ signals:
 public:
     QQPollThread();
 
+public:
+    void stop()
+    {
+        stop_ = true;
+    }
+
 protected:
     void run();
 
 private: 
    Request req_;
+   bool stop_;
 };
 
 #endif //QTQQ_QQPOLLTHREAD_H

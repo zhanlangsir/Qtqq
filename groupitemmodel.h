@@ -8,7 +8,9 @@ class NameConvertor;
 class GroupItemModel : public QQItemModel
 {
 public:
-    GroupItemModel(QObject *parent = 0) : QQItemModel(parent) {}
+    GroupItemModel(QObject *parent = 0) : QQItemModel(parent)
+    {
+    }
 public:
     void parse(const QByteArray &array, NameConvertor *convertor);
 

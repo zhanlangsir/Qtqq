@@ -9,7 +9,10 @@ class FriendItemModel : public QQItemModel
 {
     Q_OBJECT
 public:
-    FriendItemModel(QObject *parent = 0) : QQItemModel(parent) {}
+    FriendItemModel(QObject *parent = 0) : QQItemModel(parent)
+    {
+    }
+
 public:
     void parse(const QByteArray &array, NameConvertor *convertor);
     void setMarkName(QString mark_name, QString id);
