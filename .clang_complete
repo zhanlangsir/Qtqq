@@ -1,0 +1,8 @@
+-I/usr/share/qt4/mkspecs/linux-g++ 
+-I. 
+-I/usr/include/qt4/QtCore 
+-I/usr/include/qt4/QtNetwork 
+-I/usr/include/qt4/QtGui 
+-I/usr/include/qt4/QtSql 
+-I/usr/include/qt4 
+-Iintermediate 

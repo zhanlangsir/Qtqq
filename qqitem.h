@@ -35,9 +35,9 @@ public:
     }
 
 public:
-    QQItem* deepCopy()
+    QQItem* shallowCopy()
     {
-        QQItem *item = new QQItem(type(), new ItemInfo(info_->id(), info_->name(), info_->mood()), parent());
+        QQItem *item = new QQItem(type(), info_, parent());
         return item;
     }
 

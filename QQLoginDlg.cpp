@@ -162,6 +162,7 @@ void QQLoginDlg::on_pb_login_clicked()
     new_login_info_->login_status_ = getLoginStatus();
     new_login_info_->rem_pwd_ = ui->cekb_rem_pwd_->isChecked();
 
+    qDebug()<<"login ing...."<<endl;
     //this->hide();
     checkAccoutStatus();
 }
@@ -265,13 +266,16 @@ void QQLoginDlg::idChanged(QString text)
 
 void QQLoginDlg::checkAccoutStatus()
 {
+    qDebug()<<"begin checkaccount status"<<endl;
     if (login_core_->checkState(ui->comb_username_->currentText()) == QQLoginCore::kExceptionCpaImg)
     {
+        qDebug()<<"need cap img"<<endl;
         QPixmap pix = login_core_->getCapImg();
         showCapImg(pix);
     }
     else
     {
+        qDebug()<<"begin login"<<endl;
         login_core_->login(new_login_info_->id_, new_login_info_->pwd_, getLoginStatus());
     }
 }

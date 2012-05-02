@@ -18,7 +18,8 @@
 QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, FriendInfo curr_user_info, QString avatar_path, QWidget *parent) :
     QQChatDlg(gid, name, curr_user_info, parent),
     ui(new Ui::QQGroupChatDlg()),
-    group_code_(group_code)
+    group_code_(group_code),
+    member_root_(NULL)
 {
    ui->setupUi(this);
    set_type(QQChatDlg::kGroup);

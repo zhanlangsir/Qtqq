@@ -127,12 +127,6 @@ void QQMainPanel::changeMyStatus(int idx)
 void QQMainPanel::changeFriendStatus(QString id, FriendStatus status, ClientType client_type)
 {
     friend_model_->changeFriendStatus(id, status, client_type);
-    QQItem *info = findRecentListItemById(id);
-
-    if (!info) return;
-
-    info->set_status(status);
-    info->set_clientType(client_type);
 
     ui->recents->setUpdatesEnabled(false);
     ui->recents->setUpdatesEnabled(true);
@@ -151,7 +145,7 @@ void QQMainPanel::changeRecentList(QString id)
         if (!item)
             return;
 
-        QQItem *recent_list_item = item->deepCopy();
+        QQItem *recent_list_item = item->shallowCopy();
         recent_list_item->set_parent(recent_list_root_);
         recent_list_root_->append(recent_list_item);
     }
@@ -434,7 +428,7 @@ void QQMainPanel::parseRecentList(const QByteArray &str, QQItem *const root_item
         if (!item)
             continue;
 
-        QQItem *recent_list_item =  item->deepCopy();
+        QQItem *recent_list_item =  item->shallowCopy();
         recent_list_item->set_parent(root_item);
         recents_info_.append(recent_list_item);
         root_item->append(recent_list_item);

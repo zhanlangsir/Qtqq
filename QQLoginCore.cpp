@@ -31,14 +31,71 @@ void QQLoginCore::login(QString id, QString pwd, FriendStatus status)
     QByteArray md5 = getPwMd5(pwd);
     QString login_url ="/login?u=" + id + "&p=" + md5 + "&verifycode="+vc_+"&webqq_type=40&remember_uin=0&aid=46000101&login2qq=1&u1=http%3A%2F%2Fweb.qq.com%2Floginproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&h=1&ptredirect=0&ptlang=2052&from_ui=1&pttype=1&dumy=&fp=loginerroralert&action=4-30-764935&mibao_css=m_web";
 
+    qDebug()<<"login url"<<login_url<<endl;
     Request req;
     req.create(kGet, login_url);
     req.addHeaderItem("Host", "ptlogin2.qq.com");
     req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+    qDebug()<<CaptchaInfo::singleton()->cookie()<<endl;
 
     fd_->connectToHost("ptlogin2.qq.com", 80);
     connect(fd_, SIGNAL(readyRead()), this, SLOT(loginRead()));
     fd_->write(req.toByteArray());
+    
+    QByteArray result;
+    while (fd_->waitForReadyRead())
+    {
+        result.append(fd_->readAll());
+    }
+
+    qDebug()<<result<<endl;
+    QString ptwebqq;
+
+    char result_state = getResultState(result);
+    qDebug()<<"login result state"<<result_state<<endl;
+
+    switch (result_state)
+    {
+    case '0':
+        break;
+    case '3':
+    {
+        emit sig_loginDone(kIdOrPwdWrong);
+        return;
+    }
+    case '4':
+    {
+        emit sig_loginDone(kAuthcodeWrong);
+        return;
+    }
+    default:
+        return;
+    }
+
+    int idx = 0;  
+    
+    while ((idx = result.indexOf("Set-Cookie:", idx)) != -1) 
+    {
+        idx += strlen("Set-Cookie: ");
+
+        int value_idx = result.indexOf("=", idx); 
+        int fin_value_idx = result.indexOf(";", idx);
+
+        if (fin_value_idx == (value_idx + 1)) continue;
+
+        QString key = result.mid(idx, value_idx - idx); 
+        QString value = result.mid(value_idx+1, fin_value_idx - value_idx - 1);
+
+        if (key == "ptwebqq")
+            ptwebqq = value;
+
+        if (key == "skey")
+            CaptchaInfo::singleton()->set_skey(value);
+
+        CaptchaInfo::singleton()->set_cookie(CaptchaInfo::singleton()->cookie() + key + "=" + value + ";");
+    }
+
+    getLoginInfo(ptwebqq);
 }
 
 void QQLoginCore::login(QString id, QString pwd, FriendStatus status, QString vc)
@@ -49,6 +106,7 @@ void QQLoginCore::login(QString id, QString pwd, FriendStatus status, QString vc
 
 QQLoginCore::AccountStatus QQLoginCore::checkState(QString id)
 {
+    qDebug()<<"checking state"<<endl;
     QString check_url = "/check?uin=%1&appid=1003903&r=0.5354662109559408";
     fd_ = new QTcpSocket();
     fd_->connectToHost("check.ptlogin2.qq.com",80);
@@ -62,6 +120,7 @@ QQLoginCore::AccountStatus QQLoginCore::checkState(QString id)
     fd_->waitForReadyRead();
 
     QByteArray result = fd_->readAll();
+    qDebug()<<"check status result"<<result<<endl;
     fd_->disconnectFromHost();
     if (result.contains('!'))
     {
@@ -70,6 +129,7 @@ QQLoginCore::AccountStatus QQLoginCore::checkState(QString id)
 
         int cookie_idx = result.indexOf("Set-Cookie") + 12;
         int idx = result.indexOf(';', cookie_idx)+1;
+        qDebug()<<"cookie"<<result.mid(cookie_idx, idx - cookie_idx)<<endl;
         CaptchaInfo::singleton()->set_cookie(result.mid(cookie_idx, idx - cookie_idx));
 
         return kNormal;
@@ -136,6 +196,7 @@ QString QQLoginCore::getLoginStatus() const
 
 void QQLoginCore::getLoginInfo(QString ptwebqq)
 {
+    qDebug()<<"getting login info"<<endl;
     QString login_info_path = "/channel/login2";
     QByteArray msg = "r={\"status\":\""+ getLoginStatus().toAscii() +"\",\"ptwebqq\":\"" + ptwebqq.toAscii() + "\","
             "\"passwd_sig\":""\"\",\"clientid\":\"5412354841\""
@@ -158,6 +219,7 @@ void QQLoginCore::getLoginInfo(QString ptwebqq)
 void QQLoginCore::getLoginInfoDone()
 {
     QByteArray result = fd_->readAll();
+    qDebug()<<"get login info result"<<result<<endl;
     int vfwebqq_f_idx = result.indexOf("vfwebqq") + 10;
     int vfwebqq_s_idx = result.indexOf(',', vfwebqq_f_idx) - 1;
 
@@ -189,56 +251,3 @@ char QQLoginCore::getResultState(const QByteArray &array)
     return array[idx + 8];
 }
 
-void QQLoginCore::loginRead()
-{
-    fd_->disconnectFromHost();
-
-    QString ptwebqq;
-    QByteArray result = fd_->readAll();
-
-    char result_state = getResultState(result);
-
-    switch (result_state)
-    {
-    case '0':
-        break;
-    case '3':
-    {
-        emit sig_loginDone(kIdOrPwdWrong);
-        return;
-    }
-    case '4':
-    {
-        emit sig_loginDone(kAuthcodeWrong);
-        return;
-    }
-    default:
-        return;
-    }
-
-    int idx = 0;  
-    
-    while ((idx = result.indexOf("Set-Cookie:", idx)) != -1) 
-    {
-        idx += strlen("Set-Cookie: ");
-
-        int value_idx = result.indexOf("=", idx); 
-        int fin_value_idx = result.indexOf(";", idx);
-
-        if (fin_value_idx == (value_idx + 1)) continue;
-
-        QString key = result.mid(idx, value_idx - idx); 
-        QString value = result.mid(value_idx+1, fin_value_idx - value_idx - 1);
-
-        if (key == "ptwebqq")
-            ptwebqq = value;
-
-        if (key == "skey")
-            CaptchaInfo::singleton()->set_skey(value);
-
-        CaptchaInfo::singleton()->set_cookie(CaptchaInfo::singleton()->cookie() + key + "=" + value + ";");
-    }
-
-    disconnect(fd_, SIGNAL(readyRead()), this, SLOT(loginRead()));
-    getLoginInfo(ptwebqq);
-}

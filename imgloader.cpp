@@ -4,6 +4,10 @@
 #include <QFile>
 #include <QDebug>
 
+#include "include/log4cplus/logger.h"
+#include "include/log4cplus/loggingmacros.h"
+using namespace log4cplus;
+
 void ImgLoader::loadFriendCface(const QString &file_name, const QString &to_uin, const QString &msg_id)
 {
     LoadInfo info;
@@ -78,15 +82,22 @@ void ImgLoader::run()
         if (to_load_count == 0)
             break;
 
+        Logger logger = Logger::getRoot();
+
         LoadInfo info = infos_.dequeue();
         QTcpSocket fd;
         fd.connectToHost(info.host_, 80);
         fd.write(info.header_.toByteArray());
+        LOG4CPLUS_DEBUG(logger, "require content :" + QString(info.header_.toByteArray()).toStdString());
 
         QByteArray array;
-        fd.waitForReadyRead();
+        while (array.indexOf("\r\n\r\n") == -1)
+        {
+            fd.waitForReadyRead();
+            array.append(fd.readAll());
+        }
 
-        array.append(fd.readAll());
+        LOG4CPLUS_DEBUG(logger, "load img first rec: " + QString(array).toStdString());
 
         int idx = array.indexOf("http://") + 7;
         int end_idx = array.indexOf("\r\n", idx);
@@ -121,6 +132,8 @@ void ImgLoader::run()
         fd.waitForReadyRead();
         array.append(fd.readAll());
 
+        LOG4CPLUS_DEBUG(logger, "load img second rec: " + QString(array).toStdString());
+
         int length_idx = array.indexOf("Content-Length") + 16;
         int length_end_idx = array.indexOf("\r\n", length_idx);
 
@@ -148,6 +161,7 @@ void ImgLoader::run()
 
         fd.close();
 
+        LOG4CPLUS_DEBUG(logger, "save img  [ " + info.img_name_.toStdString() + " ] to :" + QString(info.path_).toStdString());
         emit loadDone(info.img_name_, info.path_);
     }
 }

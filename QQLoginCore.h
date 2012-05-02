@@ -30,7 +30,6 @@ signals:
     void sig_loginDone(QQLoginCore::LoginResult result);
 
 private slots:
-    void loginRead();
     char getResultState(const QByteArray &array);
     void getLoginInfo(QString ptwebqq);
     void getLoginInfoDone();

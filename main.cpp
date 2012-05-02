@@ -3,10 +3,16 @@
 #include <QtMsgHandler>
 #include <QSettings>
 #include <QTextStream>
+#include <QFile>
+
+#include "include/log4cplus/logger.h"
+#include "include/log4cplus/loglevel.h"
+#include "include/log4cplus/layout.h"
+#include "include/log4cplus/fileappender.h"
+#include "include/log4cplus/configurator.h"
 
 #include "Qtqq.h"
 
-/*
 void customMessageHandler(QtMsgType type, const char *msg)
 {
     QString txt;
@@ -30,7 +36,7 @@ void customMessageHandler(QtMsgType type, const char *msg)
     outFile.open(QIODevice::WriteOnly | QIODevice::Append);
     QTextStream ts(&outFile);
     ts << txt << endl;
-}*/
+}
 
 int main(int argc, char *argv[])
 {
@@ -43,7 +49,9 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("Qtqq");
 
     QApplication a(argc, argv);
-    //qInstallMsgHandler(customMessageHandler);
+    qInstallMsgHandler(customMessageHandler);
+
+    log4cplus::PropertyConfigurator::doConfigure("logconf.conf");
 
     Qtqq app;
     app.start();
