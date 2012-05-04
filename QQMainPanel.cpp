@@ -41,8 +41,8 @@ QQMainPanel::QQMainPanel(FriendInfo user_info, QWidget *parent) :
     ui->setupUi(this);
 
     connect(msg_tip_, SIGNAL(activatedChatDlg(QQMsg::MsgType, QString, QString)), this, SLOT(openChatDlg(QQMsg::MsgType,QString, QString)));
-    connect(msg_tip_, SIGNAL(activateFriendRequestDlg(QQMsg*)), this, SLOT(openFriendRequestDlg(QQMsg*)));
-    connect(msg_tip_, SIGNAL(activateGroupRequestDlg(QQMsg*)), this, SLOT(openGroupRequestDlg(QQMsg*)));
+    connect(msg_tip_, SIGNAL(activateFriendRequestDlg(ShareQQMsgPtr)), this, SLOT(openFriendRequestDlg(ShareQQMsgPtr)));
+    connect(msg_tip_, SIGNAL(activateGroupRequestDlg(ShareQQMsgPtr)), this, SLOT(openGroupRequestDlg(ShareQQMsgPtr)));
     
     connect(msg_center_, SIGNAL(buddiesStateChangeMsgArrive(QString,FriendStatus, ClientType)),  this, SLOT(changeFriendStatus(QString,FriendStatus, ClientType)));
     connect(msg_center_, SIGNAL(groupChatMsgArrive(QString)), this, SLOT(changeRecentList(QString)));
@@ -295,7 +295,6 @@ void QQMainPanel::getOnlineBuddyDone(bool err)
 
     const Json::Value result = root["result"];
 
-    //޸ߺ״̬ΪkOnline
     for (unsigned int i = 0; i < result.size(); ++i)
     {
         QString id = QString::number(result[i]["uin"].asLargestInt());
@@ -307,7 +306,7 @@ void QQMainPanel::getOnlineBuddyDone(bool err)
     poll_thread_ = new QQPollThread();
     parse_thread_ = new QQParseThread();
     connect(poll_thread_, SIGNAL(signalNewMsgArrive(QByteArray)), parse_thread_, SLOT(pushRawMsg(QByteArray)));
-    connect(parse_thread_, SIGNAL(parseDone(QQMsg*)), msg_center_, SLOT(pushMsg(QQMsg*)));
+    connect(parse_thread_, SIGNAL(parseDone(ShareQQMsgPtr)), msg_center_, SLOT(pushMsg(ShareQQMsgPtr)));
     poll_thread_->start();
     parse_thread_->start();
     msg_center_->start();
@@ -541,7 +540,7 @@ void QQMainPanel::openChatDlgByDoubleClick(const QModelIndex& index)
         return;
 }
 
-void QQMainPanel::openFriendRequestDlg(QQMsg *msg)
+void QQMainPanel::openFriendRequestDlg(ShareQQMsgPtr msg)
 {
     QQFriendRequestDlg dlg(msg, (FriendItemModel*)friend_model_);
     if (dlg.exec() == QDialog::Accepted)
@@ -554,7 +553,7 @@ void QQMainPanel::openFriendRequestDlg(QQMsg *msg)
     }
 }
 
-void QQMainPanel::openGroupRequestDlg(QQMsg *msg)
+void QQMainPanel::openGroupRequestDlg(ShareQQMsgPtr msg)
 {
     QQGroupRequestDlg dlg(msg, (FriendItemModel*)friend_model_, (GroupItemModel*)group_model_);
     if (dlg.exec() == QDialog::Accepted)

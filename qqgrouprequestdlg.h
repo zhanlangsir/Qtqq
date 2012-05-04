@@ -8,7 +8,8 @@ namespace Ui
 
 #include <QDialog>
 
-class QQMsg;
+#include "qqmsg.h"
+
 class FriendItemModel;
 class GroupItemModel;
 
@@ -16,7 +17,7 @@ class QQGroupRequestDlg : public QDialog
 {
     Q_OBJECT
 public:
-    QQGroupRequestDlg(const QQMsg *msg, FriendItemModel *f_model, GroupItemModel *g_model, QWidget *parent = 0);
+    QQGroupRequestDlg(const ShareQQMsgPtr msg, FriendItemModel *f_model, GroupItemModel *g_model, QWidget *parent = 0);
 
 private slots:
     void slotOkClicked();

@@ -25,16 +25,16 @@ public:
 signals:
     void addItemDone();
     void activatedChatDlg(QQMsg::MsgType type, QString talk_to, QString gcode);
-    void activateFriendRequestDlg(QQMsg* msg);
-    void activateGroupRequestDlg(QQMsg *msg);
+    void activateFriendRequestDlg(ShareQQMsgPtr msg);
+    void activateGroupRequestDlg(ShareQQMsgPtr msg);
     void bibibi(SoundPlayer::SoundType type);
 
 public slots:
     void slotActivated(int index);
 
 public:
-    void pushMsg(QQMsg *msg);
-    void addItem(QQMsg *msg);
+    void pushMsg(ShareQQMsgPtr msg);
+    void addItem(ShareQQMsgPtr msg);
     void removeItem(QString id);
     void setConvertor(NameConvertor *convertor)
     { convertor_ = convertor; }

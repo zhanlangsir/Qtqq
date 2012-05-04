@@ -72,8 +72,6 @@ QQChatDlg::~QQChatDlg()
     if (msg_sender_)
     {
         msg_sender_->terminate();
-        msg_sender_->quit();
-        msg_sender_->wait();
         delete msg_sender_;
     }
     msg_sender_ = NULL;
@@ -149,6 +147,11 @@ bool QQChatDlg::eventFilter(QObject *obj, QEvent *e)
     return false;
 }
 
+ImgLoader *QQChatDlg::getImgLoader() const
+{
+    return new ImgLoader();
+}
+
 void QQChatDlg::showQQFace(QString face_id)
 {
     QImage img("images/qqface/default/"+face_id+".gif");
@@ -200,11 +203,10 @@ void QQChatDlg::setFontStyle(QFont font, QColor color, int size)
     cursor.setBlockCharFormat(char_format);
 }
 
-void QQChatDlg::showMsg(const QQMsg *msg)
+void QQChatDlg::showMsg(ShareQQMsgPtr msg)
 {
-    const QQChatMsg *chat_msg = static_cast<const QQChatMsg*>(msg);
-
-    qint64 time = chat_msg->time_;
+    const QQChatMsg *chat_msg = static_cast<const QQChatMsg*>(msg.data());
+    qint64 time = chat_msg->time();
 
     QDateTime date_time;
     date_time.setMSecsSinceEpoch(time * 1000);
@@ -224,7 +226,7 @@ void QQChatDlg::showMsg(const QQMsg *msg)
         {
             if (!img_loader_)
             {
-                img_loader_ = new ImgLoader();
+                img_loader_ = getImgLoader();
                 connect(img_loader_, SIGNAL(loadDone(const QString&, const QString&)), &te_messages_, SLOT(setRealImg(const QString&, const QString&)));
             }
 
@@ -236,8 +238,10 @@ void QQChatDlg::showMsg(const QQMsg *msg)
             {
                 if (chat_msg->msg_[i].type() == QQChatItem::kGroupChatImg)
                 {
-                    const QQGroupChatMsg *chat_msg = static_cast<const QQGroupChatMsg*>(msg);
-                    img_loader_->loadGroupChatImg(chat_msg->msg_[i].content(), chat_msg->info_seq_, QString::number(chat_msg->time_));
+                    const QQGroupChatMsg *chat_msg = static_cast<const QQGroupChatMsg*>(msg.data());
+                    img_loader_->loadGroupChatImg(chat_msg->msg_[i].content(), chat_msg->sendUin(), chat_msg->info_seq_,
+                                                  chat_msg->msg_[i].file_id(), chat_msg->msg_[i].server_ip(),
+                                                  chat_msg->msg_[i].server_port(), QString::number(chat_msg->time_));
                 }
                 else if (chat_msg->msg_[i].type() == QQChatItem::kFriendCface)
                     img_loader_->loadFriendCface(chat_msg->msg_[i].content(), id_, chat_msg->msg_id_);
@@ -325,9 +329,9 @@ void QQChatDlg::openQQFacePanel()
     qqface_panel_->show();
 }
 
-void QQChatDlg::showOldMsg(QVector<QQMsg *> msgs)
+void QQChatDlg::showOldMsg(QVector<ShareQQMsgPtr> msgs)
 {
-    QQMsg *msg;
+    ShareQQMsgPtr msg;
     foreach(msg, msgs)
     {
         showMsg(msg);

@@ -29,7 +29,7 @@ QQLoginDlg::QQLoginDlg(QQLoginCore *login_core, QWidget *parent) :
 
     qRegisterMetaType<LoginInfo>("LoginInfo");
 
-    connect(ui->pb_login_, SIGNAL(clicked()), this, SLOT(on_pb_login_clicked()));
+    connect(ui->pb_login_, SIGNAL(clicked()), this, SLOT(onPbLoginClicked()));
     connect(ui->tb_mini_, SIGNAL(clicked()), this, SLOT(showMinimized()));
     connect(ui->tb_close_, SIGNAL(clicked()), this, SLOT(reject()));
     connect(ui->cekb_autologin_, SIGNAL(clicked(bool)), this, SLOT(onCekbAutoLoginClick(bool)));
@@ -143,7 +143,7 @@ QQLoginDlg::~QQLoginDlg()
     delete ui;
 }
 
-void QQLoginDlg::on_pb_login_clicked()
+void QQLoginDlg::onPbLoginClicked()
 {
     if (ui->comb_username_->currentText().isEmpty() || ui->le_password_->text().isEmpty())
     {

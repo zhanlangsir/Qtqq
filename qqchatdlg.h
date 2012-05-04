@@ -32,9 +32,9 @@ public:
 public:
     void setNameConvertor(NameConvertor convertor)
     { convertor_ = convertor; }
-    void showMsg(const QQMsg *msg);
+    void showMsg(ShareQQMsgPtr msg);
     void showQQFace(QString face_id);
-    void showOldMsg(QVector<QQMsg*> msgs);
+    void showOldMsg(QVector<ShareQQMsgPtr> msgs);
     QString id() const
     { return id_; }
     QString getUniqueId()
@@ -52,6 +52,7 @@ protected:
     void closeEvent(QCloseEvent *);
     //void keyPressEvent(QKeyEvent *e);
     bool eventFilter(QObject * obj, QEvent * e);
+    virtual ImgLoader* getImgLoader() const;
 
 protected:
     QString send_url_;

@@ -8,13 +8,13 @@
 #include "frienditemmodel.h"
 #include "request.h"
 
-QQFriendRequestDlg::QQFriendRequestDlg(const QQMsg *msg, FriendItemModel *model, QWidget *parent) : QDialog(parent),
+QQFriendRequestDlg::QQFriendRequestDlg(const ShareQQMsgPtr msg, FriendItemModel *model, QWidget *parent) : QDialog(parent),
     ui_(new Ui::QQFriendRequestDlg),
     model_(model)
 {
     ui_->setupUi(this);
     initialize();
-    const QQSystemMsg *sys_msg = static_cast<const QQSystemMsg*>(msg);
+    const QQSystemMsg *sys_msg = static_cast<const QQSystemMsg*>(msg.data());
     QString path = QQAvatarRequester::requestOne(QQAvatarRequester::getTypeNumber(QQItem::kFriend),
                                                  sys_msg->from_,
                                                  "temp/avatar/");
@@ -34,7 +34,6 @@ QQFriendRequestDlg::QQFriendRequestDlg(const QQMsg *msg, FriendItemModel *model,
     }
     id_ = sys_msg->from_;
     account_ = sys_msg->account_;
-    delete msg;
 }
 
 void QQFriendRequestDlg::slotOkClicked()

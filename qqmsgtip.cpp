@@ -8,7 +8,7 @@
 
 #include "qqmsg.h"
 
-void QQMsgTip::pushMsg(QQMsg *new_msg)
+void QQMsgTip::pushMsg(ShareQQMsgPtr new_msg)
 {
     if (new_msg->type() == QQMsg::kBuddiesStatusChange)
     {
@@ -26,7 +26,7 @@ void QQMsgTip::pushMsg(QQMsg *new_msg)
     lock.lock();
     for (int i = 0; i < ui->cb_msgs_->count(); ++i)
     {
-        QQMsg *msg = ui->cb_msgs_->itemData(i).value<QQMsg*>();
+        ShareQQMsgPtr msg = ui->cb_msgs_->itemData(i).value<ShareQQMsgPtr>();
 
         if (msg->talkTo() == new_msg->talkTo())
         {
@@ -38,7 +38,7 @@ void QQMsgTip::pushMsg(QQMsg *new_msg)
     lock.unlock();
  }
 
-void QQMsgTip::addItem(QQMsg* msg)
+void QQMsgTip::addItem(ShareQQMsgPtr msg)
 {
     switch(msg->type())
     {
@@ -70,7 +70,7 @@ void QQMsgTip::removeItem(QString id)
 {
     for (int i = 0; i < ui->cb_msgs_->count(); ++i)
     {
-        QQMsg *msg = ui->cb_msgs_->itemData(i).value<QQMsg*>();
+        ShareQQMsgPtr msg = ui->cb_msgs_->itemData(i).value<ShareQQMsgPtr>();
 
         if (msg->talkTo() == id)
         {
@@ -139,7 +139,7 @@ void QQMsgTip::mouseReleaseEvent(QMouseEvent *)
 
 void QQMsgTip::slotActivated(int index)
 {
-    QQMsg *msg = ui->cb_msgs_->itemData(index).value<QQMsg*>();
+    ShareQQMsgPtr msg = ui->cb_msgs_->itemData(index).value<ShareQQMsgPtr>();
     ui->cb_msgs_->removeItem(index);
 
     if (ui->cb_msgs_->count() == 0)

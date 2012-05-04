@@ -6,11 +6,10 @@
 #include <QSemaphore>
 #include <QMetaType>
 
-#include "qqmsg.h"
 #include "qqmsgtip.h"
 #include "qqmsglistener.h"
 
-void QQMsgCenter::pushMsg(QQMsg *msg)
+void QQMsgCenter::pushMsg(ShareQQMsgPtr msg)
 {
     undispatch_msg_.enqueue(msg);
     parse_done_smp_.release();
@@ -23,16 +22,13 @@ void QQMsgCenter::run()
         parse_done_smp_.acquire();
         lock_.lock();
 
-        QQMsg *msg = undispatch_msg_.dequeue();
+        ShareQQMsgPtr msg = undispatch_msg_.dequeue();
 
         switch(msg->type())
         {
         case QQMsg::kBuddiesStatusChange:
-        {
-            QQStatusChangeMsg *status_changed_msg = static_cast<QQStatusChangeMsg*>(msg);
-            emit buddiesStateChangeMsgArrive(status_changed_msg->uin_, status_changed_msg->status_, status_changed_msg->client_type_);
-            delete status_changed_msg;
-            status_changed_msg = NULL;
+        {    
+            emit buddiesStateChangeMsgArrive(msg->sendUin(),  msg->status(), msg->client_type());
             break;
         }
 
@@ -81,32 +77,24 @@ void QQMsgCenter::run()
     }
 }
 
-void QQMsgCenter::distributeMsg(QQMsgListener *listener, QQMsg *msg)
+void QQMsgCenter::distributeMsg(QQMsgListener *listener, ShareQQMsgPtr msg)
 {
     listener->showMsg(msg);
-    delete msg;
 }
 
 void QQMsgCenter::registerListener(QQMsgListener *listener)
 {
     lock_.lock();
-    QVector<QQMsg*> old_msgs(getOldMsg(listener));
+    QVector<ShareQQMsgPtr> old_msgs(getOldMsg(listener));
     listener->showOldMsg(old_msgs);
     lock_.unlock();
     listener_.append(listener);
-
-    QQMsg *msg = NULL;
-    foreach(msg, old_msgs)
-    {
-        delete msg;
-        msg = NULL;
-    }
 }
 
-QVector<QQMsg*> QQMsgCenter::getOldMsg(QQMsgListener *listener)
+QVector<ShareQQMsgPtr> QQMsgCenter::getOldMsg(QQMsgListener *listener)
 {
-    QQMsg *msg = NULL;
-    QVector<QQMsg*> msgs;
+    ShareQQMsgPtr msg;
+    QVector<ShareQQMsgPtr> msgs;
     foreach(msg, old_msg_)
     {
         if (msg->talkTo() == listener->id())
@@ -129,7 +117,7 @@ void QQMsgCenter::setMsgTip(QQMsgTip *msg_tip)
     msg_tip_ = msg_tip;
 }
 
-void QQMsgCenter::writeToSql(QQMsg *msg)
+void QQMsgCenter::writeToSql(ShareQQMsgPtr msg)
 {
     Q_UNUSED(msg)
 }
@@ -138,5 +126,5 @@ QQMsgCenter::QQMsgCenter(QQMsgTip *msg_tip) :
     msg_tip_(msg_tip)
 {
     qRegisterMetaType<FriendStatus>("FriendStatus");
-    connect(this, SIGNAL(distributeMsgInMainThread(QQMsgListener*, QQMsg*)), this, SLOT(distributeMsg(QQMsgListener*, QQMsg*)));
+    connect(this, SIGNAL(distributeMsgInMainThread(QQMsgListener*, ShareQQMsgPtr)), this, SLOT(distributeMsg(QQMsgListener*, ShareQQMsgPtr)));
 }

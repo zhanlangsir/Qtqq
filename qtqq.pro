@@ -6,10 +6,10 @@ TEMPLATE = app
 TARGET = 
 DEPENDPATH += .
 INCLUDEPATH += .
+include(3rdparty/log4qt/src/log4qt/log4qt.pri)
 
 win32:LIBS += "./libs/libjson.a"
-unix:LIBS += "./libs/libjson.so" \
-            "./libs/liblog4cplus.a"
+unix:LIBS += "./libs/libjson.so"
 
 OBJECTS_DIR = ./intermediate/
 RCC_DIR = ./intermediate/
@@ -32,9 +32,6 @@ HEADERS += cookie.h \
            include/json/reader.h \
            include/json/writer.h \
            include/json/value.h \
-           include/log4cplus/appender.h \
-           include/log4cplus/fileappender.h \
-           include/log4cplus/logger.h \
            qqpollthread.h \
            qqparsethread.h \
            qqmsgcenter.h \
@@ -55,7 +52,6 @@ HEADERS += cookie.h \
     qqchatdlg.h \
     friendimgsender.h \
     qqmsgsender.h \
-    friendimgloader.h \
     groupimgloader.h \
     qqsystemtray.h \
     qqavatarrequester.h \
@@ -67,35 +63,11 @@ HEADERS += cookie.h \
     groupitemmodel.h \
     qqiteminfohelper.h \
     qqgrouprequestdlg.h \
-    QQLoginDlg.h \
-    QQLoginCore.h \
-    Qtqq.h \
-    QQMainPanel.h \
-    include/log4cplus/win32debugappender.h \
-    include/log4cplus/win32consoleappender.h \
-    include/log4cplus/version.h \
-    include/log4cplus/tstring.h \
-    include/log4cplus/tracelogger.h \
-    include/log4cplus/tchar.h \
-    include/log4cplus/syslogappender.h \
-    include/log4cplus/streams.h \
-    include/log4cplus/socketappender.h \
-    include/log4cplus/nullappender.h \
-    include/log4cplus/nteventlogappender.h \
-    include/log4cplus/ndc.h \
-    include/log4cplus/mdc.h \
-    include/log4cplus/loglevel.h \
-    include/log4cplus/loggingmacros.h \
-    include/log4cplus/layout.h \
-    include/log4cplus/hierarchylocker.h \
-    include/log4cplus/hierarchy.h \
-    include/log4cplus/fstreams.h \
-    include/log4cplus/consoleappender.h \
-    include/log4cplus/configurator.h \
-    include/log4cplus/config.hxx \
-    include/log4cplus/config.h \
-    include/log4cplus/clogger.h \
-    include/log4cplus/asyncappender.h
+    qqlogincore.h \
+    qqlogindlg.h \
+    qqmainpanel.h \
+    qtqq.h \
+    groupimgloader.h
 
 FORMS += captcha.ui qqmainpanel.ui qqfriendchatdlg.ui \
     qqgroupchatdlg.ui \
@@ -136,13 +108,11 @@ SOURCES += cookie.cpp \
     groupitemmodel.cpp \
     qqiteminfohelper.cpp \
     qqgrouprequestdlg.cpp \
-    QQLoginDlg.cpp \
-    QQLoginCore.cpp \
-    Qtqq.cpp \
-    QQMainPanel.cpp
+    qqlogincore.cpp \
+    qqlogindlg.cpp \
+    qqmainpanel.cpp \
+    qtqq.cpp \
+    groupimgloader.cpp
 
 RESOURCES += \
     img.qrc
-
-OTHER_FILES += \
-    include/log4cplus/stamp-h1

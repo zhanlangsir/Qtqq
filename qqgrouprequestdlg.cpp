@@ -9,7 +9,7 @@
 #include "qqmsg.h"
 #include "include/json/json.h"
 
-QQGroupRequestDlg::QQGroupRequestDlg(const QQMsg *msg, FriendItemModel *f_model, GroupItemModel *g_model, QWidget *parent) : QDialog(parent),
+QQGroupRequestDlg::QQGroupRequestDlg(const ShareQQMsgPtr msg, FriendItemModel *f_model, GroupItemModel *g_model, QWidget *parent) : QDialog(parent),
     ui_(new Ui::QQGroupRequestDlg)
 {
     ui_->setupUi(this);
@@ -46,8 +46,6 @@ QQGroupRequestDlg::QQGroupRequestDlg(const QQMsg *msg, FriendItemModel *f_model,
     connect(ui_->pb_ok_ , SIGNAL(clicked()), this, SLOT(slotOkClicked()));
     connect(ui_->pb_ignore_ , SIGNAL(clicked()), this, SLOT(slotIgnoreClicked()));
     connect(ui_->rb_deny_, SIGNAL(toggled(bool)), this, SLOT(slotToggleDenyReason(bool)));
-
-    delete msg;
 }
 
 void QQGroupRequestDlg::slotOkClicked()

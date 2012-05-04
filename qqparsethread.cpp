@@ -44,7 +44,7 @@ void QQParseThread::run()
         {
             const Json::Value result = root["result"][i];
             QString type = QString::fromStdString(result["poll_type"].asString());
-            QQMsg *msg = createMsg(type, result);
+            ShareQQMsgPtr msg(createMsg(type, result));
             if (msg)
                 emit parseDone(msg);
         }
@@ -90,6 +90,11 @@ QQMsg* QQParseThread::createMsg(QString type, const Json::Value result)
                 {
                     item.set_type(QQChatItem::kGroupChatImg);
                     item.set_content(QString::fromStdString(content[1]["name"].asString()));
+                    item.set_file_id(QString::number(content[1]["file_id"].asLargestInt()));
+                    QString server = QString::fromStdString(content[1]["server"].asString());
+                    int ip_end_idx = server.indexOf(":");
+                    item.set_server_ip(server.mid(0, ip_end_idx));
+                    item.set_server_port(server.mid(ip_end_idx+1));
                 }
             }
             g_chat_msg->msg_.append(item);
@@ -187,4 +192,9 @@ QQMsg* QQParseThread::createMsg(QString type, const Json::Value result)
         qDebug()<<"unknow type"<<endl;
         return NULL;
     }
+}
+
+QQParseThread::QQParseThread()
+{
+    qRegisterMetaType<ShareQQMsgPtr>("ShareQQMsgPtr");
 }

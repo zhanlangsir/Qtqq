@@ -14,6 +14,7 @@
 
 #include "qqitemmodel.h"
 #include "qqutility.h"
+#include "groupimgloader.h"
 
 QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, FriendInfo curr_user_info, QString avatar_path, QWidget *parent) :
     QQChatDlg(gid, name, curr_user_info, parent),
@@ -103,6 +104,11 @@ void QQGroupChatDlg::mouseMoveEvent(QMouseEvent *event)
 void QQGroupChatDlg::mouseReleaseEvent(QMouseEvent *)
 {
     distance_pos_ = QPoint(0, 0);
+}
+
+ImgLoader *QQGroupChatDlg::getImgLoader() const
+{
+    return new GroupImgLoader();
 }
 
 ImgSender* QQGroupChatDlg::createImgSender()

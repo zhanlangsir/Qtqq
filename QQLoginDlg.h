@@ -48,7 +48,7 @@ protected:
     bool eventFilter(QObject *obj, QEvent *e);
 
 private slots:
-    void on_pb_login_clicked();
+    void onPbLoginClicked();
     void loginDone(QQLoginCore::LoginResult result);
     void onCekbAutoLoginClick(bool checked);
     void currentUserChanged(QString text);

@@ -56,8 +56,8 @@ private slots:
     void openChatDlg(QQMsg::MsgType type, QString gid, QString gcode);
     void closeChatDlg(QQChatDlg *listener);
     void openChatDlgByDoubleClick(const QModelIndex& index);
-    void openFriendRequestDlg(QQMsg *msg);
-    void openGroupRequestDlg(QQMsg *msg);
+    void openFriendRequestDlg(ShareQQMsgPtr msg);
+    void openGroupRequestDlg(ShareQQMsgPtr msg);
     void changeFriendStatus(QString id, FriendStatus status, ClientType client_type);
     void changeRecentList(QString id);
     void trayActivated(QSystemTrayIcon::ActivationReason reason);

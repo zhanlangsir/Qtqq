@@ -4,6 +4,8 @@
 
 #include <QMetaType>
 #include <QVector>
+#include <QSharedPointer>
+#include <QMetaType>
 
 struct FontInfo
 {
@@ -35,9 +37,36 @@ public:
             content_ = content;
     }
 
+    QString file_id() const
+    { return file_id_; }
+    void set_file_id(QString file_id)
+    {
+        if (file_id_ != file_id)
+            file_id_ = file_id;
+    }
+
+    QString server_ip() const
+    { return server_ip_; }
+    void set_server_ip(QString server_ip)
+    {
+        if (server_ip_ != server_ip)
+            server_ip_ = server_ip;
+    }
+
+    QString server_port() const
+    { return server_port_; }
+    void set_server_port(QString server_port)
+    {
+        if (server_port_ != server_port)
+            server_port_ = server_port;
+    }
+
 private:
     ChatItemType type_;
     QString content_ ;
+    QString file_id_;
+    QString server_ip_;
+    QString server_port_;
 };
 
 class QQMsg
@@ -61,11 +90,17 @@ public:
     virtual QString gCode() const {return ""; }
     virtual QString msg() const { return ""; }
 
+    virtual long time() const { return 0; }
+
+    virtual FriendStatus status() { return kOnline; }
+    virtual ClientType client_type() { return kPc; }
+
 protected:
     MsgType type_;
 };
 
-Q_DECLARE_METATYPE(QQMsg*)
+typedef QSharedPointer<QQMsg> ShareQQMsgPtr;
+Q_DECLARE_METATYPE(ShareQQMsgPtr)
 
 class QQChatMsg : public QQMsg
 {
@@ -74,6 +109,8 @@ public:
     { return from_uin_; }
     QString sendUin() const
     { return from_uin_; }
+    long time() const { return time_; }
+
     QString msg_id_;
     QString msg_id2_;
     QString from_uin_;
@@ -109,6 +146,9 @@ class QQStatusChangeMsg : public QQMsg
 public:
     QString sendUin() const
     { return uin_; }
+
+    FriendStatus status() { return status_; }
+    ClientType client_type() { return client_type_; }
 
     QString uin_;
     FriendStatus status_;

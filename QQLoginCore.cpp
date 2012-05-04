@@ -39,7 +39,6 @@ void QQLoginCore::login(QString id, QString pwd, FriendStatus status)
     qDebug()<<CaptchaInfo::singleton()->cookie()<<endl;
 
     fd_->connectToHost("ptlogin2.qq.com", 80);
-    connect(fd_, SIGNAL(readyRead()), this, SLOT(loginRead()));
     fd_->write(req.toByteArray());
     
     QByteArray result;

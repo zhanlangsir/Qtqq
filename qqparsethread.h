@@ -12,12 +12,14 @@
 class QQParseThread : public QThread
 {
     Q_OBJECT
+public:
+    QQParseThread();
 
 public slots:
     void pushRawMsg(QByteArray msg);
 
 signals:
-    void parseDone(QQMsg *msg);
+    void parseDone(ShareQQMsgPtr msg);
 
 protected:
     void run();

@@ -9,6 +9,7 @@
 #pragma once
 
 #include "types.h"
+#include "qqmsg.h"
 
 #include <QThread>
 #include <QQueue>
@@ -17,7 +18,6 @@
 #include <QMutex>
 #include <QSemaphore>
 
-class QQMsg;
 class QQMsgTip;
 class QQMsgListener;
 class QQGroupChatMsg;
@@ -27,7 +27,7 @@ class QQMsgCenter : public QThread
 {
     Q_OBJECT
 signals:
-    void distributeMsgInMainThread(QQMsgListener *listener, QQMsg *msg);
+    void distributeMsgInMainThread(QQMsgListener *listener, ShareQQMsgPtr msg);
     void buddiesStateChangeMsgArrive(QString uin, FriendStatus state, ClientType client_type);
     void groupChatMsgArrive(QString id);
     void friendChatMsgArrive(QString id);
@@ -42,21 +42,21 @@ public:
        void setMsgTip(QQMsgTip *msg_tip);
 
 public slots:
-    void pushMsg(QQMsg *msg);
+    void pushMsg(ShareQQMsgPtr msg);
 
 protected:
     void run();
 
 private slots:
-    void distributeMsg(QQMsgListener *listener, QQMsg *msg);
+    void distributeMsg(QQMsgListener *listener, ShareQQMsgPtr msg);
 
 private:
-    void writeToSql(QQMsg *msg);
-    QVector<QQMsg*> getOldMsg(QQMsgListener *listener);
+    void writeToSql(ShareQQMsgPtr msg);
+    QVector<ShareQQMsgPtr> getOldMsg(QQMsgListener *listener);
 
 private:
-    QQueue<QQMsg*> undispatch_msg_;
-    QQueue<QQMsg*> old_msg_;
+    QQueue<ShareQQMsgPtr> undispatch_msg_;
+    QQueue<ShareQQMsgPtr> old_msg_;
     QLinkedList<QQMsgListener*> listener_;
     QQMsgTip *msg_tip_;
     QMutex lock_;

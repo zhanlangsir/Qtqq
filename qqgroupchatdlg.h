@@ -28,6 +28,7 @@ protected:
     void mousePressEvent(QMouseEvent *);
     void mouseMoveEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
+    ImgLoader* getImgLoader() const;
 
 private slots:
     void getGfaceSigDone(bool err);
@@ -56,6 +57,5 @@ private:
     QPoint distance_pos_;
 
     QQItem *member_root_;
-
     QString connection_name_;
 };
