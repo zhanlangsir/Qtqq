@@ -27,7 +27,7 @@ void QQParseThread::run()
         Json::Value root;
 
         QByteArray unparse_msg = message_queue_.dequeue();
-        qDebug()<<unparse_msg<<endl;
+        qDebug()<<"parsing unparse_msg"<<unparse_msg<<endl;
         int idx = unparse_msg.indexOf("\r\n\r\n");
         unparse_msg = unparse_msg.mid(idx+4);
 

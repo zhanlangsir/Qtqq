@@ -36,8 +36,10 @@ public:
 public slots:
     virtual void changeFriendStatus(QString id, FriendStatus status, ClientType client_type) { Q_UNUSED(id) Q_UNUSED(status) Q_UNUSED(client_type)}
 
-private:
+protected:
     QQItem* itemFromIndex(const QModelIndex &index) const ;
+
+private:
     virtual QPixmap getDefaultPixmap(const QQItem *item) const;
     virtual QPixmap getPixmap(const QQItem *item) const;
     void setPixmapDecoration(const QQItem *item, QPixmap &pixmap) const;

@@ -3,9 +3,9 @@
 
 #include <QTcpSocket>
 
+#include "frienditemmodel.h"
 #include "qqavatarrequester.h"
 #include "qqmsg.h"
-#include "frienditemmodel.h"
 #include "request.h"
 
 QQFriendRequestDlg::QQFriendRequestDlg(const ShareQQMsgPtr msg, FriendItemModel *model, QWidget *parent) : QDialog(parent),

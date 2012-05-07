@@ -15,7 +15,7 @@ public:
     {
     }
     QQItem(QQItem *parent = 0) : info_(NULL), parent_(parent) {}
-    ~QQItem()
+    virtual ~QQItem()
     {
         if (info_)
         {
@@ -35,12 +35,6 @@ public:
     }
 
 public:
-    QQItem* shallowCopy()
-    {
-        QQItem *item = new QQItem(type(), info_, parent());
-        return item;
-    }
-
     QString avatarPath() const
     { return info_->avatarPath(); }
     void set_avatarPath(QString avatar_path)

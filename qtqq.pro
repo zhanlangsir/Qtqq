@@ -7,6 +7,7 @@ TARGET =
 DEPENDPATH += .
 INCLUDEPATH += .
 include(3rdparty/log4qt/src/log4qt/log4qt.pri)
+include(3rdparty/qxtglobalshortcut/qxtglobalshortcut.pri)
 
 win32:LIBS += "./libs/libjson.a"
 unix:LIBS += "./libs/libjson.so"
@@ -67,7 +68,8 @@ HEADERS += cookie.h \
     qqlogindlg.h \
     qqmainpanel.h \
     qtqq.h \
-    groupimgloader.h
+    groupimgloader.h \
+    recentlistitemmodel.h
 
 FORMS += captcha.ui qqmainpanel.ui qqfriendchatdlg.ui \
     qqgroupchatdlg.ui \
@@ -112,7 +114,8 @@ SOURCES += cookie.cpp \
     qqlogindlg.cpp \
     qqmainpanel.cpp \
     qtqq.cpp \
-    groupimgloader.cpp
+    groupimgloader.cpp \
+    recentlistitemmodel.cpp
 
 RESOURCES += \
     img.qrc

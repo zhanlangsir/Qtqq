@@ -139,6 +139,9 @@ void QQMsgTip::mouseReleaseEvent(QMouseEvent *)
 
 void QQMsgTip::slotActivated(int index)
 {
+    if (ui->cb_msgs_->count() < index+1)
+        return;
+
     ShareQQMsgPtr msg = ui->cb_msgs_->itemData(index).value<ShareQQMsgPtr>();
     ui->cb_msgs_->removeItem(index);
 
@@ -169,6 +172,7 @@ QQMsgTip::QQMsgTip(QWidget *parent) : QWidget(parent), ui(new Ui::QQMsgTip)
     setWindowOpacity(1);
     setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     ui->cb_msgs_->installEventFilter(this);
+
     connect(ui->cb_msgs_, SIGNAL(activated(int)), this, SLOT(slotActivated(int)));
     connect(this, SIGNAL(addItemDone()), this, SLOT(show()));
     connect(this, SIGNAL(bibibi(SoundPlayer::SoundType)), this, SLOT(beginBibibi(SoundPlayer::SoundType)));

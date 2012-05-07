@@ -155,7 +155,6 @@ QModelIndex QQItemModel::index(int row, int column, const QModelIndex &parent) c
 
 QModelIndex QQItemModel::parent(const QModelIndex &child) const
 {
-
     QQItem *item = itemFromIndex(child);
     if (!item)
         return QModelIndex();

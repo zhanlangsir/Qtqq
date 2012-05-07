@@ -35,7 +35,7 @@ void QQPollThread::run()
             //CaptchaInfo::singleton()->set_vfwebqq(ptwebqq);
 
         }
-        //qDebug()<<"poll thread emiting:\n"<<result<<endl;
+        qDebug()<<"poll thread emiting:\n"<<result<<endl;
         emit signalNewMsgArrive(result);
         fd.close();
     }

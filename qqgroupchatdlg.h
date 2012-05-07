@@ -1,4 +1,5 @@
-#pragma once
+#ifndef QTQQ_QQGROUPCHATDLG_H
+#define QTQQ_QQGROUPCHATDLG_H
 
 #include <QHttp>
 #include <QSqlDatabase>
@@ -59,3 +60,5 @@ private:
     QQItem *member_root_;
     QString connection_name_;
 };
+
+#endif //QTQQ_QQGROUPCHATDLG_H
