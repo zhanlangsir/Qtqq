@@ -42,11 +42,12 @@ void QQLoginCore::login(QString id, QString pwd, FriendStatus status)
     fd_->write(req.toByteArray());
     
     QByteArray result;
-    while (fd_->waitForReadyRead())
+    while (result.indexOf(");") == -1 && fd_->waitForReadyRead(5000))
     {
         result.append(fd_->readAll());
     }
 
+    fd_->close();
     qDebug()<<result<<endl;
     QString ptwebqq;
 
@@ -106,6 +107,7 @@ void QQLoginCore::login(QString id, QString pwd, FriendStatus status, QString vc
 QQLoginCore::AccountStatus QQLoginCore::checkState(QString id)
 {
     qDebug()<<"checking state"<<endl;
+    curr_user_info_.set_id(id);
     QString check_url = "/check?uin=%1&appid=1003903&r=0.5354662109559408";
     fd_ = new QTcpSocket();
     fd_->connectToHost("check.ptlogin2.qq.com",80);
@@ -135,10 +137,11 @@ QQLoginCore::AccountStatus QQLoginCore::checkState(QString id)
     }
     else
     {
-        int second_idx = result.lastIndexOf('\'');
-        int first_idx = result.lastIndexOf('\'', second_idx-1)+1;
+        int ptui_idx = result.indexOf("ptui");
+        int first_idx = result.indexOf(',', ptui_idx)+2;
+        int second_idx = result.indexOf('\'', first_idx);
 
-        sum_ = result.mid(first_idx, second_idx-first_idx);
+        sum_ = result.mid(first_idx, second_idx - first_idx);
 
         return kExceptionCpaImg;
     }
@@ -166,7 +169,7 @@ QPixmap QQLoginCore::getCapImg()
     QPixmap pix;
     pix.loadFromData(result.mid(result.indexOf("\r\n\r\n") + 4));
 
-    fd_->disconnectFromHost();
+    fd_->close();
 
     return pix;
 }
