@@ -109,7 +109,8 @@ QPixmap QQItemModel::getPixmap(const QQItem *item) const
     file.open(QIODevice::ReadOnly);
 
     QPixmap pix(60, 60);
-    pix.loadFromData(file.readAll());
+    QByteArray file_data = file.readAll();
+    pix.loadFromData(file_data);
     file.close();
 
     QIcon icon;
