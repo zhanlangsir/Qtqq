@@ -1,0 +1,11 @@
+﻿<theme-config PackPreview="preview.png" PackLogonPreview="logon_preview.png" PackRecentPreview="recent_preview.png" PackName="风车" PackMinVer="2707" PackVersion="2.0" PackID="6A7A21">
+	<extcontrol>
+		<adjustcolor enable="false"/>
+	</extcontrol>
+	<colorlist>
+		<color value="ff22b6e7"/>
+	</colorlist>
+	<backgroundlist>
+		<background preview="bg_preview.png" mainfile="main.jpg"  mainloc="topleft" aioloc="topleft" bkgstyle="stretch" color="ff22b6e7"/>
+	</backgroundlist>
+</theme-config>

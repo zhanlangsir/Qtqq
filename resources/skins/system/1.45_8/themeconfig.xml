@@ -1,0 +1,11 @@
+﻿<theme-config PackPreview="preview.png" PackLogonPreview="logon_preview.png" PackRecentPreview="recent_preview.png" PackName="花朵" PackMinVer="2707" PackVersion="2.0" PackID="EAFB67">
+	<extcontrol>
+		<adjustcolor enable="false"/>
+	</extcontrol>
+	<colorlist>
+		<color value="ff22b6e7"/>
+	</colorlist>
+	<backgroundlist>
+		<background preview="bg_preview.png" mainfile="main.jpg"  mainloc="topleft" aioloc="topleft" bkgstyle="stretch" color="ff22b6e7"/>
+	</backgroundlist>
+</theme-config>
