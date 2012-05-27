@@ -122,9 +122,7 @@ void GroupChatLog::parse(QByteArray &arr, QVector<ShareQQMsgPtr> &chat_logs)
             QQChatItem item;
             if (chat_datas[j]["t"].asInt() == 0)  //小写字母l，非数字1，下同
             {
-                item.set_type(QQChatItem::kWord);
-                QByteArray test = QString::fromStdString(chat_datas[j]["v"].asString()).toAscii();
-                qDebug()<<test<<endl;
+                item.set_type(QQChatItem::kWord);         
                 item.set_content(QString::fromStdString(chat_datas[j]["v"].asString()));
             }
             if (chat_datas[j]["t"].asInt() == 2)

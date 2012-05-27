@@ -16,12 +16,13 @@
 
 QQLoginCore::QQLoginCore()
 {
-    fd_ = new QTcpSocket;
+    fd_ = new QTcpSocket();
 }
 
 QQLoginCore::~QQLoginCore()
 {
     fd_->close();
+    delete fd_;
 }
 
 void QQLoginCore::login(QString id, QString pwd, FriendStatus status)

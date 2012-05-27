@@ -101,7 +101,7 @@ QFrame#frame_login_btm {
 
 QToolButton#btn_qqface {
     border:none;
-    background-image:url(F:/project/qtqq/skins/default/chatdlg/qqface.png);
+    background-image:url(%skin_path%/chatdlg/qqface.png);
     background-repeat:no-repeat;
 }
 

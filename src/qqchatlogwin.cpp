@@ -6,7 +6,6 @@
 #include <QUrl>
 #include <QDateTime>
 #include <QTextCodec>
-#include <qDebug>
 
 #include "core/qqchatlog.h"
 #include "core/qqmsg.h"
@@ -46,7 +45,7 @@ void QQChatLogWin::getFirstPage()
     QVector<ShareQQMsgPtr>chat_logs = chat_log_->getLog(1);
     showChatLog(chat_logs);
 
-    if (chat_log_->totalPage() == 1)
+    if (chat_log_->totalPage() == 0 || chat_log_->totalPage() == 1)
     {
         ui_->btn_first->setEnabled(false);
         ui_->btn_last->setEnabled(false);
@@ -91,6 +90,8 @@ void QQChatLogWin::getLastPage()
     showChatLog(chat_logs);
     ui_->btn_prep->setEnabled(false);
     ui_->btn_last->setEnabled(false);
+    ui_->btn_first->setEnabled(true);
+    ui_->btn_next->setEnabled(true);
     ui_->le_curr_page->setText(QString::number(chat_log_->currPage()));
 }
 
