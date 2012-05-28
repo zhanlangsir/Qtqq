@@ -70,6 +70,13 @@ void QQChatLogWin::getNextPage()
 {
     QVector<ShareQQMsgPtr>chat_logs = chat_log_->getLog(chat_log_->currPage()-1);
     showChatLog(chat_logs);
+
+    if (chat_log_->currPage() == 1)
+    {
+        ui_->btn_first->setEnabled(false);
+        ui_->btn_next->setEnabled(false);
+    }
+
     ui_->btn_prep->setEnabled(true);
     ui_->btn_last->setEnabled(true);
     ui_->le_curr_page->setText(QString::number(chat_log_->currPage()));
@@ -79,6 +86,12 @@ void QQChatLogWin::getPrePage()
 {
     QVector<ShareQQMsgPtr>chat_logs = chat_log_->getLog(chat_log_->currPage()+1);
     showChatLog(chat_logs);
+
+    if (chat_log_->currPage() == chat_log_->totalPage())
+    {
+        ui_->btn_last->setEnabled(false);
+        ui_->btn_prep->setEnabled(false);
+    }
 
     ui_->btn_next->setEnabled(true);
     ui_->btn_first->setEnabled(true);

@@ -5,6 +5,7 @@
 #include <QDateTime>
 #include <QUrl>
 #include <qmath.h>
+#include <QTextCodec>
 
 #include "include/json/json.h"
 
@@ -75,7 +76,12 @@ QVector<ShareQQMsgPtr> GroupChatLog::getLog(int page)
     QTcpSocket fd;
     fd.connectToHost("cgi.web2.qq.com", 80);
     fd.write(req.toByteArray());
-    QByteArray result = NetWorkHelper::quickReceive(&fd);
+
+    QByteArray result;
+    while (fd.waitForReadyRead())
+    {
+        result += fd.readAll();
+    }
     fd.close();
 
     result = result.mid(result.indexOf("\r\n\r\n")+4);

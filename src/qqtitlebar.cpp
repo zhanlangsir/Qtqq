@@ -7,6 +7,7 @@
 QQTitleBar::QQTitleBar(QWidget *parent) :
     QWidget(parent)
 {
+    setMouseTracking(true);
     QHBoxLayout *layout = new QHBoxLayout();
     setLayout(layout);
 
