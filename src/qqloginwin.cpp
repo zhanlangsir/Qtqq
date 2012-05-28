@@ -23,7 +23,7 @@
 
 QQLoginWin::QQLoginWin(QQLoginCore *login_core, QWidget *parent) :
     QQWidget(parent),
-    ui(new Ui::QQLoginWin),
+    ui(new Ui::QQLoginWin()),
     login_core_(login_core),
     curr_login_info_(NULL)
 {
@@ -32,8 +32,6 @@ QQLoginWin::QQLoginWin(QQLoginCore *login_core, QWidget *parent) :
     setObjectName("loginWindow");
     setMouseTracking(true);
     setWindowIcon(QIcon(QQSkinEngine::instance()->getSkinRes("app_icon")));
-
-    //setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     qRegisterMetaType<LoginInfo>("LoginInfo");
 

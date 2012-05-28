@@ -15,6 +15,7 @@
 
 FriendChatLog::FriendChatLog(QString id):
     id_(id),
+    page_count_(0),
     curr_page_(0)
 {
 }

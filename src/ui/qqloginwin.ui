@@ -35,13 +35,7 @@
    <double>1.000000000000000</double>
   </property>
   <property name="styleSheet">
-   <string notr="true">QDialog#QQLoginDlg {
-background-image: url(:/new/login/images/LoginPanel/Background/login_bg.png);
-border:1px solid white;
-border-radius:5px;
-padding:2px 4px;
-}
-</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -108,8 +102,7 @@ padding:2px 4px;
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">border:1px solid gray;
-border-radius:2px;</string>
+       <string notr="true"/>
       </property>
       <property name="echoMode">
        <enum>QLineEdit::Password</enum>
@@ -180,8 +173,7 @@ border-radius:2px;</string>
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">border:1px solid gray;
-border-radius:2px;</string>
+       <string notr="true"/>
       </property>
       <property name="editable">
        <bool>true</bool>

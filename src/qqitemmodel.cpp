@@ -3,7 +3,6 @@
 #include <QPixmap>
 #include <QIcon>
 #include <assert.h>
-#include <QDebug>
 #include <QFile>
 #include <QPainter>
 
@@ -59,8 +58,6 @@ void QQItemModel::setPixmapDecoration(const QQItem *item, QPixmap &pixmap) const
     if (item->status() == kOnline || item->status() == kOffline)
         return;
 
-    qDebug()<<item->status()<<endl;
-
     QPainter painter(&pixmap);
     QImage img;
 
@@ -80,9 +77,6 @@ void QQItemModel::setPixmapDecoration(const QQItem *item, QPixmap &pixmap) const
     {
         img.load(QQSettings::instance()->resourcePath() + "/avatar/silent.png");
     }
-
-    if (img.isNull())
-        qDebug()<<"null img"<<endl;
 
     QSize avatar_size = pixmap.size();
     QSize decoration_size = img.size();
@@ -207,7 +201,7 @@ QQItem* QQItemModel::itemFromIndex(const QModelIndex &index) const
         return root_;
 }
 
-QQItemModel::QQItemModel(QObject *parent) : QAbstractItemModel(parent), root_(new QQItem)
+QQItemModel::QQItemModel(QObject *parent) : QAbstractItemModel(parent), root_(new QQItem())
 {
     ItemInfo *info = new ItemInfo();
     info->set_markName("root");

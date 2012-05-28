@@ -1,9 +1,17 @@
 #ifndef QTQQ_SOUNDPLAYER_H
 #define QTQQ_SOUNDPLAYER_H
 
-#include <QProcess>
+#ifdef Q_OS_WIN32
+#include <QSound>
+#else
+    #ifdef Q_OS_LINUX
+    #endif
+#endif
+
 #include <QSettings>
 #include <QDebug>
+
+#include "qqsetting.h"
 
 class SoundPlayer
 {
@@ -13,7 +21,6 @@ public:
 protected:
     SoundPlayer()
     {
-         sound_pro_ = new QProcess;
     }
 
 public:
@@ -28,22 +35,23 @@ public:
         switch(type)
         {
         case kMsg:
-            file_be_play = "Sound/Classic/msg";
+            file_be_play = QQSettings::instance()->resourcePath() + "/sound/classic/msg";
             break;
         case kSystem:
-            file_be_play = "Sound/Classic/system";
+            file_be_play = QQSettings::instance()->resourcePath() + "/sound/classic/system";
             break;
         case kUserType:
             file_be_play = file_name;
             break;
         }
 
-        QStringList arg(file_be_play+".mp3");
-
-        if (sound_pro_->state() == QProcess::Running)
-            return;
-
-        sound_pro_->start("mpg123", arg);
+#ifdef Q_OS_WIN32
+        QSound::play(file_be_play+".mp3");
+#else
+    #ifdef Q_OS_LINUX
+        system("mpg123 " + file_be_play.toAscii() + ".mp3");
+    #endif
+#endif
     }
 
     static SoundPlayer* singleton()
@@ -55,8 +63,6 @@ public:
 
 private:
     static SoundPlayer* instance_;
-
-    QProcess *sound_pro_;
 };
 
 #endif // QTQQ_SOUNDPLAYER_H
