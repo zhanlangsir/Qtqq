@@ -2,13 +2,12 @@
 
 #include <QDateTime>
 #include <QTextEdit>
-#include <QTextCodec>
-#include <QFile>
+#include <QTcpSocket>
 
 #include "include/json/json.h"
 
 #include "request.h"
-#include "networkhelper.h"
+#include "sockethelper.h"
 #include "captchainfo.h"
 #include "qqmsg.h"
 #include "qqsetting.h"
@@ -36,13 +35,14 @@ QVector<ShareQQMsgPtr> FriendChatLog::getLog(int page)
     QTcpSocket fd;
     fd.connectToHost("web.qq.com", 80);
     fd.write(req.toByteArray());
-    QByteArray result = NetWorkHelper::quickReceive(&fd);
+    QByteArray result;
+    socketReceive(&fd, result);
+
     fd.close();
 
     int json_part_s_idx = result.indexOf("ChatLog(")+8;
     int json_part_e_idx = result.lastIndexOf("}")+1;
     result = result.mid(json_part_s_idx, json_part_e_idx - json_part_s_idx);
-    qDebug()<<result<<endl;
 
     QVector<ShareQQMsgPtr> chat_logs;
     parse(result, chat_logs);
@@ -58,7 +58,7 @@ int FriendChatLog::totalPage() const
 
 int FriendChatLog::currPage() const
 {
-    return page_count_;
+    return curr_page_;
 }
 
 void FriendChatLog::parse(QByteArray &arr, QVector<ShareQQMsgPtr> &chat_logs)
@@ -69,7 +69,6 @@ void FriendChatLog::parse(QByteArray &arr, QVector<ShareQQMsgPtr> &chat_logs)
     int uin_s_idx = arr.indexOf("tuin") + 5;
     int uin_e_idx = arr.indexOf(',', uin_s_idx);
     QString uin = arr.mid(uin_s_idx, uin_e_idx - uin_s_idx);
-    qDebug()<<"uin"<<uin<<endl;
 
     int curr_page_s_idx = arr.indexOf("page")+5;
     int curr_page_e_idx = arr.indexOf(',', curr_page_s_idx);
@@ -94,7 +93,6 @@ void FriendChatLog::parse(QByteArray &arr, QVector<ShareQQMsgPtr> &chat_logs)
 
         int time_e_idx=  arr.indexOf(",", time_s_idx);
         msg->time_ = arr.mid(time_s_idx, time_e_idx - time_s_idx).toLong();
-        qDebug()<<"time"<<msg->time_<<endl;
 
         int msg_s_idx = arr.indexOf("msg:[", time_e_idx)+5;
 
@@ -124,7 +122,6 @@ void FriendChatLog::parse(QByteArray &arr, QVector<ShareQQMsgPtr> &chat_logs)
                 QByteArray result;
                 decodeString(content, result);
                 item.set_content(result);
-                qDebug()<<"word content1"<<item.content()<<endl;
 
                 chat_item_e_idx = word_e_idx;
             }
@@ -140,7 +137,6 @@ void FriendChatLog::parse(QByteArray &arr, QVector<ShareQQMsgPtr> &chat_logs)
                     item.set_type(QQChatItem::kQQFace);
                     int faceid_s_idx = img_type_e_idx + 2;
                     int faceid_e_idx = arr.indexOf("]", faceid_s_idx);
-                    qDebug()<<"face id"<<arr.mid(faceid_s_idx, faceid_e_idx - faceid_s_idx);
 
                     chat_item_e_idx = faceid_e_idx;
                 }
@@ -150,7 +146,6 @@ void FriendChatLog::parse(QByteArray &arr, QVector<ShareQQMsgPtr> &chat_logs)
                     if (arr.at(img_type_e_idx + 3) != '{')
                     {
                         item.set_content("");
-                        qDebug()<<"empty offpic"<<endl;
                         chat_item_e_idx = arr.indexOf(']', img_type_e_idx);
                     }
                     else
@@ -159,7 +154,7 @@ void FriendChatLog::parse(QByteArray &arr, QVector<ShareQQMsgPtr> &chat_logs)
                         int file_path_e_idx = arr.indexOf('"', file_path_s_idx);
 
                         item.set_content(arr.mid(file_path_s_idx, file_path_e_idx - file_path_s_idx));
-                        qDebug()<<"file path"<<item.content()<<endl;
+
                         chat_item_e_idx = file_path_e_idx + 2;
                     }
                 }
@@ -170,7 +165,6 @@ void FriendChatLog::parse(QByteArray &arr, QVector<ShareQQMsgPtr> &chat_logs)
                     int cface_e_idx = arr.indexOf('"', cface_s_idx);
 
                     item.set_content(arr.mid(cface_s_idx, cface_e_idx - cface_s_idx));
-                    qDebug()<<"cface path"<<item.content()<<endl;
 
                     chat_item_e_idx = arr.indexOf("]", cface_e_idx);
                 }

@@ -1,11 +1,12 @@
 #ifndef QTQQ_QQUTILITY_H
 #define QTQQ_QQUTILITY_H
 
+#include "include/zlib/zlib.h"
+
 #include "types.h"
 
 namespace QQUtility
 {
-
 inline
 FriendStatus stringToStatus(QString status)
 {
@@ -60,6 +61,10 @@ QString StatusToString(FriendStatus status)
     }
 }
 
+int httpgzdecompress(Byte *zdata, uLong nzdata,
+                 Byte *data, uLong *ndata);
+
+int gzdecompress(const QByteArray &data, QByteArray &out);
 }
 
 #endif // QTQQ_QQUTILITY_H

@@ -18,7 +18,6 @@
 #include "core/qqavatarrequester.h"
 #include "core/types.h"
 #include "core/qqutility.h"
-#include "core/networkhelper.h"
 #include "core/qqmsgcenter.h"
 #include "core/qqpollthread.h"
 #include "core/qqparsethread.h"
@@ -33,6 +32,7 @@
 #include "qqmsgtip.h"
 #include "qqgroupchatdlg.h"
 #include "core/qqskinengine.h"
+#include "core/sockethelper.h"
 
 
 QQMainWindow::QQMainWindow(FriendInfo user_info, QWidget *parent) :
@@ -129,7 +129,7 @@ void QQMainWindow::changeMyStatus(int idx)
 
     QHttpRequestHeader header("GET", change_status_url);
     header.addValue("Host", "d.web2.qq.com");
-    NetWorkHelper::setDefaultHeaderValue(header);
+    setDefaultHeaderValue(header);
     header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1");
     header.addValue("Cookie", CaptchaInfo::singleton()->cookie());
 
@@ -180,7 +180,7 @@ void QQMainWindow::getFriendList()
 
     QHttpRequestHeader header("POST", get_friendlist_url);
     header.addValue("Host", "s.web2.qq.com");
-    NetWorkHelper::setDefaultHeaderValue(header);
+    setDefaultHeaderValue(header);
     header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
     header.addValue("Cookie", CaptchaInfo::singleton()->cookie());
     header.setContentType("application/x-www-form-urlencoded");
@@ -224,7 +224,7 @@ void QQMainWindow::getGroupList()
     QString msg_content = "r={\"h\":\"hello\",\"vfwebqq\":\"" + CaptchaInfo::singleton()->vfwebqq() + "\"}";
     QHttpRequestHeader header("POST", get_grouplist_url);
     header.addValue("Host", "s.web2.qq.com");
-    NetWorkHelper::setDefaultHeaderValue(header);
+    setDefaultHeaderValue(header);
     header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
     header.addValue("Cookie", CaptchaInfo::singleton()->cookie());
     header.setContentType("application/x-www-form-urlencoded");
@@ -255,7 +255,7 @@ void QQMainWindow::getOnlineBuddy()
     QString get_online_buddy = "/channel/get_online_buddies2?clientid=5412354841&psessionid=" + CaptchaInfo::singleton()->psessionid() + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
     QHttpRequestHeader header("GET", get_online_buddy);
     header.addValue("Host", "d.web2.qq.com");
-    NetWorkHelper::setDefaultHeaderValue(header);
+    setDefaultHeaderValue(header);
     header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=2011033100");
     header.addValue("Cookie", CaptchaInfo::singleton()->cookie());
 
@@ -333,7 +333,7 @@ void QQMainWindow::getRecentList()
 
     QHttpRequestHeader header("POST", recent_list_url);
     header.addValue("Host", "d.web2.qq.com");
-    NetWorkHelper::setDefaultHeaderValue(header);
+    setDefaultHeaderValue(header);
     header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1");
     header.addValue("Cookie", CaptchaInfo::singleton()->cookie());
     header.setContentType("application/x-www-form-urlencoded");

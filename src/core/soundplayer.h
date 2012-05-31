@@ -1,7 +1,7 @@
 #ifndef QTQQ_SOUNDPLAYER_H
 #define QTQQ_SOUNDPLAYER_H
 
-#ifdef Q_OS_WIN32
+#ifdef WIN32
 #include <QSound>
 #else
     #ifdef Q_OS_LINUX
@@ -45,7 +45,7 @@ public:
             break;
         }
 
-#ifdef Q_OS_WIN32
+#ifdef WIN32
         QSound::play(file_be_play+".mp3");
 #else
     #ifdef Q_OS_LINUX

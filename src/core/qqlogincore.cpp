@@ -10,7 +10,7 @@
 #include <QDesktopWidget>
 #include <QSettings>
 
-#include "networkhelper.h"
+#include "sockethelper.h"
 #include "captchainfo.h"
 #include "request.h"
 
@@ -161,7 +161,8 @@ QPixmap QQLoginCore::getCapImg()
 
     fd_->write(req.toByteArray());
 
-    QByteArray result = NetWorkHelper::quickReceive(fd_);
+    QByteArray result;
+    socketReceive(fd_, result);
     
     int cookie_idx = result.indexOf("Set-Cookie") + 12;
     int idx = result.indexOf(';', cookie_idx)+1;

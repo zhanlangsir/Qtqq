@@ -2,18 +2,17 @@
 
 #include <QDateTime>
 #include <QTcpSocket>
-#include <QDateTime>
 #include <QUrl>
 #include <qmath.h>
-#include <QTextCodec>
 
 #include "include/json/json.h"
 
 #include "request.h"
-#include "networkhelper.h"
+#include "sockethelper.h"
 #include "captchainfo.h"
 #include "qqmsg.h"
 #include "qqsetting.h"
+#include "sockethelper.h"
 
 GroupChatLog::GroupChatLog(QString gid):
     gid_(gid),
@@ -39,7 +38,8 @@ void GroupChatLog::init()
     QTcpSocket fd;
     fd.connectToHost("cgi.web2.qq.com", 80);
     fd.write(req.toByteArray());
-    QByteArray result = NetWorkHelper::quickReceive(&fd);
+    QByteArray result;
+    socketReceive(&fd, result);
     fd.close();
 
     result = result.mid(result.indexOf("\r\n\r\n")+4);
@@ -78,10 +78,7 @@ QVector<ShareQQMsgPtr> GroupChatLog::getLog(int page)
     fd.write(req.toByteArray());
 
     QByteArray result;
-    while (fd.waitForReadyRead())
-    {
-        result += fd.readAll();
-    }
+    socketReceive(&fd, result);
     fd.close();
 
     result = result.mid(result.indexOf("\r\n\r\n")+4);
@@ -116,14 +113,14 @@ void GroupChatLog::parse(QByteArray &arr, QVector<ShareQQMsgPtr> &chat_logs)
 
     Json::Value content = root["result"]["data"]["cl"][0]["cl"];
 
-    for (signed int i = 0; i < content.size(); ++i)
+    for (unsigned int i = 0; i < content.size(); ++i)
     {
         QQChatMsg *msg = new QQChatMsg();
         msg->from_uin_ = QString::number(content[i]["u"].asLargestInt());
         msg->time_ =content[i]["t"].asLargestInt();
 
         Json::Value chat_datas = content[i]["il"];
-        for (signed int j = 0; j < chat_datas.size(); ++j)
+        for (unsigned int j = 0; j < chat_datas.size(); ++j)
         {
             QQChatItem item;
             if (chat_datas[j]["t"].asInt() == 0)  //小写字母l，非数字1，下同

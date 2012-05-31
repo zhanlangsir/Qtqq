@@ -2,9 +2,9 @@
 
 #include <QFile>
 
-#include "networkhelper.h"
 #include "request.h"
 #include "captchainfo.h"
+#include "sockethelper.h"
 
 bool QQAvatarRequester::isRequesting(QString id) const
 {
@@ -42,7 +42,8 @@ QString QQAvatarRequester::requestOne(int type, QString id, QString save_path)
     fd.connectToHost("face1.qun.qq.com", 80);
     fd.write(req.toByteArray());
 
-    QByteArray result = NetWorkHelper::quickReceive(&fd);
+    QByteArray result;
+    socketReceive(&fd,result);
     
     int content_idx = result.indexOf("\r\n\r\n")+4;
 

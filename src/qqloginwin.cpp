@@ -16,7 +16,6 @@
 
 #include "core/types.h"
 #include "core/request.h"
-#include "core/networkhelper.h"
 #include "include/json/json.h"
 #include "qqtitlebar.h"
 #include "core/qqskinengine.h"

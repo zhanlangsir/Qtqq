@@ -61,7 +61,7 @@ void QQChatLogWin::getFirstPage()
         ui_->btn_prep->setEnabled(true);
     }
 
-    ui_->lbl_page_count->setText("total" + QString::number(chat_log_->totalPage()) + "page");
+    ui_->lbl_page_count->setText("total " + QString::number(chat_log_->totalPage()) + " page");
     ui_->le_curr_page->setText(QString::number(chat_log_->currPage()));
 }
 
