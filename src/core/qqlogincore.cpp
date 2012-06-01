@@ -29,15 +29,15 @@ void QQLoginCore::login(QString id, QString pwd, FriendStatus status)
 {
     status_ = status;
 
-    QByteArray md5 = getPwMd5(pwd);
-    QString login_url ="/login?u=" + id + "&p=" + md5 + "&verifycode="+vc_+"&webqq_type=40&remember_uin=0&aid=46000101&login2qq=1&u1=http%3A%2F%2Fweb.qq.com%2Floginproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&h=1&ptredirect=0&ptlang=2052&from_ui=1&pttype=1&dumy=&fp=loginerroralert&action=4-30-764935&mibao_css=m_web";
+    QString login_url = "/login?u=" + id + "&p=" + getPwMd5(pwd) + "&verifycode="+vc_+
+            "&webqq_type=10&remember_uin=0&login2qq=1&aid=1003903&u1=http%3A%2F%2Fweb.qq.com%2Floginproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&h=1&ptredirect=0&ptlang=2052&from_ui=1&pttype=1&dumy=&fp=loginerroralert&action=2-6-22950&mibao_css=m_webqq&t=1&g=1";
 
     qDebug()<<"login url"<<login_url<<endl;
     Request req;
     req.create(kGet, login_url);
     req.addHeaderItem("Host", "ptlogin2.qq.com");
     req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
-    qDebug()<<CaptchaInfo::singleton()->cookie()<<endl;
+    req.addHeaderItem("Referer", "http://ui.ptlogin2.qq.com/cgi-bin/login?target=self&style=5&mibao_css=m_webqq&appid=1003903&enable_qlogin=0&no_verifyimg=1&s_url=http%3A%2F%2Fweb.qq.com%2Floginproxy.html&f_url=loginerroralert&strong_login=1&login_state=10&t=20120504001");
 
     fd_->connectToHost("ptlogin2.qq.com", 80);
     fd_->write(req.toByteArray());
@@ -50,6 +50,8 @@ void QQLoginCore::login(QString id, QString pwd, FriendStatus status)
 
     fd_->close();
     qDebug()<<result<<endl;
+
+
     QString ptwebqq;
 
     char result_state = getResultState(result);
@@ -128,6 +130,26 @@ QQLoginCore::AccountStatus QQLoginCore::checkState(QString id)
     {
         int vc_idx = result.indexOf('!');
         vc_ = result.mid(vc_idx, 4);
+
+        int uin_s_idx = result.indexOf('\'', vc_idx + 5) + 1;
+        int uin_e_idx = result.indexOf('\'', uin_s_idx);
+
+        QString uin = result.mid(uin_s_idx, uin_e_idx - uin_s_idx);
+        QStringList dex_uin = uin.split("\\x");
+
+        QByteArray dec_uin;
+        QString dex;
+
+        foreach (dex, dex_uin)
+        {
+            if (dex.isEmpty())
+                continue;
+
+            bool ok;
+            dec_uin.append((char)dex.toInt(&ok, 16));
+        }
+
+        uin_ = dec_uin;
 
         int cookie_idx = result.indexOf("Set-Cookie") + 12;
         int idx = result.indexOf(';', cookie_idx)+1;
@@ -236,15 +258,25 @@ void QQLoginCore::getLoginInfoDone()
     emit sig_loginDone(kSucess);
 }
 
+QByteArray QQLoginCore::hexchar2bin(const QByteArray &str)
+{
+    QByteArray result;
+    qDebug()<<str.length()<<endl;
+    for ( int i = 0; i < str.length(); i += 2 )
+    {
+        qDebug()<<i<<endl;
+        bool ok;
+        result += QString::number(str.mid(i, i + 2).toInt(&ok, 16)).toAscii();
+    }
+    return result;
+}
+
 QByteArray QQLoginCore::getPwMd5(QString pwd)
 {
     QByteArray md5;   
-
     md5 = QCryptographicHash::hash(pwd.toAscii(), QCryptographicHash::Md5);
-    md5 = QCryptographicHash::hash(md5, QCryptographicHash::Md5);
-    md5 = QCryptographicHash::hash(md5, QCryptographicHash::Md5).toHex();
-
-    md5 = QCryptographicHash::hash(md5.toUpper().append(vc_), QCryptographicHash::Md5).toHex().toUpper();
+    md5 = QCryptographicHash::hash(md5.append(uin_), QCryptographicHash::Md5).toHex().toUpper();
+    md5 = QCryptographicHash::hash(md5.append(vc_.toUpper()), QCryptographicHash::Md5).toHex().toUpper();
 
     return md5;
 }

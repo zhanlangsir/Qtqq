@@ -33,6 +33,7 @@ private slots:
     char getResultState(const QByteArray &array);
     void getLoginInfo(QString ptwebqq);
     void getLoginInfoDone();
+    QByteArray hexchar2bin(const QByteArray &str);
     QByteArray getPwMd5(QString pwd);
 
 private:
@@ -42,10 +43,10 @@ private:
     
 private:
     FriendInfo curr_user_info_;
-    QString check_url_;
     QTcpSocket *fd_;
     QString vc_;
     QByteArray sum_;
+    QByteArray uin_;
 
     QString id_;
     QString pwd_;
