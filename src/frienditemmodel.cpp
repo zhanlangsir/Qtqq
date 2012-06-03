@@ -152,12 +152,10 @@ void FriendItemModel::changeFriendStatus(QString id, FriendStatus status, Client
     category->children_.remove(idx);
     endRemoveRows();
 
-     int new_idx = getNewPosition(item);
-     beginInsertRows(parent_mdl_idx, 0, 0);
+    int new_idx = getNewPosition(item);
+    beginInsertRows(parent_mdl_idx, 0, 0);
     category->children_.insert(new_idx, item);
     endInsertRows();
-    //ui->recents->setUpdatesEnabled(false);
-    //ui->recents->setUpdatesEnabled(true);
 }
 
 int FriendItemModel::getNewPosition(const QQItem *item) const
