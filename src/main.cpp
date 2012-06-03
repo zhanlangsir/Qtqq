@@ -1,9 +1,7 @@
 #include <QApplication>
 #include <QTextCodec>
-#include <QtMsgHandler>
 #include <QSettings>
-#include <QTextStream>
-#include <QFile>
+
 #include "log4qt/logger.h"
 #include "log4qt/propertyconfigurator.h"
 #include "log4qt/logmanager.h"

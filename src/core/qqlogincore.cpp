@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include <QDesktopWidget>
 #include <QSettings>
+#include <QFile>
 
 #include "sockethelper.h"
 #include "captchainfo.h"
@@ -51,6 +52,10 @@ void QQLoginCore::login(QString id, QString pwd, FriendStatus status)
     fd_->close();
     qDebug()<<result<<endl;
 
+//    QFile f("test");
+//    f.open(QIODevice::WriteOnly);
+//    f.write(result);
+//    f.close();
 
     QString ptwebqq;
 

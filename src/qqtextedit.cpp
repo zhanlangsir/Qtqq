@@ -161,7 +161,7 @@ void QQTextEdit::setRealImg(const QString &unique_id, const QString &path)
     if (mov->isValid())
         qDebug()<<'valid'<<endl;
 
-    mov->setCacheMode(QMovie::CacheNone);
+    mov->setCacheMode(QMovie::CacheAll);
     connect(mov, SIGNAL(frameChanged(int)), this, SLOT(animate(int)));
     mov->start();
 }
@@ -181,6 +181,9 @@ void QQTextEdit::animate(int)
     {
         document()->addResource(QTextDocument::ImageResource,   //替换图片为当前帧
                                 id_mov_hash_.key(movie), movie->currentPixmap());
+
+        if (movie->currentFrameNumber() == movie->frameCount())
+                    qApp->processEvents();
 
         setLineWrapColumnOrWidth(lineWrapColumnOrWidth()); // ..刷新显示
     }

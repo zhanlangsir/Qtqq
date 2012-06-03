@@ -102,7 +102,8 @@ QQMainWindow::QQMainWindow(FriendInfo user_info, QWidget *parent) :
 
 QQMainWindow::~QQMainWindow()
 {
-    delete trayIcon;
+    trayIcon->hide();
+    trayIcon->deleteLater();
     trayIcon = NULL;
     main_http_->close();
     delete ui;

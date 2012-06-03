@@ -68,7 +68,7 @@ void QQGroupRequestDlg::slotOkClicked()
         fd.write(req.toByteArray());
 
         fd.waitForReadyRead();
-        qDebug()<<fd.readAll();
+        qDebug()<<"allow add group request: "<<fd.readAll();
 
         accept();
     }
@@ -89,7 +89,7 @@ void QQGroupRequestDlg::slotOkClicked()
         fd.write(req.toByteArray());
 
         fd.waitForReadyRead();
-        qDebug()<<fd.readAll();
+        qDebug()<<"deny add group request"<<fd.readAll();
 
         fd.close();
         reject();

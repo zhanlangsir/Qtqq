@@ -88,7 +88,7 @@ void QQFriendRequestDlg::slotOkClicked()
         fd.write(req.toByteArray());
 
         fd.waitForReadyRead();
-        qDebug()<<fd.readAll();
+        qDebug()<<"Allow friend add reqeust:\n"<<fd.readAll();
         fd.close();
         accept();
     }
@@ -113,7 +113,7 @@ void QQFriendRequestDlg::slotOkClicked()
         fd.write(req.toByteArray());
 
         fd.waitForReadyRead();
-        qDebug()<<fd.readAll();
+        qDebug()<<"Deny friend add reqeust\n: "<<fd.readAll();
 
         fd.close();
         reject();

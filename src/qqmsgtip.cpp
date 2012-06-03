@@ -6,6 +6,19 @@
 #include <QCursor>
 #include <QMouseEvent>
 
+QQMsgTip::QQMsgTip(QWidget *parent) : QWidget(parent), ui(new Ui::QQMsgTip)
+{
+    ui->setupUi(this);
+    setWindowOpacity(1);
+    setWindowFlags(Qt::WindowStaysOnTopHint | Qt::Dialog | Qt::FramelessWindowHint);
+    qRegisterMetaType<SoundPlayer::SoundType>("SoundPlayer::SoundType");
+    ui->cb_msgs_->installEventFilter(this);
+
+    connect(ui->cb_msgs_, SIGNAL(activated(int)), this, SLOT(slotActivated(int)));
+    connect(this, SIGNAL(addItemDone()), this, SLOT(show()));
+    connect(this, SIGNAL(bibibi(SoundPlayer::SoundType)), this, SLOT(beginBibibi(SoundPlayer::SoundType)));
+}
+
 void QQMsgTip::pushMsg(ShareQQMsgPtr new_msg)
 {
     if (new_msg->type() == QQMsg::kBuddiesStatusChange)
@@ -160,18 +173,4 @@ void QQMsgTip::slotActivated(int index)
         emit activateGroupRequestDlg(msg);
         break;
     }
-}
-
-QQMsgTip::QQMsgTip(QWidget *parent) : QWidget(parent), ui(new Ui::QQMsgTip)
-{
-    ui->setupUi(this);
-    qRegisterMetaType<SoundPlayer::SoundType>("SoundPlayer::SoundType");
-    setWindowOpacity(1);
-    setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
-    ui->cb_msgs_->installEventFilter(this);
-
-    connect(ui->cb_msgs_, SIGNAL(activated(int)), this, SLOT(slotActivated(int)));
-    connect(this, SIGNAL(addItemDone()), this, SLOT(show()));
-    connect(this, SIGNAL(bibibi(SoundPlayer::SoundType)), this, SLOT(beginBibibi(SoundPlayer::SoundType)));
-
 }
