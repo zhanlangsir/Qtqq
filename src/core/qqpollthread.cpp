@@ -22,7 +22,10 @@ void QQPollThread::run()
         }
 
         if (result.isEmpty() || result == pre_result)
+        {
+            fd.disconnectFromHost();
             continue;
+        }
 
         pre_result = result;
 

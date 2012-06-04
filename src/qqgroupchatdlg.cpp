@@ -103,7 +103,7 @@ QQChatLog *QQGroupChatDlg::getChatlog() const
     return new GroupChatLog(group_code_);
 }
 
-ImgSender* QQGroupChatDlg::createImgSender()
+ImgSender* QQGroupChatDlg::getImgSender() const
 {
     return new GroupImgSender();
 }

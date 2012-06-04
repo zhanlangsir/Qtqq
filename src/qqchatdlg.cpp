@@ -155,7 +155,7 @@ bool QQChatDlg::eventFilter(QObject *obj, QEvent *e)
 
 ImgLoader *QQChatDlg::getImgLoader() const
 {
-    return NULL;
+    return new ImgLoader();
 }
 
 QQChatLog *QQChatDlg::getChatlog() const
@@ -181,7 +181,7 @@ void QQChatDlg::openPathDialog(bool)
 
     if (!img_sender_)
     {
-        img_sender_ = createImgSender();
+        img_sender_ = getImgSender();
         connect(img_sender_, SIGNAL(postResult(QString,FileInfo)), this, SLOT(setFileInfo(QString, FileInfo)));
         connect(img_sender_, SIGNAL(sendDone(const QString &, const QString&)), &te_input_, SLOT(setRealImg(const QString&,const QString&)));   
     }

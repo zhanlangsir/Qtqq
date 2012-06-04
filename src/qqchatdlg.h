@@ -88,7 +88,7 @@ private slots:
 
 private:
     virtual QString converToJson(const QString &raw_msg) = 0;
-    virtual ImgSender* createImgSender() = 0;
+    virtual ImgSender* getImgSender() const = 0;
     virtual QQChatLog *getChatlog() const;
     virtual ImgLoader* getImgLoader() const;
 

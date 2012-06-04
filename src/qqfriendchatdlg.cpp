@@ -130,7 +130,7 @@ QString QQFriendChatDlg::converToJson(const QString &raw_msg)
     return msg_template;
 }
 
-ImgSender* QQFriendChatDlg::createImgSender()
+ImgSender* QQFriendChatDlg::getImgSender() const
 {
     return new FriendImgSender();
 }

@@ -98,6 +98,7 @@ void QQTextEdit::insertQQFace(const QString &face_id)
 
    QMovie* movie = new QMovie();
    movie->setFileName(path);
+   movie->setSpeed(70);
    movie->setCacheMode(QMovie::CacheAll);
 
    id_mov_hash_.insert(kQQFacePre+face_id, movie);
@@ -119,8 +120,9 @@ void QQTextEdit::insertImgProxy(const QString &unique_id)
     cursor.insertImage(unique_id);
 
     QMovie* movie = new QMovie();
+    movie->setSpeed(70);
     movie->setFileName(QQSettings::instance()->resourcePath() + "/loading/loading.gif");
-    movie->setCacheMode(QMovie::CacheNone);
+    movie->setCacheMode(QMovie::CacheAll);
 
     id_mov_hash_.insert(unique_id, movie);
 

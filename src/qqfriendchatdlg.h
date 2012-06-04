@@ -25,7 +25,7 @@ public:
 
 private:
     QString converToJson(const QString &raw_msg);
-    ImgSender* createImgSender();
+    ImgSender* getImgSender() const;
     QQChatLog *getChatlog() const;
 
 private:

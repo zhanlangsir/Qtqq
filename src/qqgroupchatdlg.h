@@ -29,8 +29,6 @@ public:
 
 protected:
     void closeEvent(QCloseEvent *);
-    ImgLoader* getImgLoader() const;
-    QQChatLog *getChatlog() const;
 
 private slots:
     void getGfaceSigDone(bool err);
@@ -38,7 +36,9 @@ private slots:
 
 private:
     QString converToJson(const QString &raw_msg);
-    ImgSender* createImgSender();
+    ImgSender* getImgSender() const;
+    ImgLoader* getImgLoader() const;
+    QQChatLog *getChatlog() const;
     void getGfaceSig();
     void getGroupMemberList();
     void createSql();
