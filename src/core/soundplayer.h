@@ -57,8 +57,8 @@ public:
 #else
     #ifdef Q_OS_LINUX
         QStringList arg(file_be_play + ".mp3");
-        if (sound_process_.state() == QProcess::Running) return;
-        sound_process_.start("mpg123", arg);
+        if (sound_process_.state() != QProcess::Running)
+             sound_process_.start("mpg123", arg);
     #endif
 #endif
     }

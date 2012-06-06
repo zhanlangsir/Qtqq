@@ -108,8 +108,9 @@ QByteArray ImgLoader::getImgUrl(const LoadInfo &info) const
 
     QByteArray array;
     while (array.indexOf("\r\n\r\n") == -1 && fd.waitForReadyRead(4000))
-    {
+    {      
         array.append(fd.readAll());
+        qDebug()<<"getting img url, revice data:\n"<<array<<endl;
     }
     fd.close();
     return array;

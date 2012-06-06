@@ -58,6 +58,9 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
+     <property name="lineWidth">
+      <number>0</number>
+     </property>
      <widget class="QCheckBox" name="cekb_autologin_">
       <property name="geometry">
        <rect>
@@ -223,6 +226,9 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
+     <property name="lineWidth">
+      <number>0</number>
+     </property>
      <widget class="QPushButton" name="pb_login">
       <property name="geometry">
        <rect>
@@ -262,11 +268,12 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>comb_username_</tabstop>
   <tabstop>le_password_</tabstop>
-  <tabstop>cb_status_</tabstop>
+  <tabstop>pb_login</tabstop>
   <tabstop>cekb_rem_pwd_</tabstop>
   <tabstop>cekb_autologin_</tabstop>
-  <tabstop>pb_login</tabstop>
+  <tabstop>cb_status_</tabstop>
  </tabstops>
  <resources/>
  <connections/>

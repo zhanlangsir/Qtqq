@@ -24,7 +24,7 @@ QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, Fr
     QQChatDlg(gid, name, curr_user_info, parent),
     ui(new Ui::QQGroupChatDlg()),
     group_code_(group_code),
-    member_root_(NULL)
+    member_root_(new QQItem())
 {
    ui->setupUi(contentWidget());
    updateSkin();
@@ -322,7 +322,7 @@ void QQGroupChatDlg::readFromSql()
     query.exec(read_command.arg(id_));
     
     QQItemModel *model = new QQItemModel(this);
-    QQItem *root = new QQItem();
+
     while (query.next())
     {
         QString uin = query.value(0).toString();
@@ -336,17 +336,16 @@ void QQGroupChatDlg::readFromSql()
         info->set_status(stat);
         info->set_avatarPath(avatar_path);
 
-        QQItem *member = new QQItem(QQItem::kFriend, info, root);
+        QQItem *member = new QQItem(QQItem::kFriend, info, member_root_);
         if (info->status() == kOffline)
-            root->children_.push_back(member);
+            member_root_->children_.push_back(member);
         else
-            root->children_.push_front(member);
+            member_root_->children_.push_front(member);
 
         convertor_.addUinNameMap(uin, nick);
     }
 
-    member_root_ = root;
-    model->setRoot(root);
+    model->setRoot(member_root_);
     ui->lv_members_->setModel(model);
 
     QString drop_command = "DROP TABLE IF EXISTS groupmemberinfo";
@@ -478,10 +477,8 @@ void QQGroupChatDlg::getGroupMemberListDone(bool err)
     http_.close();
 
     QQItemModel *model = new QQItemModel(this);
-    QQItem *root_item = new QQItem;
-    parseGroupMemberList(groups_member_info, root_item);
-    member_root_ = root_item;
-    model->setRoot(root_item);
+    parseGroupMemberList(groups_member_info, member_root_);
+    model->setRoot(member_root_);
 
     ui->lv_members_->setModel(model);
 
