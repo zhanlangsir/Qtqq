@@ -52,10 +52,10 @@ QVariant QQItemModel::data(const QModelIndex &index, int role) const
         {
             if (!avatar_requester_.isRequesting(item->id()))
                 emit noAvatar(item);
-            pix = getDefaultPixmap(item);
+            getDefaultPixmap(item, pix);
         }
         else
-            pix = getPixmap(item);
+            getPixmap(item, pix);
       
         return pix;
     }
@@ -108,9 +108,8 @@ void QQItemModel::setPixmapDecoration(const QQItem *item, QPixmap &pixmap) const
     painter.drawImage(draw_point, img);
 }
 
-QPixmap QQItemModel::getDefaultPixmap(const QQItem *item) const
+void QQItemModel::getDefaultPixmap(const QQItem *item, QPixmap &pix) const
 {
-    QPixmap pix;
     if (item->type() == QQItem::kFriend)
     {
         QIcon icon(QQSkinEngine::instance()->getSkinRes("default_friend_avatar"));
@@ -128,15 +127,13 @@ QPixmap QQItemModel::getDefaultPixmap(const QQItem *item) const
         QIcon icon(QQSkinEngine::instance()->getSkinRes("default_group_avatar"));
         pix = icon.pixmap(QSize(icon_size_));
     }
-    return pix;
 }
 
-QPixmap QQItemModel::getPixmap(const QQItem *item) const
+void QQItemModel::getPixmap(const QQItem *item, QPixmap &pix) const
 {
     QFile file(item->avatarPath());
     file.open(QIODevice::ReadOnly);
 
-    QPixmap pix(icon_size_);
     QByteArray file_data = file.readAll();
     pix.loadFromData(file_data);
     file.close();
@@ -153,8 +150,6 @@ QPixmap QQItemModel::getPixmap(const QQItem *item) const
         pix = icon.pixmap(QSize(icon_size_));
         setPixmapDecoration(item,pix);
     }
-
-    return pix;
 }
 
 void QQItemModel::requestAvatar(QQItem *item)

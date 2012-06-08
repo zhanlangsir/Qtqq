@@ -65,6 +65,12 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="text">
             <string>TextLabel</string>
            </property>
@@ -129,7 +135,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QSplitter" name="splitter_main_">
+    <widget class="QSplitter" name="splitter_main">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
@@ -137,9 +143,7 @@
       </sizepolicy>
      </property>
      <property name="styleSheet">
-      <string notr="true">QSplitter#spliter_main_{
-margin:0 2 2 2;
-}</string>
+      <string notr="true"/>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -159,13 +163,6 @@ margin:0 2 2 2;
         <property name="spacing">
          <number>0</number>
         </property>
-        <item>
-         <widget class="Line" name="line_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <property name="spacing">
@@ -257,20 +254,6 @@ margin:0 2 2 2;
            </widget>
           </item>
          </layout>
-        </item>
-        <item>
-         <widget class="Line" name="fourth_line_">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="Line" name="line_5">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
         </item>
         <item>
          <widget class="QFrame" name="frame_chatdlg_bottom">
@@ -410,7 +393,7 @@ margin:0 2 2 2;
     </widget>
    </item>
   </layout>
-  <zorder>splitter_main_</zorder>
+  <zorder>splitter_main</zorder>
   <zorder>line</zorder>
  </widget>
  <resources/>

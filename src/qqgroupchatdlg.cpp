@@ -35,15 +35,16 @@ QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, Fr
    ui->btn_send_key->setMenu(send_type_menu_);
 
    ui->splitter_left_->insertWidget(0, &te_messages_);
-   ui->v_layout_left_->insertWidget(3, &te_input_);
+   ui->v_layout_left_->insertWidget(1, &te_input_);
 
-   ui->splitter_main_->setChildrenCollapsible(false);
+   ui->splitter_main->setChildrenCollapsible(false);
    ui->splitter_left_->setChildrenCollapsible(false);
 
+   //设置分割器大小
    QList<int> right_sizes;
    right_sizes.append(1000);
    right_sizes.append(ui->splitter_right_->midLineWidth());
-   ui->splitter_main_->setSizes(right_sizes);
+   ui->splitter_main->setSizes(right_sizes);
 
    QList<int> left_sizes;
    left_sizes.append(1000);

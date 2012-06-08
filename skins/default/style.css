@@ -120,3 +120,13 @@ QToolButton#btn_send_img:hover {
     border:1px solid gray;
     border-radius:3px;
 }
+
+#frame_mainwin_bottom {
+    background-color: #E8ECED;
+}
+
+#splitter_main {
+    background-color: #E7ECEE;
+}
+
+

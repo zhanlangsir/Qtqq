@@ -51,8 +51,8 @@ protected:
     QQItem* itemFromIndex(const QModelIndex &index) const ;
 
 private:
-    virtual QPixmap getDefaultPixmap(const QQItem *item) const;
-    virtual QPixmap getPixmap(const QQItem *item) const;
+    void getDefaultPixmap(const QQItem *item, QPixmap &pix) const;
+    void getPixmap(const QQItem *item, QPixmap &pix) const;
     void setPixmapDecoration(const QQItem *item, QPixmap &pixmap) const;
 
 private slots:

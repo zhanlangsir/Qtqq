@@ -24,16 +24,17 @@ QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user
 
    set_type(QQChatDlg::kFriend);
 
-   ui->v_show_layout_->insertWidget(ui->v_show_layout_->indexOf(ui->second_line_)+1, &te_messages_);
-   ui->vlo_bottom->insertWidget(ui->vlo_bottom->indexOf(ui->fourth_line_)+1, &te_input_);
-   ui->splitter->setChildrenCollapsible(false);
+   ui->splitter_main->insertWidget(0, &te_messages_);
+   ui->splitter_main->setChildrenCollapsible(false);
+
+   ui->vlo_main->insertWidget(1, &te_input_);
 
    ui->btn_send_key->setMenu(send_type_menu_);
 
    QList<int> sizes;
    sizes.append(1000);
-   sizes.append(ui->splitter->midLineWidth());
-   ui->splitter->setSizes(sizes);
+   sizes.append(ui->splitter_main->midLineWidth());
+   ui->splitter_main->setSizes(sizes);
 
    QScrollBar *bar = te_messages_.verticalScrollBar();
    connect(bar, SIGNAL(rangeChanged(int, int)), this, SLOT(silderToBottom(int, int)));

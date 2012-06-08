@@ -90,6 +90,9 @@
             <layout class="QHBoxLayout" name="horizontalLayout">
              <item>
               <widget class="QComboBox" name="cb_status_">
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
