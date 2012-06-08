@@ -52,11 +52,6 @@ void QQLoginCore::login(QString id, QString pwd, FriendStatus status)
     fd_->close();
     qDebug()<<result<<endl;
 
-//    QFile f("test");
-//    f.open(QIODevice::WriteOnly);
-//    f.write(result);
-//    f.close();
-
     QString ptwebqq;
 
     char result_state = getResultState(result);
@@ -156,7 +151,7 @@ QQLoginCore::AccountStatus QQLoginCore::checkState(QString id)
 
         uin_ = dec_uin;
 
-        int cookie_idx = result.indexOf("Set-Cookie") + 12;
+        int cookie_idx = result.indexOf("ptvfsession");
         int idx = result.indexOf(';', cookie_idx)+1;
         qDebug()<<"cookie"<<result.mid(cookie_idx, idx - cookie_idx)<<endl;
         CaptchaInfo::singleton()->set_cookie(result.mid(cookie_idx, idx - cookie_idx));

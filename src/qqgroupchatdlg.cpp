@@ -79,6 +79,7 @@ QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, Fr
 
 QQGroupChatDlg::~QQGroupChatDlg()
 {
+    disconnect(this);
     delete ui;
 }
 
@@ -322,6 +323,7 @@ void QQGroupChatDlg::readFromSql()
     query.exec(read_command.arg(id_));
     
     QQItemModel *model = new QQItemModel(this);
+    model->setIconSize(QSize(25, 25));
 
     while (query.next())
     {
@@ -477,6 +479,7 @@ void QQGroupChatDlg::getGroupMemberListDone(bool err)
     http_.close();
 
     QQItemModel *model = new QQItemModel(this);
+    model->setIconSize(QSize(25, 25));
     parseGroupMemberList(groups_member_info, member_root_);
     model->setRoot(member_root_);
 

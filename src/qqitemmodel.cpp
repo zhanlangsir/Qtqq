@@ -10,6 +10,30 @@
 #include "core/qqskinengine.h"
 #include "core/qqsetting.h"
 
+QQItemModel::QQItemModel(QObject *parent) :
+    QAbstractItemModel(parent),
+    icon_size_(40, 40),
+    root_(new QQItem())
+{
+    ItemInfo *info = new ItemInfo();
+    info->set_markName("root");
+    root_->set_itemInfo(info);
+    connect(this, SIGNAL(noAvatar(QQItem*)), this, SLOT(requestAvatar(QQItem*)));
+}
+
+QQItemModel::~QQItemModel()
+{
+    avatar_requester_.finishRequest();
+    avatar_requester_.wait();
+
+    //root_会被递归删除子元素，在QQItem中可以看到
+    if (root_)
+    {
+        delete root_;
+        root_ = NULL;
+    }
+}
+
 QVariant QQItemModel::data(const QModelIndex &index, int role) const
 {
     QQItem *item = itemFromIndex(index);
@@ -23,7 +47,7 @@ QVariant QQItemModel::data(const QModelIndex &index, int role) const
         if (item->type() == QQItem::kCategory)
             return QVariant();
 
-        QPixmap pix;
+        QPixmap pix(icon_size_);
         if (item->avatarPath().isEmpty())
         {
             if (!avatar_requester_.isRequesting(item->id()))
@@ -93,16 +117,16 @@ QPixmap QQItemModel::getDefaultPixmap(const QQItem *item) const
 
         if (item->status() == kOffline)
         {
-            pix = icon.pixmap(QSize(60, 60), QIcon::Disabled, QIcon::On);
+            pix = icon.pixmap(QSize(icon_size_), QIcon::Disabled, QIcon::On);
         }
         else
-            pix = icon.pixmap(QSize(60,60));
+            pix = icon.pixmap(QSize(icon_size_));
     }
 
     if (item->type() == QQItem::kGroup)
     {
         QIcon icon(QQSkinEngine::instance()->getSkinRes("default_group_avatar"));
-        pix = icon.pixmap(QSize(60,60));
+        pix = icon.pixmap(QSize(icon_size_));
     }
     return pix;
 }
@@ -112,7 +136,7 @@ QPixmap QQItemModel::getPixmap(const QQItem *item) const
     QFile file(item->avatarPath());
     file.open(QIODevice::ReadOnly);
 
-    QPixmap pix(60, 60);
+    QPixmap pix(icon_size_);
     QByteArray file_data = file.readAll();
     pix.loadFromData(file_data);
     file.close();
@@ -122,11 +146,11 @@ QPixmap QQItemModel::getPixmap(const QQItem *item) const
 
     if (item->status() == kOffline)
     {
-        pix = icon.pixmap(QSize(60, 60), QIcon::Disabled, QIcon::On);
+        pix = icon.pixmap(QSize(icon_size_), QIcon::Disabled, QIcon::On);
     }
     else
     {
-        pix = icon.pixmap(QSize(60,60));
+        pix = icon.pixmap(QSize(icon_size_));
         setPixmapDecoration(item,pix);
     }
 
@@ -199,25 +223,4 @@ QQItem* QQItemModel::itemFromIndex(const QModelIndex &index) const
     }
     else
         return root_;
-}
-
-QQItemModel::QQItemModel(QObject *parent) : QAbstractItemModel(parent), root_(new QQItem())
-{
-    ItemInfo *info = new ItemInfo();
-    info->set_markName("root");
-    root_->set_itemInfo(info);
-    connect(this, SIGNAL(noAvatar(QQItem*)), this, SLOT(requestAvatar(QQItem*)));
-}
-
-QQItemModel::~QQItemModel()
-{
-    avatar_requester_.finishRequest();
-    avatar_requester_.wait();
-
-    //root_会被递归删除子元素，在QQItem中可以看到
-    if (root_)
-    {
-        delete root_;
-        root_ = NULL;
-    }
 }

@@ -7,11 +7,9 @@
 
 void QQPollThread::run()
 {
-    QByteArray pre_result;
-
+    QTcpSocket fd;
     while (true)
     {
-        QTcpSocket fd;
         fd.connectToHost("d.web2.qq.com", 80);
         fd.write(req_.toByteArray());
 
@@ -20,14 +18,6 @@ void QQPollThread::run()
         {
             result.append(fd.readAll());
         }
-
-        if (result.isEmpty() || result == pre_result)
-        {
-            fd.disconnectFromHost();
-            continue;
-        }
-
-        pre_result = result;
 
         int retcode_idx = result.indexOf("retcode") + 9;
         int retcode_end_idx = result.indexOf(",", retcode_idx);
@@ -43,6 +33,7 @@ void QQPollThread::run()
 
         emit signalNewMsgArrive(result);
 
+        result.clear();
         fd.disconnectFromHost();
     }
 }

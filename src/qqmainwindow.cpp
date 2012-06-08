@@ -209,7 +209,7 @@ void QQMainWindow::getFriendListDone(bool err)
 void QQMainWindow::getSingleLongNick()
 {
     QByteArray result = QQItemInfoHelper::getSingleLongNick(curr_user_info_.id());
-    result = result.mid(result.indexOf("\r\n\r\n")+4);  //??????
+    result = result.mid(result.indexOf("\r\n\r\n")+4);
     Json::Reader reader;
     Json::Value root;
 

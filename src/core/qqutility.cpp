@@ -4,6 +4,7 @@ int QQUtility::httpgzdecompress(Byte *zdata, uLong nzdata,
                  Byte *data, uLong *ndata)
 {
     int err = 0;
+
     z_stream d_stream = {0}; /* decompression stream */
     static char dummy_head[2] =
     {

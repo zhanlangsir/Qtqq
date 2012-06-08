@@ -3,6 +3,7 @@
 
 #include <QAbstractItemModel>
 #include <QString>
+#include <QSize>
 #include <QHash>
 
 #include "core/qqavatarrequester.h"
@@ -21,7 +22,17 @@ public:
     QQItemModel(QObject *parent = 0);
     ~QQItemModel();
 
-public:
+
+    void setIconSize(QSize size)
+    {
+        icon_size_=size;
+    }
+
+    QSize getIconSize() const
+    {
+        return icon_size_;
+    }
+
     void setRoot(QQItem *root);
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &child) const;
@@ -48,6 +59,7 @@ private slots:
     void requestAvatar(QQItem *item);
 
 protected:
+    QSize icon_size_;
     QQAvatarRequester avatar_requester_;
     QQItem *root_;
     QHash<QString, QQItem*> id_item_hash_;
