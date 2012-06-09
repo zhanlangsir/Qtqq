@@ -17,6 +17,7 @@
 
 class QMenu;
 class QAction;
+class QShortcut;
 
 class ImgSender;
 class ImgLoader;
@@ -105,6 +106,8 @@ private:
     QAction *act_ctrl_return_;
     
     bool send_by_return_;
+
+    QShortcut *sc_close_win_;
 };
 
 #endif //QTQQ_QQCHATDLG_H

@@ -265,7 +265,7 @@ void QQGroupChatDlg::parseGroupMemberList(const QByteArray &array, QQItem *const
         info->set_status(kOffline);
 
         QQItem *member = new QQItem(QQItem::kFriend, info, root_item);
-        root_item->append(member);
+        root_item->children_.append(member);
 
         convertor_.addUinNameMap(uin, nick);
     }

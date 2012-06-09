@@ -11,7 +11,8 @@ public:
     QQItem(ItemType type, ItemInfo *info, QQItem *parent = 0) :
         type_(type),
         info_(info),
-        parent_(parent)
+        parent_(parent),
+        online_count_(0)
     {
     }
     QQItem(QQItem *parent = 0) : info_(NULL), parent_(parent) {}
@@ -81,16 +82,10 @@ public:
     void set_clientType(ClientType type)
     { info_->set_clientType(type); }
 
-    void append(QQItem *item)
-    { children_.append(item); }
-    void insert(int i, QQItem *item)
-    { children_.insert(i, item); }
-    int count() const
-    { return children_.count(); }
-    int indexOf(QQItem *item) const
-    { return children_.indexOf(item); }
-    QQItem* value(int i) const
-    { return children_.value(i); }
+    void setOnlineCount(int online_count)
+    { online_count_ = online_count; }
+    int onlineCount() const
+    { return online_count_; }
 
 public:
     QVector<QQItem*>children_;
@@ -99,5 +94,7 @@ private:
     ItemType type_;
     ItemInfo *info_;
     QQItem *parent_;
+
+    int online_count_;
 };
 

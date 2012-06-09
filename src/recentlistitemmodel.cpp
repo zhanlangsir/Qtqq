@@ -53,7 +53,6 @@ void RecentListItemModel::parse(const QByteArray &array)
         QQItem *recent_list_item =  item;
 
         items_.append(recent_list_item);
-        id_item_hash_.insert(item->id(), item);
     }
 }
 
@@ -68,6 +67,7 @@ int RecentListItemModel::rowCount(const QModelIndex &parent) const
 
 QModelIndex RecentListItemModel::parent(const QModelIndex &child) const
 {
+    Q_UNUSED(child)
     return QModelIndex();
 }
 

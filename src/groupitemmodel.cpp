@@ -29,9 +29,9 @@ void GroupItemModel::parse(const QByteArray &array, NameConvertor *convertor)
 
         QQItem *group = new QQItem(QQItem::kGroup, info, root_);
 
-        id_item_hash_[gid] = group;
+        items_.append(group);
         convertor->addUinNameMap(gid, name);;
 
-        root_->append(group);
+        root_->children_.append(group);
     }
 }

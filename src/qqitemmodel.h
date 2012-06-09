@@ -42,7 +42,7 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
 
     virtual void parse(const QByteArray &str, NameConvertor *convertor) { Q_UNUSED(str) Q_UNUSED(convertor)}
-    QQItem *find(QString id);
+    QQItem *find(QString id) const;
 
 public slots:
     virtual void changeFriendStatus(QString id, FriendStatus status, ClientType client_type) { Q_UNUSED(id) Q_UNUSED(status) Q_UNUSED(client_type)}
@@ -62,7 +62,7 @@ protected:
     QSize icon_size_;
     QQAvatarRequester avatar_requester_;
     QQItem *root_;
-    QHash<QString, QQItem*> id_item_hash_;
+    QVector<QQItem*> items_;
 };
 
 #endif //QTQQ_QQITEMMODEL_H 

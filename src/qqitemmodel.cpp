@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <QFile>
 #include <QPainter>
+#include <QVector>
 
 #include "core/qqitem.h"
 #include "core/qqskinengine.h"
@@ -67,14 +68,24 @@ QVariant QQItemModel::data(const QModelIndex &index, int role) const
     }
     else
     {
+        if ( item->type() == QQItem::kCategory )
+            return item->markName() + " ( " + QString::number(item->onlineCount()) + "/" + 
+                QString::number(item->children_.count()) + " )";
         return item->markName();
     }
     return QVariant();
 }
 
-QQItem* QQItemModel::find(QString id)
+QQItem* QQItemModel::find(QString id) const
 {
-    return id_item_hash_.value(id, NULL);
+    QQItem *item = NULL;
+    foreach (item, items_)
+    {
+        if (item->id() == id)
+            return item;
+    }
+
+    return NULL;
 }
 
 void QQItemModel::setPixmapDecoration(const QQItem *item, QPixmap &pixmap) const
@@ -168,7 +179,7 @@ QModelIndex QQItemModel::index(int row, int column, const QModelIndex &parent) c
         return QModelIndex();
 
     QQItem *parentItem = itemFromIndex(parent);
-    QQItem *childItem = parentItem->value(row);
+    QQItem *childItem = parentItem->children_.value(row);
 
 
     if (!childItem)
@@ -191,7 +202,7 @@ QModelIndex QQItemModel::parent(const QModelIndex &child) const
     if (!grandparent)
         return QModelIndex();
 
-    int row = grandparent->indexOf(parent); 
+    int row = grandparent->children_.indexOf(parent); 
 
     return createIndex(row, 0, parent); 
 }
@@ -201,7 +212,7 @@ int QQItemModel::rowCount(const QModelIndex &parent) const
    QQItem *item = itemFromIndex(parent);
    if (!item)
        return 0;
-   return item->count();
+   return item->children_.count();
 }
 
 int QQItemModel::columnCount(const QModelIndex &parent) const

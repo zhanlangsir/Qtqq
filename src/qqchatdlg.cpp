@@ -6,6 +6,8 @@
 #include <QMenu>
 #include <QAction>
 #include <QPointer>
+#include <QKeySequence>
+#include <QShortcut>
 
 #include "core/soundplayer.h"
 #include "core/imgloader.h"
@@ -25,7 +27,8 @@ QQChatDlg::QQChatDlg(QString id, QString name, FriendInfo curr_user_info,
     img_loader_(NULL),
     img_sender_(NULL),
     qqface_panel_(NULL),
-    msg_sender_(NULL)
+    msg_sender_(NULL),
+    sc_close_win_(NULL)
 {
     setObjectName("chatWindow");
     qRegisterMetaType<FileInfo>("FileInfo");
@@ -54,6 +57,9 @@ QQChatDlg::QQChatDlg(QString id, QString name, FriendInfo curr_user_info,
     act_ctrl_return_->setChecked(!send_by_return_);
 
     te_input_.installEventFilter(this);
+
+    sc_close_win_ = new QShortcut(QKeySequence("Alt+C"),this);
+    connect(sc_close_win_, SIGNAL(activated()), this, SLOT(close()));
 }
 
 QQChatDlg::~QQChatDlg()
@@ -141,12 +147,6 @@ bool QQChatDlg::eventFilter(QObject *obj, QEvent *e)
                 sendMsg();
                 return true;
             }
-        }
-        break;
-    case Qt::Key_C:
-        if (key_event->modifiers()& Qt::AltModifier)
-        {
-            close();
         }
         break;
     }

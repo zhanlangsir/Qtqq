@@ -261,10 +261,8 @@ void QQLoginCore::getLoginInfoDone()
 QByteArray QQLoginCore::hexchar2bin(const QByteArray &str)
 {
     QByteArray result;
-    qDebug()<<str.length()<<endl;
     for ( int i = 0; i < str.length(); i += 2 )
     {
-        qDebug()<<i<<endl;
         bool ok;
         result += QString::number(str.mid(i, i + 2).toInt(&ok, 16)).toAscii();
     }

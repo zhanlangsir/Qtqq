@@ -26,6 +26,8 @@ public slots:
 
 private:
     QQItem* createItem(QQItem::ItemType type, QString name, QString id, QQItem *parent);
+    
+private:
     NameConvertor *convertor_;
 };
 
