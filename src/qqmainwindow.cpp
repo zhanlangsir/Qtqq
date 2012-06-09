@@ -322,7 +322,8 @@ void QQMainWindow::getPersonalInfo()
     {
         curr_user_info_.set_name(QString::fromStdString(root["result"]["nick"].asString()));
         ui->lbl_name_->setText(curr_user_info_.name());
-    }
+        convertor_.addUinNameMap(curr_user_info_.id(), curr_user_info_.name());
+    } 
 }
 
 void QQMainWindow::getRecentList()
@@ -362,7 +363,6 @@ void QQMainWindow::getRecentListDone(bool err)
 
 void QQMainWindow::initialize()
 {
-    ui->lbl_name_->setText(curr_user_info_.name());
     getPersonalInfo();
     getPersonalFace();
     getSingleLongNick();

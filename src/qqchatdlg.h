@@ -35,8 +35,6 @@ public:
     virtual ~QQChatDlg();
 
 public:
-    void setNameConvertor(NameConvertor convertor)
-    { convertor_ = convertor; }
     void showMsg(ShareQQMsgPtr msg);
     void showQQFace(QString face_id);
     void showOldMsg(QVector<ShareQQMsgPtr> msgs);
@@ -68,9 +66,10 @@ protected:
     int msg_id_;
     QString name_;
     QTcpSocket fd_;
-    NameConvertor convertor_;
     QVector<QString> unconvert_ids_;
     QMenu *send_type_menu_;
+    FriendInfo curr_user_info_;
+    NameConvertor convertor_;
 
 private slots:
     void openPathDialog(bool);
@@ -94,7 +93,6 @@ private:
     virtual ImgLoader* getImgLoader() const;
 
 private:    
-    FriendInfo curr_user_info_;
     ImgLoader *img_loader_;
     ImgSender *img_sender_;
     QQFacePanel *qqface_panel_;

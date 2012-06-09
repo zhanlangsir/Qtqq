@@ -49,6 +49,7 @@ QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user
    ui->lbl_name_->setText(name_);
 
    convertor_.addUinNameMap(id_, name_);
+   convertor_.addUinNameMap(curr_user_info_.id(), curr_user_info_.name());
    send_url_ = "/channel/send_buddy_msg2";
 
    if (avatar_path.isEmpty())
@@ -138,5 +139,5 @@ ImgSender* QQFriendChatDlg::getImgSender() const
 
 QQChatLog *QQFriendChatDlg::getChatlog() const
 {
-    return new FriendChatLog(id());
+    return new FriendChatLog(curr_user_info_.id(),id());
 }

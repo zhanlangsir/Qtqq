@@ -160,8 +160,6 @@ void QQTextEdit::setRealImg(const QString &unique_id, const QString &path)
     QMovie *mov = id_mov_hash_.value(unique_id);
     mov->stop();
     mov->setFileName(path);
-    if (mov->isValid())
-        qDebug()<<'valid'<<endl;
 
     mov->setCacheMode(QMovie::CacheAll);
     connect(mov, SIGNAL(frameChanged(int)), this, SLOT(animate(int)));

@@ -27,8 +27,7 @@ QByteArray  GroupImgLoader::getImgUrl(const LoadInfo &info) const
         qDebug()<<"getting group img url first, reviced data:\n"<<array<<endl;
     }
 
-    fd.flush();
-    fd.disconnectFromHost();
+    fd.close();
 
     int idx = array.indexOf("http://") + 7;
     int end_idx = array.indexOf("\r\n", idx);
@@ -41,16 +40,18 @@ QByteArray  GroupImgLoader::getImgUrl(const LoadInfo &info) const
     move_temp_req.addHeaderItem("Referer", "http://web.qq.com");
     move_temp_req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
 
-    fd.connectToHost(getHost(url), 80);
-    fd.write(move_temp_req.toByteArray());
+    this->usleep(500);
+    QTcpSocket move_temp_fd;
+    move_temp_fd.connectToHost(getHost(url), 80);
+    move_temp_fd.write(move_temp_req.toByteArray());
 
     QByteArray result;
-    while (result.indexOf("\r\n\r\n") == -1 && fd.waitForReadyRead(8000))
+    while (result.indexOf("\r\n\r\n") == -1 && move_temp_fd.waitForReadyRead(8000))
     {
-        result.append(fd.readAll());
+        result.append(move_temp_fd.readAll());
         qDebug()<<"getting group img url second, reviced data:\n"<<result<<endl;
     }
-    fd.close();
+    move_temp_fd.close();
 
     return result;
 }

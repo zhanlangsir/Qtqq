@@ -6,7 +6,7 @@
 class FriendChatLog : public QQChatLog
 {
 public:
-    FriendChatLog(QString id);
+    FriendChatLog(QString id, QString to_id);
 
 public:
     void init();
@@ -23,6 +23,7 @@ private:
 
 private:
     QString id_;
+    QString to_id_;
     int page_count_;
     int curr_page_;
 };

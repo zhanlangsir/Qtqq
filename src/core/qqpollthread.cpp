@@ -34,7 +34,9 @@ void QQPollThread::run()
         emit signalNewMsgArrive(result);
 
         result.clear();
-        fd.disconnectFromHost();
+        fd.close();
+
+        this->usleep(500);
     }
 }
 

@@ -12,8 +12,9 @@
 #include "qqmsg.h"
 #include "qqsetting.h"
 
-FriendChatLog::FriendChatLog(QString id):
+FriendChatLog::FriendChatLog(QString id, QString to_id):
     id_(id),
+    to_id_(to_id),
     page_count_(0),
     curr_page_(0)
 {
@@ -21,7 +22,7 @@ FriendChatLog::FriendChatLog(QString id):
 
 QVector<ShareQQMsgPtr> FriendChatLog::getLog(int page)
 {
-    QString url = "/cgi-bin/webqq_chat/?cmd=1&tuin=" + id_ + "&vfwebqq="+ CaptchaInfo::singleton()->vfwebqq() +"&page="+ QString::number(page-1) +
+    QString url = "/cgi-bin/webqq_chat/?cmd=1&tuin=" + to_id_ + "&vfwebqq="+ CaptchaInfo::singleton()->vfwebqq() +"&page="+ QString::number(page-1) +
             "&row=10&callback=alloy.app.chatLogViewer.rederChatLog&t=" +
             QString::number(QDateTime::currentMSecsSinceEpoch());
 
@@ -78,13 +79,18 @@ void FriendChatLog::parse(QByteArray &arr, QVector<ShareQQMsgPtr> &chat_logs)
     int total_page_e_idx = arr.indexOf(',', total_page_s_idx);
     page_count_ = arr.mid(total_page_s_idx, total_page_e_idx - total_page_s_idx).toInt();
 
-
     int log_s_idx = uin_e_idx;
 
     while (true)
     {
         QQChatMsg *msg = new QQChatMsg();
-        msg->from_uin_ = uin;
+
+        int cmd_s_idx = arr.indexOf("cmd:", log_s_idx)+4;
+        int cmd_e_idx = arr.indexOf(',', cmd_s_idx);
+
+        int cmd = arr.mid(cmd_s_idx, cmd_e_idx - cmd_s_idx).toInt();
+
+        msg->from_uin_ = cmd == 17 ? uin : id_;
 
         int time_s_idx = arr.indexOf("time:", log_s_idx)+5;
 
