@@ -104,11 +104,8 @@ QQMainWindow::~QQMainWindow()
 {
     trayIcon->hide();
     trayIcon->deleteLater();
-    trayIcon = NULL;
     main_http_->close();
     delete ui;
-
-    poll_thread_->terminate();
 }
 
 void QQMainWindow::setMute(bool mute)
@@ -406,8 +403,12 @@ void QQMainWindow::createActions()
 void QQMainWindow::slot_logout()
 {
     this->hide();
+
     poll_thread_->terminate();
-    parse_thread_->quit();
+    parse_thread_->terminate();
+    poll_thread_->deleteLater();
+    parse_thread_->deleteLater();
+
     emit sig_logout();
 }
 
