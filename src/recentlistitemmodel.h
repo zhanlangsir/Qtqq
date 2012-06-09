@@ -32,7 +32,6 @@ protected:
 private:
     FriendItemModel *friend_model_;
     GroupItemModel *group_model_;
-    QVector<QQItem*> items_;
 };
 
 #endif // QTQQ_RECENTLISTITEMMODEL_H

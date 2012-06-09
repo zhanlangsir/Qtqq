@@ -17,7 +17,7 @@ class QQFriendChatDlg : public QQChatDlg
 {
     Q_OBJECT
 public:
-    QQFriendChatDlg(QString uin, QString from_name, FriendInfo curr_user_info, QString avatar_path, QWidget *parent = 0);
+    QQFriendChatDlg(QString uin, QString from_name, QString avatar_path, QWidget *parent = 0);
     ~QQFriendChatDlg();
 
 public:
@@ -27,8 +27,9 @@ private:
     QString converToJson(const QString &raw_msg);
     ImgSender* getImgSender() const;
     QQChatLog *getChatlog() const;
+    void getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const;
 
 private:
     Ui::QQFriendChatDlg *ui;
-    QPoint distance_pos_;
+    QString avatar_path_;
 };

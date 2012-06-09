@@ -6,6 +6,7 @@
 #include <QScrollBar>
 #include <QDateTime>
 #include <QTcpSocket>
+#include <QUuid>
 
 #include "qqfacepanel.h"
 #include "qqtextedit.h"
@@ -13,16 +14,18 @@
 #include "core/nameconvertor.h"
 #include "core/qqmsglistener.h"
 #include "core/qqmsgsender.h"
-#include "qqwidget.h"
+#include "msgbrowse.h"
 
 class QMenu;
 class QAction;
+class QShortcut;
 
 class ImgSender;
 class ImgLoader;
 class QQChatLog;
+class QQItem;
 
-class QQChatDlg : public QQWidget, public QQMsgListener
+class QQChatDlg : public QWidget, public QQMsgListener
 {
     Q_OBJECT
 signals:
@@ -30,20 +33,17 @@ signals:
 
 public:
     enum ChatDlgType {kGroup, kFriend};
-    QQChatDlg(QString id, QString name, FriendInfo curr_user_info, QWidget *parent = 0);
+    QQChatDlg(QString id, QString name, QWidget *parent = 0);
     virtual ~QQChatDlg();
 
 public:
-    void setNameConvertor(NameConvertor convertor)
-    { convertor_ = convertor; }
     void showMsg(ShareQQMsgPtr msg);
-    void showQQFace(QString face_id);
     void showOldMsg(QVector<ShareQQMsgPtr> msgs);
     QString id() const
     { return id_; }
     QString getUniqueId()
     {
-        return QDateTime::currentDateTime().toString("MM-dd-hh-mm-ss");
+        return QUuid::createUuid().toString();
     }
 
     void set_type(ChatDlgType type)
@@ -59,7 +59,7 @@ protected:
 
 protected:
     QString send_url_;
-    QQTextEdit te_messages_;
+    MsgBrowse msgbrowse_;
     QQTextEdit te_input_;
     QHash<QString, FileInfo> id_file_hash_;
 
@@ -67,22 +67,17 @@ protected:
     int msg_id_;
     QString name_;
     QTcpSocket fd_;
-    NameConvertor convertor_;
     QVector<QString> unconvert_ids_;
     QMenu *send_type_menu_;
+    NameConvertor convertor_;
 
 private slots:
     void openPathDialog(bool);
     void openQQFacePanel();
     void openChatLogWin();
     void sendMsg();
-    void setFontStyle(QFont font, QColor color, int size);
     void setFileInfo(QString unique_id, FileInfo file_info);
-    void silderToBottom(int min, int max)
-    { 
-        Q_UNUSED(min);
-        te_messages_.verticalScrollBar()->setValue(max); 
-    }
+
     void setSendByReturn(bool checked);
     void setSendByCtrlReturn(bool checked);
 
@@ -91,11 +86,12 @@ private:
     virtual ImgSender* getImgSender() const = 0;
     virtual QQChatLog *getChatlog() const;
     virtual ImgLoader* getImgLoader() const;
+    virtual void getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const = 0;
+    QString converToShow(const QString &converting_html);
 
 private:    
-    FriendInfo curr_user_info_;
-    ImgLoader *img_loader_;
     ImgSender *img_sender_;
+    ImgLoader *img_loader_;
     QQFacePanel *qqface_panel_;
     QQMsgSender *msg_sender_;
 
@@ -105,6 +101,8 @@ private:
     QAction *act_ctrl_return_;
     
     bool send_by_return_;
+
+    QShortcut *sc_close_win_;
 };
 
 #endif //QTQQ_QQCHATDLG_H

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef QTQQ_CORE_QQITEM_H
+#define QTQQ_CORE_QQITEM_H
 
 #include "types.h"
 #include <QString>
@@ -6,98 +7,110 @@
 
 class QQItem
 {
-public:
-    enum ItemType {kCategory, kFriend, kGroup};
-    QQItem(ItemType type, ItemInfo *info, QQItem *parent = 0) :
-        type_(type),
-        info_(info),
-        parent_(parent)
+    public:
+        enum ItemType {kCategory, kFriend, kGroup};
+        QQItem(ItemType type, QString name, QString id, QQItem *parent = 0) :
+            type_(type),
+            parent_(parent),
+            id_(id),
+            name_(name),
+            online_count_(0)
     {
     }
-    QQItem(QQItem *parent = 0) : info_(NULL), parent_(parent) {}
-    virtual ~QQItem()
-    {
-        if (info_)
+        QQItem(QQItem *parent = 0) : parent_(parent), online_count_(0) {}
+        ~QQItem()
         {
-            delete info_;
-            info_ = NULL;
-        }
-
-        QQItem *item = NULL;
-        foreach(item , children_)
-        {
-            if (item)
+            foreach(QQItem *item , children_)
             {
-                delete item;
-                item = NULL;
+                if (item)
+                {
+                    delete item;
+                    item = NULL;
+                }
             }
         }
-    }
 
-public:
-    QString avatarPath() const
-    { return info_->avatarPath(); }
-    void set_avatarPath(QString avatar_path)
-    { info_->set_avatarPath(avatar_path); }
+    public:
+        QString avatarPath() const
+        {
+            return avatar_path_;
+        }
+        void set_avatarPath(QString avatar_path)
+        { avatar_path_ = avatar_path; }
 
-    ItemType type() const
-    { return type_; }
-    void set_type(ItemType type)
-    { type_ = type; }
+        ItemType type() const
+        { return type_; }
+        void set_type(ItemType type)
+        { type_ = type; }
 
-    QQItem *parent() const
-    { return parent_; }
-    void set_parent(QQItem *parent)
-    { parent_ = parent; }
+        QQItem *parent() const
+        { return parent_; }
+        void set_parent(QQItem *parent)
+        { parent_ = parent; }
 
-    QString name() const
-    { return info_->name(); }
+        QString name() const
+        { return name_; }
+        void set_name(QString name)
+        { name_ = name; }
 
+        void setOnlineCount(int online_count)
+        { online_count_ = online_count; }
+        int onlineCount() const
+        { return online_count_; }
 
-    QString markName() const
-    { return info_->markName(); }
+        QString gCode() const
+        { return gcode_; }
+        void set_gCode(QString gcode)
+        { gcode_ = gcode; }
 
-    QString id() const
-    { return info_->id(); }
+        FriendStatus status() const
+        { return status_; }
+        void set_status(FriendStatus status)
+        { status_ = status; }
 
-    QString mood() const
-    { return info_->mood(); }
+        ClientType clientType() const
+        { return client_type_; }
+        void set_clientType(ClientType type)
+        { client_type_ = type;  }
 
-    QString gCode() const
-    { return info_->gCode(); }
+        QString id() const
+        { return id_; }
+        void set_id(QString id)
+        { id_ = id; }
 
-    ItemInfo *itemInfo() const
-    {   return info_; }
-    void set_itemInfo(ItemInfo *info)
-    { info_ = info; }
+        QString mood() const
+        { return mood_; }
+        void set_mood(QString mood)
+        { mood_ = mood; }
 
-    FriendStatus status() const
-    { return info_->status(); }
-    void set_status(FriendStatus status)
-    { info_->set_status(status);}
+        void set_markName(QString mark_name)
+        { mark_name_ = mark_name; }
+        QString markName() const
+        {
+            if (mark_name_.isEmpty())
+                return name_;
 
-    ClientType clientType() const
-    { return info_->clientType(); }
-    void set_clientType(ClientType type)
-    { info_->set_clientType(type); }
+            return mark_name_;
+        }
 
-    void append(QQItem *item)
-    { children_.append(item); }
-    void insert(int i, QQItem *item)
-    { children_.insert(i, item); }
-    int count() const
-    { return children_.count(); }
-    int indexOf(QQItem *item) const
-    { return children_.indexOf(item); }
-    QQItem* value(int i) const
-    { return children_.value(i); }
+    public:
+        QVector<QQItem*>children_;
 
-public:
-    QVector<QQItem*>children_;
+    private:
+        ItemType type_;
+        QQItem *parent_;
 
-private:
-    ItemType type_;
-    ItemInfo *info_;
-    QQItem *parent_;
+        QString id_;
+        QString name_;    
+        QString mood_;
+        QString avatar_path_;
+        int online_count_;
+
+        QString mark_name_;
+        FriendStatus status_;
+        ClientType client_type_;
+
+        QString gcode_;
 };
 
+#endif //QTQQ_CORE_QQITEM_H

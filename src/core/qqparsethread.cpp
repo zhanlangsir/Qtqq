@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-#include "include/json/json.h"
+#include "include/json.h"
 #include "qqutility.h"
 
 void QQParseThread::pushRawMsg(QByteArray msg)
@@ -29,6 +29,7 @@ void QQParseThread::run()
         Json::Value root;
 
         QByteArray unparse_msg = message_queue_.dequeue();
+        qDebug()<<"recive msg"<<unparse_msg<<endl;
 
         int idx = unparse_msg.indexOf("\r\n\r\n");
         unparse_msg = unparse_msg.mid(idx+4);
@@ -76,6 +77,9 @@ QQMsg* QQParseThread::createMsg(QString type, const Json::Value result)
 
             if (content.type() == Json::stringValue)
             {
+                if (content.asString().size() == 2 && content.asString()[0] == '\n' || content.asString()[0] == ' ')
+                    continue;
+
                 item.set_type(QQChatItem::kWord);
                 item.set_content(QString::fromStdString(content.asString()));
             }
@@ -149,6 +153,9 @@ QQMsg* QQParseThread::createMsg(QString type, const Json::Value result)
 
             if (content.type() == Json::stringValue)
             {
+                if (content.asString().size() == 2 && content.asString()[0] == '\n' || content.asString()[0] == ' ' )
+                    continue;
+
                 item.set_type(QQChatItem::kWord);
                 item.set_content(QString::fromStdString(content.asString()));
             }

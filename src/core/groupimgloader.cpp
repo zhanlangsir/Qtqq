@@ -26,29 +26,32 @@ QByteArray  GroupImgLoader::getImgUrl(const LoadInfo &info) const
         array.append(fd.readAll());
         qDebug()<<"getting group img url first, reviced data:\n"<<array<<endl;
     }
+
     fd.close();
 
     int idx = array.indexOf("http://") + 7;
     int end_idx = array.indexOf("\r\n", idx);
     QByteArray url = array.mid(idx, end_idx - idx);
 
-    qDebug()<<"request url"<<getRequestUrl(url)<<endl;
-    qDebug()<<"host"<<getHost(url)<<endl;
 
-    Request req1;
-    req1.create(kGet, getRequestUrl(url));
-    req1.addHeaderItem("Host", getHost(url));
-    req1.addHeaderItem("Referer", "http://web.qq.com");
-    req1.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
-    fd.connectToHost(getHost(url), 80);
-    fd.write(req1.toByteArray());
+    Request move_temp_req;
+    move_temp_req.create(kGet, getRequestUrl(url));
+    move_temp_req.addHeaderItem("Host", getHost(url));
+    move_temp_req.addHeaderItem("Referer", "http://web.qq.com");
+    move_temp_req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
 
-    array.clear();
-    while (array.indexOf("\r\n\r\n") == -1 && fd.waitForReadyRead(4000))
+    this->usleep(500);
+    QTcpSocket move_temp_fd;
+    move_temp_fd.connectToHost(getHost(url), 80);
+    move_temp_fd.write(move_temp_req.toByteArray());
+
+    QByteArray result;
+    while (result.indexOf("\r\n\r\n") == -1 && move_temp_fd.waitForReadyRead(8000))
     {
-        array.append(fd.readAll());
-        qDebug()<<"getting group img url second, reviced data:\n"<<array<<endl;
+        result.append(move_temp_fd.readAll());
+        qDebug()<<"getting group img url second, reviced data:\n"<<result<<endl;
     }
-    fd.close();
-    return array;
+    move_temp_fd.close();
+
+    return result;
 }

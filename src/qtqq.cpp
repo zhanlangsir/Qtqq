@@ -39,9 +39,7 @@ void Qtqq::start()
 
 void Qtqq::slot_showMainPanel()
 {
-    FriendInfo user_info = login_dlg_->getCurrentUserInfo();
-
-    mainpanel_ = new QQMainWindow(user_info);
+    mainpanel_ = new QQMainWindow();
     connect(mainpanel_, SIGNAL(sig_logout()), this, SLOT(restart()));
     mainpanel_->show();
 }

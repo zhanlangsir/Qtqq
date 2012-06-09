@@ -21,7 +21,7 @@ class QQGroupChatDlg : public QQChatDlg
 {
     Q_OBJECT
 public:
-    QQGroupChatDlg(QString gid, QString name, QString group_code, FriendInfo curr_user_info, QString avatar_path, QWidget *parent = 0);
+    QQGroupChatDlg(QString gid, QString name, QString group_code, QString avatar_path, QWidget *parent = 0);
     ~QQGroupChatDlg();
 
 public:
@@ -49,6 +49,7 @@ private:
     void replaceUnconverId();
     void writeMemberInfoToSql();
     QQItem *findItemById(QString id) const;
+    void getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const;
 
 private:
     Ui::QQGroupChatDlg *ui;

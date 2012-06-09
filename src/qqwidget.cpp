@@ -17,7 +17,7 @@ QQWidget::QQWidget(QWidget *parent) :
     bottom_(false)
 {
     setMouseTracking(true);
-    setWindowFlags(Qt::FramelessWindowHint);
+    //setWindowFlags(Qt::FramelessWindowHint);
 
     QVBoxLayout *vlo_main = new QVBoxLayout();
     QQTitleBar *title_bar = new QQTitleBar(this);

@@ -1,6 +1,6 @@
 #include "groupitemmodel.h"
 
-#include "include/json/json.h"
+#include "include/json.h"
 #include "core/nameconvertor.h"
 
 void GroupItemModel::parse(const QByteArray &array, NameConvertor *convertor)
@@ -22,16 +22,12 @@ void GroupItemModel::parse(const QByteArray &array, NameConvertor *convertor)
         QString gid = QString::number(gnamelist[i]["gid"].asLargestInt());
         QString code = QString::number(gnamelist[i]["code"].asLargestInt());
 
-        GroupInfo *info= new GroupInfo;
-        info->set_name(name);
-        info->set_id(gid);
+        QQItem *info = new QQItem(QQItem::kGroup, name, gid, root_);
         info->set_gCode(code);
 
-        QQItem *group = new QQItem(QQItem::kGroup, info, root_);
-
-        id_item_hash_[gid] = group;
+        items_.append(info);
         convertor->addUinNameMap(gid, name);;
 
-        root_->append(group);
+        root_->children_.append(info);
     }
 }

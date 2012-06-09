@@ -24,7 +24,6 @@ public:
     void login(QString id, QString pwd, FriendStatus status);
     void login(QString id, QString pwd, FriendStatus status, QString vc);
     AccountStatus checkState(QString id);
-    void setFriendInfo(FriendInfo curr_user_info);
 
 signals:
     void sig_loginDone(QQLoginCore::LoginResult result);
@@ -42,7 +41,6 @@ private:
     void setupStatus(QString id, QString pwd, FriendStatus status);
     
 private:
-    FriendInfo curr_user_info_;
     QTcpSocket *fd_;
     QString vc_;
     QByteArray sum_;

@@ -1,8 +1,9 @@
 #include "frienditemmodel.h"
 
 #include <QDateTime>
+#include <QTcpSocket>
 
-#include "include/json/json.h"
+#include "include/json.h"
 #include "core/nameconvertor.h"
 #include "core/captchainfo.h"
 
@@ -18,15 +19,21 @@ void FriendItemModel::parse(const QByteArray &array, NameConvertor *convertor)
 
     const Json::Value category = root["result"]["categories"];
 
-    createItem(QQItem::kCategory, tr("My Friends"), QString::number(0), root_);
+    QQItem *myfriends_cat = new QQItem(QQItem::kCategory, tr("My Friends"), QString::number(0), root_);
+    root_->children_.append(myfriends_cat);
+    items_.append(myfriends_cat);
 
     for (unsigned int i = 0; i < category.size(); ++i)
     {
         QString name =  QString::fromStdString(category[i]["name"].asString());
-        createItem(QQItem::kCategory, name, QString::number(category[i]["index"].asInt()), root_);
+        QQItem *cat = new QQItem(QQItem::kCategory, name, QString::number(category[i]["index"].asInt()), root_);
+        root_->children_.append(cat);
+        items_.append(cat);
     }
 
-    createItem(QQItem::kCategory, tr("Strangers"), QString::number(99), root_);
+    QQItem *cat = new QQItem(QQItem::kCategory, tr("Strangers"), QString::number(99), root_);
+    root_->children_.append(cat);
+    items_.append(cat);
 
     //mark name
     const Json::Value mark_names = root["result"]["marknames"];
@@ -49,33 +56,35 @@ void FriendItemModel::parse(const QByteArray &array, NameConvertor *convertor)
         QString name = QString::fromStdString(info[i]["nick"].asString());
         QString uin = QString::number(info[i]["uin"].asLargestInt());
 
-        FriendInfo *info = new FriendInfo;
-        info->set_name(name);
-        info->set_id(uin);
-        info->set_status(kOffline);
+        QQItem *item = new QQItem();
+        item->set_type(QQItem::kFriend);
+        item->set_name(name);
+        item->set_id(uin);
+        item->set_status(kOffline);
 
         if (!uin_markname[uin].isEmpty())
         {
-            info->set_markName(uin_markname[uin]);
+            item->set_markName(uin_markname[uin]);
         }
 
         int category_index = friends[i]["categories"].asInt();
-        QQItem* parent = id_item_hash_[QString::number(category_index)];
-        QQItem *myfriend = new QQItem(QQItem::kFriend, info, parent);
+        QQItem* parent = find(QString::number(category_index));
+        item->set_parent(parent);
 
-        id_item_hash_[uin] = myfriend;
+        items_.append(item);
         convertor->addUinNameMap(uin, name);
         convertor_ = convertor;
 
-        parent->append(myfriend);
+        parent->children_.append(item);
     }
 }
 
 void FriendItemModel::setMarkName(QString mark_name, QString id)
 {
-    QQItem *item = id_item_hash_.value(id, NULL);
+    QQItem *item = find(id);
+
     if (item)
-        item->itemInfo()->set_markName(mark_name);
+        item->set_markName(mark_name);
 }
 
 void FriendItemModel::addFriend(QString id, QString mark_name, QString groupidx, FriendStatus status)
@@ -108,27 +117,31 @@ void FriendItemModel::addFriend(QString id, QString mark_name, QString groupidx,
 
     QString name = QString::fromStdString(root["result"]["nick"].asString());
 
-    FriendInfo *info = new FriendInfo;
-    info->set_name(name);
-    info->set_id(id);
-    info->set_status(status);
+    QQItem *item = new QQItem();
+    item->set_name(name);
+    item->set_id(id);
+    item->set_status(status);
 
     if (!mark_name.isEmpty())
     {
-        info->set_markName(mark_name);
+        item->set_markName(mark_name);
     }
 
-    QQItem* parent = id_item_hash_[groupidx];
-    QQItem *myfriend = new QQItem(QQItem::kFriend, info, parent);
+    QQItem* parent = find(groupidx);
+    item->set_parent(parent);
+    parent->children_.append(item);
 
-    id_item_hash_[id] = myfriend;
+    if (status != kOffline)
+        parent->setOnlineCount(parent->onlineCount() + 1);
+
+    items_.append(item);
     convertor_->addUinNameMap(id, name);
 
-    int parent_idx = root_->indexOf(parent);
+    int parent_idx = root_->children_.indexOf(parent);
     QModelIndex parent_mdl_idx = index(parent_idx,0, QModelIndex());
 
     beginInsertRows(parent_mdl_idx, 0, 0);
-    parent->insert(getNewPosition(myfriend), myfriend);
+    parent->children_.insert(getNewPosition(item), item);
     endInsertRows();
 }
 
@@ -140,16 +153,21 @@ void FriendItemModel::changeFriendStatus(QString id, FriendStatus status, Client
         return;
     }
 
-    FriendInfo *info = static_cast<FriendInfo*>(item->itemInfo());
-    info->set_clientType(client_type);
-    info->set_status(status);
-
     QQItem *category = item->parent();
-    int idx = category->indexOf(item);
 
-    QModelIndex parent_mdl_idx = index(root_->indexOf(category), 0, QModelIndex());
+    if ( item->status() == kOffline && status != kOffline )
+        category->setOnlineCount(category->onlineCount() + 1);
+    else if ( item->status() != kOffline && status == kOffline )
+        category->setOnlineCount(category->onlineCount() - 1);
+
+    item->set_clientType(client_type);
+    item->set_status(status);
+
+    int parent_idx = category->children_.indexOf(item);
+
+    QModelIndex parent_mdl_idx = index(root_->children_.indexOf(category), 0, QModelIndex());
     beginRemoveRows(parent_mdl_idx, 0, 0);
-    category->children_.remove(idx);
+    category->children_.remove(parent_idx);
     endRemoveRows();
 
     int new_idx = getNewPosition(item);
@@ -171,23 +189,10 @@ int FriendItemModel::getNewPosition(const QQItem *item) const
 
 QQItem *FriendItemModel::category(QString idx) const
 {
-    return id_item_hash_.value(idx, NULL);
+    return find(idx);
 }
 
 QVector<QQItem *> FriendItemModel::categorys() const
 {
     return root_->children_;
-}
-
-QQItem *FriendItemModel::createItem(QQItem::ItemType type, QString name, QString id, QQItem* parent)
-{
-    ItemInfo *item = new ItemInfo;
-    item->set_name(name);
-    item->set_id(id);
-    QQItem *cat = new QQItem(type, item, parent);
-    parent->append(cat);
-
-    id_item_hash_[id] = cat;
-
-    return NULL;
 }

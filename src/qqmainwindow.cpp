@@ -13,7 +13,7 @@
 #include <QEvent>
 
 #include "3rdparty/qxtglobalshortcut/qxtglobalshortcut.h"
-#include "include/json/json.h"
+#include "include/json.h"
 
 #include "core/qqavatarrequester.h"
 #include "core/types.h"
@@ -35,23 +35,22 @@
 #include "core/sockethelper.h"
 
 
-QQMainWindow::QQMainWindow(FriendInfo user_info, QWidget *parent) :
-    QQWidget(parent),
+QQMainWindow::QQMainWindow(QWidget *parent) :
+    QWidget(parent),
     ui(new Ui::QQMainWindow),
     main_http_(new QHttp),
-    curr_user_info_(user_info),
     message_queue_(new QQueue<QByteArray>()),
     msg_tip_(new QQMsgTip(this)),
     msg_center_(new QQMsgCenter(msg_tip_)),
     open_chat_dlg_sc_(NULL)
 {
-    ui->setupUi(contentWidget());
+    ui->setupUi(this);
 
     qRegisterMetaType<ClientType>("ClientType");
 
     setObjectName("mainWindow");
     setWindowIcon(QIcon(QQSkinEngine::instance()->getSkinRes("app_icon")));
-    setWindowTitle(curr_user_info_.name());
+    setWindowTitle(QQSettings::instance()->currLoginInfo().name);
 
     createActions();
     createTray();
@@ -73,7 +72,7 @@ QQMainWindow::QQMainWindow(FriendInfo user_info, QWidget *parent) :
     connect(ui->cb_status_, SIGNAL(currentIndexChanged(int)), this, SLOT(changeMyStatus(int)));
     connect(ui->pb_mainmenu_, SIGNAL(clicked()), this, SLOT(openMainMenu()));
 
-    convertor_.addUinNameMap(user_info.id(), tr("you"));
+    convertor_.addUinNameMap(QQSettings::instance()->currLoginInfo().id, tr("you"));
     msg_tip_->setConvertor(&convertor_);
 
     if (QFile::exists("qqgroupdb"))
@@ -104,8 +103,11 @@ QQMainWindow::~QQMainWindow()
 {
     trayIcon->hide();
     trayIcon->deleteLater();
+    trayIcon = NULL;
     main_http_->close();
     delete ui;
+
+    poll_thread_->terminate();
 }
 
 void QQMainWindow::setMute(bool mute)
@@ -133,6 +135,8 @@ void QQMainWindow::changeMyStatus(int idx)
 
     main_http_->setHost("d.web2.qq.com");
     main_http_->request(header);
+
+    QQSettings::instance()->currLoginInfo().status = ui->cb_status_->itemData(idx).value<FriendStatus>();
 }
 
 void QQMainWindow::changeFriendStatus(QString id, FriendStatus status, ClientType client_type)
@@ -205,7 +209,7 @@ void QQMainWindow::getFriendListDone(bool err)
 
 void QQMainWindow::getSingleLongNick()
 {
-    QByteArray result = QQItemInfoHelper::getSingleLongNick(curr_user_info_.id());
+    QByteArray result = QQItemInfoHelper::getSingleLongNick(QQSettings::instance()->currLoginInfo().id);
     result = result.mid(result.indexOf("\r\n\r\n")+4);
     Json::Reader reader;
     Json::Value root;
@@ -297,7 +301,8 @@ void QQMainWindow::getOnlineBuddyDone(bool err)
 
 void QQMainWindow::getPersonalFace()
 {
-    QString avatar_path =   QQAvatarRequester::requestOne(QQAvatarRequester::getTypeNumber(QQItem::kFriend), curr_user_info_.id(),  "temp/avatar/");
+    QString avatar_path =   QQAvatarRequester::requestOne(QQAvatarRequester::getTypeNumber(QQItem::kFriend), QQSettings::instance()->currLoginInfo().id,  "temp/avatar/");
+    QQSettings::instance()->currLoginInfo().avatar_path = avatar_path;
 
     QFile file(avatar_path);
     file.open(QIODevice::ReadOnly);
@@ -310,16 +315,17 @@ void QQMainWindow::getPersonalFace()
 
 void QQMainWindow::getPersonalInfo()
 {
-    QByteArray result = QQItemInfoHelper::getFriendInfo2(curr_user_info_.id());
+    QByteArray result = QQItemInfoHelper::getFriendInfo2(QQSettings::instance()->currLoginInfo().id);
     result = result.mid(result.indexOf("\r\n\r\n")+4);
     Json::Reader reader;
     Json::Value root;
 
     if (reader.parse(QString(result).toStdString(), root, false))
     {
-        curr_user_info_.set_name(QString::fromStdString(root["result"]["nick"].asString()));
-        ui->lbl_name_->setText(curr_user_info_.name());
-    }
+        QQSettings::instance()->currLoginInfo().name = QString::fromStdString(root["result"]["nick"].asString());
+        ui->lbl_name_->setText(QQSettings::instance()->loginName());
+        convertor_.addUinNameMap(QQSettings::instance()->loginId(), QQSettings::instance()->loginName());
+    } 
 }
 
 void QQMainWindow::getRecentList()
@@ -359,7 +365,6 @@ void QQMainWindow::getRecentListDone(bool err)
 
 void QQMainWindow::initialize()
 {
-    ui->lbl_name_->setText(curr_user_info_.name());
     getPersonalInfo();
     getPersonalFace();
     getSingleLongNick();
@@ -403,12 +408,8 @@ void QQMainWindow::createActions()
 void QQMainWindow::slot_logout()
 {
     this->hide();
-
     poll_thread_->terminate();
-    parse_thread_->terminate();
-    poll_thread_->deleteLater();
-    parse_thread_->deleteLater();
-
+    parse_thread_->quit();
     emit sig_logout();
 }
 
@@ -451,7 +452,7 @@ void QQMainWindow::setupLoginStatus()
     ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_hidden")), tr("Hidden"), QVariant::fromValue<FriendStatus>(kHidden));
     ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_offline")), tr("Offline"), QVariant::fromValue<FriendStatus>(kOffline));
 
-    int status_idx = getStatusIndex(curr_user_info_.status());
+    int status_idx = getStatusIndex(QQSettings::instance()->currLoginInfo().status);
 
     ui->cb_status_->setCurrentIndex(status_idx);
 }
@@ -526,7 +527,7 @@ void QQMainWindow::openChatDlg(QQMsg::MsgType type, QString id, QString gcode)
         if (item)
             avatar_path = item->avatarPath();
 
-        dlg= new QQFriendChatDlg(id, convertor_.convert(id), curr_user_info_, avatar_path);
+        dlg= new QQFriendChatDlg(id, convertor_.convert(id), avatar_path);
         connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
         msg_center_->registerListener(dlg);
     }
@@ -539,7 +540,7 @@ void QQMainWindow::openChatDlg(QQMsg::MsgType type, QString id, QString gcode)
             avatar_path = item->avatarPath();
 
 
-        dlg = new QQGroupChatDlg(id, convertor_.convert(id), gcode, curr_user_info_, avatar_path);
+        dlg = new QQGroupChatDlg(id, convertor_.convert(id), gcode, avatar_path);
         connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
 
         msg_center_->registerListener(dlg);

@@ -15,6 +15,7 @@ struct LoadInfo
     QString img_name;
     QString host;
     QString url;
+    QString uuid;
 };
 
 class ImgLoader : public QThread
@@ -22,7 +23,7 @@ class ImgLoader : public QThread
     Q_OBJECT
 
 signals:
-    void loadDone(const QString &img_name_, const QString &path);
+    void loadDone(const QString &img_name, const QString &path);
 
 public:
     ImgLoader()
@@ -31,7 +32,7 @@ public:
     }
 
 
-    void loadFriendOffpic(const QString &file_name, const QString &to_uin);
+    void loadFriendOffpic(const QString &uuid, const QString &file_name, const QString &to_uin);
     void loadFriendCface(const QString &file_name, const QString &to_uin, const QString &msg_id);
     void loadGroupChatImg(const QString &file_name, QString uin,
                           const QString &gcode, QString fid, QString rip,

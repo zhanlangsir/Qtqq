@@ -108,4 +108,3 @@ SOURCES += \
     $$PWD/varia/levelrangefilter.cpp \
     $$PWD/varia/listappender.cpp \
     $$PWD/varia/stringmatchfilter.cpp
-    

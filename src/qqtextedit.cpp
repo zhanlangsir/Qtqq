@@ -15,27 +15,16 @@ QQTextEdit::QQTextEdit(QWidget *parent) : QTextEdit(parent)
 
 }
 
-QQTextEdit::~QQTextEdit()
+void QQTextEdit::insertImg(const QString &unique_id, const QString &path)
 {
-    QMovie *mov = NULL;
-    foreach (mov, id_mov_hash_.values())
-    {
-        mov->deleteLater();
-        mov = NULL;
-    }
-}
-
-void QQTextEdit::appendDocument(const QTextDocument *doc)
-{
-    QTextCursor cursor(this->document());
-
-    QTextBlockFormat format;
-    format.setLeftMargin(8);
-    format.setTopMargin(5);
+    QTextDocument *doc = document();
+    QTextCursor cursor(doc);
     cursor.movePosition(QTextCursor::End);
-    cursor.mergeBlockFormat(format);
 
-    cursor.insertHtml(doc->toHtml());
+    QImage img(path);
+    QUrl url(unique_id);
+    doc->addResource(QTextDocument::ImageResource, url, img);
+    cursor.insertImage(unique_id);
 }
 
 void QQTextEdit::insertNameLine(const QString &name, QColor color)
@@ -89,46 +78,6 @@ void QQTextEdit::insertQQFace(const QString &face_id)
     QUrl url(kQQFacePre+face_id);
     doc->addResource(QTextDocument::ImageResource, url, img);
     cursor.insertImage(kQQFacePre+face_id);
-
-    if(file_ids_.contains(kQQFacePre+face_id)){ //同一个gif 使用同一个movie
-        return;
-    }else{
-       file_ids_.append(kQQFacePre+face_id);
-    }
-
-   QMovie* movie = new QMovie();
-   movie->setFileName(path);
-   movie->setSpeed(70);
-   movie->setCacheMode(QMovie::CacheAll);
-
-   id_mov_hash_.insert(kQQFacePre+face_id, movie);
-
-   //换帧时刷新
-   connect(movie, SIGNAL(frameChanged(int)), this, SLOT(animate(int)));
-   movie->start();
-}
-
-void QQTextEdit::insertImgProxy(const QString &unique_id)
-{
-    QTextDocument *doc = document();
-    QTextCursor cursor(doc);
-    cursor.movePosition(QTextCursor::End);
-
-    QImage img(QQSettings::instance()->resourcePath() + "/loading/loading.gif");
-    QUrl url(unique_id);
-    doc->addResource(QTextDocument::ImageResource, url, img);
-    cursor.insertImage(unique_id);
-
-    QMovie* movie = new QMovie();
-    movie->setSpeed(70);
-    movie->setFileName(QQSettings::instance()->resourcePath() + "/loading/loading.gif");
-    movie->setCacheMode(QMovie::CacheAll);
-
-    id_mov_hash_.insert(unique_id, movie);
-
-    //换帧时刷新
-    connect(movie, SIGNAL(frameChanged(int)), this, SLOT(animate(int)));
-    movie->start();
 }
 
 void QQTextEdit::replaceIdToName(QString id, QString name)
@@ -142,51 +91,11 @@ void QQTextEdit::replaceIdToName(QString id, QString name)
     cursor.insertText(name);
 }
 
-void QQTextEdit::setRealImg(const QString &unique_id, const QString &path)
+
+void QQTextEdit::insertFromMimeData( const QMimeData *source )
 {
-    file_ids_.append(unique_id);
-
-    QFile file(path);
-    file.open(QIODevice::ReadOnly);
-    QByteArray data = file.readAll();
-    file.close();
-
-    QImage real_img;
-    real_img.loadFromData(data);
-
-    document()->addResource(QTextDocument::ImageResource,   //替换图片为当前帧
-                            QUrl(unique_id), real_img);
-    this->update();
-    QMovie *mov = id_mov_hash_.value(unique_id);
-    mov->stop();
-    mov->setFileName(path);
-    if (mov->isValid())
-        qDebug()<<'valid'<<endl;
-
-    mov->setCacheMode(QMovie::CacheAll);
-    connect(mov, SIGNAL(frameChanged(int)), this, SLOT(animate(int)));
-    mov->start();
 }
 
-void QQTextEdit::addAnimaImg(const QString &unique_id, const QVariant &resource, QMovie *mov)
+bool QQTextEdit::canInsertFromMimeData( const QMimeData *source )
 {
-    this->document()->addResource(QTextDocument::ImageResource, QUrl(unique_id), resource);
-    disconnect(mov);
-    connect(mov, SIGNAL(frameChanged(int)), this, SLOT(animate(int)));
-    file_ids_.append(unique_id);
-    id_mov_hash_.insert(unique_id, mov);
-}
-
-void QQTextEdit::animate(int)
-{
-    if (QMovie* movie = qobject_cast<QMovie*>(sender()))
-    {
-        document()->addResource(QTextDocument::ImageResource,   //替换图片为当前帧
-                                id_mov_hash_.key(movie), movie->currentPixmap());
-
-        if (movie->currentFrameNumber() == movie->frameCount())
-                    qApp->processEvents();
-
-        setLineWrapColumnOrWidth(lineWrapColumnOrWidth()); // ..刷新显示
-    }
 }
