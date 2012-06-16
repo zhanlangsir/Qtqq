@@ -15,7 +15,6 @@
 #include "core/qqmsg.h"
 #include "qqsystemtray.h"
 #include "recentlistitemmodel.h"
-#include "qqwidget.h"
 
 class QHttp;
 class QHttpRequestHeader;
@@ -36,14 +35,14 @@ namespace Ui
 
 class QxtGlobalShortcut;
 
-class QQMainWindow : public QQWidget
+class QQMainWindow : public QWidget
 {
     Q_OBJECT
 signals:
     void sig_logout();
 
 public:
-    explicit QQMainWindow(FriendInfo user_info, QWidget *parent = NULL);
+    explicit QQMainWindow(QWidget *parent = NULL);
     ~QQMainWindow();
 
 public:
@@ -91,7 +90,6 @@ private:
     QQLoginCore *login_;
     Ui::QQMainWindow *ui;
     QHttp *main_http_;
-    FriendInfo curr_user_info_;
     QQPollThread *poll_thread_;
     QQParseThread *parse_thread_;
     QQueue<QByteArray> *message_queue_;

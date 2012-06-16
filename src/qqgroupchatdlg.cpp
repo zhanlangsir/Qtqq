@@ -20,13 +20,13 @@
 #include "core/captchainfo.h"
 #include "core/groupchatlog.h"
 
-QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, FriendInfo curr_user_info, QString avatar_path, QWidget *parent) :
-    QQChatDlg(gid, name, curr_user_info, parent),
+QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, QString avatar_path, QWidget *parent) :
+    QQChatDlg(gid, name, parent),
     ui(new Ui::QQGroupChatDlg()),
     group_code_(group_code),
     member_root_(new QQItem())
 {
-   ui->setupUi(contentWidget());
+   ui->setupUi(this);
    updateSkin();
    te_input_.setFocus();
 
@@ -34,7 +34,7 @@ QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, Fr
 
    ui->btn_send_key->setMenu(send_type_menu_);
 
-   ui->splitter_left_->insertWidget(0, &te_messages_);
+   ui->splitter_left_->insertWidget(0, &msgbrowse_);
    ui->v_layout_left_->insertWidget(1, &te_input_);
 
    ui->splitter_main->setChildrenCollapsible(false);
@@ -42,17 +42,19 @@ QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, Fr
 
    //设置分割器大小
    QList<int> right_sizes;
-   right_sizes.append(1000);
+   right_sizes.append(500);
    right_sizes.append(ui->splitter_right_->midLineWidth());
    ui->splitter_main->setSizes(right_sizes);
 
    QList<int> left_sizes;
-   left_sizes.append(1000);
+   left_sizes.append(500);
    left_sizes.append(ui->splitter_left_->midLineWidth());
    ui->splitter_left_->setSizes(left_sizes);
 
-   QScrollBar *bar = te_messages_.verticalScrollBar();
-   connect(bar, SIGNAL(rangeChanged(int, int)), this, SLOT(silderToBottom(int, int)));
+   this->resize(600, 500);
+
+   //QScrollBar *bar = te_messages_.verticalScrollBar();
+   //connect(bar, SIGNAL(rangeChanged(int, int)), this, SLOT(silderToBottom(int, int)));
    connect(ui->btn_send_img, SIGNAL(clicked(bool)), this, SLOT(openPathDialog(bool)));
    connect(ui->btn_send_msg, SIGNAL(clicked()), this, SLOT(sendMsg()));
    connect(ui->btn_qqface, SIGNAL(clicked()), this, SLOT(openQQFacePanel()));
@@ -259,13 +261,9 @@ void QQGroupChatDlg::parseGroupMemberList(const QByteArray &array, QQItem *const
         QString nick = QString::fromStdString(members[i]["nick"].asString());
         QString uin = QString::number(members[i]["uin"].asLargestInt());
 
-        FriendInfo *info = new FriendInfo();
-        info->set_name(nick);
-        info->set_id(uin);
+        QQItem *info = new QQItem(QQItem::kFriend, nick, uin, root_item);
         info->set_status(kOffline);
-
-        QQItem *member = new QQItem(QQItem::kFriend, info, root_item);
-        root_item->children_.append(member);
+        root_item->children_.append(info);
 
         convertor_.addUinNameMap(uin, nick);
     }
@@ -290,9 +288,8 @@ void QQGroupChatDlg::parseGroupMemberList(const QByteArray &array, QQItem *const
             }
         }
 
-        FriendInfo *info = static_cast<FriendInfo*>(item->itemInfo());
-        info->set_status(stat);
-        info->set_clientType(client_type);
+        item->set_status(stat);
+        item->set_clientType(client_type);
 
         root_item->children_.remove(j);
         root_item->children_.push_front(item);
@@ -333,17 +330,14 @@ void QQGroupChatDlg::readFromSql()
         FriendStatus stat = (FriendStatus)query.value(3).toInt();
         QString avatar_path = query.value(4).toString();
 
-        FriendInfo *info = new FriendInfo();
-        info->set_name(nick);
-        info->set_id(uin);
+        QQItem *info = new QQItem(QQItem::kFriend, nick, uin, member_root_);
         info->set_status(stat);
         info->set_avatarPath(avatar_path);
 
-        QQItem *member = new QQItem(QQItem::kFriend, info, member_root_);
         if (info->status() == kOffline)
-            member_root_->children_.push_back(member);
+            member_root_->children_.push_back(info);
         else
-            member_root_->children_.push_front(member);
+            member_root_->children_.push_front(info);
 
         convertor_.addUinNameMap(uin, nick);
     }
@@ -359,10 +353,9 @@ void QQGroupChatDlg::readFromSql()
 
 void QQGroupChatDlg::replaceUnconverId()
 {
-    QString id;
-    foreach (id, unconvert_ids_)
+    foreach (QString id, unconvert_ids_)
     {
-        te_messages_.replaceIdToName(id, convertor_.convert(id));
+        msgbrowse_.replaceIdToName(id, convertor_.convert(id));
     }
 }
 
@@ -413,6 +406,23 @@ QQItem *QQGroupChatDlg::findItemById(QString id) const
             return item;
     }
     return NULL;
+}
+
+void QQGroupChatDlg::getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const
+{
+    foreach (QQItem *item, member_root_->children_)
+    {
+        if (item->id() == id)
+        {
+            name = item->name();
+            avatar_path = item->avatarPath().isEmpty() ? QQSkinEngine::instance()->getSkinRes("default_friend_avatar") : item->avatarPath();
+            ok = true;
+            return;
+        }
+    }
+    name = convertor_.convert(id);
+    avatar_path = QQSkinEngine::instance()->getSkinRes("default_friend_avatar");
+    ok = false;
 }
 
 void QQGroupChatDlg::getGroupMemberList()
@@ -514,15 +524,25 @@ QString QQGroupChatDlg::converToJson(const QString &raw_msg)
                 int img_end_idx = content.indexOf("\"", img_idx);
                 QString src = content.mid(img_idx, img_end_idx - img_idx);
 
-                if (src.contains("-"))
+                if (src.contains(kQQFacePre))
                 {
-                    has_gface = true;
-                    msg_template.append("[\\\"cface\\\",\\\"group\\\",\\\"" + id_file_hash_[src].name_ + "\\\"],");
+                    msg_template.append("[\\\"face\\\"," + src.mid(kQQFacePre.length()) + "],");
                 }
                 else
                 {
-                    msg_template.append("[\\\"face\\\"," + src + "],");
+                    has_gface = true;
+                    msg_template.append("[\\\"cface\\\",\\\"group\\\",\\\"" + id_file_hash_[src].name + "\\\"],");
                 }
+
+//                if (src.contains("-"))
+//                {
+//                    has_gface = true;
+//                    msg_template.append("[\\\"cface\\\",\\\"group\\\",\\\"" + id_file_hash_[src].name + "\\\"],");
+//                }
+//                else
+//                {
+//                    msg_template.append("[\\\"face\\\"," + src + "],");
+//                }
             }
 
             content = content.mid(match_end_idx);

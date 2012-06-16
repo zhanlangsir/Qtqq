@@ -6,6 +6,8 @@
 #include <QCoreApplication>
 #include <QApplication>
 
+#include "types.h"
+
 class QQSettings : public QSettings
 {
 public:
@@ -45,9 +47,35 @@ public:
     QString tempPath() const
     { return app_path_ + "/temp"; }
 
+    void setCurrLoginInfo(QString id, QString name, FriendStatus status, QString avatar_path)
+    { 
+        curr_login_.id = id;
+        curr_login_.name = name;
+        curr_login_.status = status;
+        curr_login_.avatar_path = avatar_path;
+    }
+    QString messageStylePath() const
+    { return app_path_ + "/skins/messagestyle"; }
+    QString currentMessageStyle() const
+    { return "adium"; }
+
+    LoginInfo& currLoginInfo()
+    { return curr_login_; }
+
+    QString loginId()
+    { return curr_login_.id; }
+    QString loginAvatarPath()
+    { return curr_login_.avatar_path; }
+    FriendStatus loginStatus()
+    { return curr_login_.status; }
+    QString loginName()
+    { return curr_login_.name; }
+
 private:
     static QPointer<QQSettings> settings_;
     QString app_path_;
+
+    LoginInfo curr_login_;
 };
 
 #endif // QTQQ_CORE_QQSETTING_H

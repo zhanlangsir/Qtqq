@@ -26,6 +26,7 @@ HEADERS += friendinfodlg.h \
            qqsystemtray.h \
            qqtextedit.h \
            qtqq.h \
+           msgbrowse.h \
            recentlistitemmodel.h \
            core/friendimgsender.h \
            core/groupimgloader.h \
@@ -58,12 +59,15 @@ HEADERS += friendinfodlg.h \
     src/core/friendchatlog.h \
     src/core/groupchatlog.h \
     src/core/captchainfo.h \
-    src/core/sockethelper.h
+    src/core/sockethelper.h \
+    src/core/qqchatitem.h
+
 
 SOURCES += friendinfodlg.cpp \
            frienditemmodel.cpp \
            groupitemmodel.cpp \
            main.cpp \
+           msgbrowse.cpp \
            qqchatdlg.cpp \
            qqfacepanel.cpp \
            qqfriendchatdlg.cpp \
@@ -106,7 +110,8 @@ SOURCES += friendinfodlg.cpp \
     src/core/groupchatlog.cpp \
     src/core/captchainfo.cpp \
     src/core/qqutility.cpp \
-    src/core/sockethelper.cpp
+    src/core/sockethelper.cpp \
+    src/core/qqchatitem.cpp
 
 FORMS += ui/captcha.ui \
          ui/friendinfodlg.ui \

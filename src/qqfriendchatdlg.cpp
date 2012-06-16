@@ -12,19 +12,21 @@
 #include "core/qqskinengine.h"
 #include "core/captchainfo.h"
 #include "core/friendchatlog.h"
+#include "core/qqitem.h"
 
-QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user_info, QString avatar_path, QWidget *parent) :
-    QQChatDlg(uin, name, curr_user_info, parent),
-    ui(new Ui::QQFriendChatDlg())
+QQFriendChatDlg::QQFriendChatDlg(QString uin, QString from_name, QString avatar_path, QWidget *parent) :
+    QQChatDlg(uin, from_name, parent),
+    ui(new Ui::QQFriendChatDlg()),
+    avatar_path_(avatar_path)
 {
-   ui->setupUi(contentWidget());
+   ui->setupUi(this);
    resize(this->minimumSize());
    updateSkin();
    te_input_.setFocus();
 
    set_type(QQChatDlg::kFriend);
 
-   ui->splitter_main->insertWidget(0, &te_messages_);
+   ui->splitter_main->insertWidget(0, &msgbrowse_);
    ui->splitter_main->setChildrenCollapsible(false);
 
    ui->vlo_main->insertWidget(1, &te_input_);
@@ -36,8 +38,8 @@ QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user
    sizes.append(ui->splitter_main->midLineWidth());
    ui->splitter_main->setSizes(sizes);
 
-   QScrollBar *bar = te_messages_.verticalScrollBar();
-   connect(bar, SIGNAL(rangeChanged(int, int)), this, SLOT(silderToBottom(int, int)));
+   //QScrollBar *bar = te_messages_.verticalScrollBar();
+   //connect(bar, SIGNAL(rangeChanged(int, int)), this, SLOT(silderToBottom(int, int)));
    connect(ui->btn_send_img, SIGNAL(clicked(bool)), this, SLOT(openPathDialog(bool)));
    connect(ui->btn_send_msg, SIGNAL(clicked()), this, SLOT(sendMsg()));
    connect(ui->btn_qqface, SIGNAL(clicked()), this, SLOT(openQQFacePanel()));
@@ -49,7 +51,6 @@ QQFriendChatDlg::QQFriendChatDlg(QString uin, QString name, FriendInfo curr_user
    ui->lbl_name_->setText(name_);
 
    convertor_.addUinNameMap(id_, name_);
-   convertor_.addUinNameMap(curr_user_info_.id(), curr_user_info_.name());
    send_url_ = "/channel/send_buddy_msg2";
 
    if (avatar_path.isEmpty())
@@ -105,7 +106,7 @@ QString QQFriendChatDlg::converToJson(const QString &raw_msg)
                 }
                 else
                 {
-                    msg_template.append("[\\\"offpic\\\",\\\""+ id_file_hash_[src].network_path_ + "\\\",\\\""+ id_file_hash_[src].name_ + "\\\"," + QString::number(id_file_hash_[src].size_) + "],");
+                    msg_template.append("[\\\"offpic\\\",\\\""+ id_file_hash_[src].network_path + "\\\",\\\""+ id_file_hash_[src].name + "\\\"," + QString::number(id_file_hash_[src].size) + "],");
                 }
             }
 
@@ -137,7 +138,14 @@ ImgSender* QQFriendChatDlg::getImgSender() const
     return new FriendImgSender();
 }
 
+void QQFriendChatDlg::getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const
+{
+    name = name_;
+    avatar_path = avatar_path_.isEmpty() ? QQSkinEngine::instance()->getSkinRes("default_friend_avatar") : avatar_path_;
+    ok = true;
+}
+
 QQChatLog *QQFriendChatDlg::getChatlog() const
 {
-    return new FriendChatLog(curr_user_info_.id(),id());
+    return new FriendChatLog(id());
 }

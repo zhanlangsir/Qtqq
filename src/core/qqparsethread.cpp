@@ -77,6 +77,9 @@ QQMsg* QQParseThread::createMsg(QString type, const Json::Value result)
 
             if (content.type() == Json::stringValue)
             {
+                if (content.asString().size() == 2 && content.asString()[0] == '\n' || content.asString()[0] == ' ')
+                    continue;
+
                 item.set_type(QQChatItem::kWord);
                 item.set_content(QString::fromStdString(content.asString()));
             }
@@ -150,6 +153,9 @@ QQMsg* QQParseThread::createMsg(QString type, const Json::Value result)
 
             if (content.type() == Json::stringValue)
             {
+                if (content.asString().size() == 2 && content.asString()[0] == '\n' || content.asString()[0] == ' ' )
+                    continue;
+
                 item.set_type(QQChatItem::kWord);
                 item.set_content(QString::fromStdString(content.asString()));
             }

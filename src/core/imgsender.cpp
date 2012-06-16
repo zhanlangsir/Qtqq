@@ -10,14 +10,14 @@
 #include <QHttp>
 
 #include "captchainfo.h"
+#include "qqsetting.h"
 
-void ImgSender::send(const QString uinque_id, const QString full_path, const QString id)
+void ImgSender::send(const QString uinque_id, const QString full_path)
 {
     is_sending_ = true;
     QString send_url = base_send_url_+QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
     unique_id_ = uinque_id;
     full_path_ = full_path;
-    id_ = id;
 
     QFile file(full_path);
     file.open(QIODevice::ReadOnly);

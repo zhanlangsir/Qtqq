@@ -25,9 +25,6 @@ public slots:
     void changeFriendStatus(QString id, FriendStatus status, ClientType client_type);
 
 private:
-    QQItem* createItem(QQItem::ItemType type, QString name, QString id, QQItem *parent);
-    
-private:
     NameConvertor *convertor_;
 };
 

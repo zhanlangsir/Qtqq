@@ -18,21 +18,22 @@
 #include "core/request.h"
 #include "include/json/json.h"
 #include "qqtitlebar.h"
+#include "core/qqsetting.h"
 #include "core/qqskinengine.h"
 
 QQLoginWin::QQLoginWin(QQLoginCore *login_core, QWidget *parent) :
-    QQWidget(parent),
+    QWidget(parent),
     ui(new Ui::QQLoginWin()),
     login_core_(login_core),
-    curr_login_info_(NULL)
+    curr_login_account_(NULL)
 {
-    ui->setupUi(contentWidget());
+    ui->setupUi(this);
 
     setObjectName("loginWindow");
     setMouseTracking(true);
     setWindowIcon(QIcon(QQSkinEngine::instance()->getSkinRes("app_icon")));
 
-    qRegisterMetaType<LoginInfo>("LoginInfo");
+    qRegisterMetaType<AccountRecord>("AccountRecord");
 
     connect(ui->pb_login, SIGNAL(clicked()), this, SLOT(onPbLoginClicked()));
     connect(ui->cekb_autologin_, SIGNAL(clicked(bool)), this, SLOT(onCekbAutoLoginClick(bool)));
@@ -56,22 +57,21 @@ QQLoginWin::QQLoginWin(QQLoginCore *login_core, QWidget *parent) :
     else
     {
         //否则，开始自动登陆,自动登陆帐号为记录中的第一个
-        curr_login_info_ = login_infos_[0];
+        curr_login_account_ = login_records_[0];
         checkAccoutStatus();
     }
 }
 
 QQLoginWin::~QQLoginWin()
 {
-    LoginInfo *info = NULL;
-    foreach (info, login_infos_)
+    foreach (AccountRecord *record, login_records_)
     {
-        delete info;
-        info = NULL;
+        delete record;
+        record = NULL;
     }
 
-    delete curr_login_info_;
-    curr_login_info_ = NULL;
+    delete curr_login_account_;
+    curr_login_account_ = NULL;
     delete ui;
 }
 
@@ -98,27 +98,26 @@ void QQLoginWin::readUsers()
     Json::Value users = value["users"];
     for (unsigned int i = 0; i < users.size(); ++i)
     {
-       LoginInfo *info = new LoginInfo;
-       info->id_ =  QString::fromStdString(users[i]["id"].asString());
-       info->pwd_ =  QString::fromStdString(users[i]["pwd"].asString());
-       info->login_status_  = (FriendStatus)users[i]["login_status"].asInt();
-       info->rem_pwd_ =  users[i]["rem_pwd"].asBool();
+       AccountRecord *record = new AccountRecord;
+       record->id_ =  QString::fromStdString(users[i]["id"].asString());
+       record->pwd_ =  QString::fromStdString(users[i]["pwd"].asString());
+       record->login_status_  = (FriendStatus)users[i]["login_status"].asInt();
+       record->rem_pwd_ =  users[i]["rem_pwd"].asBool();
 
-       login_infos_.append(info);
+       login_records_.append(record);
 
        ui->comb_username_->addItem( QString::fromStdString(users[i]["id"].asString()),
-             QVariant::fromValue<LoginInfo*>(info));
+             QVariant::fromValue<AccountRecord*>(record));
     }
 }
 
 inline
-LoginInfo* QQLoginWin::findById(QString id) const
+AccountRecord* QQLoginWin::findById(QString id) const
 {
-    LoginInfo *info = NULL;
-    foreach(info, login_infos_)
+    foreach(AccountRecord *record, login_records_)
     {
-        if (info->id_ == id)
-            return info;
+        if (record->id_ == id)
+            return record;
     }
     return NULL;
 }
@@ -126,14 +125,14 @@ LoginInfo* QQLoginWin::findById(QString id) const
 inline
 void QQLoginWin::setUserLoginInfo(QString text)
 {
-    LoginInfo *info = findById(text);
-    if (!info)
+    AccountRecord *record = findById(text);
+    if (!record)
         return;
 
-    ui->le_password_->setText(info->pwd_);
-    ui->cekb_rem_pwd_->setChecked(info->rem_pwd_);
-    ui->cekb_autologin_->setChecked((info->id_ == auto_login_id_));
-    ui->cb_status_->setCurrentIndex(getStatusIndex(info->login_status_));
+    ui->le_password_->setText(record->pwd_);
+    ui->cekb_rem_pwd_->setChecked(record->rem_pwd_);
+    ui->cekb_autologin_->setChecked((record->id_ == auto_login_id_));
+    ui->cb_status_->setCurrentIndex(getStatusIndex(record->login_status_));
 }
 
 int QQLoginWin::getStatusIndex(FriendStatus status) const
@@ -158,13 +157,13 @@ void QQLoginWin::onPbLoginClicked()
     }
 
     //用curr_login_info记录当前登陆信息
-    if (!curr_login_info_)
-        curr_login_info_ = new LoginInfo;
+    if (!curr_login_account_)
+        curr_login_account_ = new AccountRecord();
 
-    curr_login_info_->id_ = ui->comb_username_->currentText();
-    curr_login_info_->pwd_ = ui->le_password_->text();
-    curr_login_info_->login_status_ = getLoginStatus();
-    curr_login_info_->rem_pwd_ = ui->cekb_rem_pwd_->isChecked();
+    curr_login_account_->id_ = ui->comb_username_->currentText();
+    curr_login_account_->pwd_ = ui->le_password_->text();
+    curr_login_account_->login_status_ = getLoginStatus();
+    curr_login_account_->rem_pwd_ = ui->cekb_rem_pwd_->isChecked();
 
     qDebug()<<"login ing...."<<endl;
     //this->hide();
@@ -180,23 +179,23 @@ void QQLoginWin::loginDone(QQLoginCore::LoginResult result)
         if (ui->cekb_autologin_->isChecked())
             auto_login_id_ = ui->comb_username_->currentText();
 
-        curr_user_info_.set_id(curr_login_info_->id_);
-        curr_user_info_.set_status(curr_login_info_->login_status_);
+        QQSettings::instance()->currLoginInfo().id = curr_login_account_->id_;
+        QQSettings::instance()->currLoginInfo().status = curr_login_account_->login_status_;
 
-        LoginInfo *info = findById(curr_login_info_->id_);
-        if (info)
+        AccountRecord *record = findById(curr_login_account_->id_);
+        if (record)
         {
-            info->pwd_ = curr_login_info_->pwd_;
-            info->login_status_ = curr_login_info_->login_status_;
-            info->rem_pwd_ = curr_login_info_->rem_pwd_;
+            record->pwd_ = curr_login_account_->pwd_;
+            record->login_status_ = curr_login_account_->login_status_;
+            record->rem_pwd_ = curr_login_account_->rem_pwd_;
 
-            login_infos_.remove(login_infos_.indexOf(info));
-            login_infos_.push_front(info);
+            login_records_.remove(login_records_.indexOf(record));
+            login_records_.push_front(record);
         }
         else
         {
-            ui->comb_username_->insertItem(0, curr_login_info_->id_, QVariant::fromValue<LoginInfo*>(curr_login_info_));
-            login_infos_.push_front(curr_login_info_);
+            ui->comb_username_->insertItem(0, curr_login_account_->id_, QVariant::fromValue<AccountRecord*>(curr_login_account_));
+            login_records_.push_front(curr_login_account_);
         }
 
         saveConfig();
@@ -254,8 +253,8 @@ void QQLoginWin::currentUserChanged(QString text)
 
 void QQLoginWin::idChanged(QString text)
 {
-    LoginInfo *info = findById(text);
-    if (!info)
+    AccountRecord *record = findById(text);
+    if (!record)
     {
         ui->le_password_->clear();
         ui->cekb_rem_pwd_->setChecked(false);
@@ -280,7 +279,7 @@ void QQLoginWin::checkAccoutStatus()
     else
     {
         qDebug()<<"begin login"<<endl;
-        login_core_->login(curr_login_info_->id_, curr_login_info_->pwd_, getLoginStatus());
+        login_core_->login(curr_login_account_->id_, curr_login_account_->pwd_, getLoginStatus());
     }
 }
 
@@ -299,12 +298,7 @@ bool QQLoginWin::eventFilter(QObject *obj, QEvent *e)
         return false;
     }
     else
-        return QQWidget::eventFilter(obj, e);
-}
-
-FriendInfo QQLoginWin::getCurrentUserInfo() const
-{
-    return curr_user_info_;
+        return QWidget::eventFilter(obj, e);
 }
 
 void QQLoginWin::showCapImg(QPixmap pix)
@@ -323,7 +317,7 @@ void QQLoginWin::showCapImg(QPixmap pix)
     delete captcha_dialog;
     captcha_dialog = NULL;
 
-    login_core_->login(curr_login_info_->id_, curr_login_info_->pwd_, getLoginStatus(), vc);
+    login_core_->login(curr_login_account_->id_, curr_login_account_->pwd_, getLoginStatus(), vc);
 }
 
 FriendStatus QQLoginWin::getLoginStatus() const
@@ -361,13 +355,12 @@ void QQLoginWin::saveConfig()
     Json::Value root;
     Json::Value users;
 
-    LoginInfo *info = NULL;
-    foreach(info, login_infos_)
+    foreach(AccountRecord *record, login_records_)
     {
-        login_info["id"] = info->id_.toStdString();
-        login_info["pwd"] = info->rem_pwd_ ? info->pwd_.toStdString() : "";
-        login_info["login_status"] = (int)info->login_status_;
-        login_info["rem_pwd"] = info->rem_pwd_;
+        login_info["id"] = record->id_.toStdString();
+        login_info["pwd"] = record->rem_pwd_ ? record->pwd_.toStdString() : "";
+        login_info["login_status"] = (int)record->login_status_;
+        login_info["rem_pwd"] = record->rem_pwd_;
         users.append(login_info);
     }
 

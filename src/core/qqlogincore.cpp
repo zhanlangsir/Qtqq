@@ -14,6 +14,7 @@
 #include "sockethelper.h"
 #include "captchainfo.h"
 #include "request.h"
+#include "qqsetting.h"
 
 QQLoginCore::QQLoginCore()
 {
@@ -110,7 +111,7 @@ void QQLoginCore::login(QString id, QString pwd, FriendStatus status, QString vc
 QQLoginCore::AccountStatus QQLoginCore::checkState(QString id)
 {
     qDebug()<<"checking state"<<endl;
-    curr_user_info_.set_id(id);
+    QQSettings::instance()->currLoginInfo().id = id;
     QString check_url = "/check?uin=%1&appid=1003903&r=0.5354662109559408";
     fd_ = new QTcpSocket();
     fd_->connectToHost("check.ptlogin2.qq.com",80);
@@ -175,7 +176,7 @@ QPixmap QQLoginCore::getCapImg()
     QString captcha_str ="/getimage?uin=%1&vc_type=%2&aid=1003909&r=0.5354663109529408";
 
     Request req;
-    req.create(kGet, captcha_str.arg(curr_user_info_.id()).arg(QString(sum_)));
+    req.create(kGet, captcha_str.arg(QQSettings::instance()->loginId()).arg(QString(sum_)));
     req.addHeaderItem("Host", "captcha.qq.com");
     req.addHeaderItem("Connection", "Keep-Alive");
 

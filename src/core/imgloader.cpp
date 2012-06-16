@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QDebug>
 #include <string>
+#include <QDir>
 
 #include "captchainfo.h"
 
@@ -24,10 +25,11 @@ void ImgLoader::loadFriendCface(const QString &file_name, const QString &to_uin,
     start();
 }
 
-void ImgLoader::loadFriendOffpic(const QString &file_name, const QString &to_uin)
+void ImgLoader::loadFriendOffpic(const QString &uuid, const QString &file_name, const QString &to_uin)
 {
     LoadInfo info;
     info.img_name = file_name;
+    info.uuid = uuid;
     info.path = "temp/" + file_name;
 
     info.url = "/channel/get_offpic2?file_path=" +file_name + "&f_uin=" + to_uin + "&clientid=5412354841&psessionid="+
@@ -88,7 +90,8 @@ void ImgLoader::run()
         saveImg(img_data, info.path);
 
         qDebug()<<"save img  [ "<<info.img_name << " ] to :"<<info.path<<endl;
-        emit loadDone(info.img_name, info.path);
+        QDir save_path(info.path);
+        emit loadDone(info.uuid, save_path.absolutePath());
     }
 }
 
@@ -98,7 +101,9 @@ QByteArray ImgLoader::getImgUrl(const LoadInfo &info) const
     req.create(kGet, info.url);
     req.addHeaderItem("Host", info.host);
     req.addHeaderItem("Referer", "http://web.qq.com");
-    req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+    QString c = CaptchaInfo::singleton()->cookie().mid(0, CaptchaInfo::singleton()->cookie().length()-2);
+    qDebug()<<c<<endl;
+    req.addHeaderItem("Cookie", c);
 
     QTcpSocket fd;
     fd.connectToHost(info.host, 80);

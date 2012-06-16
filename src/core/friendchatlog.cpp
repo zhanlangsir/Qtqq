@@ -12,8 +12,7 @@
 #include "qqmsg.h"
 #include "qqsetting.h"
 
-FriendChatLog::FriendChatLog(QString id, QString to_id):
-    id_(id),
+FriendChatLog::FriendChatLog(QString to_id):
     to_id_(to_id),
     page_count_(0),
     curr_page_(0)
@@ -90,7 +89,7 @@ void FriendChatLog::parse(QByteArray &arr, QVector<ShareQQMsgPtr> &chat_logs)
 
         int cmd = arr.mid(cmd_s_idx, cmd_e_idx - cmd_s_idx).toInt();
 
-        msg->from_uin_ = cmd == 17 ? uin : id_;
+        msg->from_uin_ = cmd == 17 ? uin : QQSettings::instance()->loginId();
 
         int time_s_idx = arr.indexOf("time:", log_s_idx)+5;
 

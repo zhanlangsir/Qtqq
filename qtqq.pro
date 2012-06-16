@@ -13,7 +13,8 @@ INCLUDEPATH += .
 
 QT += network \
       sql \
-      xml
+      xml \
+      webkit
 
 OBJECTS_DIR = ./.intermediate/obj
 MOC_DIR = ./.intermediate/moc

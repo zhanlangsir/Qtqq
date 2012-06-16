@@ -9,7 +9,6 @@
 #include <QVector>
 
 #include "core/qqlogincore.h"
-#include "qqwidget.h"
 
 class QByteArray;
 class QTcpSocket;
@@ -18,7 +17,7 @@ namespace Ui {
 class QQLoginWin;
 }
 
-struct LoginInfo
+struct AccountRecord
 {
     QString id_;
     QString pwd_;
@@ -26,9 +25,9 @@ struct LoginInfo
     bool rem_pwd_;
 };
 
-Q_DECLARE_METATYPE(LoginInfo*)
+Q_DECLARE_METATYPE(AccountRecord*)
 
-class QQLoginWin : public QQWidget
+class QQLoginWin : public QWidget
 {
     Q_OBJECT
 signals:
@@ -39,7 +38,6 @@ public:
     ~QQLoginWin();
 
 public:
-    FriendInfo getCurrentUserInfo() const;
     void saveConfig();
 
 protected:
@@ -58,17 +56,17 @@ private:
     void showCapImg(QPixmap pix);
     FriendStatus getLoginStatus() const;
     void readUsers();
-    LoginInfo* findById(QString id) const;
+    AccountRecord* findById(QString id) const;
     void setUserLoginInfo(QString text);
     int getStatusIndex(FriendStatus status) const;
     
 private:
+
     Ui::QQLoginWin *ui;
 
     QQLoginCore *login_core_;
-    FriendInfo curr_user_info_;
-    QVector<LoginInfo*>login_infos_;
-    LoginInfo *curr_login_info_;
+    QVector<AccountRecord*>login_records_;
+    AccountRecord *curr_login_account_;
     QString auto_login_id_;
 };
 

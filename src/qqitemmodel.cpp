@@ -16,9 +16,6 @@ QQItemModel::QQItemModel(QObject *parent) :
     icon_size_(40, 40),
     root_(new QQItem())
 {
-    ItemInfo *info = new ItemInfo();
-    info->set_markName("root");
-    root_->set_itemInfo(info);
     connect(this, SIGNAL(noAvatar(QQItem*)), this, SLOT(requestAvatar(QQItem*)));
 }
 

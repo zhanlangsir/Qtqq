@@ -1,7 +1,7 @@
 #ifndef QTQQ_QQCHATLOGWIN_H
 #define QTQQ_QQCHATLOGWIN_H
 
-#include "qqwidget.h"
+#include <QWidget>
 #include "core/qqmsg.h"
 
 namespace Ui
@@ -12,7 +12,7 @@ class QQChatLogWin;
 class QQChatLog;
 class NameConvertor;
 
-class QQChatLogWin : public QQWidget
+class QQChatLogWin : public QWidget
 {
     Q_OBJECT
 public:

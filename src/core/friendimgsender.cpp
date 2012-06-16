@@ -8,6 +8,7 @@
 
 #include "captchainfo.h"
 #include "request.h"
+#include "qqsetting.h"
 
 FriendImgSender::FriendImgSender()
 {
@@ -22,7 +23,7 @@ QByteArray FriendImgSender::createSendMsg(const QByteArray &file_data, const QSt
     QByteArray msg = boundary_convenience + "Content-Disposition: form-data; name=\"callback\"\r\n\r\n"
         "parent.EQQ.Model.ChatMsg.callbackSendPic\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"locallangid\"\r\n\r\n"
         "2052\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"clientversion\"\r\n\r\n"
-        "1409\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"uin\"\r\n\r\n" + id_.toAscii() + "\r\n"
+        "1409\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"uin\"\r\n\r\n" + QQSettings::instance()->loginId().toAscii() + "\r\n"
         +boundary_convenience+"Content-Disposition: form-data; name=\"skey\"\r\n\r\n" + CaptchaInfo::singleton()->skey().toAscii() + "\r\n"
         +boundary_convenience+"Content-Disposition: form-data; name=\"appid\"\r\n\r\n"
         "1002101\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"peeruin\"\r\n\r\n"
@@ -52,7 +53,7 @@ FileInfo FriendImgSender::parseResult(const QByteArray &array)
 
     QTcpSocket fd;
     QString apply_offline_pic_url = "/channel/apply_offline_pic_dl2?f_uin=" +
-        id_ + "&file_path=" + network_path + "&clientid=5412354841&psessionid="+CaptchaInfo::singleton()->psessionid() +
+        QQSettings::instance()->loginId() + "&file_path=" + network_path + "&clientid=5412354841&psessionid="+CaptchaInfo::singleton()->psessionid() +
             "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
 
     Request req;
@@ -67,7 +68,10 @@ FileInfo FriendImgSender::parseResult(const QByteArray &array)
     fd.write(req.toByteArray());
 
     fd.close();
-    FileInfo file_info = {file_size, file_name, network_path};
+    FileInfo file_info;
+    file_info.size =file_size;
+    file_info.name = file_name;
+    file_info.network_path = network_path;
     return file_info;
 }
 

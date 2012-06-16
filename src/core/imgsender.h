@@ -1,9 +1,9 @@
 #pragma once
 
+#include <QThread>
+
 #include "types.h"
 #include "request.h"
-
-#include <QThread>
 
 //快速上传两次图片可能会丢失，记得更改
 class ImgSender : public QThread
@@ -14,7 +14,7 @@ public:
     ~ImgSender() {}
 
 public:
-    void send(const QString uinque_id, const QString full_path, const QString id);
+    void send(const QString uinque_id, const QString full_path);
 
     bool hasError()
     { return has_error_; }
@@ -32,7 +32,6 @@ protected:
     QString base_send_url_;
     QString full_path_;
     QString host_;
-    QString id_;
 
 private:
     virtual QByteArray createSendMsg(const QByteArray &file_data, const QString &boundary) = 0;

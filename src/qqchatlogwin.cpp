@@ -13,11 +13,11 @@
 #include "core/nameconvertor.h"
 
 QQChatLogWin::QQChatLogWin(QWidget *parent) :
-    QQWidget(parent),
+    QWidget(parent),
     ui_(new Ui::QQChatLogWin),
     chat_log_(NULL)
 {
-    ui_->setupUi(contentWidget());
+    ui_->setupUi(this);
 
     connect(ui_->btn_first, SIGNAL(clicked()), this, SLOT(getFirstPage()));
     connect(ui_->btn_last, SIGNAL(clicked()), this, SLOT(getLastPage()));
