@@ -132,7 +132,7 @@ bool QQChatDlg::eventFilter(QObject *obj, QEvent *e)
         {
             if (send_by_return_)
             {
-               te_input_.insertPlainText("\n");
+                te_input_.insertPlainText("\n");
             }
             else
                 sendMsg();
@@ -158,30 +158,43 @@ ImgLoader *QQChatDlg::getImgLoader() const
 
 QString QQChatDlg::converToShow(const QString &converting_html)
 {
-    int p_s_idx = converting_html.indexOf("<p")+2;
-    int p_e_idx =converting_html.indexOf("</p>");
+    QRegExp p_reg("<p(.*)</p>");
+    p_reg.setMinimal(true);
 
-    QString content = "<span" + converting_html.mid(p_s_idx, p_e_idx - p_s_idx) + "</span>";
+    QString convered_html;
 
-    QRegExp img_req("<img src=\"[^\"]*\"");
-    if ( img_req.indexIn(content) != -1 )
+    int pos = 0;
+    pos = p_reg.indexIn(converting_html, pos);
+    while ( pos != -1 )
     {
-        foreach (QString img_str, img_req.capturedTexts())
+        QString content = p_reg.cap(0);
+
+        QRegExp img_req("<img src=\"[^\"]*\"");
+        if ( img_req.indexIn(content) != -1 )
         {
-            if ( img_str.indexOf(kQQFacePre) == -1 )
+            foreach (QString img_str, img_req.capturedTexts())
             {
-                QRegExp uuid_req("<img src=\"([^\"]*)\"");
-                uuid_req.indexIn(content);
-                content.replace(uuid_req.cap(1), id_file_hash_[uuid_req.cap(1)].local_path);
+                if ( img_str.indexOf(kQQFacePre) == -1 )
+                {
+                    QRegExp uuid_req("<img src=\"([^\"]*)\"");
+                    uuid_req.indexIn(content);
+                    content.replace(uuid_req.cap(1), id_file_hash_[uuid_req.cap(1)].local_path);
+                }
             }
         }
+        convered_html = convered_html + content;
+        pos += p_reg.cap(0).length();
+        pos = p_reg.indexIn(converting_html, pos);
+
+        if ( pos != -1 )
+            convered_html += "<br>";
     }
 
     QRegExp qqface_reg(kQQFacePre + "([0-9]*)");
     QString face_path = QQSettings::instance()->resourcePath() + "/qqface/default/\\1.gif";
-    content.replace(qqface_reg, face_path);
+    convered_html.replace(qqface_reg, face_path);
 
-    return content;
+    return convered_html;
 }
 
 QQChatLog *QQChatDlg::getChatlog() const

@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QMouseEvent>
 #include <QFileDialog>
+#include <QRegExp>
 
 #include "core/friendimgsender.h"
 #include "core/qqskinengine.h"
@@ -80,48 +81,54 @@ QString QQFriendChatDlg::converToJson(const QString &raw_msg)
     QString msg_template = "r={\"to\":" + id_ +",\"face\":525,"
             "\"content\":\"[";
 
-    int idx = raw_msg.indexOf("<p");
-    int content_idx = raw_msg.indexOf(">", idx)+1;
+    //ÊèêÂèñ<p>....</p>ÂÜÖÂÆπ
+    QRegExp p_reg("(<p.*</p>)");
+    p_reg.setMinimal(true);
 
-    int content_end_idx = raw_msg.indexOf("</p>", content_idx);
-    QString content = raw_msg.mid(content_idx, content_end_idx - content_idx);
-
-    while (!content.isEmpty())
+    int pos = 0;
+    while ( (pos = p_reg.indexIn(raw_msg, pos)) != -1 )
     {
-        if (content[0] == '<')
+        QString content = p_reg.cap(0);
+        while (!content.isEmpty())
         {
-            int match_end_idx = content.indexOf('>')+1;
-            QString single_chat_item = content.mid(0, match_end_idx);
-
-            int img_idx = single_chat_item.indexOf("src");
-            if (img_idx != -1)
+            if (content[0] == '<')
             {
-                img_idx += 5;
-                int img_end_idx = content.indexOf("\"", img_idx);
-                QString src = content.mid(img_idx, img_end_idx - img_idx);
+                int match_end_idx = content.indexOf('>')+1;
+                QString single_chat_item = content.mid(0, match_end_idx);
 
-                if (src.contains(kQQFacePre))
+                int img_idx = single_chat_item.indexOf("src");
+                if (img_idx != -1)
                 {
-                    msg_template.append("[\\\"face\\\"," + src.mid(kQQFacePre.length()) + "],");
+                    img_idx += 5;
+                    int img_end_idx = content.indexOf("\"", img_idx);
+                    QString src = content.mid(img_idx, img_end_idx - img_idx);
+
+                    if (src.contains(kQQFacePre))
+                    {
+                        msg_template.append("[\\\"face\\\"," + src.mid(kQQFacePre.length()) + "],");
+                    }
+                    else
+                    {
+                        msg_template.append("[\\\"offpic\\\",\\\""+ id_file_hash_[src].network_path + "\\\",\\\""+ id_file_hash_[src].name + "\\\"," + QString::number(id_file_hash_[src].size) + "],");
+                    }
                 }
-                else
-                {
-                    msg_template.append("[\\\"offpic\\\",\\\""+ id_file_hash_[src].network_path + "\\\",\\\""+ id_file_hash_[src].name + "\\\"," + QString::number(id_file_hash_[src].size) + "],");
-                }
+
+                content = content.mid(match_end_idx);
             }
-
-            content = content.mid(match_end_idx);
-        }
-        else
-        {
-            int idx = content.indexOf("<");
-            //&∑˚∫≈µƒhtml±Ì æŒ™&amp;∂¯‘⁄json÷–Œ™%26,À˘“‘“™Ω¯––◊™ªª
-            msg_template.append("\\\"" + content.mid(0,idx).replace("&amp;", "%26") + "\\\",");
-            if (idx == -1)
-                content = "";
             else
-                content = content.mid(idx);
+            {
+                int idx = content.indexOf("<");
+                //&Á¨¶Âè∑ÁöÑhtmlË°®Á§∫‰∏∫&amp;ËÄåÂú®json‰∏≠‰∏∫%26,ÊâÄ‰ª•Ë¶ÅËøõË°åËΩ¨Êç¢
+                msg_template.append("\\\"" + content.mid(0,idx).replace("&amp;", "%26").replace('+', "%2B").replace(';', "%3B") + "\\\",");
+                if (idx == -1)
+                    content = "";
+                else
+                    content = content.mid(idx);
+            }
         }
+
+        msg_template.append("\\\"\\\\n\\\",");
+        pos += p_reg.cap(0).length();
     }
 
     msg_template = msg_template +

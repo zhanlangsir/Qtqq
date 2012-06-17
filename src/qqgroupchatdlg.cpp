@@ -9,6 +9,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QRegExp>
 
 #include "include/json/json.h"
 
@@ -504,58 +505,63 @@ QString QQGroupChatDlg::converToJson(const QString &raw_msg)
     bool has_gface = false;
     QString msg_template;
 
-    int idx = raw_msg.indexOf("<p");
-    int content_idx = raw_msg.indexOf(">", idx)+1;
+    //提取<p>....</p>内容
+    QRegExp p_reg("(<p.*</p>)");
+    p_reg.setMinimal(true);
 
-    int content_end_idx = raw_msg.indexOf("</p>", content_idx);
-    QString content = raw_msg.mid(content_idx, content_end_idx - content_idx);
-
-    while (!content.isEmpty())
+    int pos = 0;
+    while ( (pos = p_reg.indexIn(raw_msg, pos)) != -1 )
     {
-        if (content[0] == '<')
-        {           
-            int match_end_idx = content.indexOf('>')+1;
-            QString single_chat_item = content.mid(0, match_end_idx);
-
-            int img_idx = single_chat_item.indexOf("src");
-            if (img_idx != -1)
-            {
-                img_idx += 5;
-                int img_end_idx = content.indexOf("\"", img_idx);
-                QString src = content.mid(img_idx, img_end_idx - img_idx);
-
-                if (src.contains(kQQFacePre))
-                {
-                    msg_template.append("[\\\"face\\\"," + src.mid(kQQFacePre.length()) + "],");
-                }
-                else
-                {
-                    has_gface = true;
-                    msg_template.append("[\\\"cface\\\",\\\"group\\\",\\\"" + id_file_hash_[src].name + "\\\"],");
-                }
-
-//                if (src.contains("-"))
-//                {
-//                    has_gface = true;
-//                    msg_template.append("[\\\"cface\\\",\\\"group\\\",\\\"" + id_file_hash_[src].name + "\\\"],");
-//                }
-//                else
-//                {
-//                    msg_template.append("[\\\"face\\\"," + src + "],");
-//                }
-            }
-
-            content = content.mid(match_end_idx);
-        }
-        else
+        QString content = p_reg.cap(0);
+        while (!content.isEmpty())
         {
-            int idx = content.indexOf("<");
-            msg_template.append("\\\"" + content.mid(0, idx).replace("&amp;", "%26") + "\\\",");
-            if (idx == -1)
-                content = "";
+            if (content[0] == '<')
+            {           
+                int match_end_idx = content.indexOf('>')+1;
+                QString single_chat_item = content.mid(0, match_end_idx);
+
+                int img_idx = single_chat_item.indexOf("src");
+                if (img_idx != -1)
+                {
+                    img_idx += 5;
+                    int img_end_idx = content.indexOf("\"", img_idx);
+                    QString src = content.mid(img_idx, img_end_idx - img_idx);
+
+                    if (src.contains(kQQFacePre))
+                    {
+                        msg_template.append("[\\\"face\\\"," + src.mid(kQQFacePre.length()) + "],");
+                    }
+                    else
+                    {
+                        has_gface = true;
+                        msg_template.append("[\\\"cface\\\",\\\"group\\\",\\\"" + id_file_hash_[src].name + "\\\"],");
+                    }
+                    //                if (src.contains("-"))
+                    //                {
+                    //                    has_gface = true;
+                    //                    msg_template.append("[\\\"cface\\\",\\\"group\\\",\\\"" + id_file_hash_[src].name + "\\\"],");
+                    //                }
+                    //                else
+                    //                {
+                    //                    msg_template.append("[\\\"face\\\"," + src + "],");
+                    //                }
+                }
+
+                content = content.mid(match_end_idx);
+            }
             else
-                content = content.mid(idx);
+            {
+                int idx = content.indexOf("<");
+                msg_template.append("\\\"" + content.mid(0, idx).replace("&amp;", "%26").replace('+', "%2B").replace(';', "%3B") + "\\\",");
+                if (idx == -1)
+                    content = "";
+                else
+                    content = content.mid(idx);
+            }
         }
+
+        msg_template.append("\\\"\\\\n\\\",");
+        pos += p_reg.cap(0).length();
     }
 
     msg_template = msg_template +

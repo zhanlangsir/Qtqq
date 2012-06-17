@@ -21,7 +21,7 @@ FriendChatLog::FriendChatLog(QString to_id):
 
 QVector<ShareQQMsgPtr> FriendChatLog::getLog(int page)
 {
-    QString url = "/cgi-bin/webqq_chat/?cmd=1&tuin=" + to_id_ + "&vfwebqq="+ CaptchaInfo::singleton()->vfwebqq() +"&page="+ QString::number(page-1) +
+    QString url = "/cgi-bin/webqq_chat/?cmd=1&tuin=" + to_id_ + "&vfwebqq="+ CaptchaInfo::singleton()->vfwebqq() +"&page="+ QString::number(page_count_ - page + 1) +
             "&row=10&callback=alloy.app.chatLogViewer.rederChatLog&t=" +
             QString::number(QDateTime::currentMSecsSinceEpoch());
 
