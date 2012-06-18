@@ -8,7 +8,7 @@
 #include "frienditemmodel.h"
 #include "core/qqmsg.h"
 #include "core/captchainfo.h"
-#include "include/json/json.h"
+#include "include/json.h"
 
 QQGroupRequestDlg::QQGroupRequestDlg(const ShareQQMsgPtr msg, FriendItemModel *f_model, GroupItemModel *g_model, QWidget *parent) : QDialog(parent),
     ui_(new Ui::QQGroupRequestDlg)

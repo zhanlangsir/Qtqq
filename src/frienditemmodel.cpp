@@ -1,8 +1,9 @@
 #include "frienditemmodel.h"
 
 #include <QDateTime>
+#include <QTcpSocket>
 
-#include "include/json/json.h"
+#include "include/json.h"
 #include "core/nameconvertor.h"
 #include "core/captchainfo.h"
 

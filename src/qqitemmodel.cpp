@@ -1,5 +1,5 @@
 #include "qqitemmodel.h"
-#include "include/json/json.h"
+#include "include/json.h"
 #include <QPixmap>
 #include <QIcon>
 #include <assert.h>

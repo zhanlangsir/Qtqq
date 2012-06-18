@@ -5,11 +5,12 @@
 include (src/src.pro)
 include (3rdparty/log4qt/src/log4qt/log4qt.pri)
 include (3rdparty/qxtglobalshortcut/qxtglobalshortcut.pri)
+include (3rdparty/jsoncpp/jsoncpp.pri)
 
 TEMPLATE = app
 TARGET =
 
-INCLUDEPATH += .
+INCLUDEPATH +=  .
 
 QT += network \
       sql \
@@ -19,9 +20,6 @@ QT += network \
 OBJECTS_DIR = ./.intermediate/obj
 MOC_DIR = ./.intermediate/moc
 UI_HEADERS_DIR = ./.intermediate/ui
-
-win32:LIBS += ./libs/libjson.a
-unix:LIBS += ./libs/libjson.so
 
 RESOURCES += misc/img.qrc
 

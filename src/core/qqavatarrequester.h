@@ -1,9 +1,9 @@
-#pragma once
+#ifndef QTQQ_CORE_QQAVATARREQUESTER_H
+#define QTQQ_CORE_QQAVATARREQUESTER_H
 
 #include <QHash>
 #include <QList>
 #include <QQueue>
-#include <QTcpSocket>
 #include <QThread>
 
 #include "request.h"
@@ -31,3 +31,5 @@ private:
 
     bool finish_;
 };
+
+#endif //QTQQ_CORE_QQAVATARREQUESTER_H

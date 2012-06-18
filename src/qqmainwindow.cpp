@@ -13,7 +13,7 @@
 #include <QEvent>
 
 #include "3rdparty/qxtglobalshortcut/qxtglobalshortcut.h"
-#include "include/json/json.h"
+#include "include/json.h"
 
 #include "core/qqavatarrequester.h"
 #include "core/types.h"

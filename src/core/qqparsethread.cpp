@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-#include "include/json/json.h"
+#include "include/json.h"
 #include "qqutility.h"
 
 void QQParseThread::pushRawMsg(QByteArray msg)

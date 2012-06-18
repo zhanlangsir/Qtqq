@@ -48,6 +48,10 @@ public:
 public slots:
     void insertQQFace(const QString &face_id);
 
+protected:
+    void insertFromMimeData( const QMimeData *source );
+    bool canInsertFromMimeData( const QMimeData *source );
+
 private:
     QList<QString> file_ids_;
 };

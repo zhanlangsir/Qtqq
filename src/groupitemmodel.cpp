@@ -1,6 +1,6 @@
 #include "groupitemmodel.h"
 
-#include "include/json/json.h"
+#include "include/json.h"
 #include "core/nameconvertor.h"
 
 void GroupItemModel::parse(const QByteArray &array, NameConvertor *convertor)

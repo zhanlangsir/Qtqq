@@ -11,7 +11,7 @@
 #include <QSqlError>
 #include <QRegExp>
 
-#include "include/json/json.h"
+#include "include/json.h"
 
 #include "qqitemmodel.h"
 #include "core/qqutility.h"

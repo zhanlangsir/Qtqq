@@ -90,3 +90,12 @@ void QQTextEdit::replaceIdToName(QString id, QString name)
 
     cursor.insertText(name);
 }
+
+
+void QQTextEdit::insertFromMimeData( const QMimeData *source )
+{
+}
+
+bool QQTextEdit::canInsertFromMimeData( const QMimeData *source )
+{
+}

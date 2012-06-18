@@ -1,6 +1,7 @@
 #include "qqavatarrequester.h"
 
 #include <QFile>
+#include <QTcpSocket>
 
 #include "request.h"
 #include "captchainfo.h"
