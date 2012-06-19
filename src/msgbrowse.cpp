@@ -71,8 +71,14 @@ void MsgBrowse::initUi()
 void MsgBrowse::appendContent(QString content, const ShowOptions &options)
 {
     content.replace("\n", "<br>");
-    QRegExp link_reg("((http://)*www\\..*.(com|info|net|cn))");
-    content.replace(link_reg, "<a href=\"http://\\1\">\\1</a>");
+    QRegExp link_reg("((http)://|www\\.)[0-9A-Za-z:/\\.?=]*");
+    QString a_templace = "<a href=\"";
+
+    if ( link_reg.indexIn(content) != -1 )
+        if ( link_reg.cap(2).isEmpty() )
+            a_templace += "http://";
+
+    content.replace(link_reg, a_templace  + link_reg.cap(0) + "\">" + link_reg.cap(0)+ "</a>");
     /*
     switch (options.type)
     {
