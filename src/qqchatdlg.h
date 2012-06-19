@@ -56,6 +56,7 @@ public:
 protected:
     void closeEvent(QCloseEvent *);
     bool eventFilter(QObject * obj, QEvent * e);
+    void jsonEncoding(QString &escasing);
 
 protected:
     QString send_url_;

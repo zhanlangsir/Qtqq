@@ -5,7 +5,8 @@
 #include <QTextBlock>
 #include <QTextBlockFormat>
 #include <QTextCharFormat>
-#include <QFile>
+#include <QMimeData>
+#include <QMimeData>
 #include <QDebug>
 
 #include "core/qqsetting.h"
@@ -94,8 +95,11 @@ void QQTextEdit::replaceIdToName(QString id, QString name)
 
 void QQTextEdit::insertFromMimeData( const QMimeData *source )
 {
+    this->insertHtml(source->text());
 }
 
 bool QQTextEdit::canInsertFromMimeData( const QMimeData *source )
 {
+     qDebug()<<source->html();
+     return false;
 }

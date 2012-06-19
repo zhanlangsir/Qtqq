@@ -5,8 +5,7 @@
 #include <QFile>
 #include <QDebug>
 #include <QDateTime>
-#include <QNetworkCookieJar>
-#include <QNetworkCookie>
+#include <QWebPage>
 
 #include "core/qqsetting.h"
 #include "core/captchainfo.h"
@@ -35,6 +34,8 @@ MsgBrowse::MsgBrowse(QWidget *parent) :
     setAcceptDrops(false);
     setContextMenuPolicy(Qt::CustomContextMenu);
     setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+
+        this->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
 }
 
 void MsgBrowse::initUi()

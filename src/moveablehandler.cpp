@@ -11,7 +11,6 @@ MoveableHandler::MoveableHandler(QWidget *parent) :
     handing_widget_->installEventFilter(this);
 }
 
-
 bool MoveableHandler::eventFilter(QObject *obj, QEvent *e)
 {
     switch (e->type())

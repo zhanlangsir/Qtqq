@@ -119,7 +119,9 @@ QString QQFriendChatDlg::converToJson(const QString &raw_msg)
             {
                 int idx = content.indexOf("<");
                 //&符号的html表示为&amp;而在json中为%26,所以要进行转换
-                msg_template.append("\\\"" + content.mid(0,idx).replace("&amp;", "%26").replace('+', "%2B").replace(';', "%3B") + "\\\",");
+                QString word = content.mid(0,idx);
+                jsonEncoding(word);
+                msg_template.append("\\\"" + word + "\\\",");
                 if (idx == -1)
                     content = "";
                 else

@@ -151,6 +151,11 @@ bool QQChatDlg::eventFilter(QObject *obj, QEvent *e)
     return false;
 }
 
+void QQChatDlg::jsonEncoding(QString &escasing)
+{
+    escasing.replace("&lt;", "%3C").replace("&gt;", "%3E").replace("&amp;", "%26").replace('+', "%2B").replace(';', "%3B");
+}
+
 ImgLoader *QQChatDlg::getImgLoader() const
 {
     return new ImgLoader();

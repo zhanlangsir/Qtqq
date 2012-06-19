@@ -552,7 +552,10 @@ QString QQGroupChatDlg::converToJson(const QString &raw_msg)
             else
             {
                 int idx = content.indexOf("<");
-                msg_template.append("\\\"" + content.mid(0, idx).replace("&amp;", "%26").replace('+', "%2B").replace(';', "%3B") + "\\\",");
+                QString word = content.mid(0,idx);
+                jsonEncoding(word);
+                msg_template.append("\\\"" + word + "\\\",");
+
                 if (idx == -1)
                     content = "";
                 else

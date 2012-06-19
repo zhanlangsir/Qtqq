@@ -1,4 +1,5 @@
-#pragma once
+#ifndef QTQQ_QQFRIENDCHATDLG_H
+#define QTQQ_QQFRIENDCHATDLG_H
 
 #include <QDateTime>
 
@@ -33,3 +34,5 @@ private:
     Ui::QQFriendChatDlg *ui;
     QString avatar_path_;
 };
+
+#endif //QTQQ_QQFRIENDCHATDLG_H
