@@ -419,14 +419,14 @@ void QQGroupChatDlg::getInfoById(QString id, QString &name, QString &avatar_path
             name = item->name();
             avatar_path = item->avatarPath().isEmpty() ? QQSkinEngine::instance()->getSkinRes("default_friend_avatar") : item->avatarPath();
             ok = true;
+            return;
         }
     }
-    else
-    {
-        name = convertor_.convert(id);
-        avatar_path = QQSkinEngine::instance()->getSkinRes("default_friend_avatar");
-        ok = false;
-    }
+
+
+    name = convertor_.convert(id);
+    avatar_path = QQSkinEngine::instance()->getSkinRes("default_friend_avatar");
+    ok = false;
 }
 
 void QQGroupChatDlg::getGroupMemberList()
