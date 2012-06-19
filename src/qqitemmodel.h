@@ -33,7 +33,12 @@ public:
         return icon_size_;
     }
 
-    void setRoot(QQItem *root);
+    void insertItem(QQItem *item);
+    void insertItem(QQItem *item, QQItem *parent);
+
+    void improveItem(QString id);
+
+    QQItem *rootItem() const;
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &child) const;
 

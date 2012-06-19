@@ -2,10 +2,12 @@
 
 #include <QByteArray>
 #include <QWebFrame>
-#include <QFile>
 #include <QDebug>
+#include <QFile>
 #include <QDateTime>
 #include <QWebPage>
+#include <QRegExp>
+#include <QDesktopServices>
 
 #include "core/qqsetting.h"
 #include "core/captchainfo.h"
@@ -35,7 +37,13 @@ MsgBrowse::MsgBrowse(QWidget *parent) :
     setContextMenuPolicy(Qt::CustomContextMenu);
     setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
-        this->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+    this->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks   );
+    connect(page(), SIGNAL(linkClicked(const QUrl &)), this, SLOT(onLinkClicked(const QUrl &)));
+}
+
+void MsgBrowse::onLinkClicked(const QUrl &url)
+{
+    QDesktopServices::openUrl(url); 
 }
 
 void MsgBrowse::initUi()
@@ -63,6 +71,8 @@ void MsgBrowse::initUi()
 void MsgBrowse::appendContent(QString content, const ShowOptions &options)
 {
     content.replace("\n", "<br>");
+    QRegExp link_reg("((http://)*www\\..*.(com|info|net|cn))");
+    content.replace(link_reg, "<a href=\"http://\\1\">\\1</a>");
     /*
     switch (options.type)
     {

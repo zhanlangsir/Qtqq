@@ -2,10 +2,11 @@
 #include "include/json.h"
 #include <QPixmap>
 #include <QIcon>
-#include <assert.h>
 #include <QFile>
 #include <QPainter>
 #include <QVector>
+
+#include <assert.h>
 
 #include "core/qqitem.h"
 #include "core/qqskinengine.h"
@@ -30,6 +31,42 @@ QQItemModel::~QQItemModel()
         delete root_;
         root_ = NULL;
     }
+}
+
+void QQItemModel::insertItem(QQItem *item)
+{
+    assert(item);
+    root_->children_.append(item);
+
+    items_.append(item);
+}
+
+void QQItemModel::improveItem(QString id)
+{
+    QQItem *item = find(id);
+    if (item)
+    {
+        int idx = item->parent()->children_.indexOf(item);
+        beginInsertRows(QModelIndex(), 0, 0);
+        item->parent()->children_.remove(idx);
+        item->parent()->children_.push_front(item);
+        endInsertRows();
+    }
+}
+
+void QQItemModel::insertItem(QQItem *item, QQItem *parent)
+{
+    assert(item && parent);
+    int parent_idx = items_.indexOf(parent);
+    assert(parent_idx != -1);
+
+    parent->children_.append(item);
+    items_.append(item);
+}
+
+QQItem *QQItemModel::rootItem() const
+{
+    return root_;
 }
 
 QVariant QQItemModel::data(const QModelIndex &index, int role) const
@@ -165,11 +202,6 @@ void QQItemModel::requestAvatar(QQItem *item)
     avatar_requester_.request(item);
 }
 
-void QQItemModel::setRoot(QQItem *root)
-{
-    root_ = root;
-}
-
 QModelIndex QQItemModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!root_ || row < 0 || column < 0)
@@ -225,5 +257,7 @@ QQItem* QQItemModel::itemFromIndex(const QModelIndex &index) const
         return static_cast<QQItem*>(index.internalPointer());
     }
     else
+    {
         return root_;
+    }
 }

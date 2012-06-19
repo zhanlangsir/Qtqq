@@ -25,7 +25,7 @@ QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, QS
     QQChatDlg(gid, name, parent),
     ui(new Ui::QQGroupChatDlg()),
     group_code_(group_code),
-    member_root_(new QQItem())
+    model_(NULL)
 {
    ui->setupUi(this);
    updateSkin();
@@ -54,8 +54,6 @@ QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, QS
 
    this->resize(600, 500);
 
-   //QScrollBar *bar = te_messages_.verticalScrollBar();
-   //connect(bar, SIGNAL(rangeChanged(int, int)), this, SLOT(silderToBottom(int, int)));
    connect(ui->btn_send_img, SIGNAL(clicked(bool)), this, SLOT(openPathDialog(bool)));
    connect(ui->btn_send_msg, SIGNAL(clicked()), this, SLOT(sendMsg()));
    connect(ui->btn_qqface, SIGNAL(clicked()), this, SLOT(openQQFacePanel()));
@@ -83,7 +81,14 @@ QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, QS
 
 QQGroupChatDlg::~QQGroupChatDlg()
 {
-    disconnect(this);
+    if ( model_ )
+    {
+        delete model_;
+        model_ = NULL;
+    }
+
+    disconnect();
+    http_.disconnect(this);
     delete ui;
 }
 
@@ -247,7 +252,7 @@ void QQGroupChatDlg::createSigSql()
     }
 }
 
-void QQGroupChatDlg::parseGroupMemberList(const QByteArray &array, QQItem *const root_item)
+void QQGroupChatDlg::parseGroupMemberList(const QByteArray &array)
 {
     Json::Value root;
     Json::Reader reader;
@@ -262,15 +267,14 @@ void QQGroupChatDlg::parseGroupMemberList(const QByteArray &array, QQItem *const
         QString nick = QString::fromStdString(members[i]["nick"].asString());
         QString uin = QString::number(members[i]["uin"].asLargestInt());
 
-        QQItem *info = new QQItem(QQItem::kFriend, nick, uin, root_item);
+        QQItem *info = new QQItem(QQItem::kFriend, nick, uin, model_->rootItem());
         info->set_status(kOffline);
-        root_item->children_.append(info);
+        model_->insertItem(info);
 
         convertor_.addUinNameMap(uin, nick);
     }
 
     Json::Value stats = root["result"]["stats"];
-
     for (unsigned int i = 0; i < stats.size(); ++i)
     {
         ClientType client_type = (ClientType)stats[i]["client_type"].asInt();
@@ -278,22 +282,11 @@ void QQGroupChatDlg::parseGroupMemberList(const QByteArray &array, QQItem *const
         FriendStatus stat = (FriendStatus)stats[i]["stat"].asInt();
         QString uin = QString::number(stats[i]["uin"].asLargestInt());
 
-        QQItem *item  = NULL;
-        int j;
-        for (j = 0; j < root_item->children_.count(); ++j)
-        {
-            if (root_item->children_[j]->id() == uin)
-            {
-                item = root_item->children_[j];
-                break;
-            }
-        }
-
+        QQItem *item  = model_->find(uin);
         item->set_status(stat);
         item->set_clientType(client_type);
 
-        root_item->children_.remove(j);
-        root_item->children_.push_front(item);
+        model_->improveItem(uin);
     }
 }
 
@@ -321,8 +314,8 @@ void QQGroupChatDlg::readFromSql()
     QString read_command = "SELECT * FROM groupmemberinfo WHERE groupmemberinfo.gid == %1";
     query.exec(read_command.arg(id_));
     
-    QQItemModel *model = new QQItemModel(this);
-    model->setIconSize(QSize(25, 25));
+    model_ = new QQItemModel();
+    model_->setIconSize(QSize(25, 25));
 
     while (query.next())
     {
@@ -331,20 +324,19 @@ void QQGroupChatDlg::readFromSql()
         FriendStatus stat = (FriendStatus)query.value(3).toInt();
         QString avatar_path = query.value(4).toString();
 
-        QQItem *info = new QQItem(QQItem::kFriend, nick, uin, member_root_);
+        QQItem *info = new QQItem(QQItem::kFriend, nick, uin, model_->rootItem());
         info->set_status(stat);
         info->set_avatarPath(avatar_path);
 
         if (info->status() == kOffline)
-            member_root_->children_.push_back(info);
+            model_->rootItem()->children_.push_back(info);
         else
-            member_root_->children_.push_front(info);
+            model_->rootItem()->children_.push_front(info);
 
         convertor_.addUinNameMap(uin, nick);
     }
 
-    model->setRoot(member_root_);
-    ui->lv_members_->setModel(model);
+    ui->lv_members_->setModel(model_);
 
     QString drop_command = "DROP TABLE IF EXISTS groupmemberinfo";
     query.exec(drop_command);
@@ -362,6 +354,9 @@ void QQGroupChatDlg::replaceUnconverId()
 
 void QQGroupChatDlg::writeMemberInfoToSql()
 {
+    if ( !model_ )
+        return;
+
     {
         QStringList connection_names = QSqlDatabase::connectionNames();
         QSqlDatabase db;
@@ -378,18 +373,29 @@ void QQGroupChatDlg::writeMemberInfoToSql()
         if (!db.open())
             return;
 
-        QSqlQuery query;
-        QSqlDatabase::database().transaction();
-
         createSql();
-        for (int i = 0; i < member_root_->children_.count(); ++i)
-        {
-            QQItem *item = member_root_->children_[i];
 
-            QString insert_command = "INSERT INTO groupmemberinfo VALUES (%1, %2, '%3', %4, '%5')";
-            query.exec(insert_command.arg(item->id()).arg(id_).arg(item->name()).arg(item->status()).arg(item->avatarPath()));
+        QSqlQuery query;
+
+        query.exec("SELECT count(*) FROM groupmemberinfo WHERE gid == " + id_);
+
+        if (!query.first())
+            qDebug()<<query.lastError()<<endl;
+
+        int exist_record_count = query.value(0).toInt();
+
+        if ( !exist_record_count )
+        {
+            QSqlDatabase::database().transaction();
+            for (int i = 0; i < model_->rootItem()->children_.count(); ++i)
+            {
+                QQItem *item = model_->rootItem()->children_[i];
+
+                QString insert_command = "INSERT INTO groupmemberinfo VALUES (%1, %2, '%3', %4, '%5')";
+                query.exec(insert_command.arg(item->id()).arg(id_).arg(item->name()).arg(item->status()).arg(item->avatarPath()));
+            }
+            QSqlDatabase::database().commit();
         }
-        QSqlDatabase::database().commit();
     }
     QString name;{
         name = QSqlDatabase::database().connectionName();
@@ -400,30 +406,27 @@ void QQGroupChatDlg::writeMemberInfoToSql()
 
 QQItem *QQGroupChatDlg::findItemById(QString id) const
 {
-    QQItem *item  = NULL;
-    foreach (item, member_root_->children_)
-    {
-        if (item->id() == id)
-            return item;
-    }
-    return NULL;
+    return model_->find(id);
 }
 
 void QQGroupChatDlg::getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const
 {
-    foreach (QQItem *item, member_root_->children_)
+    if ( model_ )
     {
-        if (item->id() == id)
+        QQItem *item =  model_->find(id);
+        if ( item )
         {
             name = item->name();
             avatar_path = item->avatarPath().isEmpty() ? QQSkinEngine::instance()->getSkinRes("default_friend_avatar") : item->avatarPath();
             ok = true;
-            return;
         }
     }
-    name = convertor_.convert(id);
-    avatar_path = QQSkinEngine::instance()->getSkinRes("default_friend_avatar");
-    ok = false;
+    else
+    {
+        name = convertor_.convert(id);
+        avatar_path = QQSkinEngine::instance()->getSkinRes("default_friend_avatar");
+        ok = false;
+    }
 }
 
 void QQGroupChatDlg::getGroupMemberList()
@@ -490,12 +493,11 @@ void QQGroupChatDlg::getGroupMemberListDone(bool err)
     QByteArray groups_member_info = http_.readAll();
     http_.close();
 
-    QQItemModel *model = new QQItemModel(this);
-    model->setIconSize(QSize(25, 25));
-    parseGroupMemberList(groups_member_info, member_root_);
-    model->setRoot(member_root_);
+    model_ = new QQItemModel();
+    model_->setIconSize(QSize(25, 25));
+    parseGroupMemberList(groups_member_info);
 
-    ui->lv_members_->setModel(model);
+    ui->lv_members_->setModel(model_);
 
    replaceUnconverId();
 }

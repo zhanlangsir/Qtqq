@@ -165,6 +165,7 @@ void QQLoginWin::onPbLoginClicked()
     curr_login_account_->login_status_ = getLoginStatus();
     curr_login_account_->rem_pwd_ = ui->cekb_rem_pwd_->isChecked();
 
+    ui->pb_login->setEnabled(false);
     qDebug()<<"login ing...."<<endl;
     //this->hide();
     checkAccoutStatus();
@@ -199,6 +200,7 @@ void QQLoginWin::loginDone(QQLoginCore::LoginResult result)
         }
 
         saveConfig();
+        ui->pb_login->setEnabled(true);
         this->hide();
         emit sig_loginFinish();
     }
@@ -215,6 +217,7 @@ void QQLoginWin::loginDone(QQLoginCore::LoginResult result)
         box.setInformativeText(tr("The password is not correct, the reason may be:\nForgot password; Not case sensitive; Not open small keyboard."));
 
         box.exec();
+        ui->pb_login->setEnabled(true);
     }
         break;
 
@@ -228,14 +231,17 @@ void QQLoginWin::loginDone(QQLoginCore::LoginResult result)
         box.setInformativeText(tr("The Authcode is not correct! Please relogin!"));
 
         box.exec();
+        ui->pb_login->setEnabled(true);
     }
         break;
 
     case QQLoginCore::kUnknowErr:
         ui->cekb_autologin_->setChecked(false);
+        ui->pb_login->setEnabled(true);
         break;
 
     default:
+        ui->pb_login->setEnabled(true);
         break;
     }
 }

@@ -163,16 +163,16 @@ ImgLoader *QQChatDlg::getImgLoader() const
 
 QString QQChatDlg::converToShow(const QString &converting_html)
 {
-    QRegExp p_reg("<p(.*)</p>");
+    QRegExp p_reg("<p.*>(.*)</p>");
     p_reg.setMinimal(true);
 
-    QString convered_html;
+    QString converted_html;
 
     int pos = 0;
     pos = p_reg.indexIn(converting_html, pos);
     while ( pos != -1 )
     {
-        QString content = p_reg.cap(0);
+        QString content = p_reg.cap(1);
 
         QRegExp img_req("<img src=\"[^\"]*\"");
         if ( img_req.indexIn(content) != -1 )
@@ -187,19 +187,19 @@ QString QQChatDlg::converToShow(const QString &converting_html)
                 }
             }
         }
-        convered_html = convered_html + content;
+        converted_html = converted_html + content;
         pos += p_reg.cap(0).length();
         pos = p_reg.indexIn(converting_html, pos);
 
         if ( pos != -1 )
-            convered_html += "<br>";
+            converted_html += "<br>";
     }
 
     QRegExp qqface_reg(kQQFacePre + "([0-9]*)");
     QString face_path = QQSettings::instance()->resourcePath() + "/qqface/default/\\1.gif";
-    convered_html.replace(qqface_reg, face_path);
-
-    return convered_html;
+    converted_html.replace(qqface_reg, face_path);
+    converted_html = "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">" + converted_html + "</span>";
+    return converted_html;
 }
 
 QQChatLog *QQChatDlg::getChatlog() const

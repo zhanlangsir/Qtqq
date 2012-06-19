@@ -6,6 +6,7 @@
 #include <QUrl>
 #include <QDateTime>
 #include <QTextCodec>
+#include <QDesktopWidget>
 
 #include "core/qqchatlog.h"
 #include "core/qqmsg.h"
@@ -18,6 +19,9 @@ QQChatLogWin::QQChatLogWin(QWidget *parent) :
     chat_log_(NULL)
 {
     ui_->setupUi(this);
+
+    move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
+    ui_->msgbrowse->setReadOnly(true);
 
     connect(ui_->btn_first, SIGNAL(clicked()), this, SLOT(getFirstPage()));
     connect(ui_->btn_last, SIGNAL(clicked()), this, SLOT(getLastPage()));

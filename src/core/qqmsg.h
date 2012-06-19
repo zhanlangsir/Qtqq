@@ -1,4 +1,5 @@
-#pragma once
+#ifndef QTQQ_CORE_QQMSG_H
+#define QTQQ_CORE_QQMSG_H
 
 #include "types.h"
 
@@ -128,3 +129,5 @@ public:
     QString t_request_uin_;
     QString msg_;
 };
+
+#endif //QTQQ_CORE_QQMSG_H

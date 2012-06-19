@@ -142,6 +142,7 @@ void FriendChatLog::parse(QByteArray &arr, QVector<ShareQQMsgPtr> &chat_logs)
                     item.set_type(QQChatItem::kQQFace);
                     int faceid_s_idx = img_type_e_idx + 2;
                     int faceid_e_idx = arr.indexOf("]", faceid_s_idx);
+                    item.set_content(arr.mid(faceid_s_idx, faceid_e_idx-faceid_s_idx));
 
                     chat_item_e_idx = faceid_e_idx;
                 }

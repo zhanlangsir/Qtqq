@@ -3,6 +3,7 @@
 
 #include <QWebView>
 #include <QDateTime>
+#include <QUrl>
 
 #include "core/qqmsg.h"
 
@@ -29,6 +30,9 @@ private:
     void     initUi();
     QString scriptForAppendContent(bool isCombine);
     void replaceKeyWord(QString &html, const ShowOptions &options);
+
+private slots:
+    void onLinkClicked(const QUrl &url);
     
 private:
     QString last_send_id_;

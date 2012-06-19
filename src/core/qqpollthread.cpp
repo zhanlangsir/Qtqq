@@ -23,7 +23,7 @@ void QQPollThread::run()
 
         qDebug()<<"pre"<<pre<<endl;
         qDebug()<<"result"<<result<<endl;
-        if (pre == result)
+        if (pre.mid(pre.indexOf("\r\n\r\n")+4) == result.mid(result.indexOf("\r\n\r\n"))+4)
         {
             fd.close();
             continue;

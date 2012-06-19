@@ -16,6 +16,7 @@ namespace Ui
 class QMouseEvent;
 class QWidget;
 class QQItem;
+class QQItemModel;
 
 class QQGroupChatDlg : public QQChatDlg
 {
@@ -43,13 +44,15 @@ private:
     void getGroupMemberList();
     void createSql();
     void createSigSql();
-    void parseGroupMemberList(const QByteArray &array, QQItem *const root_item);
+    void parseGroupMemberList(const QByteArray &array);
     void readFromSql();
     void readSigFromSql();
     void replaceUnconverId();
     void writeMemberInfoToSql();
     QQItem *findItemById(QString id) const;
     void getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const;
+
+    void test() {}
 
 private:
     Ui::QQGroupChatDlg *ui;
@@ -58,8 +61,8 @@ private:
     QString gface_key_;
     QString gface_sig_;
     QPoint distance_pos_;
-
-    QQItem *member_root_;
+    QQItemModel *model_;
+    //QQItem *member_root_;
     QString connection_name_;
 };
 

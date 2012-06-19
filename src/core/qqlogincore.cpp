@@ -24,6 +24,7 @@ QQLoginCore::QQLoginCore()
 QQLoginCore::~QQLoginCore()
 {
     fd_->close();
+    fd_->deleteLater();
     delete fd_;
 }
 
