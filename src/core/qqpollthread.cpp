@@ -47,8 +47,6 @@ void QQPollThread::run()
         result.clear();
         fd.abort();
         fd.close();
-
-        this->usleep(1000);
     }
 }
 

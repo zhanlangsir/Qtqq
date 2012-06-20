@@ -83,7 +83,8 @@ QQChatDlg::~QQChatDlg()
     if (msg_sender_)
     {
         msg_sender_->terminate();
-        delete msg_sender_;
+        msg_sender_->wait();
+        msg_sender_->deleteLater();
     }
     msg_sender_ = NULL;
 }

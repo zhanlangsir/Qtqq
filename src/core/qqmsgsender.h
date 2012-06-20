@@ -8,6 +8,11 @@
 class QQMsgSender : public QThread
 {
 public:
+    QQMsgSender()
+    {
+        this->setTerminationEnabled(true);
+    }
+
     ~QQMsgSender();
 
 public:

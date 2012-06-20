@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("Qtqq");
 
     QApplication a(argc, argv);
-
+    a.setQuitOnLastWindowClosed(false);
 
     Log4Qt::LogManager::setHandleQtMessages(true);
     Log4Qt::PropertyConfigurator::configure("log4qt.conf");
