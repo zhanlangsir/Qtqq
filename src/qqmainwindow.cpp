@@ -529,6 +529,7 @@ void QQMainWindow::openChatDlg(QQMsg::MsgType type, QString id, QString gcode)
 
         dlg= new QQFriendChatDlg(id, convertor_.convert(id), avatar_path);
         connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
+        connect(dlg, SIGNAL(msgSended(QString,bool)), recent_model_, SLOT(improveItem(QString)));
         msg_center_->registerListener(dlg);
     }
     else //kGroup
@@ -542,6 +543,7 @@ void QQMainWindow::openChatDlg(QQMsg::MsgType type, QString id, QString gcode)
 
         dlg = new QQGroupChatDlg(id, convertor_.convert(id), gcode, avatar_path);
         connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
+        connect(dlg, SIGNAL(msgSended(QString,bool)), recent_model_, SLOT(improveItem(QString)));
 
         msg_center_->registerListener(dlg);
     }

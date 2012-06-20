@@ -102,6 +102,12 @@ void QQChatDlg::setSendByReturn(bool checked)
     }
 }
 
+void QQChatDlg::onMsgSendDone(bool ok, QString msg)
+{
+    Q_UNUSED(msg)
+    emit msgSended(id_, ok);
+}
+
 void QQChatDlg::setSendByCtrlReturn(bool checked)
 {
     Q_UNUSED(checked)
@@ -403,6 +409,7 @@ void QQChatDlg::sendMsg()
     if (!msg_sender_)
     {
         msg_sender_ = new QQMsgSender();
+        connect(msg_sender_, SIGNAL(sendDone(bool, QString)), this, SLOT(onMsgSendDone(bool, QString)));
     }
     
     msg_sender_->send(req);

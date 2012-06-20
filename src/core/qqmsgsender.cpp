@@ -1,11 +1,7 @@
 #include "qqmsgsender.h"
 
 #include <QTcpSocket>
-
-
-QQMsgSender::~QQMsgSender()
-{
-}
+#include <QDebug>
 
 void QQMsgSender::send(const Request &req)
 {
@@ -24,7 +20,9 @@ void QQMsgSender::run()
         fd.write(req.toByteArray());
 
         fd.waitForReadyRead();
-        fd.readAll();
+        qDebug()<<fd.readAll()<<endl;
+
+        emit sendDone(true, "msg send done");
 
         fd.close();
     }

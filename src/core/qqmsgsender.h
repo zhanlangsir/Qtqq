@@ -1,4 +1,5 @@
-#pragma once
+#ifndef QTQQ_CORE_QQMSGSENDER_H
+#define QTQQ_CORE_QQMSGSENDER_H
 
 #include "request.h"
 
@@ -7,13 +8,15 @@
 
 class QQMsgSender : public QThread
 {
+    Q_OBJECT
+signals:
+    void sendDone(bool ok, QString msg);
+
 public:
     QQMsgSender()
     {
         this->setTerminationEnabled(true);
     }
-
-    ~QQMsgSender();
 
 public:
     void send(const Request &msg);
@@ -24,3 +27,5 @@ protected:
 private:
     QQueue<Request> msgs_be_send_;
 };
+
+#endif //QTQQ_CORE_QQMSGSENDER_H

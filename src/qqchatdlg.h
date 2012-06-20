@@ -1,23 +1,23 @@
 #ifndef QTQQ_QQCHATDLG_H
 #define QTQQ_QQCHATDLG_H
 
+#include <QDateTime>
 #include <QDialog>
 #include <QHash>
 #include <QScrollBar>
-#include <QDateTime>
 #include <QTcpSocket>
 #include <QUuid>
 
-#include "qqfacepanel.h"
-#include "qqtextedit.h"
 #include "core/types.h"
 #include "core/nameconvertor.h"
 #include "core/qqmsglistener.h"
 #include "core/qqmsgsender.h"
 #include "msgbrowse.h"
+#include "qqfacepanel.h"
+#include "qqtextedit.h"
 
-class QMenu;
 class QAction;
+class QMenu;
 class QShortcut;
 
 class ImgSender;
@@ -30,6 +30,7 @@ class QQChatDlg : public QWidget, public QQMsgListener
     Q_OBJECT
 signals:
     void chatFinish(QQChatDlg *listener);
+    void msgSended(QString to_uin, bool ok);
 
 public:
     enum ChatDlgType {kGroup, kFriend};
@@ -78,7 +79,7 @@ private slots:
     void openChatLogWin();
     void sendMsg();
     void setFileInfo(QString unique_id, FileInfo file_info);
-
+    void onMsgSendDone(bool ok, QString msg);
     void setSendByReturn(bool checked);
     void setSendByCtrlReturn(bool checked);
 
