@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QTextCodec>
 #include <QSettings>
+#include <QTranslator>
 
 #include "log4qt/logger.h"
 #include "log4qt/propertyconfigurator.h"
@@ -20,6 +21,12 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
     a.setQuitOnLastWindowClosed(false);
+
+    QTranslator translator;
+    QString transla_file_path = "resources/translate/";
+    qDebug()<<QLocale::system().name();
+    translator.load("qtqq_" + QLocale::system().name(), transla_file_path);
+    a.installTranslator(&translator);
 
     Log4Qt::LogManager::setHandleQtMessages(true);
     Log4Qt::PropertyConfigurator::configure("log4qt.conf");

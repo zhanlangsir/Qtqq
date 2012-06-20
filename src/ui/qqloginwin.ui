@@ -64,7 +64,7 @@
      <widget class="QCheckBox" name="cekb_autologin_">
       <property name="geometry">
        <rect>
-        <x>250</x>
+        <x>230</x>
         <y>150</y>
         <width>82</width>
         <height>20</height>
