@@ -1,9 +1,7 @@
-#include "qqloginwin.h"
-#include "ui_qqloginwin.h"
+#include "loginwin.h"
+#include "ui_loginwin.h"
 #include "ui_captcha.h"
 
-#include <QDesktopServices>
-#include <QUrl>
 #include <fstream>
 #include <QByteArray>
 #include <QDebug>
@@ -15,6 +13,8 @@
 #include <QDesktopWidget>
 #include <QSettings>
 #include <QMetaType>
+#include <QDesktopServices>
+#include <QUrl>
 
 #include "core/types.h"
 #include "core/request.h"
@@ -23,9 +23,9 @@
 #include "core/qqsetting.h"
 #include "core/qqskinengine.h"
 
-QQLoginWin::QQLoginWin(QQLoginCore *login_core, QWidget *parent) :
+LoginWin::LoginWin(QQLoginCore *login_core, QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::QQLoginWin()),
+    ui(new Ui::LoginWin()),
     login_core_(login_core),
     curr_login_account_(NULL)
 {
@@ -64,7 +64,7 @@ QQLoginWin::QQLoginWin(QQLoginCore *login_core, QWidget *parent) :
     }
 }
 
-QQLoginWin::~QQLoginWin()
+LoginWin::~LoginWin()
 {
     foreach (AccountRecord *record, login_records_)
     {
@@ -78,7 +78,7 @@ QQLoginWin::~QQLoginWin()
 }
 
 
-void QQLoginWin::readUsers()
+void LoginWin::readUsers()
 {
     std::ifstream is;
     is.open("users.json", std::ios::in);
@@ -114,7 +114,7 @@ void QQLoginWin::readUsers()
 }
 
 inline
-AccountRecord* QQLoginWin::findById(QString id) const
+AccountRecord* LoginWin::findById(QString id) const
 {
     foreach(AccountRecord *record, login_records_)
     {
@@ -125,7 +125,7 @@ AccountRecord* QQLoginWin::findById(QString id) const
 }
 
 inline
-void QQLoginWin::setUserLoginInfo(QString text)
+void LoginWin::setUserLoginInfo(QString text)
 {
     AccountRecord *record = findById(text);
     if (!record)
@@ -134,20 +134,20 @@ void QQLoginWin::setUserLoginInfo(QString text)
     ui->le_password_->setText(record->pwd_);
     ui->cekb_rem_pwd_->setChecked(record->rem_pwd_);
     ui->cekb_autologin_->setChecked((record->id_ == auto_login_id_));
-    ui->cb_status_->setCurrentIndex(getStatusIndex(record->login_status_));
+    ui->cb_status->setCurrentIndex(getStatusIndex(record->login_status_));
 }
 
-int QQLoginWin::getStatusIndex(FriendStatus status) const
+int LoginWin::getStatusIndex(FriendStatus status) const
 {
-    for (int i = 0; i < ui->cb_status_->count(); ++i)
+    for (int i = 0; i < ui->cb_status->count(); ++i)
     {
-        if (ui->cb_status_->itemData(i).value<FriendStatus>() == status)
+        if (ui->cb_status->itemData(i).value<FriendStatus>() == status)
             return i;
     }
     return -1;
 }
 
-void QQLoginWin::onPbLoginClicked()
+void LoginWin::onPbLoginClicked()
 {
     if (ui->comb_username_->currentText().isEmpty() || ui->le_password_->text().isEmpty())
     {
@@ -173,7 +173,7 @@ void QQLoginWin::onPbLoginClicked()
     checkAccoutStatus();
 }
 
-void QQLoginWin::loginDone(QQLoginCore::LoginResult result)
+void LoginWin::loginDone(QQLoginCore::LoginResult result)
 {
     switch (result)
     {
@@ -248,18 +248,18 @@ void QQLoginWin::loginDone(QQLoginCore::LoginResult result)
     }
 }
 
-void QQLoginWin::onCekbAutoLoginClick(bool checked)
+void LoginWin::onCekbAutoLoginClick(bool checked)
 {
     if (checked)
         ui->cekb_rem_pwd_->setChecked(true);
 }
 
-void QQLoginWin::currentUserChanged(QString text)
+void LoginWin::currentUserChanged(QString text)
 {
     setUserLoginInfo(text);
 }
 
-void QQLoginWin::idChanged(QString text)
+void LoginWin::idChanged(QString text)
 {
     AccountRecord *record = findById(text);
     if (!record)
@@ -267,7 +267,7 @@ void QQLoginWin::idChanged(QString text)
         ui->le_password_->clear();
         ui->cekb_rem_pwd_->setChecked(false);
         ui->cekb_autologin_->setChecked(false);
-        ui->cb_status_->setCurrentIndex(0);
+        ui->cb_status->setCurrentIndex(0);
     }
     else
     {
@@ -275,7 +275,17 @@ void QQLoginWin::idChanged(QString text)
     }
 }
 
-void QQLoginWin::checkAccoutStatus()
+void LoginWin::on_register_account_linkActivated(const QString &link)
+{
+    QDesktopServices::openUrl(QUrl(link));
+}
+
+void LoginWin::on_find_password_linkActivated(const QString &link)
+{
+    QDesktopServices::openUrl(QUrl(link));
+}
+
+void LoginWin::checkAccoutStatus()
 {
     qDebug()<<"begin checkaccount status"<<endl;
     if (login_core_->checkState(ui->comb_username_->currentText()) == QQLoginCore::kExceptionCpaImg)
@@ -291,7 +301,7 @@ void QQLoginWin::checkAccoutStatus()
     }
 }
 
-bool QQLoginWin::eventFilter(QObject *obj, QEvent *e)
+bool LoginWin::eventFilter(QObject *obj, QEvent *e)
 {
     if (obj == ui->comb_username_)
     {
@@ -309,7 +319,7 @@ bool QQLoginWin::eventFilter(QObject *obj, QEvent *e)
         return QWidget::eventFilter(obj, e);
 }
 
-void QQLoginWin::showCapImg(QPixmap pix)
+void LoginWin::showCapImg(QPixmap pix)
 {
     QDialog *captcha_dialog = new QDialog();
     Ui::QQCaptcha *ui = new Ui::QQCaptcha;
@@ -328,7 +338,7 @@ void QQLoginWin::showCapImg(QPixmap pix)
     login_core_->login(curr_login_account_->id_, curr_login_account_->pwd_, getLoginStatus(), vc);
 }
 
-FriendStatus QQLoginWin::getLoginStatus() const
+FriendStatus LoginWin::getLoginStatus() const
 {
     QSettings setting("options.ini", QSettings::IniFormat);
     FriendStatus status;
@@ -339,24 +349,24 @@ FriendStatus QQLoginWin::getLoginStatus() const
     }
     else
     {
-        int idx = ui->cb_status_->currentIndex();
-        status = ui->cb_status_->itemData(idx).value<FriendStatus>();
+        int idx = ui->cb_status->currentIndex();
+        status = ui->cb_status->itemData(idx).value<FriendStatus>();
     }
 
     return status;
 }
 
-void QQLoginWin::setupStatus()
+void LoginWin::setupStatus()
 {
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_online")), tr("在线"), QVariant::fromValue<FriendStatus>(kOnline));
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_qme")), tr("Q我"), QVariant::fromValue<FriendStatus>(kCallMe));
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_away")), tr("离开"), QVariant::fromValue<FriendStatus>(kAway));
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_busy")), tr("忙碌"), QVariant::fromValue<FriendStatus>(kBusy));
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_mute")), tr("勿扰"), QVariant::fromValue<FriendStatus>(kSilent));
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_hidden")), tr("隐身"), QVariant::fromValue<FriendStatus>(kHidden));
+    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_online")), tr("Online"), QVariant::fromValue<FriendStatus>(kOnline));
+    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_qme")), tr("CallMe"), QVariant::fromValue<FriendStatus>(kCallMe));
+    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_away")), tr("Away"), QVariant::fromValue<FriendStatus>(kAway));
+    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_busy")), tr("Busy"), QVariant::fromValue<FriendStatus>(kBusy));
+    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_mute")), tr("Silent"), QVariant::fromValue<FriendStatus>(kSilent));
+    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_hidden")), tr("Hidden"), QVariant::fromValue<FriendStatus>(kHidden));
 }
 
-void QQLoginWin::saveConfig()
+void LoginWin::saveConfig()
 {
     Json::FastWriter writer;
     Json::Value login_info;
@@ -379,15 +389,4 @@ void QQLoginWin::saveConfig()
     os.open("users.json", std::ios::out);
     os<<writer.write(root);
     os.close();
-}
-
-void QQLoginWin::on_label_register_linkActivated(const QString &link)
-{
-
-    QDesktopServices::openUrl(QUrl(link));
-}
-
-void QQLoginWin::on_label_findback_linkActivated(const QString &link)
-{
-    QDesktopServices::openUrl(QUrl(link));
 }
