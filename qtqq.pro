@@ -23,3 +23,4 @@ UI_HEADERS_DIR = ./.intermediate/ui
 
 RESOURCES += misc/img.qrc
 
+TRANSLATIONS += cn.ts
