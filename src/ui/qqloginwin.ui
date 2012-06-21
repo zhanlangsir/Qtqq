@@ -52,6 +52,11 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="font">
+      <font>
+       <underline>false</underline>
+      </font>
+     </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
@@ -64,7 +69,7 @@
      <widget class="QCheckBox" name="cekb_autologin_">
       <property name="geometry">
        <rect>
-        <x>250</x>
+        <x>210</x>
         <y>150</y>
         <width>82</width>
         <height>20</height>
@@ -86,7 +91,7 @@
        <string notr="true"/>
       </property>
       <property name="text">
-       <string>Auto Login</string>
+       <string>自动登录</string>
       </property>
      </widget>
      <widget class="QLineEdit" name="le_password_">
@@ -114,9 +119,9 @@
      <widget class="QCheckBox" name="cekb_rem_pwd_">
       <property name="geometry">
        <rect>
-        <x>100</x>
+        <x>120</x>
         <y>150</y>
-        <width>131</width>
+        <width>81</width>
         <height>20</height>
        </rect>
       </property>
@@ -136,7 +141,7 @@
        <string notr="true"/>
       </property>
       <property name="text">
-       <string>Remember Password</string>
+       <string>记住密码</string>
       </property>
      </widget>
      <widget class="QLabel" name="lbl_logo">
@@ -193,8 +198,8 @@
        <rect>
         <x>20</x>
         <y>150</y>
-        <width>69</width>
-        <height>22</height>
+        <width>71</width>
+        <height>24</height>
        </rect>
       </property>
       <property name="font">
@@ -202,6 +207,97 @@
         <family>微软雅黑</family>
         <pointsize>8</pointsize>
        </font>
+      </property>
+      <property name="contextMenuPolicy">
+       <enum>Qt::DefaultContextMenu</enum>
+      </property>
+      <property name="acceptDrops">
+       <bool>false</bool>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QComboBox::drop-down{
+ image: url(misc/down_arrow.png);
+}
+
+</string>
+      </property>
+      <property name="editable">
+       <bool>false</bool>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+      </property>
+      <property name="frame">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>70</y>
+        <width>63</width>
+        <height>65</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>resources/logo.png</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_register">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>90</y>
+        <width>51</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>8</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+        <underline>false</underline>
+        <kerning>true</kerning>
+       </font>
+      </property>
+      <property name="text">
+       <string>&lt;a href=&quot;http://zc.qq.com/chs/index.html&quot;&gt;注册帐号&lt;/a&gt;</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_findback">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>120</y>
+        <width>51</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>8</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>&lt;a href=&quot;https://aq.qq.com/cn2/findpsw/pc/pc_find_pwd_input_account&quot;&gt;找回密码&lt;/&gt;</string>
       </property>
      </widget>
     </widget>
@@ -257,7 +353,7 @@
        <string notr="true"/>
       </property>
       <property name="text">
-       <string>Login</string>
+       <string>登录</string>
       </property>
       <property name="default">
        <bool>true</bool>

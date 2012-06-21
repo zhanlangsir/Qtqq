@@ -2,6 +2,8 @@
 #include "ui_qqloginwin.h"
 #include "ui_captcha.h"
 
+#include <QDesktopServices>
+#include <QUrl>
 #include <fstream>
 #include <QByteArray>
 #include <QDebug>
@@ -346,12 +348,12 @@ FriendStatus QQLoginWin::getLoginStatus() const
 
 void QQLoginWin::setupStatus()
 {
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_online")), tr("Online"), QVariant::fromValue<FriendStatus>(kOnline));
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_qme")), tr("CallMe"), QVariant::fromValue<FriendStatus>(kCallMe));
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_away")), tr("Away"), QVariant::fromValue<FriendStatus>(kAway));
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_busy")), tr("Busy"), QVariant::fromValue<FriendStatus>(kBusy));
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_mute")), tr("Silent"), QVariant::fromValue<FriendStatus>(kSilent));
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_hidden")), tr("Hidden"), QVariant::fromValue<FriendStatus>(kHidden));
+    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_online")), tr("在线"), QVariant::fromValue<FriendStatus>(kOnline));
+    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_qme")), tr("Q我"), QVariant::fromValue<FriendStatus>(kCallMe));
+    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_away")), tr("离开"), QVariant::fromValue<FriendStatus>(kAway));
+    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_busy")), tr("忙碌"), QVariant::fromValue<FriendStatus>(kBusy));
+    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_mute")), tr("勿扰"), QVariant::fromValue<FriendStatus>(kSilent));
+    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_hidden")), tr("隐身"), QVariant::fromValue<FriendStatus>(kHidden));
 }
 
 void QQLoginWin::saveConfig()
@@ -377,4 +379,15 @@ void QQLoginWin::saveConfig()
     os.open("users.json", std::ios::out);
     os<<writer.write(root);
     os.close();
+}
+
+void QQLoginWin::on_label_register_linkActivated(const QString &link)
+{
+
+    QDesktopServices::openUrl(QUrl(link));
+}
+
+void QQLoginWin::on_label_findback_linkActivated(const QString &link)
+{
+    QDesktopServices::openUrl(QUrl(link));
 }
