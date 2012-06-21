@@ -14,7 +14,7 @@
 #include "core/imgloader.h"
 #include "core/imgsender.h"
 #include "core/captchainfo.h"
-#include "qqchatlogwin.h"
+#include "chatlogwin.h"
 #include "core/qqchatlog.h"
 #include "core/groupchatlog.h"
 #include "core/qqitem.h"
@@ -209,6 +209,11 @@ QString QQChatDlg::converToShow(const QString &converting_html)
     return converted_html;
 }
 
+QString QQChatDlg::escape(QString raw_html) const
+{
+    return raw_html.replace('<', "&lt").replace('>', "&gt");
+}
+
 QQChatLog *QQChatDlg::getChatlog() const
 {
     return NULL;
@@ -278,14 +283,16 @@ void QQChatDlg::showMsg(ShareQQMsgPtr msg)
                 msgbrowse_.appendContent(appending_content + "</span>", options);
                 appending_content.clear();
             }
-
-
-            if (i >= 1 && options.type == MsgBrowse::kWord)
-               appending_content += chat_msg->msg_[i].content();
             else
-               appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">" + chat_msg->msg_[i].content();
+            {
+                QString escaped_html = escape(chat_msg->msg_[i].content());
+                if (i >= 1 && options.type == MsgBrowse::kWord)
+                    appending_content += escaped_html;
+                else
+                    appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">" + escaped_html;
 
-            options.type = MsgBrowse::kWord;
+                options.type = MsgBrowse::kWord;
+            }
             break;
 
         case QQChatItem::kQQFace:
@@ -333,10 +340,19 @@ void QQChatDlg::showMsg(ShareQQMsgPtr msg)
                 msgbrowse_.appendContent(appending_content + "</span>", options);
                 appending_content.clear();
             }
-            QString url = "http://d.web2.qq.com/channel/get_cface2?lcid="+ chat_msg->msg_id_+
-                    "&guid="+ chat_msg->msg_[i].content() +"&to="+ id_ +
-                    "&count=5&time=1&clientid=5412354841&psessionid="+CaptchaInfo::singleton()->psessionid();
-            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img src=\""+ url +"\" />";
+
+            if (!img_loader_)
+            {
+                img_loader_ = getImgLoader();
+                connect(img_loader_, SIGNAL(loadDone(const QString&, const QString&)), &msgbrowse_, SLOT(replaceRealImg(const QString&, const QString&)));
+            }
+
+//            QString url = "http://d.web2.qq.com/channel/get_cface2?lcid="+ chat_msg->msg_id_+
+//                    "&guid="+ chat_msg->msg_[i].content() +"&to="+ id_ +
+//                    "&count=5&time=1&clientid=5412354841&psessionid="+CaptchaInfo::singleton()->psessionid();
+            QString uuid = getUniqueId();
+            img_loader_->loadFriendCface(uuid, chat_msg->msg_[i].content(), id_, chat_msg->msg_id_);
+            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img id=\""+ uuid + "\" src=\""+  QQSettings::instance()->resourcePath() + "/loading/loading.gif\" />";
             options.type = MsgBrowse::kImg;
         }
             break;
@@ -451,7 +467,7 @@ void QQChatDlg::openChatLogWin()
 {
     QQChatLog *chatlog = getChatlog();
 
-    QPointer<QQChatLogWin> chatlog_win = new QQChatLogWin();
+    QPointer<ChatLogWin> chatlog_win = new ChatLogWin();
     chatlog_win->setChatLog(chatlog);
     chatlog_win->setNameConvertor(&convertor_);
     chatlog_win->getFirstPage();

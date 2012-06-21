@@ -1,5 +1,5 @@
-#ifndef QTQQ_QQGROUPCHATDLG_H
-#define QTQQ_QQGROUPCHATDLG_H
+#ifndef QTQQ_GROUPCHATDLG_H
+#define QTQQ_GROUPCHATDLG_H
 
 #include <QHttp>
 #include <QSqlDatabase>
@@ -10,7 +10,7 @@
 
 namespace Ui
 {
-    class QQGroupChatDlg;
+    class GroupChatDlg;
 }
 
 class QMouseEvent;
@@ -18,12 +18,12 @@ class QWidget;
 class QQItem;
 class QQItemModel;
 
-class QQGroupChatDlg : public QQChatDlg
+class GroupChatDlg : public QQChatDlg
 {
     Q_OBJECT
 public:
-    QQGroupChatDlg(QString gid, QString name, QString group_code, QString avatar_path, QWidget *parent = 0);
-    ~QQGroupChatDlg();
+    GroupChatDlg(QString gid, QString name, QString group_code, QString avatar_path, QWidget *parent = 0);
+    ~GroupChatDlg();
 
 public:
     void updateSkin();
@@ -55,7 +55,7 @@ private:
     void test() {}
 
 private:
-    Ui::QQGroupChatDlg *ui;
+    Ui::GroupChatDlg *ui;
     QHttp http_;
     QString group_code_;
     QString gface_key_;
@@ -66,4 +66,4 @@ private:
     QString connection_name_;
 };
 
-#endif //QTQQ_QQGROUPCHATDLG_H
+#endif //QTQQ_GROUPCHATDLG_H

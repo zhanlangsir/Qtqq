@@ -5,8 +5,8 @@
 
 #include "core/qqlogincore.h"
 
-class QQLoginWin;
-class QQMainWindow;
+class LoginWin;
+class MainWindow;
 
 class Qtqq : public QObject
 {
@@ -23,9 +23,9 @@ private slots:
     void restart();
 
 private:
-    QQLoginWin *login_dlg_;
+    LoginWin *login_dlg_;
     QQLoginCore *login_core_;
-    QQMainWindow *mainpanel_;
+    MainWindow *mainpanel_;
 };
 
 #endif // QTQQ_QTQQ_H

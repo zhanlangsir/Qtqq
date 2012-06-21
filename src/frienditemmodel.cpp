@@ -87,7 +87,7 @@ void FriendItemModel::setMarkName(QString mark_name, QString id)
         item->set_markName(mark_name);
 }
 
-void FriendItemModel::addFriend(QString id, QString mark_name, QString groupidx, FriendStatus status)
+void FriendItemModel::addItem(QString id, QString mark_name, QString groupidx, FriendStatus status)
 {
     QString get_friend_info_url = "/api/get_friend_info2?tuin="+ id +"&verifysession=&code=&vfwebqq=" + CaptchaInfo::singleton()->vfwebqq() + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
 

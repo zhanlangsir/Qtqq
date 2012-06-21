@@ -1,5 +1,5 @@
-#ifndef QTQQ_CORE_QQPARSETHREAD_H
-#define QTQQ_CORE_QQPARSETHREAD_H
+#ifndef QTQQ_CORE_PARSETHREAD_H
+#define QTQQ_CORE_PARSETHREAD_H
 
 #include "qqmsg.h"
 #include "include/json.h"
@@ -10,11 +10,11 @@
 #include <QQueue>
 #include <QMutex>
 
-class QQParseThread : public QThread
+class ParseThread : public QThread
 {
     Q_OBJECT
 public:
-    QQParseThread();
+    ParseThread();
 
 public slots:
     void pushRawMsg(QByteArray msg);
@@ -33,4 +33,4 @@ private:
    QMutex lock_;
 };
 
-#endif //QTQQ_CORE_QQPARSETHREAD_H
+#endif //QTQQ_CORE_PARSETHREAD_H

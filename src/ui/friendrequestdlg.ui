@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QQFriendRequestDlg</class>
- <widget class="QDialog" name="QQFriendRequestDlg">
+ <class>FriendRequestDlg</class>
+ <widget class="QDialog" name="FriendRequestDlg">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>326</width>
-    <height>306</height>
+    <height>353</height>
    </rect>
   </property>
   <property name="windowTitle">

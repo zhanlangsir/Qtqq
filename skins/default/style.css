@@ -1,4 +1,12 @@
-﻿#loginWindow {
+﻿#logo {
+    background-image:url(%skin_path%/misc/logo.png);
+}
+
+#cb_status::drop-down {
+    image: url(%skin_path%/login_win/down_arrow.png);
+}
+
+#loginWindow {
     qproperty-background:url(%skin_path%/login_win/login_bg.png);
 }
 

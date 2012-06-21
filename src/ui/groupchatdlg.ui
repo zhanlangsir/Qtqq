@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QQGroupChatDlg</class>
- <widget class="QWidget" name="QQGroupChatDlg">
+ <class>GroupChatDlg</class>
+ <widget class="QWidget" name="GroupChatDlg">
   <property name="geometry">
    <rect>
     <x>0</x>

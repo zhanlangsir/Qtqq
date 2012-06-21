@@ -2,6 +2,39 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="zh_CN">
 <context>
+    <name>ChatLogWin</name>
+    <message>
+        <location filename="src/ui/chatlogwin.ui" line="20"/>
+        <source>Form</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="src/ui/chatlogwin.ui" line="47"/>
+        <source>&lt;&lt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="src/ui/chatlogwin.ui" line="54"/>
+        <source>&lt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="src/ui/chatlogwin.ui" line="77"/>
+        <source>TextLabel</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="src/ui/chatlogwin.ui" line="84"/>
+        <source>&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/ui/chatlogwin.ui" line="91"/>
+        <source>&gt;&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Dialog</name>
     <message>
         <location filename="src/ui/friendinfodlg.ui" line="14"/>
@@ -36,6 +69,42 @@
     </message>
 </context>
 <context>
+    <name>FriendChatDlg</name>
+    <message>
+        <location filename="src/ui/friendchatdlg.ui" line="20"/>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/ui/friendchatdlg.ui" line="51"/>
+        <location filename="src/ui/friendchatdlg.ui" line="69"/>
+        <location filename="src/ui/friendchatdlg.ui" line="76"/>
+        <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/ui/friendchatdlg.ui" line="174"/>
+        <location filename="src/ui/friendchatdlg.ui" line="197"/>
+        <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message utf8="true">
+        <location filename="src/ui/friendchatdlg.ui" line="253"/>
+        <source>消息记录</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message utf8="true">
+        <location filename="src/ui/friendchatdlg.ui" line="301"/>
+        <source>关闭</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message utf8="true">
+        <location filename="src/ui/friendchatdlg.ui" line="308"/>
+        <source>发送</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FriendItemModel</name>
     <message>
         <location filename="src/frienditemmodel.cpp" line="22"/>
@@ -46,6 +115,142 @@
         <location filename="src/frienditemmodel.cpp" line="34"/>
         <source>Strangers</source>
         <translation>陌生人</translation>
+    </message>
+</context>
+<context>
+    <name>FriendRequestDlg</name>
+    <message>
+        <location filename="src/ui/friendrequestdlg.ui" line="14"/>
+        <source>Form</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="src/ui/friendrequestdlg.ui" line="31"/>
+        <source>TextLabel</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="src/ui/friendrequestdlg.ui" line="38"/>
+        <source>request to add you as friend!</source>
+        <translation>请求添加你为好友!</translation>
+    </message>
+    <message>
+        <location filename="src/ui/friendrequestdlg.ui" line="81"/>
+        <source>Allow and add</source>
+        <translation>允许并添加</translation>
+    </message>
+    <message>
+        <location filename="src/ui/friendrequestdlg.ui" line="93"/>
+        <source>Comment:</source>
+        <translation>注释:</translation>
+    </message>
+    <message>
+        <location filename="src/ui/friendrequestdlg.ui" line="113"/>
+        <source>Group:</source>
+        <translation>分组:</translation>
+    </message>
+    <message>
+        <location filename="src/ui/friendrequestdlg.ui" line="141"/>
+        <source>Allow</source>
+        <translation>允许</translation>
+    </message>
+    <message>
+        <location filename="src/ui/friendrequestdlg.ui" line="150"/>
+        <source>Deny</source>
+        <translation>拒绝</translation>
+    </message>
+    <message>
+        <location filename="src/ui/friendrequestdlg.ui" line="175"/>
+        <source>deny reason</source>
+        <translation>拒绝原因</translation>
+    </message>
+    <message>
+        <location filename="src/ui/friendrequestdlg.ui" line="206"/>
+        <source>Ok</source>
+        <translation>确定</translation>
+    </message>
+    <message>
+        <location filename="src/ui/friendrequestdlg.ui" line="216"/>
+        <source>Ignore</source>
+        <translation>忽略</translation>
+    </message>
+</context>
+<context>
+    <name>GroupChatDlg</name>
+    <message>
+        <location filename="src/ui/groupchatdlg.ui" line="20"/>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/ui/groupchatdlg.ui" line="51"/>
+        <location filename="src/ui/groupchatdlg.ui" line="75"/>
+        <location filename="src/ui/groupchatdlg.ui" line="82"/>
+        <location filename="src/ui/groupchatdlg.ui" line="365"/>
+        <location filename="src/ui/groupchatdlg.ui" line="372"/>
+        <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message utf8="true">
+        <location filename="src/ui/groupchatdlg.ui" line="252"/>
+        <source>消息记录</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message utf8="true">
+        <location filename="src/ui/groupchatdlg.ui" line="294"/>
+        <source>关闭</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message utf8="true">
+        <location filename="src/ui/groupchatdlg.ui" line="301"/>
+        <location filename="src/ui/groupchatdlg.ui" line="317"/>
+        <source>发送</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>GroupRequestDlg</name>
+    <message>
+        <location filename="src/ui/grouprequestdlg.ui" line="14"/>
+        <source>Dialog</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="src/ui/grouprequestdlg.ui" line="22"/>
+        <location filename="src/ui/grouprequestdlg.ui" line="33"/>
+        <location filename="src/ui/grouprequestdlg.ui" line="47"/>
+        <source>TextLabel</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="src/ui/grouprequestdlg.ui" line="40"/>
+        <source>request to enter group</source>
+        <translation>请求加入群</translation>
+    </message>
+    <message>
+        <location filename="src/ui/grouprequestdlg.ui" line="56"/>
+        <source>Addition infomation:</source>
+        <translation>附加信息:</translation>
+    </message>
+    <message>
+        <location filename="src/ui/grouprequestdlg.ui" line="87"/>
+        <source>Allow</source>
+        <translation>允许</translation>
+    </message>
+    <message>
+        <location filename="src/ui/grouprequestdlg.ui" line="96"/>
+        <source>Deny</source>
+        <translation>拒绝</translation>
+    </message>
+    <message>
+        <location filename="src/ui/grouprequestdlg.ui" line="151"/>
+        <source>Ok</source>
+        <translation>确定</translation>
+    </message>
+    <message>
+        <location filename="src/ui/grouprequestdlg.ui" line="158"/>
+        <source>Ignore</source>
+        <translation>忽略</translation>
     </message>
 </context>
 <context>
@@ -248,6 +453,209 @@
     </message>
 </context>
 <context>
+    <name>LoginWin</name>
+    <message>
+        <location filename="src/ui/loginwin.ui" line="95"/>
+        <source>Auto Login</source>
+        <translation>自动登陆</translation>
+    </message>
+    <message>
+        <location filename="src/ui/loginwin.ui" line="145"/>
+        <source>Remember Password</source>
+        <translation>记住密码</translation>
+    </message>
+    <message utf8="true">
+        <location filename="src/ui/loginwin.ui" line="220"/>
+        <source>&lt;a href=&quot;http://zc.qq.com/chs/index.html&quot;&gt;注册帐号&lt;/a&gt;</source>
+        <translation></translation>
+    </message>
+    <message utf8="true">
+        <location filename="src/ui/loginwin.ui" line="233"/>
+        <source>&lt;a href=&quot;https://aq.qq.com/cn2/findpsw/pc/pc_find_pwd_input_account&quot;&gt;找回密码&lt;/a&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="src/ui/loginwin.ui" line="289"/>
+        <source>Login</source>
+        <translation>登陆</translation>
+    </message>
+    <message>
+        <location filename="src/loginwin.cpp" line="156"/>
+        <source>username or password is empty! please input them</source>
+        <translation>用户名或者密码为空!请先输入</translation>
+    </message>
+    <message>
+        <location filename="src/loginwin.cpp" line="218"/>
+        <source>Password validation error!!</source>
+        <translation>密码验证失败!</translation>
+    </message>
+    <message>
+        <location filename="src/loginwin.cpp" line="219"/>
+        <source>The password is not correct, the reason may be:
+Forgot password; Not case sensitive; Not open small keyboard.</source>
+        <translation>密码错误，原因可能是：
+忘记密码;大小写错误;没有打开小键盘。</translation>
+    </message>
+    <message>
+        <location filename="src/loginwin.cpp" line="232"/>
+        <source>Authcode error!!</source>
+        <translation>验证码错误!!</translation>
+    </message>
+    <message>
+        <location filename="src/loginwin.cpp" line="233"/>
+        <source>The Authcode is not correct! Please relogin!</source>
+        <translation>验证码错误!请重新登陆!</translation>
+    </message>
+    <message>
+        <location filename="src/loginwin.cpp" line="361"/>
+        <source>Online</source>
+        <translation>在线</translation>
+    </message>
+    <message>
+        <location filename="src/loginwin.cpp" line="362"/>
+        <source>CallMe</source>
+        <translation>Q我</translation>
+    </message>
+    <message>
+        <location filename="src/loginwin.cpp" line="363"/>
+        <source>Away</source>
+        <translation>离开</translation>
+    </message>
+    <message>
+        <location filename="src/loginwin.cpp" line="364"/>
+        <source>Busy</source>
+        <translation>忙碌</translation>
+    </message>
+    <message>
+        <location filename="src/loginwin.cpp" line="365"/>
+        <source>Silent</source>
+        <translation>请安静</translation>
+    </message>
+    <message>
+        <location filename="src/loginwin.cpp" line="366"/>
+        <source>Hidden</source>
+        <translation>隐身</translation>
+    </message>
+</context>
+<context>
+    <name>MainWindow</name>
+    <message>
+        <location filename="src/ui/mainwindow.ui" line="26"/>
+        <location filename="src/ui/mainwindow.ui" line="107"/>
+        <source>LinuxQQ</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="src/ui/mainwindow.ui" line="117"/>
+        <source>Lv</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="src/ui/mainwindow.ui" line="149"/>
+        <source>Search</source>
+        <translation>查找</translation>
+    </message>
+    <message>
+        <location filename="src/ui/mainwindow.ui" line="185"/>
+        <source>Friends</source>
+        <translation>好友</translation>
+    </message>
+    <message>
+        <location filename="src/ui/mainwindow.ui" line="199"/>
+        <source>Groups</source>
+        <translation>Q群</translation>
+    </message>
+    <message>
+        <location filename="src/ui/mainwindow.ui" line="209"/>
+        <source>Recents</source>
+        <translation>最近联系</translation>
+    </message>
+    <message>
+        <location filename="src/ui/mainwindow.ui" line="265"/>
+        <source>MainMenu</source>
+        <translation>主菜单</translation>
+    </message>
+    <message>
+        <location filename="src/mainwindow.cpp" line="75"/>
+        <source>you</source>
+        <translation>你</translation>
+    </message>
+    <message>
+        <location filename="src/mainwindow.cpp" line="85"/>
+        <source>Mute</source>
+        <translation>静音</translation>
+    </message>
+    <message>
+        <location filename="src/mainwindow.cpp" line="395"/>
+        <source>Mi&amp;nimize</source>
+        <translation>最小化[&amp;M]</translation>
+    </message>
+    <message>
+        <location filename="src/mainwindow.cpp" line="398"/>
+        <source>&amp;Restore</source>
+        <translation>恢复[&amp;R]</translation>
+    </message>
+    <message>
+        <location filename="src/mainwindow.cpp" line="401"/>
+        <source>&amp;Quit</source>
+        <translation>退出[&amp;Q]</translation>
+    </message>
+    <message>
+        <location filename="src/mainwindow.cpp" line="404"/>
+        <source>&amp;Logout</source>
+        <translation>注销[&amp;L]</translation>
+    </message>
+    <message>
+        <location filename="src/mainwindow.cpp" line="447"/>
+        <source>Online</source>
+        <translation>在线</translation>
+    </message>
+    <message>
+        <location filename="src/mainwindow.cpp" line="448"/>
+        <source>CallMe</source>
+        <translation>Q我</translation>
+    </message>
+    <message>
+        <location filename="src/mainwindow.cpp" line="449"/>
+        <source>Away</source>
+        <translation>离开</translation>
+    </message>
+    <message>
+        <location filename="src/mainwindow.cpp" line="450"/>
+        <source>Busy</source>
+        <translation>忙碌</translation>
+    </message>
+    <message>
+        <location filename="src/mainwindow.cpp" line="451"/>
+        <source>Silent</source>
+        <translation>请安静</translation>
+    </message>
+    <message>
+        <location filename="src/mainwindow.cpp" line="452"/>
+        <source>Hidden</source>
+        <translation>隐身</translation>
+    </message>
+    <message>
+        <location filename="src/mainwindow.cpp" line="453"/>
+        <source>Offline</source>
+        <translation>离线</translation>
+    </message>
+</context>
+<context>
+    <name>MsgTip</name>
+    <message>
+        <location filename="src/ui/msgtip.ui" line="20"/>
+        <source>Form</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="src/msgtip.cpp" line="66"/>
+        <location filename="src/msgtip.cpp" line="71"/>
+        <source>you</source>
+        <translation>你</translation>
+    </message>
+</context>
+<context>
     <name>QQCaptcha</name>
     <message>
         <location filename="src/ui/captcha.ui" line="26"/>
@@ -278,57 +686,24 @@
         <translation>Ctrl+回车发送</translation>
     </message>
     <message>
-        <location filename="src/qqchatdlg.cpp" line="219"/>
+        <location filename="src/qqchatdlg.cpp" line="224"/>
         <source>select the image to send</source>
         <translation>选择要发送的图片</translation>
     </message>
     <message>
-        <location filename="src/qqchatdlg.cpp" line="219"/>
+        <location filename="src/qqchatdlg.cpp" line="224"/>
         <source>Image Files(*.png *.jpg *.bmp *.gif)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="src/qqchatdlg.cpp" line="385"/>
+        <location filename="src/qqchatdlg.cpp" line="392"/>
         <source>the message can not be empty,please input the message...</source>
         <translation>消息不能为空，请输入消息...</translation>
     </message>
     <message>
-        <location filename="src/qqchatdlg.cpp" line="392"/>
+        <location filename="src/qqchatdlg.cpp" line="399"/>
         <source>image uploading,please wait...</source>
         <translation>图片上传中，请等候...</translation>
-    </message>
-</context>
-<context>
-    <name>QQChatLogWin</name>
-    <message>
-        <location filename="src/ui/qqchatlogwin.ui" line="20"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/ui/qqchatlogwin.ui" line="47"/>
-        <source>&lt;&lt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/ui/qqchatlogwin.ui" line="54"/>
-        <source>&lt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/ui/qqchatlogwin.ui" line="77"/>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/ui/qqchatlogwin.ui" line="84"/>
-        <source>&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/ui/qqchatlogwin.ui" line="91"/>
-        <source>&gt;&gt;</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -340,368 +715,212 @@
     </message>
 </context>
 <context>
-    <name>QQFriendChatDlg</name>
-    <message>
-        <location filename="src/ui/qqfriendchatdlg.ui" line="20"/>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/ui/qqfriendchatdlg.ui" line="51"/>
-        <location filename="src/ui/qqfriendchatdlg.ui" line="69"/>
-        <location filename="src/ui/qqfriendchatdlg.ui" line="76"/>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/ui/qqfriendchatdlg.ui" line="174"/>
-        <location filename="src/ui/qqfriendchatdlg.ui" line="197"/>
-        <source>...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message utf8="true">
-        <location filename="src/ui/qqfriendchatdlg.ui" line="253"/>
-        <source>消息记录</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message utf8="true">
-        <location filename="src/ui/qqfriendchatdlg.ui" line="301"/>
-        <source>关闭</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message utf8="true">
-        <location filename="src/ui/qqfriendchatdlg.ui" line="308"/>
-        <source>发送</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>QQFriendRequestDlg</name>
     <message>
-        <location filename="src/ui/friendrequestdlg.ui" line="14"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/ui/friendrequestdlg.ui" line="31"/>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/ui/friendrequestdlg.ui" line="38"/>
         <source>request to add you as friend!</source>
-        <translation>请求添加你为好友!</translation>
+        <translation type="obsolete">请求添加你为好友!</translation>
     </message>
     <message>
-        <location filename="src/ui/friendrequestdlg.ui" line="81"/>
         <source>Allow and add</source>
-        <translation>允许并添加</translation>
+        <translation type="obsolete">允许并添加</translation>
     </message>
     <message>
-        <location filename="src/ui/friendrequestdlg.ui" line="93"/>
         <source>Comment:</source>
-        <translation>注释:</translation>
+        <translation type="obsolete">注释:</translation>
     </message>
     <message>
-        <location filename="src/ui/friendrequestdlg.ui" line="113"/>
         <source>Group:</source>
-        <translation>分组:</translation>
+        <translation type="obsolete">分组:</translation>
     </message>
     <message>
-        <location filename="src/ui/friendrequestdlg.ui" line="141"/>
         <source>Allow</source>
-        <translation>允许</translation>
+        <translation type="obsolete">允许</translation>
     </message>
     <message>
-        <location filename="src/ui/friendrequestdlg.ui" line="150"/>
         <source>Deny</source>
-        <translation>拒绝</translation>
+        <translation type="obsolete">拒绝</translation>
     </message>
     <message>
-        <location filename="src/ui/friendrequestdlg.ui" line="175"/>
         <source>deny reason</source>
-        <translation>拒绝原因</translation>
+        <translation type="obsolete">拒绝原因</translation>
     </message>
     <message>
-        <location filename="src/ui/friendrequestdlg.ui" line="206"/>
         <source>Ok</source>
-        <translation>确定</translation>
+        <translation type="obsolete">确定</translation>
     </message>
     <message>
-        <location filename="src/ui/friendrequestdlg.ui" line="216"/>
         <source>Ignore</source>
-        <translation>忽略</translation>
-    </message>
-</context>
-<context>
-    <name>QQGroupChatDlg</name>
-    <message>
-        <location filename="src/ui/qqgroupchatdlg.ui" line="20"/>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/ui/qqgroupchatdlg.ui" line="51"/>
-        <location filename="src/ui/qqgroupchatdlg.ui" line="75"/>
-        <location filename="src/ui/qqgroupchatdlg.ui" line="82"/>
-        <location filename="src/ui/qqgroupchatdlg.ui" line="365"/>
-        <location filename="src/ui/qqgroupchatdlg.ui" line="372"/>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message utf8="true">
-        <location filename="src/ui/qqgroupchatdlg.ui" line="252"/>
-        <source>消息记录</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message utf8="true">
-        <location filename="src/ui/qqgroupchatdlg.ui" line="294"/>
-        <source>关闭</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message utf8="true">
-        <location filename="src/ui/qqgroupchatdlg.ui" line="301"/>
-        <location filename="src/ui/qqgroupchatdlg.ui" line="317"/>
-        <source>发送</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">忽略</translation>
     </message>
 </context>
 <context>
     <name>QQGroupRequestDlg</name>
     <message>
-        <location filename="src/ui/grouprequestdlg.ui" line="14"/>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/ui/grouprequestdlg.ui" line="22"/>
-        <location filename="src/ui/grouprequestdlg.ui" line="33"/>
-        <location filename="src/ui/grouprequestdlg.ui" line="47"/>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/ui/grouprequestdlg.ui" line="40"/>
         <source>request to enter group</source>
-        <translation>请求加入群</translation>
+        <translation type="obsolete">请求加入群</translation>
     </message>
     <message>
-        <location filename="src/ui/grouprequestdlg.ui" line="56"/>
         <source>Addition infomation:</source>
-        <translation>附加信息:</translation>
+        <translation type="obsolete">附加信息:</translation>
     </message>
     <message>
-        <location filename="src/ui/grouprequestdlg.ui" line="87"/>
         <source>Allow</source>
-        <translation>允许</translation>
+        <translation type="obsolete">允许</translation>
     </message>
     <message>
-        <location filename="src/ui/grouprequestdlg.ui" line="96"/>
         <source>Deny</source>
-        <translation>拒绝</translation>
+        <translation type="obsolete">拒绝</translation>
     </message>
     <message>
-        <location filename="src/ui/grouprequestdlg.ui" line="151"/>
         <source>Ok</source>
-        <translation>确定</translation>
+        <translation type="obsolete">确定</translation>
     </message>
     <message>
-        <location filename="src/ui/grouprequestdlg.ui" line="158"/>
         <source>Ignore</source>
-        <translation>忽略</translation>
+        <translation type="obsolete">忽略</translation>
     </message>
 </context>
 <context>
     <name>QQLoginWin</name>
     <message>
-        <location filename="src/ui/qqloginwin.ui" line="89"/>
         <source>Auto Login</source>
-        <translation>自动登陆</translation>
+        <translation type="obsolete">自动登陆</translation>
     </message>
     <message>
-        <location filename="src/ui/qqloginwin.ui" line="139"/>
         <source>Remember Password</source>
-        <translation>记住密码</translation>
+        <translation type="obsolete">记住密码</translation>
     </message>
     <message>
-        <location filename="src/ui/qqloginwin.ui" line="260"/>
         <source>Login</source>
-        <translation>登陆</translation>
+        <translation type="obsolete">登陆</translation>
     </message>
     <message>
-        <location filename="src/qqloginwin.cpp" line="154"/>
         <source>username or password is empty! please input them</source>
-        <translation>用户名或者密码为空!请先输入</translation>
+        <translation type="obsolete">用户名或者密码为空!请先输入</translation>
     </message>
     <message>
-        <location filename="src/qqloginwin.cpp" line="216"/>
         <source>Password validation error!!</source>
-        <translation>密码验证失败!</translation>
+        <translation type="obsolete">密码验证失败!</translation>
     </message>
     <message>
-        <location filename="src/qqloginwin.cpp" line="217"/>
         <source>The password is not correct, the reason may be:
 Forgot password; Not case sensitive; Not open small keyboard.</source>
-        <translation>密码错误，原因可能是：
+        <translation type="obsolete">密码错误，原因可能是：
 忘记密码;大小写错误;没有打开小键盘。</translation>
     </message>
     <message>
-        <location filename="src/qqloginwin.cpp" line="230"/>
         <source>Authcode error!!</source>
-        <translation>验证码错误!!</translation>
+        <translation type="obsolete">验证码错误!!</translation>
     </message>
     <message>
-        <location filename="src/qqloginwin.cpp" line="231"/>
         <source>The Authcode is not correct! Please relogin!</source>
-        <translation>验证码错误!请重新登陆!</translation>
+        <translation type="obsolete">验证码错误!请重新登陆!</translation>
     </message>
     <message>
-        <location filename="src/qqloginwin.cpp" line="349"/>
         <source>Online</source>
-        <translation>在线</translation>
+        <translation type="obsolete">在线</translation>
     </message>
     <message>
-        <location filename="src/qqloginwin.cpp" line="350"/>
         <source>CallMe</source>
-        <translation>Q我</translation>
+        <translation type="obsolete">Q我</translation>
     </message>
     <message>
-        <location filename="src/qqloginwin.cpp" line="351"/>
         <source>Away</source>
-        <translation>离开</translation>
+        <translation type="obsolete">离开</translation>
     </message>
     <message>
-        <location filename="src/qqloginwin.cpp" line="352"/>
         <source>Busy</source>
-        <translation>忙碌</translation>
+        <translation type="obsolete">忙碌</translation>
     </message>
     <message>
-        <location filename="src/qqloginwin.cpp" line="353"/>
         <source>Silent</source>
-        <translation>请安静</translation>
+        <translation type="obsolete">请安静</translation>
     </message>
     <message>
-        <location filename="src/qqloginwin.cpp" line="354"/>
         <source>Hidden</source>
-        <translation>隐身</translation>
+        <translation type="obsolete">隐身</translation>
     </message>
 </context>
 <context>
     <name>QQMainWindow</name>
     <message>
-        <location filename="src/ui/qqmainwindow.ui" line="26"/>
-        <location filename="src/ui/qqmainwindow.ui" line="107"/>
-        <source>LinuxQQ</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/ui/qqmainwindow.ui" line="117"/>
-        <source>Lv</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/ui/qqmainwindow.ui" line="149"/>
         <source>Search</source>
-        <translation>查找</translation>
+        <translation type="obsolete">查找</translation>
     </message>
     <message>
-        <location filename="src/ui/qqmainwindow.ui" line="185"/>
         <source>Friends</source>
-        <translation>好友</translation>
+        <translation type="obsolete">好友</translation>
     </message>
     <message>
-        <location filename="src/ui/qqmainwindow.ui" line="199"/>
         <source>Groups</source>
-        <translation>Q群</translation>
+        <translation type="obsolete">Q群</translation>
     </message>
     <message>
-        <location filename="src/ui/qqmainwindow.ui" line="209"/>
         <source>Recents</source>
-        <translation>最近联系</translation>
+        <translation type="obsolete">最近联系</translation>
     </message>
     <message>
-        <location filename="src/ui/qqmainwindow.ui" line="265"/>
         <source>MainMenu</source>
-        <translation>主菜单</translation>
+        <translation type="obsolete">主菜单</translation>
     </message>
     <message>
-        <location filename="src/qqmainwindow.cpp" line="75"/>
         <source>you</source>
-        <translation>你</translation>
+        <translation type="obsolete">你</translation>
     </message>
     <message>
-        <location filename="src/qqmainwindow.cpp" line="85"/>
         <source>Mute</source>
-        <translation>静音</translation>
+        <translation type="obsolete">静音</translation>
     </message>
     <message>
-        <location filename="src/qqmainwindow.cpp" line="395"/>
         <source>Mi&amp;nimize</source>
-        <translation>最小化[&amp;M]</translation>
+        <translation type="obsolete">最小化[&amp;M]</translation>
     </message>
     <message>
-        <location filename="src/qqmainwindow.cpp" line="398"/>
         <source>&amp;Restore</source>
-        <translation>恢复[&amp;R]</translation>
+        <translation type="obsolete">恢复[&amp;R]</translation>
     </message>
     <message>
-        <location filename="src/qqmainwindow.cpp" line="401"/>
         <source>&amp;Quit</source>
-        <translation>退出[&amp;Q]</translation>
+        <translation type="obsolete">退出[&amp;Q]</translation>
     </message>
     <message>
-        <location filename="src/qqmainwindow.cpp" line="404"/>
         <source>&amp;Logout</source>
-        <translation>注销[&amp;L]</translation>
+        <translation type="obsolete">注销[&amp;L]</translation>
     </message>
     <message>
-        <location filename="src/qqmainwindow.cpp" line="447"/>
         <source>Online</source>
-        <translation>在线</translation>
+        <translation type="obsolete">在线</translation>
     </message>
     <message>
-        <location filename="src/qqmainwindow.cpp" line="448"/>
         <source>CallMe</source>
-        <translation>Q我</translation>
+        <translation type="obsolete">Q我</translation>
     </message>
     <message>
-        <location filename="src/qqmainwindow.cpp" line="449"/>
         <source>Away</source>
-        <translation>离开</translation>
+        <translation type="obsolete">离开</translation>
     </message>
     <message>
-        <location filename="src/qqmainwindow.cpp" line="450"/>
         <source>Busy</source>
-        <translation>忙碌</translation>
+        <translation type="obsolete">忙碌</translation>
     </message>
     <message>
-        <location filename="src/qqmainwindow.cpp" line="451"/>
         <source>Silent</source>
-        <translation>请安静</translation>
+        <translation type="obsolete">请安静</translation>
     </message>
     <message>
-        <location filename="src/qqmainwindow.cpp" line="452"/>
         <source>Hidden</source>
-        <translation>隐身</translation>
+        <translation type="obsolete">隐身</translation>
     </message>
     <message>
-        <location filename="src/qqmainwindow.cpp" line="453"/>
         <source>Offline</source>
-        <translation>离线</translation>
+        <translation type="obsolete">离线</translation>
     </message>
 </context>
 <context>
     <name>QQMsgTip</name>
     <message>
-        <location filename="src/ui/qqmsgtip.ui" line="20"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/qqmsgtip.cpp" line="64"/>
-        <location filename="src/qqmsgtip.cpp" line="69"/>
         <source>you</source>
-        <translation>你</translation>
+        <translation type="obsolete">你</translation>
     </message>
 </context>
 </TS>

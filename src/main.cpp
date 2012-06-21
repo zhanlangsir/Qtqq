@@ -24,7 +24,6 @@ int main(int argc, char *argv[])
 
     QTranslator translator;
     QString transla_file_path = "resources/translate/";
-    qDebug()<<QLocale::system().name();
     translator.load("qtqq_" + QLocale::system().name(), transla_file_path);
     a.installTranslator(&translator);
 

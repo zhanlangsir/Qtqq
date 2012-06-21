@@ -1,5 +1,5 @@
-#ifndef QTQQ_QQFRIENDCHATDLG_H
-#define QTQQ_QQFRIENDCHATDLG_H
+#ifndef QTQQ_FRIENDCHATDLG_H
+#define QTQQ_FRIENDCHATDLG_H
 
 #include <QDateTime>
 
@@ -9,17 +9,17 @@
 
 namespace Ui
 {
-    class QQFriendChatDlg;
+    class FriendChatDlg;
 }
 
 class QMouseEvent;
 
-class QQFriendChatDlg : public QQChatDlg
+class FriendChatDlg : public QQChatDlg
 {
     Q_OBJECT
 public:
-    QQFriendChatDlg(QString uin, QString from_name, QString avatar_path, QWidget *parent = 0);
-    ~QQFriendChatDlg();
+    FriendChatDlg(QString uin, QString from_name, QString avatar_path, QWidget *parent = 0);
+    ~FriendChatDlg();
 
 public:
     void updateSkin();
@@ -31,8 +31,8 @@ private:
     void getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const;
 
 private:
-    Ui::QQFriendChatDlg *ui;
+    Ui::FriendChatDlg *ui;
     QString avatar_path_;
 };
 
-#endif //QTQQ_QQFRIENDCHATDLG_H
+#endif //QTQQ_FRIENDCHATDLG_H

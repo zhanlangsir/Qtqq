@@ -11,7 +11,7 @@
 #include <QMutex>
 #include <QSemaphore>
 
-class QQMsgTip;
+class MsgTip;
 class QQMsgListener;
 class QQGroupChatMsg;
 class QQChatMsg;
@@ -27,12 +27,12 @@ signals:
 
 
 public:
-       QQMsgCenter(QQMsgTip *msg_tip);
+       QQMsgCenter(MsgTip *msg_tip);
 
 public:
        void registerListener(QQMsgListener *listener);
        void removeListener(QQMsgListener *listener);
-       void setMsgTip(QQMsgTip *msg_tip);
+       void setMsgTip(MsgTip *msg_tip);
 
 public slots:
     void pushMsg(ShareQQMsgPtr msg);
@@ -51,7 +51,7 @@ private:
     QQueue<ShareQQMsgPtr> undispatch_msg_;
     QQueue<ShareQQMsgPtr> old_msg_;
     QLinkedList<QQMsgListener*> listener_;
-    QQMsgTip *msg_tip_;
+    MsgTip *msg_tip_;
     QMutex lock_;
     QSemaphore parse_done_smp_;
 };

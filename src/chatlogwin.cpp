@@ -1,5 +1,5 @@
-#include "qqchatlogwin.h"
-#include "ui_qqchatlogwin.h"
+#include "chatlogwin.h"
+#include "ui_chatlogwin.h"
 
 #include <QTextBlockFormat>
 #include <QTextCursor>
@@ -13,9 +13,9 @@
 #include "core/qqsetting.h"
 #include "core/nameconvertor.h"
 
-QQChatLogWin::QQChatLogWin(QWidget *parent) :
+ChatLogWin::ChatLogWin(QWidget *parent) :
     QWidget(parent),
-    ui_(new Ui::QQChatLogWin),
+    ui_(new Ui::ChatLogWin),
     chat_log_(NULL)
 {
     ui_->setupUi(this);
@@ -29,7 +29,7 @@ QQChatLogWin::QQChatLogWin(QWidget *parent) :
     connect(ui_->btn_prep, SIGNAL(clicked()), this, SLOT(getPrePage()));
 }
 
-QQChatLogWin::~QQChatLogWin()
+ChatLogWin::~ChatLogWin()
 {
     delete ui_;
     if (chat_log_)
@@ -39,12 +39,12 @@ QQChatLogWin::~QQChatLogWin()
     }
 }
 
-void QQChatLogWin::closeEvent(QCloseEvent *)
+void ChatLogWin::closeEvent(QCloseEvent *)
 {
     this->deleteLater();
 }
 
-void QQChatLogWin::getFirstPage()
+void ChatLogWin::getFirstPage()
 {
     QVector<ShareQQMsgPtr>chat_logs = chat_log_->getLog(1);
     showChatLog(chat_logs);
@@ -69,7 +69,7 @@ void QQChatLogWin::getFirstPage()
     ui_->le_curr_page->setText(QString::number(chat_log_->currPage()));
 }
 
-void QQChatLogWin::getNextPage()
+void ChatLogWin::getNextPage()
 {
     QVector<ShareQQMsgPtr>chat_logs = chat_log_->getLog(chat_log_->currPage()-1);
     showChatLog(chat_logs);
@@ -85,7 +85,7 @@ void QQChatLogWin::getNextPage()
     ui_->le_curr_page->setText(QString::number(chat_log_->currPage()));
 }
 
-void QQChatLogWin::getPrePage()
+void ChatLogWin::getPrePage()
 {
     QVector<ShareQQMsgPtr>chat_logs = chat_log_->getLog(chat_log_->currPage()+1);
     showChatLog(chat_logs);
@@ -101,7 +101,7 @@ void QQChatLogWin::getPrePage()
     ui_->le_curr_page->setText(QString::number(chat_log_->currPage()));
 }
 
-void QQChatLogWin::getLastPage()
+void ChatLogWin::getLastPage()
 {
     QVector<ShareQQMsgPtr>chat_logs = chat_log_->getLog(chat_log_->totalPage());
     showChatLog(chat_logs);
@@ -112,7 +112,7 @@ void QQChatLogWin::getLastPage()
     ui_->le_curr_page->setText(QString::number(chat_log_->currPage()));
 }
 
-void QQChatLogWin::insertNameLine(const QString &name, QColor color)
+void ChatLogWin::insertNameLine(const QString &name, QColor color)
 {
     QTextBlockFormat block_format;
     block_format.setTopMargin(5);
@@ -131,7 +131,7 @@ void QQChatLogWin::insertNameLine(const QString &name, QColor color)
     cursor.insertBlock();
 }
 
-void QQChatLogWin::insertQQFace(const QString &face_id)
+void ChatLogWin::insertQQFace(const QString &face_id)
 {
     QTextDocument *doc = ui_->msgbrowse->document();
     QTextCursor cursor(doc);
@@ -144,7 +144,7 @@ void QQChatLogWin::insertQQFace(const QString &face_id)
     cursor.insertImage(face_id);
 }
 
-void QQChatLogWin::insertWord(const QString &text, QFont font, QColor color, int size)
+void ChatLogWin::insertWord(const QString &text, QFont font, QColor color, int size)
 {
     QTextCursor cursor(ui_->msgbrowse->document());
     cursor.movePosition(QTextCursor::End);
@@ -165,7 +165,7 @@ void QQChatLogWin::insertWord(const QString &text, QFont font, QColor color, int
     cursor.insertText(text);
 }
 
-void QQChatLogWin::insertImg(const QString &img_name)
+void ChatLogWin::insertImg(const QString &img_name)
 {
     QTextDocument *doc = ui_->msgbrowse->document();
     QTextCursor cursor(doc);
@@ -177,7 +177,7 @@ void QQChatLogWin::insertImg(const QString &img_name)
     cursor.insertImage(img_name);
 }
 
-void QQChatLogWin::showChatLog(QVector<ShareQQMsgPtr> &chat_logs)
+void ChatLogWin::showChatLog(QVector<ShareQQMsgPtr> &chat_logs)
 {
     ui_->msgbrowse->clear();
     ShareQQMsgPtr msg;

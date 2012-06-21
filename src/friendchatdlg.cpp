@@ -1,5 +1,5 @@
-#include "qqfriendchatdlg.h"
-#include "ui_qqfriendchatdlg.h"
+#include "friendchatdlg.h"
+#include "ui_friendchatdlg.h"
 
 #include <QScrollBar>
 #include <QTextEdit>
@@ -15,9 +15,9 @@
 #include "core/friendchatlog.h"
 #include "core/qqitem.h"
 
-QQFriendChatDlg::QQFriendChatDlg(QString uin, QString from_name, QString avatar_path, QWidget *parent) :
+FriendChatDlg::FriendChatDlg(QString uin, QString from_name, QString avatar_path, QWidget *parent) :
     QQChatDlg(uin, from_name, parent),
-    ui(new Ui::QQFriendChatDlg()),
+    ui(new Ui::FriendChatDlg()),
     avatar_path_(avatar_path)
 {
    ui->setupUi(this);
@@ -66,17 +66,17 @@ QQFriendChatDlg::QQFriendChatDlg(QString uin, QString from_name, QString avatar_
    ui->lbl_avatar_->setPixmap(pix);
 }
 
-QQFriendChatDlg::~QQFriendChatDlg()
+FriendChatDlg::~FriendChatDlg()
 {
     delete ui;
 }
 
-void QQFriendChatDlg::updateSkin()
+void FriendChatDlg::updateSkin()
 {
 
 }
 
-QString QQFriendChatDlg::converToJson(const QString &raw_msg)
+QString FriendChatDlg::converToJson(const QString &raw_msg)
 {
     QString msg_template = "r={\"to\":" + id_ +",\"face\":525,"
             "\"content\":\"[";
@@ -142,19 +142,19 @@ QString QQFriendChatDlg::converToJson(const QString &raw_msg)
     return msg_template;
 }
 
-ImgSender* QQFriendChatDlg::getImgSender() const
+ImgSender* FriendChatDlg::getImgSender() const
 {
     return new FriendImgSender();
 }
 
-void QQFriendChatDlg::getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const
+void FriendChatDlg::getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const
 {
     name = name_;
     avatar_path = avatar_path_.isEmpty() ? QQSkinEngine::instance()->getSkinRes("default_friend_avatar") : avatar_path_;
     ok = true;
 }
 
-QQChatLog *QQFriendChatDlg::getChatlog() const
+QQChatLog *FriendChatDlg::getChatlog() const
 {
     return new FriendChatLog(id());
 }

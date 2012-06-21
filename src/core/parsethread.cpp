@@ -1,11 +1,11 @@
-#include "qqparsethread.h"
+#include "parsethread.h"
 
 #include <QDebug>
 
 #include "include/json.h"
 #include "qqutility.h"
 
-void QQParseThread::pushRawMsg(QByteArray msg)
+void ParseThread::pushRawMsg(QByteArray msg)
 {
     lock_.lock();
     message_queue_.enqueue(msg);   
@@ -14,7 +14,7 @@ void QQParseThread::pushRawMsg(QByteArray msg)
     start();
 }
 
-void QQParseThread::run()
+void ParseThread::run()
 {
     while (true)
     {
@@ -54,7 +54,7 @@ void QQParseThread::run()
     }
 }
 
-QQMsg* QQParseThread::createMsg(QString type, const Json::Value result)
+QQMsg* ParseThread::createMsg(QString type, const Json::Value result)
 {
     if (type ==  "group_message")
     {
@@ -203,7 +203,7 @@ QQMsg* QQParseThread::createMsg(QString type, const Json::Value result)
     }
 }
 
-QQParseThread::QQParseThread()
+ParseThread::ParseThread()
 {
     qRegisterMetaType<ShareQQMsgPtr>("ShareQQMsgPtr");
 }

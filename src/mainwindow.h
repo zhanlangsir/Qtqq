@@ -20,30 +20,30 @@ class QHttp;
 class QHttpRequestHeader;
 
 class QQItemModel;
-class QQParseThread;
-class QQPollThread;
+class ParseThread;
+class PollThread;
 class QQChatDlg;
 class QQItem;
-class QQMsgTip;
+class MsgTip;
 class QQMsgCenter;
 class QQLoginCore;
 
 namespace Ui
 {
-    class QQMainWindow;
+    class MainWindow;
 }
 
 class QxtGlobalShortcut;
 
-class QQMainWindow : public QWidget
+class MainWindow : public QWidget
 {
     Q_OBJECT
 signals:
     void sig_logout();
 
 public:
-    explicit QQMainWindow(QWidget *parent = NULL);
-    ~QQMainWindow();
+    explicit MainWindow(QWidget *parent = NULL);
+    ~MainWindow();
 
 public:
     void initialize();
@@ -88,12 +88,12 @@ private:
 
 private:
     QQLoginCore *login_;
-    Ui::QQMainWindow *ui;
+    Ui::MainWindow *ui;
     QHttp *main_http_;
-    QQPollThread *poll_thread_;
-    QQParseThread *parse_thread_;
+    PollThread *poll_thread_;
+    ParseThread *parse_thread_;
     QQueue<QByteArray> *message_queue_;
-    QQMsgTip *msg_tip_;
+    MsgTip *msg_tip_;
     QQMsgCenter *msg_center_;
 
     NameConvertor convertor_;

@@ -33,7 +33,7 @@ public:
 
 
     void loadFriendOffpic(const QString &uuid, const QString &file_name, const QString &to_uin);
-    void loadFriendCface(const QString &file_name, const QString &to_uin, const QString &msg_id);
+    void loadFriendCface(const QString &uuid, const QString &file_name, const QString &to_uin, const QString &msg_id);
     void loadGroupChatImg(const QString &file_name, QString uin,
                           const QString &gcode, QString fid, QString rip,
                           QString rport, const QString &time);

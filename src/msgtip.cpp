@@ -1,12 +1,14 @@
-#include "qqmsgtip.h"
-#include "ui_qqmsgtip.h"
+#include "msgtip.h"
+#include "ui_msgtip.h"
 
 #include <QDebug>
 #include <QVBoxLayout>
 #include <QCursor>
 #include <QMouseEvent>
 
-QQMsgTip::QQMsgTip(QWidget *parent) : QWidget(parent), ui(new Ui::QQMsgTip)
+MsgTip::MsgTip(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::MsgTip)
 {
     ui->setupUi(this);
     setWindowOpacity(1);
@@ -19,7 +21,7 @@ QQMsgTip::QQMsgTip(QWidget *parent) : QWidget(parent), ui(new Ui::QQMsgTip)
     connect(this, SIGNAL(bibibi(SoundPlayer::SoundType)), this, SLOT(beginBibibi(SoundPlayer::SoundType)));
 }
 
-void QQMsgTip::pushMsg(ShareQQMsgPtr new_msg)
+void MsgTip::pushMsg(ShareQQMsgPtr new_msg)
 {
     if (new_msg->type() == QQMsg::kBuddiesStatusChange)
     {
@@ -49,7 +51,7 @@ void QQMsgTip::pushMsg(ShareQQMsgPtr new_msg)
     lock.unlock();
  }
 
-void QQMsgTip::addItem(ShareQQMsgPtr msg)
+void MsgTip::addItem(ShareQQMsgPtr msg)
 {
     switch(msg->type())
     {
@@ -76,7 +78,7 @@ void QQMsgTip::addItem(ShareQQMsgPtr msg)
     }
 }
 
-void QQMsgTip::removeItem(QString id)
+void MsgTip::removeItem(QString id)
 {
     for (int i = 0; i < ui->cb_msgs_->count(); ++i)
     {
@@ -92,7 +94,7 @@ void QQMsgTip::removeItem(QString id)
         this->hide();
 }
 
-void QQMsgTip::mousePressEvent(QMouseEvent *event)
+void MsgTip::mousePressEvent(QMouseEvent *event)
 {
     Q_UNUSED(event)
     QPoint origin_pos = this->pos();
@@ -101,7 +103,7 @@ void QQMsgTip::mousePressEvent(QMouseEvent *event)
     distance_pos_ = origin_mouse_pos - origin_pos;
 }
 
-void QQMsgTip::mouseMoveEvent(QMouseEvent *event)
+void MsgTip::mouseMoveEvent(QMouseEvent *event)
 {
     if (distance_pos_.isNull())
     {
@@ -111,17 +113,17 @@ void QQMsgTip::mouseMoveEvent(QMouseEvent *event)
     this->move(event->globalPos() - distance_pos_);
 }
 
-void QQMsgTip::enterEvent(QEvent *)
+void MsgTip::enterEvent(QEvent *)
 {
     setCursor(Qt::SizeAllCursor);
 }
 
-void QQMsgTip::leaveEvent(QEvent *)
+void MsgTip::leaveEvent(QEvent *)
 {
     setCursor(Qt::ArrowCursor);
 }
 
-bool QQMsgTip::eventFilter(QObject *obj, QEvent *e)
+bool MsgTip::eventFilter(QObject *obj, QEvent *e)
 {
     if (e->type() == QEvent::Enter)
     {
@@ -137,17 +139,17 @@ bool QQMsgTip::eventFilter(QObject *obj, QEvent *e)
         return QWidget::eventFilter(obj, e);
 }
 
-void QQMsgTip::beginBibibi(SoundPlayer::SoundType type)
+void MsgTip::beginBibibi(SoundPlayer::SoundType type)
 {
     SoundPlayer::singleton()->play(type);
 }
 
-void QQMsgTip::mouseReleaseEvent(QMouseEvent *)
+void MsgTip::mouseReleaseEvent(QMouseEvent *)
 {
     distance_pos_ = QPoint(0, 0);
 }
 
-void QQMsgTip::slotActivated(int index)
+void MsgTip::slotActivated(int index)
 {
     if (ui->cb_msgs_->count() < index+1)
         return;

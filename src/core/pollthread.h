@@ -1,4 +1,4 @@
-#ifndef QTQQ_CORE_QQPOLLTHREAD_H
+#ifndef QTQQ_CORE_POLLTHREAD_H
 #define QTQQ_CORE_QQPOLLTHREAD_H
 
 #include <QThread>
@@ -7,14 +7,14 @@
 #include "types.h"
 #include "request.h"
 
-class QQPollThread : public QThread
+class PollThread : public QThread
 {
     Q_OBJECT
 signals:
     void signalNewMsgArrive(QByteArray msg);
     
 public:
-    QQPollThread();
+    PollThread();
 
 protected:
     void run();
@@ -23,4 +23,4 @@ private:
    Request req_;
 };
 
-#endif //QTQQ_CORE_QQPOLLTHREAD_H
+#endif //QTQQ_CORE_POLLTHREAD_H

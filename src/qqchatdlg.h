@@ -90,6 +90,7 @@ private:
     virtual ImgLoader* getImgLoader() const;
     virtual void getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const = 0;
     QString converToShow(const QString &converting_html);
+    QString escape(QString raw_html) const;
 
 private:    
     ImgSender *img_sender_;

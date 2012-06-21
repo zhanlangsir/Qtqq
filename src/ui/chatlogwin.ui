@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QQChatLogWin</class>
- <widget class="QWidget" name="QQChatLogWin">
+ <class>ChatLogWin</class>
+ <widget class="QWidget" name="ChatLogWin">
   <property name="geometry">
    <rect>
     <x>0</x>

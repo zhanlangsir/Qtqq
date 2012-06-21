@@ -1,5 +1,5 @@
-#ifndef QTQQ_QQLOGINDLG_H
-#define QTQQ_QQLOGINDLG_H
+#ifndef QTQQ_LOGINDLG_H
+#define QTQQ_LOGINDLG_H
 
 #include "core/types.h"
 
@@ -14,7 +14,7 @@ class QByteArray;
 class QTcpSocket;
 
 namespace Ui {
-class QQLoginWin;
+class LoginWin;
 }
 
 struct AccountRecord
@@ -27,15 +27,15 @@ struct AccountRecord
 
 Q_DECLARE_METATYPE(AccountRecord*)
 
-class QQLoginWin : public QWidget
+class LoginWin : public QWidget
 {
     Q_OBJECT
 signals:
     void sig_loginFinish();
 
 public:
-    explicit QQLoginWin(QQLoginCore *login_core, QWidget *parent = 0);
-    ~QQLoginWin();
+    explicit LoginWin(QQLoginCore *login_core, QWidget *parent = 0);
+    ~LoginWin();
 
 public:
     void saveConfig();
@@ -49,6 +49,8 @@ private slots:
     void onCekbAutoLoginClick(bool checked);
     void currentUserChanged(QString text);
     void idChanged(QString text);
+    void on_register_account_linkActivated(const QString &link);
+    void on_find_password_linkActivated(const QString &link);
 
 private:
     void setupStatus();
@@ -62,7 +64,7 @@ private:
     
 private:
 
-    Ui::QQLoginWin *ui;
+    Ui::LoginWin *ui;
 
     QQLoginCore *login_core_;
     QVector<AccountRecord*>login_records_;
@@ -70,4 +72,4 @@ private:
     QString auto_login_id_;
 };
 
-#endif //QTQQ_QQLOGINDLG_H
+#endif //QTQQ_LOGINDLG_H

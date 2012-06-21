@@ -1,9 +1,9 @@
-#ifndef QTQQ_QQFRIENDREQUESTDLG_H
-#define QTQQ_QQFRIENDREQUESTDLG_H
+#ifndef QTQQ_FRIENDREQUESTDLG_H
+#define QTQQ_FRIENDREQUESTDLG_H
 
 namespace Ui
 {
-    class QQFriendRequestDlg;
+    class FriendRequestDlg;
 }
 
 #include <QDialog>
@@ -12,12 +12,12 @@ namespace Ui
 
 class FriendItemModel;
 
-class QQFriendRequestDlg:public QDialog
+class FriendRequestDlg:public QDialog
 {
     Q_OBJECT
 public:
     //QQFriendRequestDlg(QWidget *parnet = 0);
-    QQFriendRequestDlg(const ShareQQMsgPtr msg, FriendItemModel *model, QWidget *parent = 0);
+    FriendRequestDlg(const ShareQQMsgPtr msg, FriendItemModel *model, QWidget *parent = 0);
 
 private slots:
     void slotOkClicked();
@@ -28,11 +28,11 @@ private:
     void initialize();
 
 private:
-    Ui::QQFriendRequestDlg *ui_;
+    Ui::FriendRequestDlg *ui_;
     FriendItemModel *model_;
     QString account_;
     QString id_;
 };
 
 
-#endif // QTQQ_QQFRIENDREQUESTDLG_H
+#endif // QTQQ_FRIENDREQUESTDLG_H

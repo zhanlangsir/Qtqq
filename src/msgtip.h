@@ -1,5 +1,5 @@
-#ifndef QTQQ_QQMSGTIP_H
-#define QTQQ_QQMSGTIP_H
+#ifndef QTQQ_MSGTIP_H
+#define QTQQ_MSGTIP_H
 
 #include <QWidget>
 #include <QComboBox>
@@ -13,14 +13,14 @@
 
 namespace Ui
 {
-class QQMsgTip;
+class MsgTip;
 }
 
-class QQMsgTip : public QWidget
+class MsgTip : public QWidget
 {
     Q_OBJECT
 public:
-    QQMsgTip(QWidget *parent = 0);
+    MsgTip(QWidget *parent = 0);
 
 signals:
     void addItemDone();
@@ -51,11 +51,11 @@ private slots:
     void beginBibibi(SoundPlayer::SoundType type);
 
 private:
-    Ui::QQMsgTip *ui;
+    Ui::MsgTip *ui;
     QMutex lock;
     NameConvertor *convertor_;
 
     QPoint distance_pos_;
 };
 
-#endif //QTQQ_QQMSGTIP_H
+#endif //QTQQ_MSGTIP_H

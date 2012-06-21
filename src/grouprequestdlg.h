@@ -3,7 +3,7 @@
 
 namespace Ui
 {
-    class QQGroupRequestDlg;
+    class GroupRequestDlg;
 }
 
 #include <QDialog>
@@ -13,11 +13,11 @@ namespace Ui
 class FriendItemModel;
 class GroupItemModel;
 
-class QQGroupRequestDlg : public QDialog
+class GroupRequestDlg : public QDialog
 {
     Q_OBJECT
 public:
-    QQGroupRequestDlg(const ShareQQMsgPtr msg, FriendItemModel *f_model, GroupItemModel *g_model, QWidget *parent = 0);
+    GroupRequestDlg(const ShareQQMsgPtr msg, FriendItemModel *f_model, GroupItemModel *g_model, QWidget *parent = 0);
 
 private slots:
     void slotOkClicked();
@@ -25,7 +25,7 @@ private slots:
     void slotToggleDenyReason(bool check);
 
 private:
-    Ui::QQGroupRequestDlg *ui_;
+    Ui::GroupRequestDlg *ui_;
     QString gid_;
     QString id_;
 };

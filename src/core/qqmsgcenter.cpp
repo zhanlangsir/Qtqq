@@ -3,7 +3,7 @@
 #include <QMetaType>
 
 #include "qqmsglistener.h"
-#include "../qqmsgtip.h"
+#include "../msgtip.h"
 
 void QQMsgCenter::pushMsg(ShareQQMsgPtr msg)
 {
@@ -108,7 +108,7 @@ void QQMsgCenter::removeListener(QQMsgListener *listener)
 }
 
 
-void QQMsgCenter::setMsgTip(QQMsgTip *msg_tip)
+void QQMsgCenter::setMsgTip(MsgTip *msg_tip)
 {
     msg_tip_ = msg_tip;
 }
@@ -118,7 +118,7 @@ void QQMsgCenter::writeToSql(ShareQQMsgPtr msg)
     Q_UNUSED(msg)
 }
 
-QQMsgCenter::QQMsgCenter(QQMsgTip *msg_tip) :
+QQMsgCenter::QQMsgCenter(MsgTip *msg_tip) :
     msg_tip_(msg_tip)
 {
     qRegisterMetaType<FriendStatus>("FriendStatus");

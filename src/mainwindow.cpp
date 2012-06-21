@@ -1,5 +1,5 @@
-#include "qqmainwindow.h"
-#include "ui_qqmainwindow.h"
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
 
 #include <QDesktopWidget>
 #include <QHttp>
@@ -19,28 +19,28 @@
 #include "core/types.h"
 #include "core/qqutility.h"
 #include "core/qqmsgcenter.h"
-#include "core/qqpollthread.h"
-#include "core/qqparsethread.h"
+#include "core/pollthread.h"
+#include "core/parsethread.h"
 #include "core/qqlogincore.h"
 #include "core/captchainfo.h"
 #include "frienditemmodel.h"
 #include "groupitemmodel.h"
-#include "qqgrouprequestdlg.h"
+#include "grouprequestdlg.h"
 #include "qqiteminfohelper.h"
-#include "qqfriendrequestdlg.h"
-#include "qqfriendchatdlg.h"
-#include "qqmsgtip.h"
-#include "qqgroupchatdlg.h"
+#include "friendrequestdlg.h"
+#include "friendchatdlg.h"
+#include "msgtip.h"
+#include "groupchatdlg.h"
 #include "core/qqskinengine.h"
 #include "core/sockethelper.h"
 
 
-QQMainWindow::QQMainWindow(QWidget *parent) :
+MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::QQMainWindow),
+    ui(new Ui::MainWindow),
     main_http_(new QHttp),
     message_queue_(new QQueue<QByteArray>()),
-    msg_tip_(new QQMsgTip(this)),
+    msg_tip_(new MsgTip(this)),
     msg_center_(new QQMsgCenter(msg_tip_)),
     open_chat_dlg_sc_(NULL)
 {
@@ -99,7 +99,7 @@ QQMainWindow::QQMainWindow(QWidget *parent) :
     initialize();
 }
 
-QQMainWindow::~QQMainWindow()
+MainWindow::~MainWindow()
 {
     trayIcon->hide();
     trayIcon->deleteLater();
@@ -110,18 +110,18 @@ QQMainWindow::~QQMainWindow()
     poll_thread_->terminate();
 }
 
-void QQMainWindow::setMute(bool mute)
+void MainWindow::setMute(bool mute)
 {
     QSettings setting("options.ini", QSettings::IniFormat);
     setting.setValue("mute", mute);
 }
 
-void QQMainWindow::openMainMenu()
+void MainWindow::openMainMenu()
 {
     main_menu_->popup(QCursor::pos());
 }
 
-void QQMainWindow::changeMyStatus(int idx)
+void MainWindow::changeMyStatus(int idx)
 {
     QString change_status_url = "/channel/change_status2?newstatus=" + getStatusByIndex(idx) + 
         "&clientid=5412354841&psessionid=" + CaptchaInfo::singleton()->psessionid() + 
@@ -139,7 +139,7 @@ void QQMainWindow::changeMyStatus(int idx)
     QQSettings::instance()->currLoginInfo().status = ui->cb_status_->itemData(idx).value<FriendStatus>();
 }
 
-void QQMainWindow::changeFriendStatus(QString id, FriendStatus status, ClientType client_type)
+void MainWindow::changeFriendStatus(QString id, FriendStatus status, ClientType client_type)
 {
     friend_model_->changeFriendStatus(id, status, client_type);
 
@@ -147,7 +147,7 @@ void QQMainWindow::changeFriendStatus(QString id, FriendStatus status, ClientTyp
     ui->recents->setUpdatesEnabled(true);
 }
 
-void QQMainWindow::trayActivated(QSystemTrayIcon::ActivationReason reason)
+void MainWindow::trayActivated(QSystemTrayIcon::ActivationReason reason)
 {
     switch (reason) {
     case QSystemTrayIcon::Trigger:
@@ -161,7 +161,7 @@ void QQMainWindow::trayActivated(QSystemTrayIcon::ActivationReason reason)
     }
 }
 
-void QQMainWindow::closeEvent(QCloseEvent *)
+void MainWindow::closeEvent(QCloseEvent *)
 {
     QQChatDlg *dlg = NULL;
     foreach(dlg, opening_chatdlg_)
@@ -175,7 +175,7 @@ void QQMainWindow::closeEvent(QCloseEvent *)
     }
 }
 
-void QQMainWindow::getFriendList()
+void MainWindow::getFriendList()
 {
     QString get_friendlist_url = "/api/get_user_friends2";
     QString msg_content = "r={\"h\":\"hello\",\"vfwebqq\":\"" + CaptchaInfo::singleton()->vfwebqq() + "\"}";
@@ -193,7 +193,7 @@ void QQMainWindow::getFriendList()
     main_http_->request(header, msg_content.toAscii());
 }
 
-void QQMainWindow::getFriendListDone(bool err)
+void MainWindow::getFriendListDone(bool err)
 {
     Q_UNUSED(err)
     disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getFriendListDone(bool)));
@@ -207,7 +207,7 @@ void QQMainWindow::getFriendListDone(bool err)
     getGroupList();
 }
 
-void QQMainWindow::getSingleLongNick()
+void MainWindow::getSingleLongNick()
 {
     QByteArray result = QQItemInfoHelper::getSingleLongNick(QQSettings::instance()->currLoginInfo().id);
     result = result.mid(result.indexOf("\r\n\r\n")+4);
@@ -220,7 +220,7 @@ void QQMainWindow::getSingleLongNick()
     }
 }
 
-void QQMainWindow::getGroupList()
+void MainWindow::getGroupList()
 {
     QString get_grouplist_url = "/api/get_group_name_list_mask2";
     QString msg_content = "r={\"h\":\"hello\",\"vfwebqq\":\"" + CaptchaInfo::singleton()->vfwebqq() + "\"}";
@@ -237,7 +237,7 @@ void QQMainWindow::getGroupList()
     main_http_->request(header, msg_content.toAscii());
 }
 
-void QQMainWindow::getGroupListDone(bool err)
+void MainWindow::getGroupListDone(bool err)
 {
     Q_UNUSED(err)
     disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getGroupListDone(bool)));
@@ -252,7 +252,7 @@ void QQMainWindow::getGroupListDone(bool err)
     getRecentList();
 }
 
-void QQMainWindow::getOnlineBuddy()
+void MainWindow::getOnlineBuddy()
 {
     QString get_online_buddy = "/channel/get_online_buddies2?clientid=5412354841&psessionid=" + CaptchaInfo::singleton()->psessionid() + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
     QHttpRequestHeader header("GET", get_online_buddy);
@@ -266,7 +266,7 @@ void QQMainWindow::getOnlineBuddy()
     main_http_->request(header);
 }
 
-void QQMainWindow::getOnlineBuddyDone(bool err)
+void MainWindow::getOnlineBuddyDone(bool err)
 {
     Q_UNUSED(err)
     disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getOnlineBuddyDone(bool)));
@@ -290,8 +290,8 @@ void QQMainWindow::getOnlineBuddyDone(bool err)
         friend_model_->changeFriendStatus(id, QQUtility::stringToStatus(status), client_type);
     }
 
-    poll_thread_ = new QQPollThread();
-    parse_thread_ = new QQParseThread();
+    poll_thread_ = new PollThread();
+    parse_thread_ = new ParseThread();
     connect(poll_thread_, SIGNAL(signalNewMsgArrive(QByteArray)), parse_thread_, SLOT(pushRawMsg(QByteArray)));
     connect(parse_thread_, SIGNAL(parseDone(ShareQQMsgPtr)), msg_center_, SLOT(pushMsg(ShareQQMsgPtr)));
     poll_thread_->start();
@@ -299,7 +299,7 @@ void QQMainWindow::getOnlineBuddyDone(bool err)
     msg_center_->start();
 }
 
-void QQMainWindow::getPersonalFace()
+void MainWindow::getPersonalFace()
 {
     QString avatar_path =   QQAvatarRequester::requestOne(QQAvatarRequester::getTypeNumber(QQItem::kFriend), QQSettings::instance()->currLoginInfo().id,  "temp/avatar/");
     QQSettings::instance()->currLoginInfo().avatar_path = avatar_path;
@@ -313,7 +313,7 @@ void QQMainWindow::getPersonalFace()
     ui->avatar->setIcon(QIcon(pix));
 }
 
-void QQMainWindow::getPersonalInfo()
+void MainWindow::getPersonalInfo()
 {
     QByteArray result = QQItemInfoHelper::getFriendInfo2(QQSettings::instance()->currLoginInfo().id);
     result = result.mid(result.indexOf("\r\n\r\n")+4);
@@ -328,7 +328,7 @@ void QQMainWindow::getPersonalInfo()
     } 
 }
 
-void QQMainWindow::getRecentList()
+void MainWindow::getRecentList()
 {
     QString recent_list_url ="/channel/get_recent_list2";
     QString msg_content = "r={\"vfwebqq\":\"" + CaptchaInfo::singleton()->vfwebqq() +
@@ -348,7 +348,7 @@ void QQMainWindow::getRecentList()
     main_http_->request(header, msg_content.toAscii());
 }
 
-void QQMainWindow::getRecentListDone(bool err)
+void MainWindow::getRecentListDone(bool err)
 {
     Q_UNUSED(err)
     disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getRecentListDone(bool)));
@@ -363,7 +363,7 @@ void QQMainWindow::getRecentListDone(bool err)
     getOnlineBuddy();
 }
 
-void QQMainWindow::initialize()
+void MainWindow::initialize()
 {
     getPersonalInfo();
     getPersonalFace();
@@ -372,7 +372,7 @@ void QQMainWindow::initialize()
     getFriendList();
 }
 
-void QQMainWindow::createTray()
+void MainWindow::createTray()
 {
     trayIconMenu = new QMenu(this);
     trayIconMenu->addAction(minimizeAction);
@@ -390,7 +390,7 @@ void QQMainWindow::createTray()
     trayIcon->show();
 }
 
-void QQMainWindow::createActions()
+void MainWindow::createActions()
 {
     minimizeAction = new QAction(tr("Mi&nimize"), this);
     connect(minimizeAction, SIGNAL(triggered()), this, SLOT(hide()));
@@ -405,7 +405,7 @@ void QQMainWindow::createActions()
     connect(act_logout_, SIGNAL(triggered()), this, SLOT(slot_logout()));
 }
 
-void QQMainWindow::slot_logout()
+void MainWindow::slot_logout()
 {
     this->hide();
     poll_thread_->terminate();
@@ -413,12 +413,12 @@ void QQMainWindow::slot_logout()
     emit sig_logout();
 }
 
-void QQMainWindow::openFirstChatDlg()
+void MainWindow::openFirstChatDlg()
 {
     msg_tip_->slotActivated(0);
 }
 
-QString QQMainWindow::getStatusByIndex(int idx) const
+QString MainWindow::getStatusByIndex(int idx) const
 {
     switch (ui->cb_status_->itemData(idx).value<FriendStatus>())
     {
@@ -442,7 +442,7 @@ QString QQMainWindow::getStatusByIndex(int idx) const
     return "offline";
 }
 
-void QQMainWindow::setupLoginStatus()
+void MainWindow::setupLoginStatus()
 {
     ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_online")), tr("Online"), QVariant::fromValue<FriendStatus>(kOnline));
     ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_qme")), tr("CallMe"), QVariant::fromValue<FriendStatus>(kCallMe));
@@ -457,7 +457,7 @@ void QQMainWindow::setupLoginStatus()
     ui->cb_status_->setCurrentIndex(status_idx);
 }
 
-int QQMainWindow::getStatusIndex(FriendStatus status)
+int MainWindow::getStatusIndex(FriendStatus status)
 {
     for (int i = 0; i < ui->cb_status_->count(); ++i)
     {
@@ -467,7 +467,7 @@ int QQMainWindow::getStatusIndex(FriendStatus status)
     return -1;
 }
 
-void QQMainWindow::openChatDlgByDoubleClick(const QModelIndex& index)
+void MainWindow::openChatDlgByDoubleClick(const QModelIndex& index)
 {
     QQItem *item =  static_cast<QQItem*>(index.internalPointer());
 
@@ -483,9 +483,9 @@ void QQMainWindow::openChatDlgByDoubleClick(const QModelIndex& index)
         return;
 }
 
-void QQMainWindow::openFriendRequestDlg(ShareQQMsgPtr msg)
+void MainWindow::openFriendRequestDlg(ShareQQMsgPtr msg)
 {
-    QQFriendRequestDlg dlg(msg, (FriendItemModel*)friend_model_);
+    FriendRequestDlg dlg(msg, (FriendItemModel*)friend_model_);
     if (dlg.exec() == QDialog::Accepted)
     {
 
@@ -496,9 +496,9 @@ void QQMainWindow::openFriendRequestDlg(ShareQQMsgPtr msg)
     }
 }
 
-void QQMainWindow::openGroupRequestDlg(ShareQQMsgPtr msg)
+void MainWindow::openGroupRequestDlg(ShareQQMsgPtr msg)
 {
-    QQGroupRequestDlg dlg(msg, (FriendItemModel*)friend_model_, (GroupItemModel*)group_model_);
+    GroupRequestDlg dlg(msg, (FriendItemModel*)friend_model_, (GroupItemModel*)group_model_);
     if (dlg.exec() == QDialog::Accepted)
     {
 
@@ -509,7 +509,7 @@ void QQMainWindow::openGroupRequestDlg(ShareQQMsgPtr msg)
     }
 }
 
-void QQMainWindow::openChatDlg(QQMsg::MsgType type, QString id, QString gcode)
+void MainWindow::openChatDlg(QQMsg::MsgType type, QString id, QString gcode)
 {
     QQChatDlg *chatdlg = NULL;
     foreach(chatdlg, opening_chatdlg_)
@@ -527,7 +527,7 @@ void QQMainWindow::openChatDlg(QQMsg::MsgType type, QString id, QString gcode)
         if (item)
             avatar_path = item->avatarPath();
 
-        dlg= new QQFriendChatDlg(id, convertor_.convert(id), avatar_path);
+        dlg= new FriendChatDlg(id, convertor_.convert(id), avatar_path);
         connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
         connect(dlg, SIGNAL(msgSended(QString,bool)), recent_model_, SLOT(improveItem(QString)));
         msg_center_->registerListener(dlg);
@@ -541,7 +541,7 @@ void QQMainWindow::openChatDlg(QQMsg::MsgType type, QString id, QString gcode)
             avatar_path = item->avatarPath();
 
 
-        dlg = new QQGroupChatDlg(id, convertor_.convert(id), gcode, avatar_path);
+        dlg = new GroupChatDlg(id, convertor_.convert(id), gcode, avatar_path);
         connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
         connect(dlg, SIGNAL(msgSended(QString,bool)), recent_model_, SLOT(improveItem(QString)));
 
@@ -553,7 +553,7 @@ void QQMainWindow::openChatDlg(QQMsg::MsgType type, QString id, QString gcode)
     msg_tip_->removeItem(id);
 }
 
-void QQMainWindow::closeChatDlg(QQChatDlg *listener)
+void MainWindow::closeChatDlg(QQChatDlg *listener)
 {
     opening_chatdlg_.remove(opening_chatdlg_.indexOf(listener));
     msg_center_->removeListener(listener);

@@ -1,11 +1,11 @@
-#include "qqpollthread.h"
+#include "pollthread.h"
 
 #include <QTcpSocket>
 #include <QDebug>
 
 #include "captchainfo.h"
 
-void QQPollThread::run()
+void PollThread::run()
 {
     QTcpSocket fd;
 
@@ -50,7 +50,7 @@ void QQPollThread::run()
     }
 }
 
-QQPollThread::QQPollThread()
+PollThread::PollThread()
 {
     QString poll_path = "/channel/poll2";
     QByteArray msg = "r={\"clientid\":\"5412354841\",\"psessionid\":\"" + CaptchaInfo::singleton()->psessionid().toAscii() + "\","

@@ -14,15 +14,15 @@ HEADERS += friendinfodlg.h \
            groupitemmodel.h \
            qqchatdlg.h \
            qqfacepanel.h \
-           qqfriendchatdlg.h \
-           qqfriendrequestdlg.h \
-           qqgroupchatdlg.h \
-           qqgrouprequestdlg.h \
+           friendchatdlg.h \
+           friendrequestdlg.h \
+           groupchatdlg.h \
+           grouprequestdlg.h \
            qqiteminfohelper.h \
            qqitemmodel.h \
-           qqloginwin.h \
-           qqmainwindow.h \
-           qqmsgtip.h \
+           loginwin.h \
+           mainwindow.h \
+           msgtip.h \
            qqsystemtray.h \
            qqtextedit.h \
            qtqq.h \
@@ -41,8 +41,8 @@ HEADERS += friendinfodlg.h \
            core/qqmsgcenter.h \
            core/qqmsglistener.h \
            core/qqmsgsender.h \
-           core/qqparsethread.h \
-           core/qqpollthread.h \
+           core/parsethread.h \
+           core/pollthread.h \
            core/qqutility.h \
            core/request.h \
            core/soundplayer.h \
@@ -54,7 +54,7 @@ HEADERS += friendinfodlg.h \
     src/core/qqskinable.h \
     src/core/qqsetting.h \
     src/qqwidget.h \
-    src/qqchatlogwin.h \
+    src/chatlogwin.h \
     src/core/qqchatlog.h \
     src/core/friendchatlog.h \
     src/core/groupchatlog.h \
@@ -70,15 +70,15 @@ SOURCES += friendinfodlg.cpp \
            msgbrowse.cpp \
            qqchatdlg.cpp \
            qqfacepanel.cpp \
-           qqfriendchatdlg.cpp \
-           qqfriendrequestdlg.cpp \
-           qqgroupchatdlg.cpp \
-           qqgrouprequestdlg.cpp \
+           friendchatdlg.cpp \
+           friendrequestdlg.cpp \
+           groupchatdlg.cpp \
+           grouprequestdlg.cpp \
            qqiteminfohelper.cpp \
            qqitemmodel.cpp \
-           qqloginwin.cpp \
-           qqmainwindow.cpp \
-           qqmsgtip.cpp \
+           loginwin.cpp \
+           mainwindow.cpp \
+           msgtip.cpp \
            qqsystemtray.cpp \
            qqtextedit.cpp \
            qtqq.cpp \
@@ -93,8 +93,8 @@ SOURCES += friendinfodlg.cpp \
            core/qqmsg.cpp \
            core/qqmsgcenter.cpp \
            core/qqmsgsender.cpp \
-           core/qqparsethread.cpp \
-           core/qqpollthread.cpp \
+           core/parsethread.cpp \
+           core/pollthread.cpp \
            core/request.cpp \
            core/soundplayer.cpp \
            core/types.cpp \
@@ -104,7 +104,7 @@ SOURCES += friendinfodlg.cpp \
     src/core/qqskinengine.cpp \
     src/core/qqsetting.cpp \
     src/qqwidget.cpp \
-    src/qqchatlogwin.cpp \
+    src/chatlogwin.cpp \
     src/core/qqchatlog.cpp \
     src/core/friendchatlog.cpp \
     src/core/groupchatlog.cpp \
@@ -118,9 +118,9 @@ FORMS += ui/captcha.ui \
          ui/friendrequestdlg.ui \
          ui/grouprequestdlg.ui \
          ui/qqfacepanel.ui \
-         ui/qqfriendchatdlg.ui \
-         ui/qqgroupchatdlg.ui \
-         ui/qqloginwin.ui \
-         ui/qqmainwindow.ui \
-         ui/qqmsgtip.ui \
-    src/ui/qqchatlogwin.ui
+         ui/friendchatdlg.ui \
+         ui/groupchatdlg.ui \
+         ui/loginwin.ui \
+         ui/mainwindow.ui \
+         ui/msgtip.ui \
+         ui/chatlogwin.ui

@@ -1,23 +1,23 @@
-#ifndef QTQQ_QQCHATLOGWIN_H
-#define QTQQ_QQCHATLOGWIN_H
+#ifndef QTQQ_CHATLOGWIN_H
+#define QTQQ_CHATLOGWIN_H
 
 #include <QWidget>
 #include "core/qqmsg.h"
 
 namespace Ui
 {
-class QQChatLogWin;
+class ChatLogWin;
 }
 
 class QQChatLog;
 class NameConvertor;
 
-class QQChatLogWin : public QWidget
+class ChatLogWin : public QWidget
 {
     Q_OBJECT
 public:
-    explicit QQChatLogWin(QWidget *parent = 0);
-    ~QQChatLogWin();
+    explicit ChatLogWin(QWidget *parent = 0);
+    ~ChatLogWin();
 
 public:
     void setChatLog(QQChatLog *chat_log)
@@ -42,9 +42,9 @@ private:
     void showChatLog(QVector<ShareQQMsgPtr> &chat_logs);
     
 private:
-    Ui::QQChatLogWin *ui_;
+    Ui::ChatLogWin *ui_;
     const NameConvertor *convertor_;
     QQChatLog *chat_log_;
 };
 
-#endif // QTQQ_QQCHATLOGWIN_H
+#endif // QTQQ_CHATLOGWIN_H

@@ -8,11 +8,12 @@
 
 #include "captchainfo.h"
 
-void ImgLoader::loadFriendCface(const QString &file_name, const QString &to_uin, const QString &msg_id)
+void ImgLoader::loadFriendCface(const QString &uuid, const QString &file_name, const QString &to_uin, const QString &msg_id)
 {
     LoadInfo info;
 
     info.img_name = file_name;
+    info.uuid = uuid;
     info.path = "temp/" + file_name;
     info.url = "/channel/get_cface2?lcid="+msg_id+"&guid="+file_name+"&to="+ to_uin+
             "&count=5&time=1&clientid=5412354841&psessionid="+CaptchaInfo::singleton()->psessionid();

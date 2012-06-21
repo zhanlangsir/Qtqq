@@ -1,5 +1,5 @@
-#include "qqgroupchatdlg.h"
-#include "ui_qqgroupchatdlg.h"
+#include "groupchatdlg.h"
+#include "ui_groupchatdlg.h"
 
 #include <QScrollBar>
 #include <QDateTime>
@@ -21,9 +21,9 @@
 #include "core/captchainfo.h"
 #include "core/groupchatlog.h"
 
-QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, QString avatar_path, QWidget *parent) :
+GroupChatDlg::GroupChatDlg(QString gid, QString name, QString group_code, QString avatar_path, QWidget *parent) :
     QQChatDlg(gid, name, parent),
-    ui(new Ui::QQGroupChatDlg()),
+    ui(new Ui::GroupChatDlg()),
     group_code_(group_code),
     model_(NULL)
 {
@@ -79,7 +79,7 @@ QQGroupChatDlg::QQGroupChatDlg(QString gid, QString name, QString group_code, QS
    getGfaceSig();
 }
 
-QQGroupChatDlg::~QQGroupChatDlg()
+GroupChatDlg::~GroupChatDlg()
 {
     if ( model_ )
     {
@@ -92,33 +92,33 @@ QQGroupChatDlg::~QQGroupChatDlg()
     delete ui;
 }
 
-void QQGroupChatDlg::updateSkin()
+void GroupChatDlg::updateSkin()
 {
 
 }
 
-void QQGroupChatDlg::closeEvent(QCloseEvent *)
+void GroupChatDlg::closeEvent(QCloseEvent *)
 {
     writeMemberInfoToSql();
     emit chatFinish(this);
 }
 
-ImgLoader *QQGroupChatDlg::getImgLoader() const
+ImgLoader *GroupChatDlg::getImgLoader() const
 {
     return new GroupImgLoader();
 }
 
-QQChatLog *QQGroupChatDlg::getChatlog() const
+QQChatLog *GroupChatDlg::getChatlog() const
 {
     return new GroupChatLog(group_code_);
 }
 
-ImgSender* QQGroupChatDlg::getImgSender() const
+ImgSender* GroupChatDlg::getImgSender() const
 {
     return new GroupImgSender();
 }
 
-void QQGroupChatDlg::getGfaceSig()
+void GroupChatDlg::getGfaceSig()
 {
     bool need_create_table = true;
     {
@@ -184,7 +184,7 @@ void QQGroupChatDlg::getGfaceSig()
         getGroupMemberList();
 }
 
-void QQGroupChatDlg::readSigFromSql()
+void GroupChatDlg::readSigFromSql()
 {
     QSqlQuery query;
     QString read_command = "SELECT * FROM groupsig WHERE gid == %1";
@@ -200,7 +200,7 @@ void QQGroupChatDlg::readSigFromSql()
     }
 }
 
-void QQGroupChatDlg::getGfaceSigDone(bool err)
+void GroupChatDlg::getGfaceSigDone(bool err)
 {
     Q_UNUSED(err)
     disconnect(&http_, SIGNAL(done(bool)), this, SLOT(getGfaceSigDone(bool)));
@@ -236,7 +236,7 @@ void QQGroupChatDlg::getGfaceSigDone(bool err)
    getGroupMemberList();
 }
 
-void QQGroupChatDlg::createSigSql()
+void GroupChatDlg::createSigSql()
 {
     QSqlQuery query;
 
@@ -252,7 +252,7 @@ void QQGroupChatDlg::createSigSql()
     }
 }
 
-void QQGroupChatDlg::parseGroupMemberList(const QByteArray &array)
+void GroupChatDlg::parseGroupMemberList(const QByteArray &array)
 {
     Json::Value root;
     Json::Reader reader;
@@ -290,7 +290,7 @@ void QQGroupChatDlg::parseGroupMemberList(const QByteArray &array)
     }
 }
 
-void QQGroupChatDlg::createSql()
+void GroupChatDlg::createSql()
 {
     QSqlQuery query;
 
@@ -308,7 +308,7 @@ void QQGroupChatDlg::createSql()
     }
 }
 
-void QQGroupChatDlg::readFromSql()
+void GroupChatDlg::readFromSql()
 {
     QSqlQuery query;
     QString read_command = "SELECT * FROM groupmemberinfo WHERE groupmemberinfo.gid == %1";
@@ -344,7 +344,7 @@ void QQGroupChatDlg::readFromSql()
     replaceUnconverId();
 }
 
-void QQGroupChatDlg::replaceUnconverId()
+void GroupChatDlg::replaceUnconverId()
 {
     foreach (QString id, unconvert_ids_)
     {
@@ -352,7 +352,7 @@ void QQGroupChatDlg::replaceUnconverId()
     }
 }
 
-void QQGroupChatDlg::writeMemberInfoToSql()
+void GroupChatDlg::writeMemberInfoToSql()
 {
     if ( !model_ )
         return;
@@ -404,12 +404,12 @@ void QQGroupChatDlg::writeMemberInfoToSql()
     QSqlDatabase::removeDatabase(name);
 }
 
-QQItem *QQGroupChatDlg::findItemById(QString id) const
+QQItem *GroupChatDlg::findItemById(QString id) const
 {
     return model_->find(id);
 }
 
-void QQGroupChatDlg::getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const
+void GroupChatDlg::getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const
 {
     if ( model_ )
     {
@@ -429,7 +429,7 @@ void QQGroupChatDlg::getInfoById(QString id, QString &name, QString &avatar_path
     ok = false;
 }
 
-void QQGroupChatDlg::getGroupMemberList()
+void GroupChatDlg::getGroupMemberList()
 {
     {
         QSqlDatabase db = QSqlDatabase::database(connection_name_);
@@ -485,7 +485,7 @@ void QQGroupChatDlg::getGroupMemberList()
    QSqlDatabase::removeDatabase(name);
 }
 
-void QQGroupChatDlg::getGroupMemberListDone(bool err)
+void GroupChatDlg::getGroupMemberListDone(bool err)
 {
     Q_UNUSED(err)
     disconnect(&http_, SIGNAL(done(bool)), this, SLOT(getGroupMemberListDone(bool)));
@@ -502,7 +502,7 @@ void QQGroupChatDlg::getGroupMemberListDone(bool err)
    replaceUnconverId();
 }
 
-QString QQGroupChatDlg::converToJson(const QString &raw_msg)
+QString GroupChatDlg::converToJson(const QString &raw_msg)
 {
     bool has_gface = false;
     QString msg_template;

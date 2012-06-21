@@ -3,8 +3,8 @@
 #include <QSettings>
 #include <QMessageBox>
 
-#include "qqloginwin.h"
-#include "qqmainwindow.h"
+#include "loginwin.h"
+#include "mainwindow.h"
 #include "core/qqskinengine.h"
 #include "core/qqsetting.h"
 
@@ -33,13 +33,13 @@ Qtqq::~Qtqq()
 void Qtqq::start()
 {
     login_core_ = new QQLoginCore();
-    login_dlg_ = new QQLoginWin(login_core_);
+    login_dlg_ = new LoginWin(login_core_);
     connect(login_dlg_, SIGNAL(sig_loginFinish()), this, SLOT(slot_showMainPanel()));
 }
 
 void Qtqq::slot_showMainPanel()
 {
-    mainpanel_ = new QQMainWindow();
+    mainpanel_ = new MainWindow();
     connect(mainpanel_, SIGNAL(sig_logout()), this, SLOT(restart()));
     mainpanel_->show();
 }

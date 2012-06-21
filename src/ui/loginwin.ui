@@ -145,12 +145,12 @@
        <string>Remember Password</string>
       </property>
      </widget>
-     <widget class="QLabel" name="lbl_logo">
+     <widget class="QLabel" name="logo">
       <property name="geometry">
        <rect>
-        <x>90</x>
+        <x>60</x>
         <y>20</y>
-        <width>181</width>
+        <width>231</width>
         <height>61</height>
        </rect>
       </property>
@@ -159,9 +159,6 @@
       </property>
       <property name="text">
        <string/>
-      </property>
-      <property name="pixmap">
-       <pixmap>:/new/login/images/LoginPanel/StdLoginBanner.png</pixmap>
       </property>
      </widget>
      <widget class="QComboBox" name="comb_username_">
@@ -194,7 +191,7 @@
        </size>
       </property>
      </widget>
-     <widget class="QComboBox" name="cb_status_">
+     <widget class="QComboBox" name="cb_status">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -208,6 +205,32 @@
         <family>微软雅黑</family>
         <pointsize>8</pointsize>
        </font>
+      </property>
+     </widget>
+     <widget class="QLabel" name="register_account">
+      <property name="geometry">
+       <rect>
+        <x>270</x>
+        <y>95</y>
+        <width>66</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;a href=&quot;http://zc.qq.com/chs/index.html&quot;&gt;注册帐号&lt;/a&gt;</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="find_password">
+      <property name="geometry">
+       <rect>
+        <x>270</x>
+        <y>125</y>
+        <width>66</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;a href=&quot;https://aq.qq.com/cn2/findpsw/pc/pc_find_pwd_input_account&quot;&gt;找回密码&lt;/a&gt;</string>
       </property>
      </widget>
     </widget>
@@ -279,7 +302,7 @@
   <tabstop>pb_login</tabstop>
   <tabstop>cekb_rem_pwd_</tabstop>
   <tabstop>cekb_autologin_</tabstop>
-  <tabstop>cb_status_</tabstop>
+  <tabstop>cb_status</tabstop>
  </tabstops>
  <resources/>
  <connections/>
