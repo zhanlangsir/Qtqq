@@ -383,7 +383,8 @@ void QQMainWindow::createTray()
     trayIconMenu->addAction(quitAction);
 
     QIcon icon(QQSkinEngine::instance()->getSkinRes("app_icon"));
-    trayIcon = new QQSystemTray(this);
+    //trayIcon = new QQSystemTray(this);
+    trayIcon = QQSystemTray::instance();
     trayIcon->setContextMenu(trayIconMenu);
     trayIcon->setIcon(icon);
     setWindowIcon(icon);

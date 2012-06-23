@@ -12,3 +12,5 @@ bool QQSystemTray::event(QEvent *event)
 {
 
 }
+
+QQSystemTray* QQSystemTray::qq_system_tray_;

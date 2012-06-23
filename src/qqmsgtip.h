@@ -10,6 +10,7 @@
 #include "core/soundplayer.h"
 #include "core/qqmsg.h"
 #include "core/nameconvertor.h"
+#include "qqsystemtray.h"
 
 namespace Ui
 {
