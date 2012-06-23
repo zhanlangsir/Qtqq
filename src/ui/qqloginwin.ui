@@ -256,6 +256,9 @@
   <tabstop>comb_username_</tabstop>
   <tabstop>le_password_</tabstop>
   <tabstop>pb_login</tabstop>
+  <tabstop>cekb_rem_pwd_</tabstop>
+  <tabstop>cekb_autologin_</tabstop>
+  <tabstop>cb_status_</tabstop>
  </tabstops>
  <resources/>
  <connections/>

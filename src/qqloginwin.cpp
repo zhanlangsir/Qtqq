@@ -29,6 +29,8 @@ QQLoginWin::QQLoginWin(QQLoginCore *login_core, QWidget *parent) :
 {
     ui->setupUi(this);
 
+    setFixedSize(350, 220);
+
     setObjectName("loginWindow");
     setMouseTracking(true);
     setWindowIcon(QIcon(QQSkinEngine::instance()->getSkinRes("app_icon")));
