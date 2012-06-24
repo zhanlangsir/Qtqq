@@ -1,5 +1,6 @@
 #include "qqfriendchatdlg.h"
 #include "ui_qqfriendchatdlg.h"
+#include "include/json.h"
 
 #include <QScrollBar>
 #include <QTextEdit>
@@ -9,6 +10,7 @@
 #include <QFileDialog>
 #include <QRegExp>
 
+#include "qqiteminfohelper.h"
 #include "core/friendimgsender.h"
 #include "core/qqskinengine.h"
 #include "core/captchainfo.h"
@@ -64,6 +66,8 @@ QQFriendChatDlg::QQFriendChatDlg(QString uin, QString from_name, QString avatar_
    file.close();
 
    ui->lbl_avatar_->setPixmap(pix);
+
+   getSingleLongNick(uin);
 }
 
 QQFriendChatDlg::~QQFriendChatDlg()
@@ -140,6 +144,21 @@ QString QQFriendChatDlg::converToJson(const QString &raw_msg)
             "&clientid=5412354841&psessionid="+CaptchaInfo::singleton()->psessionid();
     //msg_template.replace("/", "%2F");
     return msg_template;
+}
+
+void QQFriendChatDlg::getSingleLongNick(QString id)
+{
+    QByteArray result = QQItemInfoHelper::getSingleLongNick(id);
+    result = result.mid(result.indexOf("\r\n\r\n")+4);
+    Json::Reader reader;
+    Json::Value root;
+
+    qDebug()<<"lnick"<<result<<endl;
+
+    if (reader.parse(QString(result).toStdString(), root, false))
+    {
+         ui->lbl_mood_->setText(QString::fromStdString(root["result"][0]["lnick"].asString()));
+    }
 }
 
 ImgSender* QQFriendChatDlg::getImgSender() const

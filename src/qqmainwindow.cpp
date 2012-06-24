@@ -214,6 +214,8 @@ void QQMainWindow::getSingleLongNick()
     Json::Reader reader;
     Json::Value root;
 
+    qDebug()<<"lnick"<<result<<endl;
+
     if (reader.parse(QString(result).toStdString(), root, false))
     {
          ui->le_mood_->setText(QString::fromStdString(root["result"][0]["lnick"].asString()));

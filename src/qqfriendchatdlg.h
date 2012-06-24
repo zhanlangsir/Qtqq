@@ -29,6 +29,7 @@ private:
     ImgSender* getImgSender() const;
     QQChatLog *getChatlog() const;
     void getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const;
+    void getSingleLongNick(QString id);
 
 private:
     Ui::QQFriendChatDlg *ui;
