@@ -25,10 +25,13 @@ public:
     void updateSkin();
 
 private:
-    QString converToJson(const QString &raw_msg);
-    ImgSender* getImgSender() const;
-    QQChatLog *getChatlog() const;
-    void getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const;
+    virtual QString converToJson(const QString &raw_msg);
+    virtual ImgSender* getImgSender() const;
+    virtual QQChatLog *getChatlog() const;
+    virtual void getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const;
+
+    void initUi();
+    void initConnections();
 
 private:
     Ui::FriendChatDlg *ui;

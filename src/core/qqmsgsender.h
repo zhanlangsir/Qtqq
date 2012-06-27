@@ -19,7 +19,7 @@ public:
     }
 
 public:
-    void send(const Request &msg);
+    void send(const Request &req);
 
 protected:
     void run();

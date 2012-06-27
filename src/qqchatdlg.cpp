@@ -278,21 +278,21 @@ void QQChatDlg::showMsg(ShareQQMsgPtr msg)
         switch ( chat_msg->msg_[i].type() )
         {
         case QQChatItem::kWord:
+        {
             if (options.type == MsgBrowse::kImg)
             {
                 msgbrowse_.appendContent(appending_content + "</span>", options);
                 appending_content.clear();
             }
-            else
-            {
-                QString escaped_html = escape(chat_msg->msg_[i].content());
-                if (i >= 1 && options.type == MsgBrowse::kWord)
-                    appending_content += escaped_html;
-                else
-                    appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">" + escaped_html;
 
-                options.type = MsgBrowse::kWord;
-            }
+            QString escaped_html = escape(chat_msg->msg_[i].content());
+            if (i >= 1 && options.type == MsgBrowse::kWord)
+                appending_content += escaped_html;
+            else
+                appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">" + escaped_html;
+
+            options.type = MsgBrowse::kWord;
+        }
             break;
 
         case QQChatItem::kQQFace:

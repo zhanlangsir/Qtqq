@@ -11,6 +11,8 @@
 #include <QSqlError>
 #include <QRegExp>
 
+#include <assert.h>
+
 #include "include/json.h"
 
 #include "qqitemmodel.h"
@@ -25,57 +27,19 @@ GroupChatDlg::GroupChatDlg(QString gid, QString name, QString group_code, QStrin
     QQChatDlg(gid, name, parent),
     ui(new Ui::GroupChatDlg()),
     group_code_(group_code),
-    model_(NULL)
+    model_(NULL),
+    avatar_path_(avatar_path)
 {
    ui->setupUi(this);
-   updateSkin();
-   te_input_.setFocus();
-
    set_type(QQChatDlg::kGroup);
-
-   ui->btn_send_key->setMenu(send_type_menu_);
-
-   ui->splitter_left_->insertWidget(0, &msgbrowse_);
-   ui->v_layout_left_->insertWidget(1, &te_input_);
-
-   ui->splitter_main->setChildrenCollapsible(false);
-   ui->splitter_left_->setChildrenCollapsible(false);
-
-   //设置分割器大小
-   QList<int> right_sizes;
-   right_sizes.append(500);
-   right_sizes.append(ui->splitter_right_->midLineWidth());
-   ui->splitter_main->setSizes(right_sizes);
-
-   QList<int> left_sizes;
-   left_sizes.append(500);
-   left_sizes.append(ui->splitter_left_->midLineWidth());
-   ui->splitter_left_->setSizes(left_sizes);
-
-   this->resize(600, 500);
-
-   connect(ui->btn_send_img, SIGNAL(clicked(bool)), this, SLOT(openPathDialog(bool)));
-   connect(ui->btn_send_msg, SIGNAL(clicked()), this, SLOT(sendMsg()));
-   connect(ui->btn_qqface, SIGNAL(clicked()), this, SLOT(openQQFacePanel()));
-   connect(ui->btn_close, SIGNAL(clicked()), this, SLOT(close()));
-   connect(ui->btn_chat_log, SIGNAL(clicked()), this, SLOT(openChatLogWin()));
-
-   ui->lbl_name_->setText(name_);
-   setWindowTitle(name_);
 
    send_url_ = "/channel/send_qun_msg2";
 
-   if (avatar_path.isEmpty())
-       avatar_path = QQSkinEngine::instance()->getSkinRes("default_group_avatar");
+   initUi();  
+   updateSkin();
+   initConnections();
 
-   QFile file(avatar_path);
-   file.open(QIODevice::ReadOnly);
-   QPixmap pix;
-   pix.loadFromData(file.readAll());
-   file.close();
-
-   ui->lbl_avatar_->setPixmap(pix);
-
+   te_input_.setFocus();
    getGfaceSig();
 }
 
@@ -92,6 +56,50 @@ GroupChatDlg::~GroupChatDlg()
     delete ui;
 }
 
+void GroupChatDlg::initUi()
+{
+    setWindowTitle(name_);
+    ui->lbl_name_->setText(name_);
+
+    if (avatar_path_.isEmpty())
+        avatar_path_ = QQSkinEngine::instance()->getSkinRes("default_group_avatar");
+    QFile file(avatar_path_);
+    file.open(QIODevice::ReadOnly);
+    QPixmap pix;
+    pix.loadFromData(file.readAll());
+    file.close();
+    ui->lbl_avatar_->setPixmap(pix);
+
+    ui->btn_send_key->setMenu(send_type_menu_);
+
+    ui->splitter_left_->insertWidget(0, &msgbrowse_);
+    ui->splitter_left_->setChildrenCollapsible(false);
+    ui->v_layout_left_->insertWidget(1, &te_input_);
+    ui->splitter_main->setChildrenCollapsible(false);
+
+    //设置分割器大小
+    QList<int> right_sizes;
+    right_sizes.append(500);
+    right_sizes.append(ui->splitter_right_->midLineWidth());
+    ui->splitter_main->setSizes(right_sizes);
+
+    QList<int> left_sizes;
+    left_sizes.append(500);
+    left_sizes.append(ui->splitter_left_->midLineWidth());
+    ui->splitter_left_->setSizes(left_sizes);
+
+    this->resize(600, 500);
+}
+
+void GroupChatDlg::initConnections()
+{
+   connect(ui->btn_send_img, SIGNAL(clicked(bool)), this, SLOT(openPathDialog(bool)));
+   connect(ui->btn_send_msg, SIGNAL(clicked()), this, SLOT(sendMsg()));
+   connect(ui->btn_qqface, SIGNAL(clicked()), this, SLOT(openQQFacePanel()));
+   connect(ui->btn_close, SIGNAL(clicked()), this, SLOT(close()));
+   connect(ui->btn_chat_log, SIGNAL(clicked()), this, SLOT(openChatLogWin()));
+}
+
 void GroupChatDlg::updateSkin()
 {
 
@@ -99,10 +107,18 @@ void GroupChatDlg::updateSkin()
 
 void GroupChatDlg::closeEvent(QCloseEvent *)
 {
+   //saveGroupInfo();
     writeMemberInfoToSql();
     emit chatFinish(this);
 }
 
+/*
+void GroupChatDlg::saveGroupInfo()
+{
+  writeMemberInfoToSql();
+  
+}
+*/
 ImgLoader *GroupChatDlg::getImgLoader() const
 {
     return new GroupImgLoader();
@@ -243,7 +259,7 @@ void GroupChatDlg::createSigSql()
     query.exec("CREATE TABLE IF NOT EXISTS groupsig ("
         "gid INTERGER,"
         "key VARCHAR(15),"
-        "sig VARCHAR(50),"
+        "Sig VARCHAR(50),"
         "PRIMARY KEY (gid))");
 
     if (query.lastError().isValid())
@@ -274,6 +290,18 @@ void GroupChatDlg::parseGroupMemberList(const QByteArray &array)
         convertor_.addUinNameMap(uin, nick);
     }
 
+    Json::Value mark_names = root["result"]["cards"];
+    for (unsigned int i = 0; i < mark_names.size(); ++i)
+    {
+        QString uin = QString::number(mark_names[i]["muin"].asLargestInt());
+        QString mark_name = QString::fromStdString(mark_names[i]["card"].asString());
+
+        QQItem *item = model_->find(uin);
+        assert(item);
+
+        item->set_markName(mark_name);
+    }
+
     Json::Value stats = root["result"]["stats"];
     for (unsigned int i = 0; i < stats.size(); ++i)
     {
@@ -288,24 +316,10 @@ void GroupChatDlg::parseGroupMemberList(const QByteArray &array)
 
         model_->improveItem(uin);
     }
-}
 
-void GroupChatDlg::createSql()
-{
-    QSqlQuery query;
-
-    query.exec("CREATE TABLE IF NOT EXISTS groupmemberinfo ("
-        "uin INTEGER,"
-        "gid INTERGER,"
-        "name VARCHAR(15),"
-        "status INTEGER,"
-        "avatarpath VARCHAR(20),"
-        "PRIMARY KEY (uin))");
-
-    if (query.lastError().isValid())
-    {
-        qDebug()<<query.lastError();
-    }
+    Json::Value ginfo = root["result"]["ginfo"];
+    QString g_announcement = QString::fromStdString(ginfo["memo"].asString());
+    ui->group_announcement->setText(g_announcement);
 }
 
 void GroupChatDlg::readFromSql()
@@ -321,10 +335,12 @@ void GroupChatDlg::readFromSql()
     {
         QString uin = query.value(0).toString();
         QString nick = query.value(2).toString();
-        FriendStatus stat = (FriendStatus)query.value(3).toInt();
-        QString avatar_path = query.value(4).toString();
+        QString mark_name = query.value(3).toString();
+        FriendStatus stat = (FriendStatus)query.value(4).toInt();
+        QString avatar_path = query.value(5).toString();
 
         QQItem *info = new QQItem(QQItem::kFriend, nick, uin, model_->rootItem());
+        info->set_markName(mark_name);
         info->set_status(stat);
         info->set_avatarPath(avatar_path);
 
@@ -338,8 +354,14 @@ void GroupChatDlg::readFromSql()
 
     ui->lv_members_->setModel(model_);
 
-    QString drop_command = "DROP TABLE IF EXISTS groupmemberinfo";
-    query.exec(drop_command);
+    QString read_memo_command = "SELECT * FROM groupinfo WHERE groupinfo.gid == %1";
+    query.exec(read_memo_command.arg(id_));
+
+    while ( query.next() )
+    {
+        QString memo = query.value(1).toString();
+        ui->group_announcement->setText(memo);
+    }
 
     replaceUnconverId();
 }
@@ -349,6 +371,35 @@ void GroupChatDlg::replaceUnconverId()
     foreach (QString id, unconvert_ids_)
     {
         msgbrowse_.replaceIdToName(id, convertor_.convert(id));
+    }
+}
+
+void GroupChatDlg::createSql()
+{
+    QSqlQuery query;
+
+    query.exec("CREATE TABLE IF NOT EXISTS groupmemberinfo ("
+        "uin INTEGER,"
+        "gid INTERGER,"
+        "name VARCHAR(15),"
+        "markname VARCHAR(25),"
+        "status INTEGER,"
+        "avatarpath VARCHAR(20),"
+        "PRIMARY KEY (uin))");
+
+    if (query.lastError().isValid())
+    {
+        qDebug()<<query.lastError();
+    }
+
+    query.exec("CREATE TABLE IF NOT EXISTS groupinfo ("
+            "gid INTERGER,"
+            "memo VARCHAR(100),"
+            "PRIMARY KEY (gid))");
+
+    if (query.lastError().isValid())
+    {
+        qDebug()<<query.lastError();
     }
 }
 
@@ -391,11 +442,15 @@ void GroupChatDlg::writeMemberInfoToSql()
             {
                 QQItem *item = model_->rootItem()->children_[i];
 
-                QString insert_command = "INSERT INTO groupmemberinfo VALUES (%1, %2, '%3', %4, '%5')";
-                query.exec(insert_command.arg(item->id()).arg(id_).arg(item->name()).arg(item->status()).arg(item->avatarPath()));
+                //uin, gid, name, mark name, status, avatar path
+                QString insert_command = "INSERT INTO groupmemberinfo VALUES (%1, %2, '%3', '%4', %5, '%6')";
+                query.exec(insert_command.arg(item->id()).arg(id_).arg(item->name()).arg(item->markName()).arg(item->status()).arg(item->avatarPath()));
             }
             QSqlDatabase::database().commit();
         }
+
+        QString insert_command = "INSERT INTO groupinfo VALUES (%1, '%2')";
+        query.exec(insert_command.arg(id_).arg(ui->group_announcement->text()));
     }
     QString name;{
         name = QSqlDatabase::database().connectionName();

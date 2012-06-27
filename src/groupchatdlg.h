@@ -36,23 +36,28 @@ private slots:
     void getGroupMemberListDone(bool err);
 
 private:
-    QString converToJson(const QString &raw_msg);
-    ImgSender* getImgSender() const;
-    ImgLoader* getImgLoader() const;
-    QQChatLog *getChatlog() const;
+    virtual QString converToJson(const QString &raw_msg);
+    virtual ImgSender* getImgSender() const;
+    virtual ImgLoader* getImgLoader() const;
+    virtual QQChatLog *getChatlog() const;
+    virtual void getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const;
+
+    void initUi();
+    void initConnections();
+
     void getGfaceSig();
     void getGroupMemberList();
+    void parseGroupMemberList(const QByteArray &array);
+
     void createSql();
     void createSigSql();
-    void parseGroupMemberList(const QByteArray &array);
     void readFromSql();
     void readSigFromSql();
-    void replaceUnconverId();
     void writeMemberInfoToSql();
-    QQItem *findItemById(QString id) const;
-    void getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const;
 
-    void test() {}
+    QQItem *findItemById(QString id) const;
+
+    void replaceUnconverId();
 
 private:
     Ui::GroupChatDlg *ui;
@@ -62,8 +67,8 @@ private:
     QString gface_sig_;
     QPoint distance_pos_;
     QQItemModel *model_;
-    //QQItem *member_root_;
     QString connection_name_;
+    QString avatar_path_;
 };
 
 #endif //QTQQ_GROUPCHATDLG_H

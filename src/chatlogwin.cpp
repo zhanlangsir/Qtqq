@@ -183,7 +183,6 @@ void ChatLogWin::showChatLog(QVector<ShareQQMsgPtr> &chat_logs)
     ShareQQMsgPtr msg;
     foreach (msg, chat_logs)
     {
-
         QQGroupChatMsg *chat_msg = static_cast<QQGroupChatMsg*>(msg.data());
 
         qint64 time = chat_msg->time();
@@ -209,4 +208,3 @@ void ChatLogWin::showChatLog(QVector<ShareQQMsgPtr> &chat_logs)
         }
     }
 }
-

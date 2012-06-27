@@ -7,6 +7,7 @@
 #include <QMouseEvent>
 #include <QPoint>
 #include <QVector>
+#include <QApplication>
 
 #include "core/qqlogincore.h"
 
@@ -42,6 +43,10 @@ public:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *e);
+    void closeEvent(QCloseEvent *event)
+    {
+      qApp->quit();
+    }
 
 private slots:
     void onPbLoginClicked();

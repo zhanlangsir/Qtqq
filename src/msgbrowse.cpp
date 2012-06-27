@@ -74,7 +74,7 @@ void MsgBrowse::appendContent(QString content, const ShowOptions &options)
 
     if ( options.type != kImg )
     {
-        QRegExp link_reg("((http|https)://|www\\\\.)[0-9A-Za-z:/\\\\.?=\\-_&{}]*");
+        QRegExp link_reg("((http|https)://|www\\.)[0-9A-Za-z:/\\.?=\\-_&{}#]*");
         QString a_templace = "<a href=\"";
 
         if ( link_reg.indexIn(content) != -1 )
@@ -83,21 +83,6 @@ void MsgBrowse::appendContent(QString content, const ShowOptions &options)
 
         content.replace(link_reg, a_templace  + link_reg.cap(0) + "\">" + link_reg.cap(0)+ "</a>");
     }
-    /*
-    switch (options.type)
-    {
-        case kWord:
-            decorate_content = "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">" + content + "</span>";
-            break;
-        case kImg:
-            decorate_content = "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img src=\""+ content +"\" /></span>";
-            break;
-        case kDateSeprate:
-            decorate_content = "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">" +
-            (content.isEmpty() ? QDateTime::currentDateTime().toString("MM, dd") : content)
-            +"</span>";
-            break;
-    }*/
 
     bool is_combine = ifCombineMsg(options);
     QString html;

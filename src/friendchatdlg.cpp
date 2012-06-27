@@ -21,49 +21,55 @@ FriendChatDlg::FriendChatDlg(QString uin, QString from_name, QString avatar_path
     avatar_path_(avatar_path)
 {
    ui->setupUi(this);
-   resize(this->minimumSize());
-   updateSkin();
-   te_input_.setFocus();
 
    set_type(QQChatDlg::kFriend);
 
-   ui->splitter_main->insertWidget(0, &msgbrowse_);
-   ui->splitter_main->setChildrenCollapsible(false);
-
-   ui->vlo_main->insertWidget(1, &te_input_);
-
-   ui->btn_send_key->setMenu(send_type_menu_);
-
-   QList<int> sizes;
-   sizes.append(1000);
-   sizes.append(ui->splitter_main->midLineWidth());
-   ui->splitter_main->setSizes(sizes);
-
-   //QScrollBar *bar = te_messages_.verticalScrollBar();
-   //connect(bar, SIGNAL(rangeChanged(int, int)), this, SLOT(silderToBottom(int, int)));
-   connect(ui->btn_send_img, SIGNAL(clicked(bool)), this, SLOT(openPathDialog(bool)));
-   connect(ui->btn_send_msg, SIGNAL(clicked()), this, SLOT(sendMsg()));
-   connect(ui->btn_qqface, SIGNAL(clicked()), this, SLOT(openQQFacePanel()));
-   connect(ui->btn_close, SIGNAL(clicked()), this, SLOT(close()));
-   connect(ui->btn_chat_log, SIGNAL(clicked()), this, SLOT(openChatLogWin()));
-
-   setWindowTitle(name_);
-
-   ui->lbl_name_->setText(name_);
+   initUi();
+   updateSkin();
+   initConnections();
 
    convertor_.addUinNameMap(id_, name_);
    send_url_ = "/channel/send_buddy_msg2";
 
-   if (avatar_path.isEmpty())
-       avatar_path = QQSkinEngine::instance()->getSkinRes("default_friend_avatar");
+   te_input_.setFocus();
+}
 
-   QFile file(avatar_path);
-   file.open(QIODevice::ReadOnly);
-   QPixmap pix;
-   pix.loadFromData(file.readAll());
-   file.close();
+void FriendChatDlg::initUi()
+{
+    setWindowTitle(name_);
+    ui->lbl_name_->setText(name_);
 
-   ui->lbl_avatar_->setPixmap(pix);
+    ui->splitter_main->insertWidget(0, &msgbrowse_);
+    ui->splitter_main->setChildrenCollapsible(false);
+    ui->vlo_main->insertWidget(1, &te_input_);
+
+    ui->btn_send_key->setMenu(send_type_menu_);
+
+    QList<int> sizes;
+    sizes.append(1000);
+    sizes.append(ui->splitter_main->midLineWidth());
+    ui->splitter_main->setSizes(sizes);
+
+    if (avatar_path_.isEmpty())
+        avatar_path_ = QQSkinEngine::instance()->getSkinRes("default_friend_avatar");
+    QFile file(avatar_path_);
+    file.open(QIODevice::ReadOnly);
+    QPixmap pix;
+    pix.loadFromData(file.readAll());
+    file.close();
+    ui->lbl_avatar_->setPixmap(pix);
+
+   resize(this->minimumSize());
+}
+
+
+void FriendChatDlg::initConnections()
+{
+    connect(ui->btn_send_img, SIGNAL(clicked(bool)), this, SLOT(openPathDialog(bool)));
+    connect(ui->btn_send_msg, SIGNAL(clicked()), this, SLOT(sendMsg()));
+    connect(ui->btn_qqface, SIGNAL(clicked()), this, SLOT(openQQFacePanel()));
+    connect(ui->btn_close, SIGNAL(clicked()), this, SLOT(close()));
+    connect(ui->btn_chat_log, SIGNAL(clicked()), this, SLOT(openChatLogWin()));
 }
 
 FriendChatDlg::~FriendChatDlg()
