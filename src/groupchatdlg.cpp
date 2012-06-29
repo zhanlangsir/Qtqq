@@ -13,7 +13,7 @@
 
 #include <assert.h>
 
-#include "include/json.h"
+#include "jsoncpp/include/json.h"
 
 #include "qqitemmodel.h"
 #include "core/qqutility.h"
@@ -76,17 +76,23 @@ void GroupChatDlg::initUi()
     ui->splitter_left_->setChildrenCollapsible(false);
     ui->v_layout_left_->insertWidget(1, &te_input_);
     ui->splitter_main->setChildrenCollapsible(false);
+    ui->splitter_right->setChildrenCollapsible(false);
 
     //设置分割器大小
-    QList<int> right_sizes;
-    right_sizes.append(500);
-    right_sizes.append(ui->splitter_right_->midLineWidth());
-    ui->splitter_main->setSizes(right_sizes);
+    QList<int> main_sizes;
+    main_sizes.append(500);
+    main_sizes.append(ui->splitter_right->midLineWidth());
+    ui->splitter_main->setSizes(main_sizes);
 
     QList<int> left_sizes;
     left_sizes.append(500);
     left_sizes.append(ui->splitter_left_->midLineWidth());
     ui->splitter_left_->setSizes(left_sizes);
+
+    QList<int> right_sizes;
+    right_sizes.append(200);
+    right_sizes.append(this->height());
+    ui->splitter_right->setSizes(right_sizes);
 
     this->resize(600, 500);
 }
@@ -319,7 +325,7 @@ void GroupChatDlg::parseGroupMemberList(const QByteArray &array)
 
     Json::Value ginfo = root["result"]["ginfo"];
     QString g_announcement = QString::fromStdString(ginfo["memo"].asString());
-    ui->group_announcement->setText(g_announcement);
+    ui->announcement->setPlainText(g_announcement);
 }
 
 void GroupChatDlg::readFromSql()
@@ -360,7 +366,7 @@ void GroupChatDlg::readFromSql()
     while ( query.next() )
     {
         QString memo = query.value(1).toString();
-        ui->group_announcement->setText(memo);
+        ui->announcement->setPlainText(memo);
     }
 
     replaceUnconverId();
@@ -450,7 +456,7 @@ void GroupChatDlg::writeMemberInfoToSql()
         }
 
         QString insert_command = "INSERT INTO groupinfo VALUES (%1, '%2')";
-        query.exec(insert_command.arg(id_).arg(ui->group_announcement->text()));
+        query.exec(insert_command.arg(id_).arg(ui->announcement->toPlainText()));
     }
     QString name;{
         name = QSqlDatabase::database().connectionName();
@@ -471,7 +477,7 @@ void GroupChatDlg::getInfoById(QString id, QString &name, QString &avatar_path, 
         QQItem *item =  model_->find(id);
         if ( item )
         {
-            name = item->name();
+            name = item->markName();
             avatar_path = item->avatarPath().isEmpty() ? QQSkinEngine::instance()->getSkinRes("default_friend_avatar") : item->avatarPath();
             ok = true;
             return;

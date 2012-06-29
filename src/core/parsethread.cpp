@@ -2,7 +2,6 @@
 
 #include <QDebug>
 
-#include "include/json.h"
 #include "qqutility.h"
 
 void ParseThread::pushRawMsg(QByteArray msg)
@@ -16,6 +15,8 @@ void ParseThread::pushRawMsg(QByteArray msg)
 
 void ParseThread::run()
 {
+    QString pre_msg;
+
     while (true)
     {
         lock_.lock();
@@ -41,11 +42,20 @@ void ParseThread::run()
 
         if (root["retcode"].asInt() == 121)
         {
-            //¿Îœﬂ
+
         }
         for (unsigned int i = 0; i < root["result"].size(); ++i)
         {
             const Json::Value result = root["result"][i];
+
+            if ( pre_msg == QString::fromStdString(result.toStyledString()) )
+            {
+                qDebug()<<"get rid of confire msg"<<endl;
+                continue;
+            }
+            else
+                pre_msg = QString::fromStdString(result.toStyledString());
+
             QString type = QString::fromStdString(result["poll_type"].asString());
             ShareQQMsgPtr msg(createMsg(type, result));
             if (msg)
@@ -58,27 +68,27 @@ QQMsg* ParseThread::createMsg(QString type, const Json::Value result)
 {
     if (type == "message")
     {
-        createFriendMsg(result);
+        return createFriendMsg(result);
     }
     else
     if (type ==  "group_message")
     {
-       createGroupMsg(result);
+       return createGroupMsg(result);
     }
     else
     if (type == "buddies_status_change")
     {
-        createBuddiesStatusChangeMsg(result);
+        return createBuddiesStatusChangeMsg(result);
     }
     else
     if (type == "sys_g_msg")
     {
-        createSystemGroupMsg(result);
+        return createSystemGroupMsg(result);
     }
     else
     if (type == "system_message")
     {
-       createSystemMsg(result);
+       return createSystemMsg(result);
     }
     else
     {

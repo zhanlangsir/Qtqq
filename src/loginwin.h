@@ -10,6 +10,7 @@
 #include <QApplication>
 
 #include "core/qqlogincore.h"
+#include "core/accountmanager.h"
 
 class QByteArray;
 class QTcpSocket;
@@ -18,16 +19,6 @@ namespace Ui {
 class LoginWin;
 }
 
-struct AccountRecord
-{
-    QString id_;
-    QString pwd_;
-    FriendStatus login_status_;
-    bool rem_pwd_;
-};
-
-Q_DECLARE_METATYPE(AccountRecord*)
-
 class LoginWin : public QWidget
 {
     Q_OBJECT
@@ -35,23 +26,21 @@ signals:
     void sig_loginFinish();
 
 public:
-    explicit LoginWin(QQLoginCore *login_core, QWidget *parent = 0);
+    explicit LoginWin(QWidget *parent = NULL);
     ~LoginWin();
-
-public:
-    void saveConfig();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *e);
     void closeEvent(QCloseEvent *event)
     {
-      qApp->quit();
+        Q_UNUSED(event)
+        qApp->quit();
     }
 
 private slots:
-    void onPbLoginClicked();
+    void onLoginBtnClicked();
     void loginDone(QQLoginCore::LoginResult result);
-    void onCekbAutoLoginClick(bool checked);
+    void onAutoLoginBtnClicked(bool checked);
     void currentUserChanged(QString text);
     void idChanged(QString text);
     void on_register_account_linkActivated(const QString &link);
@@ -62,19 +51,16 @@ private:
     void checkAccoutStatus();
     void showCapImg(QPixmap pix);
     FriendStatus getLoginStatus() const;
-    void readUsers();
-    AccountRecord* findById(QString id) const;
+    void setupAccountRecords();
     void setUserLoginInfo(QString text);
     int getStatusIndex(FriendStatus status) const;
     
 private:
-
     Ui::LoginWin *ui;
 
+    AccountManager account_manager_;
+    AccountRecord curr_login_account_;
     QQLoginCore *login_core_;
-    QVector<AccountRecord*>login_records_;
-    AccountRecord *curr_login_account_;
-    QString auto_login_id_;
 };
 
 #endif //QTQQ_LOGINDLG_H

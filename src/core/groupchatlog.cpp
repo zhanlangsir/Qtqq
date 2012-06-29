@@ -5,7 +5,7 @@
 #include <QUrl>
 #include <qmath.h>
 
-#include "include/json.h"
+#include "jsoncpp/include/json.h"
 
 #include "request.h"
 #include "sockethelper.h"
@@ -123,7 +123,7 @@ void GroupChatLog::parse(QByteArray &arr, QVector<ShareQQMsgPtr> &chat_logs)
         for (unsigned int j = 0; j < chat_datas.size(); ++j)
         {
             QQChatItem item;
-            if (chat_datas[j]["t"].asInt() == 0)  //Ð¡Ð´×ÖÄ¸l£¬·ÇÊý×Ö1£¬ÏÂÍ¬
+            if (chat_datas[j]["t"].asInt() == 0)  //å°å†™å­—æ¯lï¼Œéžæ•°å­—1ï¼Œä¸‹åŒ
             {
                 item.set_type(QQChatItem::kWord);         
                 item.set_content(QString::fromStdString(chat_datas[j]["v"].asString()));

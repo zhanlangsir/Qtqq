@@ -335,7 +335,7 @@
        </layout>
       </widget>
      </widget>
-     <widget class="QSplitter" name="splitter_right_">
+     <widget class="QSplitter" name="splitter_right">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -367,9 +367,21 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="group_announcement">
-          <property name="text">
-           <string/>
+         <widget class="QPlainTextEdit" name="announcement">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
           </property>
          </widget>
         </item>

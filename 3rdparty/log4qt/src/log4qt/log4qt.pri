@@ -24,6 +24,9 @@
 
 INCLUDEPATH += $$PWD/..
 DEPENDPATH += $$PWD/..
+
+LIBLOG4QT_NAME=$$qtLibraryTarget(log4qt)
+
 HEADERS += \
     $$PWD/appender.h \
     $$PWD/appenderskeleton.h \
@@ -108,3 +111,4 @@ SOURCES += \
     $$PWD/varia/levelrangefilter.cpp \
     $$PWD/varia/listappender.cpp \
     $$PWD/varia/stringmatchfilter.cpp
+    

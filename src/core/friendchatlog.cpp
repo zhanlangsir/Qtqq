@@ -4,7 +4,7 @@
 #include <QTextEdit>
 #include <QTcpSocket>
 
-#include "include/json.h"
+#include "jsoncpp/include/json.h"
 
 #include "request.h"
 #include "sockethelper.h"

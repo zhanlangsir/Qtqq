@@ -9,7 +9,6 @@
 #include "core/qqsetting.h"
 
 Qtqq::Qtqq() : login_dlg_(NULL),
-    login_core_(NULL),
     mainpanel_(NULL)
 {
     QQSkinEngine::instance()->updateSkin(QQSettings::instance()->skin());
@@ -17,11 +16,10 @@ Qtqq::Qtqq() : login_dlg_(NULL),
 
 Qtqq::~Qtqq()
 {
-    login_core_->deleteLater();
     if (login_dlg_)
     {
-    login_dlg_->close();
-    login_dlg_->deleteLater();
+        login_dlg_->close();
+        login_dlg_->deleteLater();
     }
     if (mainpanel_)
     {
@@ -32,8 +30,7 @@ Qtqq::~Qtqq()
 
 void Qtqq::start()
 {
-    login_core_ = new QQLoginCore();
-    login_dlg_ = new LoginWin(login_core_);
+    login_dlg_ = new LoginWin();
     connect(login_dlg_, SIGNAL(sig_loginFinish()), this, SLOT(slot_showMainPanel()));
 }
 
@@ -42,6 +39,9 @@ void Qtqq::slot_showMainPanel()
     mainpanel_ = new MainWindow();
     connect(mainpanel_, SIGNAL(sig_logout()), this, SLOT(restart()));
     mainpanel_->show();
+
+    login_dlg_->deleteLater();
+    login_dlg_ = NULL;
 }
 
 void Qtqq::restart()
@@ -50,5 +50,5 @@ void Qtqq::restart()
     mainpanel_->deleteLater();
     mainpanel_ = NULL;
 
-    login_dlg_->show();
+    start();
 }

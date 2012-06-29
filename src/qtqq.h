@@ -24,7 +24,6 @@ private slots:
 
 private:
     LoginWin *login_dlg_;
-    QQLoginCore *login_core_;
     MainWindow *mainpanel_;
 };
 

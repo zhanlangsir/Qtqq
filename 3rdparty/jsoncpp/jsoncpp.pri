@@ -1,5 +1,6 @@
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
+LIBJSONCPP_NAME=$$qtLibraryTarget(jsoncpp)
 
 HEADERS += \
     $$PWD/include/autolink.h \

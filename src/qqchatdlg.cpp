@@ -390,7 +390,6 @@ void QQChatDlg::showMsg(ShareQQMsgPtr msg)
     if (this->isMinimized())
     {
         SoundPlayer::singleton()->play(SoundPlayer::kMsg);
-        QApplication::alert(this, 3000);
     }
 }
 
@@ -454,7 +453,7 @@ void QQChatDlg::openQQFacePanel()
         connect(qqface_panel_, SIGNAL(qqfaceClicked(QString)), &te_input_, SLOT(insertQQFace(QString)));
     }
 
-    //ÒÆ¶¯QQ±íÇéÃæ°åÎ»ÖÃ
+    //ç§»åŠ¨QQè¡¨æƒ…é¢æ¿ä½ç½®
     QPoint face_btn_pos = QCursor::pos();
     QRect qqface_panel_geometry = qqface_panel_->frameGeometry();
     int new_x = face_btn_pos.x() - qqface_panel_geometry.width() / 2;

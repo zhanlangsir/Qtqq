@@ -9,7 +9,6 @@ void PollThread::run()
 {
     QTcpSocket fd;
 
-    QByteArray pre;
     while (true)
     {
         fd.connectToHost("d.web2.qq.com", 80);
@@ -20,15 +19,6 @@ void PollThread::run()
         {
             result.append(fd.readAll());
         }
-
-        qDebug()<<"pre"<<pre<<endl;
-        qDebug()<<"result"<<result<<endl;
-        if (pre.mid(pre.indexOf("\r\n\r\n")+4) == result.mid(result.indexOf("\r\n\r\n"))+4)
-        {
-            fd.close();
-            continue;
-        }
-        pre = result;
 
         int retcode_idx = result.indexOf("retcode") + 9;
         int retcode_end_idx = result.indexOf(",", retcode_idx);

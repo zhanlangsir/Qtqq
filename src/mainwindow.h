@@ -10,7 +10,7 @@
 #include <QModelIndex>
 #include <QPoint>
 
-#include "log4qt/log4qt.h"
+#include "log4qt/src/log4qt/log4qt.h"
 #include "core/nameconvertor.h"
 #include "core/qqmsg.h"
 #include "qqsystemtray.h"

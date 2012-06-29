@@ -13,7 +13,7 @@
 #include <QEvent>
 
 #include "3rdparty/qxtglobalshortcut/qxtglobalshortcut.h"
-#include "include/json.h"
+#include "jsoncpp/include/json.h"
 
 #include "core/qqavatarrequester.h"
 #include "core/types.h"
@@ -39,6 +39,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MainWindow),
     main_http_(new QHttp),
+    poll_thread_(NULL),
+    parse_thread_(NULL),
     message_queue_(new QQueue<QByteArray>()),
     msg_tip_(new MsgTip(this)),
     msg_center_(new QQMsgCenter(msg_tip_)),
@@ -105,9 +107,11 @@ MainWindow::~MainWindow()
     trayIcon->deleteLater();
     trayIcon = NULL;
     main_http_->close();
-    delete ui;
 
-    poll_thread_->terminate();
+    if ( poll_thread_ )
+        poll_thread_->terminate();
+
+    delete ui;
 }
 
 void MainWindow::setMute(bool mute)
@@ -408,8 +412,10 @@ void MainWindow::createActions()
 void MainWindow::slot_logout()
 {
     this->hide();
-    poll_thread_->terminate();
-    parse_thread_->quit();
+    if ( poll_thread_ )
+        poll_thread_->terminate();
+    if (parse_thread_)
+        parse_thread_->quit();
     emit sig_logout();
 }
 
@@ -530,6 +536,7 @@ void MainWindow::openChatDlg(QQMsg::MsgType type, QString id, QString gcode)
         dlg= new FriendChatDlg(id, convertor_.convert(id), avatar_path);
         connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
         connect(dlg, SIGNAL(msgSended(QString,bool)), recent_model_, SLOT(improveItem(QString)));
+
         msg_center_->registerListener(dlg);
     }
     else //kGroup
