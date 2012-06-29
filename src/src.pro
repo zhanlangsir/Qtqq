@@ -45,7 +45,6 @@ HEADERS += friendinfodlg.h \
            loginwin.h \
            mainwindow.h \
            msgtip.h \
-           qqsystemtray.h \
            qqtextedit.h \
            qtqq.h \
            msgbrowse.h \
@@ -83,7 +82,8 @@ HEADERS += friendinfodlg.h \
     core/captchainfo.h \
     core/sockethelper.h \
     core/qqchatitem.h \
-    core/accountmanager.h
+    core/accountmanager.h \
+    systemtray.h
 
 
 SOURCES += friendinfodlg.cpp \
@@ -102,7 +102,6 @@ SOURCES += friendinfodlg.cpp \
            loginwin.cpp \
            mainwindow.cpp \
            msgtip.cpp \
-           qqsystemtray.cpp \
            qqtextedit.cpp \
            qtqq.cpp \
            recentlistitemmodel.cpp \
@@ -135,7 +134,8 @@ SOURCES += friendinfodlg.cpp \
     core/qqutility.cpp \
     core/sockethelper.cpp \
     core/qqchatitem.cpp \
-    core/accountmanager.cpp
+    core/accountmanager.cpp \
+    systemtray.cpp
 
 FORMS += ui/captcha.ui \
          ui/friendinfodlg.ui \

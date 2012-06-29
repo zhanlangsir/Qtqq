@@ -13,7 +13,7 @@
 #include "log4qt/src/log4qt/log4qt.h"
 #include "core/nameconvertor.h"
 #include "core/qqmsg.h"
-#include "qqsystemtray.h"
+#include "systemtray.h"
 #include "recentlistitemmodel.h"
 
 class QHttp;
@@ -103,7 +103,7 @@ private:
     QVector<QQChatDlg*> opening_chatdlg_;
 
     //system tray
-    QQSystemTray *trayIcon;
+    SystemTray *trayIcon;
     QAction *minimizeAction;
     QAction *restoreAction;
     QAction *quitAction;

@@ -9,11 +9,14 @@
 #include <QFileDialog>
 #include <QRegExp>
 
+#include "jsoncpp/include/json.h"
+
 #include "core/friendimgsender.h"
 #include "core/qqskinengine.h"
 #include "core/captchainfo.h"
 #include "core/friendchatlog.h"
 #include "core/qqitem.h"
+#include "qqiteminfohelper.h"
 
 FriendChatDlg::FriendChatDlg(QString uin, QString from_name, QString avatar_path, QWidget *parent) :
     QQChatDlg(uin, from_name, parent),
@@ -59,7 +62,9 @@ void FriendChatDlg::initUi()
     file.close();
     ui->lbl_avatar_->setPixmap(pix);
 
-   resize(this->minimumSize());
+    getSingleLongNick(id_);
+
+    resize(this->minimumSize());
 }
 
 
@@ -80,6 +85,20 @@ FriendChatDlg::~FriendChatDlg()
 void FriendChatDlg::updateSkin()
 {
 
+}
+
+void FriendChatDlg::getSingleLongNick(QString id)
+{
+    QByteArray result = QQItemInfoHelper::getSingleLongNick(id);
+    result = result.mid(result.indexOf("\r\n\r\n")+4);
+
+    Json::Reader reader;
+    Json::Value root;
+
+    if (reader.parse(QString(result).toStdString(), root, false))
+    {
+         ui->lbl_mood_->setText(QString::fromStdString(root["result"][0]["lnick"].asString()));
+    }
 }
 
 QString FriendChatDlg::converToJson(const QString &raw_msg)

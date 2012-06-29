@@ -6,6 +6,8 @@
 #include <QCursor>
 #include <QMouseEvent>
 
+#include "systemtray.h"
+
 MsgTip::MsgTip(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MsgTip)
@@ -53,22 +55,28 @@ void MsgTip::pushMsg(ShareQQMsgPtr new_msg)
 
 void MsgTip::addItem(ShareQQMsgPtr msg)
 {
+    SystemTray *trayIcon = SystemTray::instance();
+
     switch(msg->type())
     {
     case QQMsg::kSystem:
         ui->cb_msgs_->addItem("[" + convertor_->convert(msg->talkTo()) + "]" + "request to add you", QVariant::fromValue(msg));
+        trayIcon->showMessage("[" + convertor_->convert(msg->talkTo()) + "]" + "request to add you", msg->msg(), QSystemTrayIcon::Information, 200);
         break;
     case QQMsg::kSystemG:
         ui->cb_msgs_->addItem("[" + convertor_->convert(msg->sendUin()) + "]" + "request to enter group [" + convertor_->convert(msg->talkTo()), QVariant::fromValue(msg));
+        trayIcon->showMessage("[" + convertor_->convert(msg->sendUin()) + "]" + "request to enter group [" + convertor_->convert(msg->talkTo()), msg->msg(), QSystemTrayIcon::Information, 200);
         break;
     case QQMsg::kFriend:
     {
         ui->cb_msgs_->addItem("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", QVariant::fromValue(msg));
+        trayIcon->showMessage("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", msg->msg(), QSystemTrayIcon::Information, 200);
         break;
     }
     case QQMsg::kGroup:
     {
         ui->cb_msgs_->addItem("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", QVariant::fromValue(msg));
+        trayIcon->showMessage("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", msg->msg(), QSystemTrayIcon::Information, 200);
         break;
     }
     }

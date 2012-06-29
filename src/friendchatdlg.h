@@ -32,6 +32,7 @@ private:
 
     void initUi();
     void initConnections();
+    void getSingleLongNick(QString id);
 
 private:
     Ui::FriendChatDlg *ui;
