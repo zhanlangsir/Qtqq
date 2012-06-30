@@ -18,7 +18,7 @@
 #include "core/qqavatarrequester.h"
 #include "core/types.h"
 #include "core/qqutility.h"
-#include "core/qqmsgcenter.h"
+#include "core/msgcenter.h"
 #include "core/pollthread.h"
 #include "core/parsethread.h"
 #include "core/qqlogincore.h"
@@ -33,7 +33,8 @@
 #include "groupchatdlg.h"
 #include "core/qqskinengine.h"
 #include "core/sockethelper.h"
-
+#include "traymenu.h"
+#include "traymenuitem.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
@@ -43,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     parse_thread_(NULL),
     message_queue_(new QQueue<QByteArray>()),
     msg_tip_(new MsgTip(this)),
-    msg_center_(new QQMsgCenter(msg_tip_)),
+    msg_center_(new MsgCenter(msg_tip_)),
     open_chat_dlg_sc_(NULL)
 {
     ui->setupUi(this);
@@ -54,9 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowIcon(QIcon(QQSkinEngine::instance()->getSkinRes("app_icon")));
     setWindowTitle(QQSettings::instance()->currLoginInfo().name);
 
-    createActions();
     createTray();
-    connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(trayActivated(QSystemTrayIcon::ActivationReason)));
 
     setupLoginStatus();
 
@@ -67,6 +66,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(msg_tip_, SIGNAL(activateGroupRequestDlg(ShareQQMsgPtr)), this, SLOT(openGroupRequestDlg(ShareQQMsgPtr)));
     
     connect(msg_center_, SIGNAL(buddiesStateChangeMsgArrive(QString,FriendStatus, ClientType)),  this, SLOT(changeFriendStatus(QString,FriendStatus, ClientType)));
+    connect(msg_center_, SIGNAL(newUnProcessMsg(ShareQQMsgPtr)), msg_tip_, SLOT(pushMsg(ShareQQMsgPtr)));
 
     connect(ui->tv_friendlist_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openChatDlgByDoubleClick(QModelIndex)));
     connect(ui->lv_grouplist_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openChatDlgByDoubleClick(QModelIndex)));
@@ -103,15 +103,25 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    trayIcon->hide();
-    trayIcon->deleteLater();
-    trayIcon = NULL;
     main_http_->close();
 
     if ( poll_thread_ )
         poll_thread_->terminate();
 
     delete ui;
+}
+
+
+void MainWindow::slot_logout()
+{
+    this->hide();
+    SystemTray::instance()->hide();
+
+    if ( poll_thread_ )
+        poll_thread_->terminate();
+    if (parse_thread_)
+        parse_thread_->quit();
+    emit sig_logout();
 }
 
 void MainWindow::setMute(bool mute)
@@ -149,20 +159,6 @@ void MainWindow::changeFriendStatus(QString id, FriendStatus status, ClientType 
 
     ui->recents->setUpdatesEnabled(false);
     ui->recents->setUpdatesEnabled(true);
-}
-
-void MainWindow::trayActivated(QSystemTrayIcon::ActivationReason reason)
-{
-    switch (reason) {
-    case QSystemTrayIcon::Trigger:
-        if(this->isVisible())
-            hide();
-        else
-            showNormal();
-        break;
-    default:
-        break;
-    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *)
@@ -374,54 +370,47 @@ void MainWindow::initialize()
     getSingleLongNick();
     
     getFriendList();
+
+    msg_tip_->setMainWindow(this);
 }
 
 void MainWindow::createTray()
 {
-    trayIconMenu = new QMenu(this);
-    trayIconMenu->addAction(minimizeAction);
-    trayIconMenu->addAction(restoreAction);
-    trayIconMenu->addSeparator();
-    trayIconMenu->addAction(act_logout_);
-    trayIconMenu->addSeparator();
-    trayIconMenu->addAction(quitAction);
+    SystemTray *tray_icon = NULL;
+    tray_icon = SystemTray::instance();
+    tray_icon->setMsgTip(msg_tip_);
 
-    QIcon icon(QQSkinEngine::instance()->getSkinRes("app_icon"));
-    trayIcon = SystemTray::instance();;
-    trayIcon->setContextMenu(trayIconMenu);
-    trayIcon->setIcon(icon);
-    setWindowIcon(icon);
-    trayIcon->show();
-}
+    connect(msg_tip_, SIGNAL(newUncheckMsgArrived()), tray_icon,  SLOT(slotNewUncheckMsgArrived()));
+    connect(msg_tip_, SIGNAL(noUncheckMsg()), tray_icon,  SLOT(slotUncheckMsgEmpty()));
 
-void MainWindow::createActions()
-{
-    minimizeAction = new QAction(tr("Mi&nimize"), this);
-    connect(minimizeAction, SIGNAL(triggered()), this, SLOT(hide()));
+    tray_menu_ = new TrayMenu();
 
-    restoreAction = new QAction(tr("&Restore"), this);
-    connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
+    minimize_ = new TrayMenuItem(tr("Minimize"));
+    connect(minimize_, SIGNAL(triggered()), this, SLOT(hide()));
 
-    quitAction = new QAction(tr("&Quit"), this);
-    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+    restore_ = new TrayMenuItem(tr("Restore"));
+    connect(restore_, SIGNAL(triggered()), this, SLOT(showNormal()));
 
-    act_logout_ = new QAction(tr("&Logout"), this);
-    connect(act_logout_, SIGNAL(triggered()), this, SLOT(slot_logout()));
-}
+    quit_ = new TrayMenuItem(tr("Quit"));
+    connect(quit_, SIGNAL(triggered()), qApp, SLOT(quit()));
 
-void MainWindow::slot_logout()
-{
-    this->hide();
-    if ( poll_thread_ )
-        poll_thread_->terminate();
-    if (parse_thread_)
-        parse_thread_->quit();
-    emit sig_logout();
+    logout_ = new TrayMenuItem(tr("Logout"));
+    connect(logout_, SIGNAL(triggered()), this, SLOT(slot_logout()));
+
+    tray_menu_->appendMenuItem(minimize_);
+    tray_menu_->appendMenuItem(restore_);
+    tray_menu_->appendMenuItem(logout_);
+    tray_menu_->appendMenuItem(quit_);
+
+    tray_icon->setIcon(QQSkinEngine::instance()->getSkinRes("app_icon"));
+    tray_icon->setContextMenu(tray_menu_);
+
+    tray_icon->show();
 }
 
 void MainWindow::openFirstChatDlg()
 {
-    msg_tip_->slotActivated(0);
+    msg_tip_->activatedChat(0);
 }
 
 QString MainWindow::getStatusByIndex(int idx) const

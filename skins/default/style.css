@@ -1,26 +1,5 @@
-﻿#logo {
-    background-image:url(%skin_path%/misc/logo.png);
-}
-
-#cb_status::drop-down {
-    image: url(%skin_path%/login_win/down_arrow.png);
-}
-
-#loginWindow {
-    qproperty-background:url(%skin_path%/login_win/login_bg.png);
-}
-
-#mainWindow {
-    qproperty-background:url(%skin_path%/main_win/mainwindow_bg.jpg);
-}
-
-
-#mainWindow QComboBox {
+﻿#mainWindow QComboBox {
     background-color: transparent;
-}
-
-#chatWindow {
-    qproperty-background:url(%skin_path%/chatdlg/mainwindow_bg.jpg);
 }
 
 #avatar {

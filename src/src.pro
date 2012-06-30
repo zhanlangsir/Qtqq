@@ -17,6 +17,7 @@ QT += network \
 
 CONFIG += link_pkgconfig
 PKGCONFIG += x11
+PKGCONFIG += gtk+-2.0
 
 LIBS += -L../libs
 LIBS += -ljsoncpp -llog4qt -lqjson -lqxtglobalshortcut
@@ -59,7 +60,6 @@ HEADERS += friendinfodlg.h \
            core/qqavatarrequester.h \
            core/qqlogincore.h \
            core/qqmsg.h \
-           core/qqmsgcenter.h \
            core/qqmsglistener.h \
            core/qqmsgsender.h \
            core/parsethread.h \
@@ -83,7 +83,10 @@ HEADERS += friendinfodlg.h \
     core/sockethelper.h \
     core/qqchatitem.h \
     core/accountmanager.h \
-    systemtray.h
+    systemtray.h \
+    traymenu.h \
+    traymenuitem.h \
+    core/msgcenter.h
 
 
 SOURCES += friendinfodlg.cpp \
@@ -113,7 +116,6 @@ SOURCES += friendinfodlg.cpp \
            core/qqavatarrequester.cpp \
            core/qqlogincore.cpp \
            core/qqmsg.cpp \
-           core/qqmsgcenter.cpp \
            core/qqmsgsender.cpp \
            core/parsethread.cpp \
            core/pollthread.cpp \
@@ -135,7 +137,10 @@ SOURCES += friendinfodlg.cpp \
     core/sockethelper.cpp \
     core/qqchatitem.cpp \
     core/accountmanager.cpp \
-    systemtray.cpp
+    systemtray.cpp \
+    traymenu.cpp \
+    traymenuitem.cpp \
+    core/msgcenter.cpp
 
 FORMS += ui/captcha.ui \
          ui/friendinfodlg.ui \
@@ -147,4 +152,5 @@ FORMS += ui/captcha.ui \
          ui/loginwin.ui \
          ui/mainwindow.ui \
          ui/msgtip.ui \
-         ui/chatlogwin.ui
+         ui/chatlogwin.ui \
+    ui/uncheckmsgpanel.ui

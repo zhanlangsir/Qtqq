@@ -2,9 +2,7 @@
 #define QTQQ_MSGTIP_H
 
 #include <QWidget>
-#include <QComboBox>
 #include <QMutex>
-#include <QMap>
 #include <QPoint>
 
 #include "core/soundplayer.h"
@@ -16,46 +14,48 @@ namespace Ui
 class MsgTip;
 }
 
+class MainWindow;
+class QModelIndex;
+
 class MsgTip : public QWidget
 {
     Q_OBJECT
 public:
-    MsgTip(QWidget *parent = 0);
+    MsgTip(QWidget *parent);
 
 signals:
-    void addItemDone();
+    void newUncheckMsgArrived();
     void activatedChatDlg(QQMsg::MsgType type, QString talk_to, QString gcode);
     void activateFriendRequestDlg(ShareQQMsgPtr msg);
     void activateGroupRequestDlg(ShareQQMsgPtr msg);
-    void bibibi(SoundPlayer::SoundType type);
+    void noUncheckMsg();
 
 public slots:
-    void slotActivated(int index);
+    void slotActivated(const QModelIndex &index);
+    void pushMsg(ShareQQMsgPtr msg);
 
 public:
-    void pushMsg(ShareQQMsgPtr msg);
     void addItem(ShareQQMsgPtr msg);
     void removeItem(QString id);
     void setConvertor(NameConvertor *convertor)
     { convertor_ = convertor; }
+    void setMainWindow(const MainWindow *main_win)
+    { main_win_ = main_win; }
+    void activatedChat(int i);
+
+    void show(QPoint pos);
 
 protected:
-    void mousePressEvent(QMouseEvent *);
-    void mouseReleaseEvent(QMouseEvent *);
-    void mouseMoveEvent(QMouseEvent *);
-    void enterEvent(QEvent *);
     void leaveEvent(QEvent *);
-    bool eventFilter(QObject *obj, QEvent *e);
 
-private slots:
-    void beginBibibi(SoundPlayer::SoundType type);
+private:
+    void bibibi(SoundPlayer::SoundType type);
 
 private:
     Ui::MsgTip *ui;
     QMutex lock;
     NameConvertor *convertor_;
-
-    QPoint distance_pos_;
+    const MainWindow *main_win_;
 };
 
 #endif //QTQQ_MSGTIP_H

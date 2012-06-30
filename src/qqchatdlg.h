@@ -2,7 +2,6 @@
 #define QTQQ_QQCHATDLG_H
 
 #include <QDateTime>
-#include <QDialog>
 #include <QHash>
 #include <QScrollBar>
 #include <QTcpSocket>

@@ -5,8 +5,12 @@
 #include <QVBoxLayout>
 #include <QCursor>
 #include <QMouseEvent>
+#include <QModelIndex>
 
 #include "systemtray.h"
+#include "mainwindow.h"
+#include "frienditemmodel.h"
+#include "groupitemmodel.h"
 
 MsgTip::MsgTip(QWidget *parent) :
     QWidget(parent),
@@ -16,11 +20,8 @@ MsgTip::MsgTip(QWidget *parent) :
     setWindowOpacity(1);
     setWindowFlags(Qt::WindowStaysOnTopHint | Qt::Dialog | Qt::FramelessWindowHint);
     qRegisterMetaType<SoundPlayer::SoundType>("SoundPlayer::SoundType");
-    ui->cb_msgs_->installEventFilter(this);
 
-    connect(ui->cb_msgs_, SIGNAL(activated(int)), this, SLOT(slotActivated(int)));
-    connect(this, SIGNAL(addItemDone()), this, SLOT(show()));
-    connect(this, SIGNAL(bibibi(SoundPlayer::SoundType)), this, SLOT(beginBibibi(SoundPlayer::SoundType)));
+    connect(ui->uncheckmsglist, SIGNAL(activated(const QModelIndex&)), this, SLOT(slotActivated(const QModelIndex&)));
 }
 
 void MsgTip::pushMsg(ShareQQMsgPtr new_msg)
@@ -32,16 +33,16 @@ void MsgTip::pushMsg(ShareQQMsgPtr new_msg)
 
     if (new_msg->type() == QQMsg::kSystem || new_msg->type() == QQMsg::kSystemG)
     {
-        emit bibibi(SoundPlayer::kSystem);
+        bibibi(SoundPlayer::kSystem);
     }
     else
     {
-        emit bibibi(SoundPlayer::kMsg);
+        bibibi(SoundPlayer::kMsg);
     }
     lock.lock();
-    for (int i = 0; i < ui->cb_msgs_->count(); ++i)
+    for (int i = 0; i < ui->uncheckmsglist->count(); ++i)
     {
-        ShareQQMsgPtr msg = ui->cb_msgs_->itemData(i).value<ShareQQMsgPtr>();
+        ShareQQMsgPtr msg = ui->uncheckmsglist->item(i)->data(Qt::UserRole).value<ShareQQMsgPtr>();
 
         if (msg->talkTo() == new_msg->talkTo())
         {
@@ -57,118 +58,108 @@ void MsgTip::addItem(ShareQQMsgPtr msg)
 {
     SystemTray *trayIcon = SystemTray::instance();
 
+    //QQItem *info = main_win_->getFriendModel()->find(msg->talkTo());
+
     switch(msg->type())
     {
     case QQMsg::kSystem:
-        ui->cb_msgs_->addItem("[" + convertor_->convert(msg->talkTo()) + "]" + "request to add you", QVariant::fromValue(msg));
-        trayIcon->showMessage("[" + convertor_->convert(msg->talkTo()) + "]" + "request to add you", msg->msg(), QSystemTrayIcon::Information, 200);
+    {
+        QListWidgetItem *item = new QListWidgetItem("[" + convertor_->convert(msg->talkTo()) + "]" + "request to add you");
+        item->setData(Qt::UserRole, QVariant::fromValue(msg));
+        ui->uncheckmsglist->addItem(item);
+
+        /*
+            现在此方法无任何作用
+            可以使用libnotify实现
+        */
+        trayIcon->showMessage("[" + convertor_->convert(msg->talkTo()) + "]" + "request to add you", msg->msg(),  200);
+    }
         break;
     case QQMsg::kSystemG:
-        ui->cb_msgs_->addItem("[" + convertor_->convert(msg->sendUin()) + "]" + "request to enter group [" + convertor_->convert(msg->talkTo()), QVariant::fromValue(msg));
-        trayIcon->showMessage("[" + convertor_->convert(msg->sendUin()) + "]" + "request to enter group [" + convertor_->convert(msg->talkTo()), msg->msg(), QSystemTrayIcon::Information, 200);
+    {
+        QListWidgetItem *item = new QListWidgetItem("[" + convertor_->convert(msg->sendUin()) + "]" + "request to enter group [" + convertor_->convert(msg->sendUin()));
+        item->setData(Qt::UserRole, QVariant::fromValue(msg));
+        ui->uncheckmsglist->addItem(item);
+
+        trayIcon->showMessage("[" + convertor_->convert(msg->sendUin()) + "]" + "request to enter group [" + convertor_->convert(msg->sendUin()), msg->msg(),  200);
+    }
         break;
     case QQMsg::kFriend:
     {
-        ui->cb_msgs_->addItem("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", QVariant::fromValue(msg));
-        trayIcon->showMessage("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", msg->msg(), QSystemTrayIcon::Information, 200);
+        QListWidgetItem *item = new QListWidgetItem("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]");
+        item->setData(Qt::UserRole, QVariant::fromValue(msg));
+        ui->uncheckmsglist->addItem(item);
+
+        trayIcon->showMessage("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", msg->msg(), 200);
         break;
     }
     case QQMsg::kGroup:
     {
-        ui->cb_msgs_->addItem("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", QVariant::fromValue(msg));
-        trayIcon->showMessage("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", msg->msg(), QSystemTrayIcon::Information, 200);
+        QListWidgetItem *item = new QListWidgetItem("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]");
+        item->setData(Qt::UserRole, QVariant::fromValue(msg));
+        ui->uncheckmsglist->addItem(item);
+
+        trayIcon->showMessage("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", msg->msg(), 200);
         break;
     }
     }
-    if (!this->isVisible())
-    {
-        emit addItemDone();
-    }
+
+    emit newUncheckMsgArrived();
 }
 
 void MsgTip::removeItem(QString id)
 {
-    for (int i = 0; i < ui->cb_msgs_->count(); ++i)
+    for (int i = 0; i < ui->uncheckmsglist->count(); ++i)
     {
-        ShareQQMsgPtr msg = ui->cb_msgs_->itemData(i).value<ShareQQMsgPtr>();
+        ShareQQMsgPtr msg = ui->uncheckmsglist->item(i)->data(Qt::UserRole).value<ShareQQMsgPtr>();
 
         if (msg->talkTo() == id)
         {
-            ui->cb_msgs_->removeItem(i);
+            QListWidgetItem *wid = ui->uncheckmsglist->takeItem(i);
+            delete wid;
+            wid = NULL;
         }
     }
 
-    if (ui->cb_msgs_->count() == 0)
-        this->hide();
-}
-
-void MsgTip::mousePressEvent(QMouseEvent *event)
-{
-    Q_UNUSED(event)
-    QPoint origin_pos = this->pos();
-
-    QPoint origin_mouse_pos = QCursor::pos();
-    distance_pos_ = origin_mouse_pos - origin_pos;
-}
-
-void MsgTip::mouseMoveEvent(QMouseEvent *event)
-{
-    if (distance_pos_.isNull())
+    if (ui->uncheckmsglist->count() == 0)
     {
-        return;
+        this->hide();
+        emit noUncheckMsg();
     }
-
-    this->move(event->globalPos() - distance_pos_);
 }
 
-void MsgTip::enterEvent(QEvent *)
+void MsgTip::show(QPoint pos)
 {
-    setCursor(Qt::SizeAllCursor);
+    if ( ui->uncheckmsglist->count() == 0 )
+        return;
+
+    move(pos.x() - ui->uncheckmsglist->width() / 2, pos.y());
+    QWidget::show();
 }
 
 void MsgTip::leaveEvent(QEvent *)
 {
-    setCursor(Qt::ArrowCursor);
+    this->hide();
 }
 
-bool MsgTip::eventFilter(QObject *obj, QEvent *e)
-{
-    if (e->type() == QEvent::Enter)
-    {
-        setCursor(Qt::ArrowCursor);
-        return true;
-    }
-    if (e->type() == QEvent::Leave)
-    {
-        setCursor(Qt::SizeAllCursor);
-        return true;
-    }
-    else
-        return QWidget::eventFilter(obj, e);
-}
-
-void MsgTip::beginBibibi(SoundPlayer::SoundType type)
+void MsgTip::bibibi(SoundPlayer::SoundType type)
 {
     SoundPlayer::singleton()->play(type);
 }
 
-void MsgTip::mouseReleaseEvent(QMouseEvent *)
+void MsgTip::slotActivated(const QModelIndex &index)
 {
-    distance_pos_ = QPoint(0, 0);
+   activatedChat(index.row());
 }
 
-void MsgTip::slotActivated(int index)
+void MsgTip::activatedChat(int i)
 {
-    if (ui->cb_msgs_->count() < index+1)
+    if (ui->uncheckmsglist->count() < i+1)
         return;
 
-    ShareQQMsgPtr msg = ui->cb_msgs_->itemData(index).value<ShareQQMsgPtr>();
-    ui->cb_msgs_->removeItem(index);
-
-    if (ui->cb_msgs_->count() == 0)
-    {
-        this->hide();
-    }
+    QListWidgetItem *item = ui->uncheckmsglist->item(i);
+    ShareQQMsgPtr msg = item->data(Qt::UserRole).value<ShareQQMsgPtr>();
+    removeItem(msg->talkTo());
 
     switch (msg->type())
     {

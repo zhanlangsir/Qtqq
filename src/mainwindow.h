@@ -25,8 +25,11 @@ class PollThread;
 class QQChatDlg;
 class QQItem;
 class MsgTip;
-class QQMsgCenter;
+class MsgCenter;
 class QQLoginCore;
+
+class TrayMenu;
+class TrayMenuItem;
 
 namespace Ui
 {
@@ -47,6 +50,10 @@ public:
 
 public:
     void initialize();
+    const FriendItemModel* getFriendModel() const
+    { return friend_model_; }
+    const GroupItemModel* getGroupMOdel() const
+    { return group_model_; }
 
 protected:
     void closeEvent(QCloseEvent *);
@@ -63,7 +70,6 @@ private slots:
     void openFriendRequestDlg(ShareQQMsgPtr msg);
     void openGroupRequestDlg(ShareQQMsgPtr msg);
     void changeFriendStatus(QString id, FriendStatus status, ClientType client_type);
-    void trayActivated(QSystemTrayIcon::ActivationReason reason);
     void openMainMenu();
     void setMute(bool mute);
     void slot_logout();
@@ -82,7 +88,6 @@ private:
     void getSingleLongNick();
     int getStatusIndex(FriendStatus status);
     void createTray();
-    void createActions();
     void setupLoginStatus();
     QString getStatusByIndex(int idx) const;
 
@@ -94,7 +99,7 @@ private:
     ParseThread *parse_thread_;
     QQueue<QByteArray> *message_queue_;
     MsgTip *msg_tip_;
-    QQMsgCenter *msg_center_;
+    MsgCenter *msg_center_;
 
     NameConvertor convertor_;
     FriendItemModel *friend_model_;
@@ -103,23 +108,16 @@ private:
     QVector<QQChatDlg*> opening_chatdlg_;
 
     //system tray
-    SystemTray *trayIcon;
-    QAction *minimizeAction;
-    QAction *restoreAction;
-    QAction *quitAction;
-    QAction *act_logout_;
-    QMenu *trayIconMenu;
+    TrayMenu *tray_menu_;
+    TrayMenuItem *minimize_;
+    TrayMenuItem *restore_;
+    TrayMenuItem *quit_;
+    TrayMenuItem *logout_;
 
     QMenu *main_menu_;
     QAction *act_mute_;
 
     QxtGlobalShortcut *open_chat_dlg_sc_;
-
-    QPoint distance_pos_;
-
-    QPoint old_pos_;
-    bool is_mouse_down_;
-    bool left_,right_,bottom_;
 };
 
 #endif //QTQQ_MAINPANEL_H
