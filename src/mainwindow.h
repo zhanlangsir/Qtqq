@@ -15,6 +15,7 @@
 #include "core/qqmsg.h"
 #include "systemtray.h"
 #include "recentlistitemmodel.h"
+#include "core/chatmanager.h"
 
 class QHttp;
 class QHttpRequestHeader;
@@ -50,10 +51,16 @@ public:
 
 public:
     void initialize();
-    const FriendItemModel* getFriendModel() const
+    const FriendItemModel* friendModel() const
     { return friend_model_; }
-    const GroupItemModel* getGroupMOdel() const
+    const GroupItemModel* groupModel() const
     { return group_model_; }
+    const RecentListItemModel* recentModel() const
+    { return recent_model_; }
+    MsgTip* msgTip() const
+    { return msg_tip_; }
+    MsgCenter* msgCenter() const
+    { return msg_center_; }
 
 protected:
     void closeEvent(QCloseEvent *);
@@ -65,7 +72,6 @@ private slots:
     void getOnlineBuddyDone(bool err);
     void getRecentListDone(bool err);
     void openChatDlg(QQMsg::MsgType type, QString gid, QString gcode);
-    void closeChatDlg(QQChatDlg *listener);
     void openChatDlgByDoubleClick(const QModelIndex& index);
     void openFriendRequestDlg(ShareQQMsgPtr msg);
     void openGroupRequestDlg(ShareQQMsgPtr msg);
@@ -100,6 +106,7 @@ private:
     QQueue<QByteArray> *message_queue_;
     MsgTip *msg_tip_;
     MsgCenter *msg_center_;
+    ChatManager *chat_manager_;
 
     NameConvertor convertor_;
     FriendItemModel *friend_model_;

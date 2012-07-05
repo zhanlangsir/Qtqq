@@ -25,7 +25,7 @@ QQItemModel::~QQItemModel()
     avatar_requester_.finishRequest();
     avatar_requester_.wait();
 
-    //root_»á±»µÝ¹éÉ¾³ý×ÓÔªËØ£¬ÔÚQQItemÖÐ¿ÉÒÔ¿´µ½
+    //root_ä¼šè¢«é€’å½’åˆ é™¤å­å…ƒç´ ï¼Œåœ¨QQItemä¸­å¯ä»¥çœ‹åˆ°
     if (root_)
     {
         delete root_;
@@ -33,10 +33,38 @@ QQItemModel::~QQItemModel()
     }
 }
 
+
+
 void QQItemModel::insertItem(QQItem *item)
 {
     assert(item);
     root_->children_.append(item);
+
+    items_.append(item);
+}
+
+void QQItemModel::insertItem(QQItem *item, QQItem *parent)
+{
+    assert(item && parent);
+    int parent_idx = items_.indexOf(parent);
+    assert(parent_idx != -1);
+
+    parent->children_.append(item);
+    items_.append(item);
+}
+
+void QQItemModel::pushFront(QQItem *item)
+{
+    assert(item);
+    root_->children_.push_front(item);
+
+    items_.append(item);
+}
+
+void QQItemModel::pushBack(QQItem *item)
+{
+    assert(item);
+    root_->children_.push_back(item);
 
     items_.append(item);
 }
@@ -52,16 +80,6 @@ void QQItemModel::improveItem(QString id)
         item->parent()->children_.push_front(item);
         endInsertRows();
     }
-}
-
-void QQItemModel::insertItem(QQItem *item, QQItem *parent)
-{
-    assert(item && parent);
-    int parent_idx = items_.indexOf(parent);
-    assert(parent_idx != -1);
-
-    parent->children_.append(item);
-    items_.append(item);
 }
 
 QQItem *QQItemModel::rootItem() const

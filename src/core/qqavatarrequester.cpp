@@ -35,10 +35,10 @@ QString QQAvatarRequester::requestOne(int type, QString id, QString save_path)
 
     Request req;
 
-    req.create(kGet, avatar_url.arg(type).arg(id).arg(CaptchaInfo::singleton()->vfwebqq()));
+    req.create(kGet, avatar_url.arg(type).arg(id).arg(CaptchaInfo::instance()->vfwebqq()));
     req.addHeaderItem("Host", "face1.qun.qq.com");
     req.addHeaderItem("Referer", "http://web.qq.com");
-    req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+    req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
 
     fd.connectToHost("face1.qun.qq.com", 80);
     fd.write(req.toByteArray());

@@ -23,6 +23,7 @@ class ImgSender;
 class ImgLoader;
 class QQChatLog;
 class QQItem;
+class MsgEncoder;
 
 class QQChatDlg : public QWidget, public QQMsgListener
 {
@@ -33,14 +34,16 @@ signals:
 
 public:
     enum ChatDlgType {kGroup, kFriend};
-    QQChatDlg(QString id, QString name, QWidget *parent = 0);
+    QQChatDlg(QString id, QString name, QString send_url, QWidget *parent = 0);
     virtual ~QQChatDlg();
 
 public:
     void showMsg(ShareQQMsgPtr msg);
     void showOldMsg(QVector<ShareQQMsgPtr> msgs);
+
     QString id() const
     { return id_; }
+
     QString getUniqueId()
     {
         return QUuid::createUuid().toString();
@@ -52,20 +55,27 @@ public:
     { return type_; }
     virtual void updateSkin() = 0;
 
+    void setMsgEncoder(MsgEncoder *encoder)
+    {
+        msg_encoder_ = encoder; 
+    }
+
+    FileInfo getUploadedFileInfo(QString src)
+    {
+        return id_file_hash_[src];
+    }
 
 protected:
     void closeEvent(QCloseEvent *);
     bool eventFilter(QObject * obj, QEvent * e);
-    void jsonEncoding(QString &escasing);
 
 protected:
-    QString send_url_;
     MsgBrowse msgbrowse_;
     QQTextEdit te_input_;
     QHash<QString, FileInfo> id_file_hash_;
 
     QString id_;
-    int msg_id_;
+    //int msg_id_;
     QString name_;
     QTcpSocket fd_;
     QVector<QString> unconvert_ids_;
@@ -83,7 +93,7 @@ private slots:
     void setSendByCtrlReturn(bool checked);
 
 private:
-    virtual QString converToJson(const QString &raw_msg) = 0;
+    //virtual QString converToJson(const QString &raw_msg) = 0;
     virtual ImgSender* getImgSender() const = 0;
     virtual QQChatLog *getChatlog() const;
     virtual ImgLoader* getImgLoader() const;
@@ -96,7 +106,9 @@ private:
     ImgLoader *img_loader_;
     QQFacePanel *qqface_panel_;
     QQMsgSender *msg_sender_;
+    MsgEncoder *msg_encoder_;
 
+    QString send_url_;
     ChatDlgType type_;
     
     QAction *act_return_;

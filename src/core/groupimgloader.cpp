@@ -12,7 +12,7 @@ QByteArray  GroupImgLoader::getImgUrl(const LoadInfo &info) const
     req.create(kGet, info.url);
     req.addHeaderItem("Host", info.host);
     req.addHeaderItem("Referer", "http://web.qq.com");
-    req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+    req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
 
     QTcpSocket fd;
     fd.connectToHost(info.host, 80);
@@ -38,7 +38,7 @@ QByteArray  GroupImgLoader::getImgUrl(const LoadInfo &info) const
     move_temp_req.create(kGet, getRequestUrl(url));
     move_temp_req.addHeaderItem("Host", getHost(url));
     move_temp_req.addHeaderItem("Referer", "http://web.qq.com");
-    move_temp_req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+    move_temp_req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
 
     this->usleep(500);
     QTcpSocket move_temp_fd;

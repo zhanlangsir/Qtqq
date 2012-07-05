@@ -24,7 +24,7 @@ GroupChatLog::GroupChatLog(QString gid):
 
 void GroupChatLog::init()
 {
-    QString url = "/keycgi/top/chatlogdates?gid=" + gid_ + "&vfwebqq="+ CaptchaInfo::singleton()->vfwebqq() +"&t=" +
+    QString url = "/keycgi/top/chatlogdates?gid=" + gid_ + "&vfwebqq="+ CaptchaInfo::instance()->vfwebqq() +"&t=" +
             QString::number(QDateTime::currentMSecsSinceEpoch());
 
     Request req;
@@ -33,7 +33,7 @@ void GroupChatLog::init()
     req.addHeaderItem("Connection", "keep-alive");
     req.addHeaderItem("Content-Type", "utf-8");
     req.addHeaderItem("Referer", "http://cgi.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
-    req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+    req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
 
     QTcpSocket fd;
     fd.connectToHost("cgi.web2.qq.com", 80);
@@ -62,7 +62,7 @@ QVector<ShareQQMsgPtr> GroupChatLog::getLog(int page)
     int endseq = end_seq_ - ((page-1)*num_per_page_);
 
     QString url = "/keycgi/top/groupchatlog?ps=10&bs="+QString::number(begseq)+"&es="+
-            QString::number(endseq)+"&gid="+ gid_ + "&mode=1&vfwebqq="+ CaptchaInfo::singleton()->vfwebqq() +"&t=" +
+            QString::number(endseq)+"&gid="+ gid_ + "&mode=1&vfwebqq="+ CaptchaInfo::instance()->vfwebqq() +"&t=" +
             QString::number(QDateTime::currentMSecsSinceEpoch());
 
     Request req;
@@ -71,7 +71,7 @@ QVector<ShareQQMsgPtr> GroupChatLog::getLog(int page)
     req.addHeaderItem("Connection", "keep-alive");
     req.addHeaderItem("Content-Type", "utf-8");
     req.addHeaderItem("Referer", "http://cgi.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
-    req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+    req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
 
     QTcpSocket fd;
     fd.connectToHost("cgi.web2.qq.com", 80);

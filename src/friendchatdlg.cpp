@@ -18,8 +18,8 @@
 #include "core/qqitem.h"
 #include "qqiteminfohelper.h"
 
-FriendChatDlg::FriendChatDlg(QString uin, QString from_name, QString avatar_path, QWidget *parent) :
-    QQChatDlg(uin, from_name, parent),
+FriendChatDlg::FriendChatDlg(QString uin, QString from_name, QString avatar_path, QString send_url, QWidget *parent) :
+    QQChatDlg(uin, from_name, send_url, parent),
     ui(new Ui::FriendChatDlg()),
     avatar_path_(avatar_path)
 {
@@ -32,7 +32,6 @@ FriendChatDlg::FriendChatDlg(QString uin, QString from_name, QString avatar_path
    initConnections();
 
    convertor_.addUinNameMap(id_, name_);
-   send_url_ = "/channel/send_buddy_msg2";
 
    te_input_.setFocus();
 }
@@ -101,6 +100,7 @@ void FriendChatDlg::getSingleLongNick(QString id)
     }
 }
 
+/*
 QString FriendChatDlg::converToJson(const QString &raw_msg)
 {
     QString msg_template = "r={\"to\":" + id_ +",\"face\":525,"
@@ -166,6 +166,7 @@ QString FriendChatDlg::converToJson(const QString &raw_msg)
     //msg_template.replace("/", "%2F");
     return msg_template;
 }
+*/
 
 ImgSender* FriendChatDlg::getImgSender() const
 {

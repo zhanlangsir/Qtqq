@@ -6,7 +6,7 @@
 class CaptchaInfo
 {
 public:
-    static CaptchaInfo* singleton()
+    static CaptchaInfo* instance()
     {
         if (!instance_)
             instance_ = new CaptchaInfo();

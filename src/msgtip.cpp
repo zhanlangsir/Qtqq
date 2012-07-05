@@ -6,6 +6,7 @@
 #include <QCursor>
 #include <QMouseEvent>
 #include <QModelIndex>
+#include <QScrollBar>
 
 #include "systemtray.h"
 #include "mainwindow.h"
@@ -18,10 +19,10 @@ MsgTip::MsgTip(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowOpacity(1);
-    setWindowFlags(Qt::WindowStaysOnTopHint | Qt::Dialog | Qt::FramelessWindowHint);
+    setWindowFlags(Qt::WindowStaysOnTopHint | Qt::Popup | Qt::FramelessWindowHint);
     qRegisterMetaType<SoundPlayer::SoundType>("SoundPlayer::SoundType");
 
-    connect(ui->uncheckmsglist, SIGNAL(activated(const QModelIndex&)), this, SLOT(slotActivated(const QModelIndex&)));
+    connect(ui->uncheckmsglist, SIGNAL(clicked(const QModelIndex&)), this, SLOT(slotActivated(const QModelIndex&)));
 }
 
 void MsgTip::pushMsg(ShareQQMsgPtr new_msg)
@@ -64,7 +65,8 @@ void MsgTip::addItem(ShareQQMsgPtr msg)
     {
     case QQMsg::kSystem:
     {
-        QListWidgetItem *item = new QListWidgetItem("[" + convertor_->convert(msg->talkTo()) + "]" + "request to add you");
+        //QListWidgetItem *item = new QListWidgetItem("[" + convertor_->convert(msg->talkTo()) + "]" + "request to add you");
+        QListWidgetItem *item = new QListWidgetItem("Friend request message!");
         item->setData(Qt::UserRole, QVariant::fromValue(msg));
         ui->uncheckmsglist->addItem(item);
 
@@ -77,7 +79,8 @@ void MsgTip::addItem(ShareQQMsgPtr msg)
         break;
     case QQMsg::kSystemG:
     {
-        QListWidgetItem *item = new QListWidgetItem("[" + convertor_->convert(msg->sendUin()) + "]" + "request to enter group [" + convertor_->convert(msg->sendUin()));
+        //QListWidgetItem *item = new QListWidgetItem("[" + convertor_->convert(msg->sendUin()) + "]" + "request to enter group [" + convertor_->convert(msg->sendUin()));
+        QListWidgetItem *item = new QListWidgetItem("Group system message!");
         item->setData(Qt::UserRole, QVariant::fromValue(msg));
         ui->uncheckmsglist->addItem(item);
 
@@ -86,7 +89,8 @@ void MsgTip::addItem(ShareQQMsgPtr msg)
         break;
     case QQMsg::kFriend:
     {
-        QListWidgetItem *item = new QListWidgetItem("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]");
+        //QListWidgetItem *item = new QListWidgetItem("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]");
+        QListWidgetItem *item = new QListWidgetItem(convertor_->convert(msg->talkTo()));
         item->setData(Qt::UserRole, QVariant::fromValue(msg));
         ui->uncheckmsglist->addItem(item);
 
@@ -95,7 +99,8 @@ void MsgTip::addItem(ShareQQMsgPtr msg)
     }
     case QQMsg::kGroup:
     {
-        QListWidgetItem *item = new QListWidgetItem("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]");
+        //QListWidgetItem *item = new QListWidgetItem("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]");
+        QListWidgetItem *item = new QListWidgetItem(convertor_->convert(msg->talkTo()));
         item->setData(Qt::UserRole, QVariant::fromValue(msg));
         ui->uncheckmsglist->addItem(item);
 
@@ -104,6 +109,8 @@ void MsgTip::addItem(ShareQQMsgPtr msg)
     }
     }
 
+    int item_height = 25;
+    this->resize(this->width(), ui->uncheckmsglist->count() * item_height);
     emit newUncheckMsgArrived();
 }
 
@@ -133,7 +140,9 @@ void MsgTip::show(QPoint pos)
     if ( ui->uncheckmsglist->count() == 0 )
         return;
 
-    move(pos.x() - ui->uncheckmsglist->width() / 2, pos.y());
+    if ( !this->isVisible() )
+        move(pos.x() - ui->uncheckmsglist->width() / 2, pos.y()-5);
+
     QWidget::show();
 }
 

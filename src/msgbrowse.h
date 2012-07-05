@@ -12,6 +12,9 @@ struct ShowOptions;
 class MsgBrowse : public QWebView
 {
     Q_OBJECT
+signals:
+    void senderLinkClicked(QString id);
+
 public:
     enum MsgKind {kWord, kImg, kDateSeprate, kWorn, kError};
     explicit MsgBrowse(QWidget *parent = 0);

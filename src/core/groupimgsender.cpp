@@ -22,7 +22,7 @@ QByteArray GroupImgSender::createSendMsg(const QByteArray &file_data, const QStr
     QByteArray msg = boundary_convenience + "Content-Disposition: form-data; name=\"from\"\r\n\r\n"
     "control\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"f\"\r\n\r\n"
     "EQQ.Model.ChatMsg.callbackSendPicGroup\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"vfwebqq\"\r\n\r\n" +
-    CaptchaInfo::singleton()->vfwebqq().toAscii()+ "\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"custom_face\"; filename=\""+ QFileInfo(full_path_).fileName().toAscii() + "\"\r\n"
+    CaptchaInfo::instance()->vfwebqq().toAscii()+ "\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"custom_face\"; filename=\""+ QFileInfo(full_path_).fileName().toAscii() + "\"\r\n"
     "Content-Type: image/jpeg\r\n\r\n" + file_data +"\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"fileid\"\r\n\r\n"
     "1\r\n--"+boundary.toAscii() +"--\r\n\r\n";
 

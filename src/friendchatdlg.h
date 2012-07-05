@@ -18,14 +18,14 @@ class FriendChatDlg : public QQChatDlg
 {
     Q_OBJECT
 public:
-    FriendChatDlg(QString uin, QString from_name, QString avatar_path, QWidget *parent = 0);
+    FriendChatDlg(QString uin, QString from_name, QString avatar_path, QString send_url, QWidget *parent = 0);
     ~FriendChatDlg();
 
 public:
     void updateSkin();
 
 private:
-    virtual QString converToJson(const QString &raw_msg);
+    //virtual QString converToJson(const QString &raw_msg);
     virtual ImgSender* getImgSender() const;
     virtual QQChatLog *getChatlog() const;
     virtual void getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const;

@@ -86,7 +86,12 @@ HEADERS += friendinfodlg.h \
     systemtray.h \
     traymenu.h \
     traymenuitem.h \
-    core/msgcenter.h
+    core/msgcenter.h \
+    core/msgencoder.h \
+    core/groupmsgencoder.h \
+    core/friendmsgencoder.h \
+    core/sessmsgencoder.h \
+    core/chatmanager.h
 
 
 SOURCES += friendinfodlg.cpp \
@@ -140,7 +145,12 @@ SOURCES += friendinfodlg.cpp \
     systemtray.cpp \
     traymenu.cpp \
     traymenuitem.cpp \
-    core/msgcenter.cpp
+    core/msgcenter.cpp \
+    core/msgencoder.cpp \
+    core/groupmsgencoder.cpp \
+    core/friendmsgencoder.cpp \
+    core/sessmsgencoder.cpp \
+    core/chatmanager.cpp
 
 FORMS += ui/captcha.ui \
          ui/friendinfodlg.ui \
@@ -153,4 +163,3 @@ FORMS += ui/captcha.ui \
          ui/mainwindow.ui \
          ui/msgtip.ui \
          ui/chatlogwin.ui \
-    ui/uncheckmsgpanel.ui

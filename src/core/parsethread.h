@@ -35,9 +35,13 @@ private:
 
     bool isChatContentEmpty(QString content) const;
 
+    void sortByTime(QVector<QQMsg*> &be_sorting_msg) const;
+
 private:
    QQueue<QByteArray> message_queue_;
    QMutex lock_;
+
+   Json::Value pre_msg_;
 };
 
 #endif //QTQQ_CORE_PARSETHREAD_H

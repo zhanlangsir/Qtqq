@@ -15,14 +15,11 @@ void ParseThread::pushRawMsg(QByteArray msg)
 
 void ParseThread::run()
 {
-    QString pre_msg;
-
     while (true)
     {
         lock_.lock();
         int rawmsg_count = message_queue_.count();
-        lock_.unlock();
-        
+        lock_.unlock();      
         if (rawmsg_count == 0)
             break;
         
@@ -30,7 +27,6 @@ void ParseThread::run()
         Json::Value root;
 
         QByteArray unparse_msg = message_queue_.dequeue();
-        qDebug()<<"recive msg"<<unparse_msg<<endl;
 
         int idx = unparse_msg.indexOf("\r\n\r\n");
         unparse_msg = unparse_msg.mid(idx+4);
@@ -40,28 +36,62 @@ void ParseThread::run()
             continue;
         }    
 
+        qDebug()<<"recive msg"<<QString::fromStdString(root.toStyledString())<<endl;
+
         if (root["retcode"].asInt() == 121)
         {
 
         }
+
+        QVector<QQMsg *> be_sorting_msg;
         for (unsigned int i = 0; i < root["result"].size(); ++i)
         {
             const Json::Value result = root["result"][i];
 
-            if ( pre_msg == QString::fromStdString(result.toStyledString()) )
+            if ( pre_msg_ == result )
             {
-                qDebug()<<"get rid of confire msg"<<endl;
+                qDebug()<<"get rid of confire msg :"<<QString::fromStdString(pre_msg_.toStyledString())<<endl;
                 continue;
             }
             else
-                pre_msg = QString::fromStdString(result.toStyledString());
+                pre_msg_ = result;
 
             QString type = QString::fromStdString(result["poll_type"].asString());
-            ShareQQMsgPtr msg(createMsg(type, result));
+
+            QQMsg *msg = createMsg(type, result);
+
             if (msg)
-                emit parseDone(msg);
+                be_sorting_msg.append(msg);
+        }
+
+        if ( be_sorting_msg.size() > 1 )
+            sortByTime(be_sorting_msg);
+
+        foreach ( QQMsg *msg, be_sorting_msg )
+        {
+            ShareQQMsgPtr share_msg(msg);
+            if ( share_msg )
+                emit parseDone(share_msg);
         }
     }
+}
+
+void ParseThread::sortByTime(QVector<QQMsg*> &be_sorting_msg) const
+{
+    //插入排序,按时间从小到大排序
+    for ( int i = 1; i < be_sorting_msg.size(); ++i )
+    {
+        QQMsg *msg = be_sorting_msg[i];
+
+        int j = i - 1;
+        while ( j > 0 && be_sorting_msg[j]->time() > msg->time() )
+        {
+            be_sorting_msg[j + 1] = be_sorting_msg[j];
+            --j;
+        }
+
+        be_sorting_msg[j+1] = msg;
+    } 
 }
 
 QQMsg* ParseThread::createMsg(QString type, const Json::Value result)
@@ -244,8 +274,6 @@ QQMsg *ParseThread::createSystemMsg(const Json::Value &result) const
 
 bool ParseThread::isChatContentEmpty(QString content) const
 {
-  qDebug()<<"content.size"<<content.size()<<endl;
-  qDebug()<<"content[0]"<<content[0]<<endl;
     return (content.size() == 1 && ( content[0] == '\n' || content[0] == ' ' ));
 }
 

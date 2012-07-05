@@ -35,6 +35,9 @@
 #include "core/sockethelper.h"
 #include "traymenu.h"
 #include "traymenuitem.h"
+#include "core/msgencoder.h"
+#include "core/friendmsgencoder.h"
+#include "core/groupmsgencoder.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
@@ -138,14 +141,14 @@ void MainWindow::openMainMenu()
 void MainWindow::changeMyStatus(int idx)
 {
     QString change_status_url = "/channel/change_status2?newstatus=" + getStatusByIndex(idx) + 
-        "&clientid=5412354841&psessionid=" + CaptchaInfo::singleton()->psessionid() + 
+        "&clientid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid() + 
         "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
 
     QHttpRequestHeader header("GET", change_status_url);
     header.addValue("Host", "d.web2.qq.com");
     setDefaultHeaderValue(header);
     header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1");
-    header.addValue("Cookie", CaptchaInfo::singleton()->cookie());
+    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
 
     main_http_->setHost("d.web2.qq.com");
     main_http_->request(header);
@@ -163,11 +166,9 @@ void MainWindow::changeFriendStatus(QString id, FriendStatus status, ClientType 
 
 void MainWindow::closeEvent(QCloseEvent *)
 {
-    QQChatDlg *dlg = NULL;
-    foreach(dlg, opening_chatdlg_)
-    {
-        dlg->close();
-    }
+    if ( chat_manager_ )
+        delete chat_manager_;
+    chat_manager_ = NULL;
 
     if (QFile::exists("qqgroupdb"))
     {
@@ -178,13 +179,13 @@ void MainWindow::closeEvent(QCloseEvent *)
 void MainWindow::getFriendList()
 {
     QString get_friendlist_url = "/api/get_user_friends2";
-    QString msg_content = "r={\"h\":\"hello\",\"vfwebqq\":\"" + CaptchaInfo::singleton()->vfwebqq() + "\"}";
+    QString msg_content = "r={\"h\":\"hello\",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq() + "\"}";
 
     QHttpRequestHeader header("POST", get_friendlist_url);
     header.addValue("Host", "s.web2.qq.com");
     setDefaultHeaderValue(header);
     header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
-    header.addValue("Cookie", CaptchaInfo::singleton()->cookie());
+    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
     header.setContentType("application/x-www-form-urlencoded");
     header.setContentLength(msg_content.length());
 
@@ -223,12 +224,12 @@ void MainWindow::getSingleLongNick()
 void MainWindow::getGroupList()
 {
     QString get_grouplist_url = "/api/get_group_name_list_mask2";
-    QString msg_content = "r={\"h\":\"hello\",\"vfwebqq\":\"" + CaptchaInfo::singleton()->vfwebqq() + "\"}";
+    QString msg_content = "r={\"h\":\"hello\",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq() + "\"}";
     QHttpRequestHeader header("POST", get_grouplist_url);
     header.addValue("Host", "s.web2.qq.com");
     setDefaultHeaderValue(header);
     header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
-    header.addValue("Cookie", CaptchaInfo::singleton()->cookie());
+    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
     header.setContentType("application/x-www-form-urlencoded");
     header.setContentLength(msg_content.length());
 
@@ -254,12 +255,12 @@ void MainWindow::getGroupListDone(bool err)
 
 void MainWindow::getOnlineBuddy()
 {
-    QString get_online_buddy = "/channel/get_online_buddies2?clientid=5412354841&psessionid=" + CaptchaInfo::singleton()->psessionid() + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
+    QString get_online_buddy = "/channel/get_online_buddies2?clientid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid() + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
     QHttpRequestHeader header("GET", get_online_buddy);
     header.addValue("Host", "d.web2.qq.com");
     setDefaultHeaderValue(header);
     header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=2011033100");
-    header.addValue("Cookie", CaptchaInfo::singleton()->cookie());
+    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
 
     main_http_->setHost("d.web2.qq.com");
     connect(main_http_, SIGNAL(done(bool)), this, SLOT(getOnlineBuddyDone(bool)));
@@ -331,15 +332,15 @@ void MainWindow::getPersonalInfo()
 void MainWindow::getRecentList()
 {
     QString recent_list_url ="/channel/get_recent_list2";
-    QString msg_content = "r={\"vfwebqq\":\"" + CaptchaInfo::singleton()->vfwebqq() +
-            "\",\"clientid\":\"5412354841\",\"psessionid\":\"" + CaptchaInfo::singleton()->psessionid() +
-            "\"}&cliendid=5412354841&psessionid=" + CaptchaInfo::singleton()->psessionid();
+    QString msg_content = "r={\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq() +
+            "\",\"clientid\":\"5412354841\",\"psessionid\":\"" + CaptchaInfo::instance()->psessionid() +
+            "\"}&cliendid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid();
 
     QHttpRequestHeader header("POST", recent_list_url);
     header.addValue("Host", "d.web2.qq.com");
     setDefaultHeaderValue(header);
     header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1");
-    header.addValue("Cookie", CaptchaInfo::singleton()->cookie());
+    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
     header.setContentType("application/x-www-form-urlencoded");
     header.setContentLength(msg_content.length());
 
@@ -371,6 +372,7 @@ void MainWindow::initialize()
     
     getFriendList();
 
+    chat_manager_ = new ChatManager(this, &convertor_),
     msg_tip_->setMainWindow(this);
 }
 
@@ -468,14 +470,12 @@ void MainWindow::openChatDlgByDoubleClick(const QModelIndex& index)
 
     if (item->type() == QQItem::kFriend)
     {
-        openChatDlg(QQMsg::kFriend, item->id(), item->gCode());
+        chat_manager_->openFriendChatDlg(item->id());
     }
     else if (item->type() == QQItem::kGroup)
     {
-        openChatDlg(QQMsg::kGroup, item->id(), item->gCode());
+        chat_manager_->openGroupChatDlg(item->id(), item->gCode());
     }
-    else
-        return;
 }
 
 void MainWindow::openFriendRequestDlg(ShareQQMsgPtr msg)
@@ -506,52 +506,12 @@ void MainWindow::openGroupRequestDlg(ShareQQMsgPtr msg)
 
 void MainWindow::openChatDlg(QQMsg::MsgType type, QString id, QString gcode)
 {
-    QQChatDlg *chatdlg = NULL;
-    foreach(chatdlg, opening_chatdlg_)
-    {
-        if (chatdlg->id() == id)
-            return;
-    }
-
-    QQChatDlg *dlg = NULL;
     if (type == QQMsg::kFriend)
     {
-        QString avatar_path = "";
-        QQItem *item = friend_model_->find(id);
-
-        if (item)
-            avatar_path = item->avatarPath();
-
-        dlg= new FriendChatDlg(id, convertor_.convert(id), avatar_path);
-        connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
-        connect(dlg, SIGNAL(msgSended(QString,bool)), recent_model_, SLOT(improveItem(QString)));
-
-        msg_center_->registerListener(dlg);
+        chat_manager_->openFriendChatDlg(id);
     }
     else //kGroup
     {
-        QString avatar_path = "";
-        QQItem *item = group_model_->find(id);
-
-        if (item)
-            avatar_path = item->avatarPath();
-
-
-        dlg = new GroupChatDlg(id, convertor_.convert(id), gcode, avatar_path);
-        connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
-        connect(dlg, SIGNAL(msgSended(QString,bool)), recent_model_, SLOT(improveItem(QString)));
-
-        msg_center_->registerListener(dlg);
+        chat_manager_->openGroupChatDlg(id, gcode);
     }
-    opening_chatdlg_.append(dlg);
-    dlg->move((QApplication::desktop()->width() - dlg->width()) /2, (QApplication::desktop()->height() - dlg->height()) /2);
-
-    msg_tip_->removeItem(id);
-}
-
-void MainWindow::closeChatDlg(QQChatDlg *listener)
-{
-    opening_chatdlg_.remove(opening_chatdlg_.indexOf(listener));
-    msg_center_->removeListener(listener);
-    listener->deleteLater();
 }

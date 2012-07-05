@@ -46,12 +46,12 @@ void FriendRequestDlg::slotOkClicked()
 
         QString groupidx = ui_->cb_group_->itemData(ui_->cb_group_->currentIndex()).toString();
         QByteArray msg = "r={\"account\":" + account_.toAscii() + ",\"gid\":"+ groupidx.toAscii() +
-                ",\"mname\":\"" + ui_->le_comment_->text().toAscii() + "\",\"vfwebqq\":\"" + CaptchaInfo::singleton()->vfwebqq().toAscii() + "\"}";
+                ",\"mname\":\"" + ui_->le_comment_->text().toAscii() + "\",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq().toAscii() + "\"}";
 
         Request req;
         req.create(kPost, allow_and_add_url);
         req.addHeaderItem("Host", "s.web2.qq.com");
-        req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+        req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
         req.addHeaderItem("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=2");
         req.addHeaderItem("Content-Length", QString::number(msg.length()));
         req.addHeaderItem("Content-Type", "application/x-www-form-urlencoded");
@@ -73,12 +73,12 @@ void FriendRequestDlg::slotOkClicked()
     else if (ui_->rb_allow_->isChecked())
     {
         QString allow_add_request_url = "/api/allow_added_request2";
-        QByteArray msg = "r={\"account\":" + account_.toAscii() + ",\"vfwebqq\":\"" + CaptchaInfo::singleton()->vfwebqq().toAscii() + "\"}";
+        QByteArray msg = "r={\"account\":" + account_.toAscii() + ",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq().toAscii() + "\"}";
 
         Request req;
         req.create(kPost, allow_add_request_url);
         req.addHeaderItem("Host", "s.web2.qq.com");
-        req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+        req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
         req.addHeaderItem("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=2");
         req.addHeaderItem("Content-Length", QString::number(msg.length()));
         req.addHeaderItem("Content-Type", "application/x-www-form-urlencoded");
@@ -98,12 +98,12 @@ void FriendRequestDlg::slotOkClicked()
         QString deny_add_request = "/api/deny_added_request2";
 
         QByteArray msg = "r={\"account\":" + account_.toAscii() + ",\"msg\":\""+ ui_->le_deny_reason_->text().toAscii() +
-                "\",\"vfwebqq\":\"" + CaptchaInfo::singleton()->vfwebqq().toAscii() + "\"}";
+                "\",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq().toAscii() + "\"}";
 
         Request req;
         req.create(kPost, deny_add_request);
         req.addHeaderItem("Host", "s.web2.qq.com");
-        req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+        req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
         req.addHeaderItem("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=2");
         req.addHeaderItem("Content-Length", QString::number(msg.length()));
         req.addHeaderItem("Content-Type", "application/x-www-form-urlencoded");

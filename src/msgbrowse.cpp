@@ -37,13 +37,20 @@ MsgBrowse::MsgBrowse(QWidget *parent) :
     setContextMenuPolicy(Qt::CustomContextMenu);
     setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
-    this->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks   );
+    this->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
     connect(page(), SIGNAL(linkClicked(const QUrl &)), this, SLOT(onLinkClicked(const QUrl &)));
 }
 
 void MsgBrowse::onLinkClicked(const QUrl &url)
 {
-    QDesktopServices::openUrl(url); 
+    QRegExp sender_reg("\\[(.*)\\]");
+    if ( sender_reg.indexIn(url.toString()) != -1 )
+    {
+        qDebug()<<"open chatdlg"<<sender_reg.cap(1)<<endl;
+        emit senderLinkClicked(sender_reg.cap(1));
+    }
+    else
+        QDesktopServices::openUrl(url);
 }
 
 void MsgBrowse::initUi()
@@ -141,6 +148,7 @@ void MsgBrowse::replaceKeyWord(QString &html, const ShowOptions &options)
     */
     html.replace("%userIconPath%",avatar);
     html.replace("%sender%", options.send_name);
+    html.replace("%sender_id%", options.send_uin);
 
 
     QString time =  options.time.toString("hh:mm:ss");
@@ -216,24 +224,6 @@ void MsgBrowse::ecapseForScript(QString &html) const
     html.replace("\n","");
     html.replace("\r","<br>");
 }
-
-//QString TextManager::getDocumentBody(const QTextDocument &ADocument)
-//{
-//	QRegExp body("<body.*>(.*)</body>");
-//	body.setMinimal(false);
-//	QString html = ADocument.toHtml();
-//	html = html.indexOf(body)>=0 ? body.cap(1).trimmed() : html;
-
-//	// XXX Replace <P> inserted by QTextDocument with <SPAN>
-//	if (html.leftRef(3).compare("<p ", Qt::CaseInsensitive) == 0 &&
-//		html.rightRef(4).compare("</p>", Qt::CaseInsensitive) == 0)
-//	{
-//		html.replace(1, 1, "span");
-//		html.replace(html.length() - 2, 1, "span");
-//	}
-
-//	return html;
-//}
 
 QString MsgBrowse::loadFileData(QString name)
 {

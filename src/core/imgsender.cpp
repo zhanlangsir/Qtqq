@@ -33,7 +33,7 @@ void ImgSender::send(const QString uinque_id, const QString full_path)
     req_.addHeaderItem("Origin", "http://web.qq.com");
     req_.addHeaderItem("Content-Type", "multipart/form-data; boundary="+boundary);
     req_.addHeaderItem("Referer", "http://web.qq.com/");
-    req_.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+    req_.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
     req_.addRequestContent(msg);
 
     start();

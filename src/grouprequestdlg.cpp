@@ -54,12 +54,12 @@ void GroupRequestDlg::slotOkClicked()
     if (ui_->rb_allow_->isChecked())
     {
         QString allow_url = "/channel/op_group_join_req?group_uin=" + gid_ + "&req_uin=" + id_ +
-                "&msg=&op_type=2&clientid=5412354841&psessionid=" + CaptchaInfo::singleton()->psessionid() +"&t=" + QString::number(QDateTime::currentMSecsSinceEpoch());
+                "&msg=&op_type=2&clientid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid() +"&t=" + QString::number(QDateTime::currentMSecsSinceEpoch());
 
         Request req;
         req.create(kGet, allow_url);
         req.addHeaderItem("Host", "d.web2.qq.com");
-        req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+        req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
         req.addHeaderItem("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=2");
         req.addHeaderItem("Content-Type", "utf-8");
 
@@ -75,12 +75,12 @@ void GroupRequestDlg::slotOkClicked()
     else
     {
         QString deny_url = "/channel/op_group_join_req?group_uin=" + gid_ + "&req_uin=" + id_ +
-                "&msg=" + ui_->le_deny_reason_->text() + "&op_type=3&clientid=5412354841&psessionid=" + CaptchaInfo::singleton()->psessionid() +"&t=" + QString::number(QDateTime::currentMSecsSinceEpoch());
+                "&msg=" + ui_->le_deny_reason_->text() + "&op_type=3&clientid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid() +"&t=" + QString::number(QDateTime::currentMSecsSinceEpoch());
 
         Request req;
         req.create(kGet, deny_url);
         req.addHeaderItem("Host", "d.web2.qq.com");
-        req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+        req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
         req.addHeaderItem("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=2");
         req.addHeaderItem("Content-Type", "utf-8");
 

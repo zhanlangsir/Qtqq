@@ -36,6 +36,9 @@ public:
     void insertItem(QQItem *item);
     void insertItem(QQItem *item, QQItem *parent);
 
+    void pushFront(QQItem *item);
+    void pushBack(QQItem *item);
+
     void improveItem(QString id);
 
     QQItem *rootItem() const;

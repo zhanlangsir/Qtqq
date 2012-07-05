@@ -1,5 +1,7 @@
 #include "qqchatdlg.h"
 
+#include <assert.h>
+
 #include <QFileDialog>
 #include <QKeyEvent>
 #include <QApplication>
@@ -19,16 +21,18 @@
 #include "core/groupchatlog.h"
 #include "core/qqitem.h"
 
-QQChatDlg::QQChatDlg(QString id, QString name, 
-                     QWidget *parent) :
+#include "core/msgencoder.h"
+
+QQChatDlg::QQChatDlg(QString id, QString name, QString send_url, QWidget *parent) :
     QWidget(parent),
     id_(id),
-    msg_id_(4462000),
     name_(name),
     img_sender_(NULL),
     img_loader_(NULL),
     qqface_panel_(NULL),
     msg_sender_(NULL),
+    msg_encoder_(NULL),
+    send_url_(send_url),
     sc_close_win_(NULL)
 {
     setObjectName("chatWindow");
@@ -156,11 +160,6 @@ bool QQChatDlg::eventFilter(QObject *obj, QEvent *e)
         break;
     }
     return false;
-}
-
-void QQChatDlg::jsonEncoding(QString &escasing)
-{
-    escasing.replace("&lt;", "%3C").replace("&gt;", "%3E").replace("&amp;", "%26").replace('+', "%2B").replace(';', "%3B");
 }
 
 ImgLoader *QQChatDlg::getImgLoader() const
@@ -326,7 +325,7 @@ void QQChatDlg::showMsg(ShareQQMsgPtr msg)
             QString url = "http://web.qq.com/cgi-bin/get_group_pic?type=0&gid=" + group_msg->info_seq_ +
                     "&uin=" + group_msg->sendUin() + "&rip=" + group_msg->msg_[i].server_ip() +
                     "&rport=" + group_msg->msg_[i].server_port() + "&fid=" + group_msg->msg_[i].file_id() +
-                    "&pic=" + group_msg->msg_[i].content() + "&vfwebqq="+ CaptchaInfo::singleton()->vfwebqq() +
+                    "&pic=" + group_msg->msg_[i].content() + "&vfwebqq="+ CaptchaInfo::instance()->vfwebqq() +
                     "&t="+ QString::number(group_msg->time_);
 
             appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img src=\""+ url +"\" />";
@@ -409,13 +408,14 @@ void QQChatDlg::sendMsg()
         return;
     }
 
+    assert(msg_encoder_);
     QString msg = te_input_.toHtml();
-    QString json_msg = converToJson(msg);
+    QString json_msg = msg_encoder_->encode(msg);
 
     Request req;
     req.create(kPost, send_url_);
     req.addHeaderItem("Host", "d.web2.qq.com");
-    req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+    req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
     req.addHeaderItem("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002");
     req.addHeaderItem("Content-Length", QString::number(json_msg.length()));
     req.addHeaderItem("Content-Type", "application/x-www-form-urlencoded");
@@ -485,7 +485,5 @@ void QQChatDlg::showOldMsg(QVector<ShareQQMsgPtr> msgs)
             unconvert_ids_.append(msg->sendUin());
         }
     }
-
-    this->show();
 }
 

@@ -10,6 +10,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QRegExp>
+#include <QTcpSocket>
 
 #include <assert.h>
 
@@ -22,18 +23,23 @@
 #include "core/qqskinengine.h"
 #include "core/captchainfo.h"
 #include "core/groupchatlog.h"
+#include "core/chatmanager.h"
+#include "core/sockethelper.h"
+#include "frienditemmodel.h"
+#include "mainwindow.h"
 
-GroupChatDlg::GroupChatDlg(QString gid, QString name, QString group_code, QString avatar_path, QWidget *parent) :
-    QQChatDlg(gid, name, parent),
+GroupChatDlg::GroupChatDlg(QString gid, QString name, QString group_code, QString avatar_path,
+                           QString send_url, ChatManager *chat_manager, MainWindow *main_win, QWidget *parent) :
+    QQChatDlg(gid, name, send_url, parent),
     ui(new Ui::GroupChatDlg()),
     group_code_(group_code),
     model_(NULL),
-    avatar_path_(avatar_path)
+    avatar_path_(avatar_path),
+    chat_manager_(chat_manager),
+    main_win_(main_win)
 {
    ui->setupUi(this);
    set_type(QQChatDlg::kGroup);
-
-   send_url_ = "/channel/send_qun_msg2";
 
    initUi();  
    updateSkin();
@@ -104,6 +110,9 @@ void GroupChatDlg::initConnections()
    connect(ui->btn_qqface, SIGNAL(clicked()), this, SLOT(openQQFacePanel()));
    connect(ui->btn_close, SIGNAL(clicked()), this, SLOT(close()));
    connect(ui->btn_chat_log, SIGNAL(clicked()), this, SLOT(openChatLogWin()));
+   connect(ui->lv_members_, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(openChatDlgByDoubleClicked(const QModelIndex &)));
+
+   connect(&msgbrowse_, SIGNAL(senderLinkClicked(QString)), this, SLOT(openSessOrFriendChatDlg(QString)));
 }
 
 void GroupChatDlg::updateSkin()
@@ -125,6 +134,51 @@ void GroupChatDlg::saveGroupInfo()
   
 }
 */
+
+void GroupChatDlg::openChatDlgByDoubleClicked(const QModelIndex &index)
+{
+    QQItem *item =  static_cast<QQItem*>(index.internalPointer());
+    openSessOrFriendChatDlg(item->id());
+}
+
+void GroupChatDlg::openSessOrFriendChatDlg(QString id)
+{
+    if ( main_win_->friendModel()->find(id) )
+        chat_manager_->openFriendChatDlg(id);
+    else
+    {
+        msg_sig_ = getMsgSig(id);
+        chat_manager_->openSessChatDlg(id, id_);
+    }
+}
+
+QString GroupChatDlg::getMsgSig(QString to_id) const
+{
+    QString msg_sig_url = "/channel/get_c2cmsg_sig2?id="+ id_ +"&to_uin=" + to_id +
+            "&service_type=0&clientid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid() +"&t=" + QString::number(QDateTime::currentMSecsSinceEpoch());
+
+    Request req;
+    req.create(kGet, msg_sig_url);
+    req.addHeaderItem("Host", "d.web2.qq.com");
+    req.addHeaderItem("Content-Type", "utf-8");
+    req.addHeaderItem("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002");
+    req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
+
+    QTcpSocket fd;
+    fd.connectToHost("d.web2.qq.com", 80);
+    fd.write(req.toByteArray());
+
+    QByteArray result;
+    socketReceive(&fd, result);
+    fd.close();
+
+    int sig_s_idx = result.indexOf("value")+8;
+    int sig_e_idx = result.indexOf('"', sig_s_idx);
+    QString sig = result.mid(sig_s_idx, sig_e_idx - sig_s_idx);
+
+    return sig;
+}
+
 ImgLoader *GroupChatDlg::getImgLoader() const
 {
     return new GroupImgLoader();
@@ -188,14 +242,14 @@ void GroupChatDlg::getGfaceSig()
     }
     if (need_create_table)
     {
-        QString gface_sig_url = "/channel/get_gface_sig2?clientid=5412354841&psessionid="+CaptchaInfo::singleton()->psessionid() +
+        QString gface_sig_url = "/channel/get_gface_sig2?clientid=5412354841&psessionid="+CaptchaInfo::instance()->psessionid() +
                 "&t="+QString::number(QDateTime::currentMSecsSinceEpoch());
 
         QHttpRequestHeader header;
         header.setRequest("GET", gface_sig_url);
         header.addValue("Host", "d.web2.qq.com");
         header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002");
-        header.addValue("Cookie", CaptchaInfo::singleton()->cookie());
+        header.addValue("Cookie", CaptchaInfo::instance()->cookie());
 
         http_.setHost("d.web2.qq.com");
         connect(&http_, SIGNAL(done(bool)), this, SLOT(getGfaceSigDone(bool)));
@@ -351,9 +405,9 @@ void GroupChatDlg::readFromSql()
         info->set_avatarPath(avatar_path);
 
         if (info->status() == kOffline)
-            model_->rootItem()->children_.push_back(info);
+            model_->pushBack(info);
         else
-            model_->rootItem()->children_.push_front(info);
+            model_->pushFront(info);
 
         convertor_.addUinNameMap(uin, nick);
     }
@@ -525,12 +579,12 @@ void GroupChatDlg::getGroupMemberList()
         if (need_create_table)
         {
             QString get_group_member_url = "/api/get_group_info_ext2?gcode=" + group_code_ + "&vfwebqq=" +
-                    CaptchaInfo::singleton()->vfwebqq() + "&t="+ QString::number(QDateTime::currentMSecsSinceEpoch());
+                    CaptchaInfo::instance()->vfwebqq() + "&t="+ QString::number(QDateTime::currentMSecsSinceEpoch());
 
             QHttpRequestHeader header("GET", get_group_member_url);
             header.addValue("Host", "s.web2.qq.com");
             header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001");
-            header.addValue("Cookie", CaptchaInfo::singleton()->cookie());
+            header.addValue("Cookie", CaptchaInfo::instance()->cookie());
 
             http_.setHost("s.web2.qq.com");
             connect(&http_, SIGNAL(done(bool)), this, SLOT(getGroupMemberListDone(bool)));
@@ -561,86 +615,4 @@ void GroupChatDlg::getGroupMemberListDone(bool err)
     ui->lv_members_->setModel(model_);
 
    replaceUnconverId();
-}
-
-QString GroupChatDlg::converToJson(const QString &raw_msg)
-{
-    bool has_gface = false;
-    QString msg_template;
-
-    //提取<p>....</p>内容
-    QRegExp p_reg("(<p.*</p>)");
-    p_reg.setMinimal(true);
-
-    int pos = 0;
-    while ( (pos = p_reg.indexIn(raw_msg, pos)) != -1 )
-    {
-        QString content = p_reg.cap(0);
-        while (!content.isEmpty())
-        {
-            if (content[0] == '<')
-            {           
-                int match_end_idx = content.indexOf('>')+1;
-                QString single_chat_item = content.mid(0, match_end_idx);
-
-                int img_idx = single_chat_item.indexOf("src");
-                if (img_idx != -1)
-                {
-                    img_idx += 5;
-                    int img_end_idx = content.indexOf("\"", img_idx);
-                    QString src = content.mid(img_idx, img_end_idx - img_idx);
-
-                    if (src.contains(kQQFacePre))
-                    {
-                        msg_template.append("[\\\"face\\\"," + src.mid(kQQFacePre.length()) + "],");
-                    }
-                    else
-                    {
-                        has_gface = true;
-                        msg_template.append("[\\\"cface\\\",\\\"group\\\",\\\"" + id_file_hash_[src].name + "\\\"],");
-                    }
-                    //                if (src.contains("-"))
-                    //                {
-                    //                    has_gface = true;
-                    //                    msg_template.append("[\\\"cface\\\",\\\"group\\\",\\\"" + id_file_hash_[src].name + "\\\"],");
-                    //                }
-                    //                else
-                    //                {
-                    //                    msg_template.append("[\\\"face\\\"," + src + "],");
-                    //                }
-                }
-
-                content = content.mid(match_end_idx);
-            }
-            else
-            {
-                int idx = content.indexOf("<");
-                QString word = content.mid(0,idx);
-                jsonEncoding(word);
-                msg_template.append("\\\"" + word + "\\\",");
-
-                if (idx == -1)
-                    content = "";
-                else
-                    content = content.mid(idx);
-            }
-        }
-
-        msg_template.append("\\\"\\\\n\\\",");
-        pos += p_reg.cap(0).length();
-    }
-
-    msg_template = msg_template +
-            "[\\\"font\\\",{\\\"name\\\":\\\"%E5%AE%8B%E4%BD%93\\\",\\\"size\\\":\\\"10\\\",\\\"style\\\":[0,0,0],\\\"color\\\":\\\"000000\\\"}]]\","
-            "\"msg_id\":" + QString::number(msg_id_++) + ",\"clientid\":\"5412354841\","
-            "\"psessionid\":\""+ CaptchaInfo::singleton()->psessionid() +"\"}"
-            "&clientid=5412354841&psessionid="+CaptchaInfo::singleton()->psessionid();
-
-    if (has_gface)
-        msg_template = "r={\"group_uin\":" + id_ +",\"group_code\":" + group_code_ + "," + "\"key\":\"" + gface_key_ + "\"," +
-            "\"sig\":\"" + gface_sig_ + "\", \"content\":\"[" + msg_template;
-    else
-        msg_template = "r={\"group_uin\":" + id_ + ",\"content\":\"[" + msg_template;
-
-    return msg_template;
 }

@@ -89,7 +89,7 @@ void FriendItemModel::setMarkName(QString mark_name, QString id)
 
 void FriendItemModel::addItem(QString id, QString mark_name, QString groupidx, FriendStatus status)
 {
-    QString get_friend_info_url = "/api/get_friend_info2?tuin="+ id +"&verifysession=&code=&vfwebqq=" + CaptchaInfo::singleton()->vfwebqq() + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
+    QString get_friend_info_url = "/api/get_friend_info2?tuin="+ id +"&verifysession=&code=&vfwebqq=" + CaptchaInfo::instance()->vfwebqq() + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
 
     Request req;
     req.create(kGet, get_friend_info_url);
@@ -97,7 +97,7 @@ void FriendItemModel::addItem(QString id, QString mark_name, QString groupidx, F
     req.addHeaderItem("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
     req.addHeaderItem("Connection", "keep-live");
     req.addHeaderItem("Content-Type","utf-8");
-    req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+    req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
 
     QTcpSocket fd;
     fd.connectToHost("s.web2.qq.com", 80);

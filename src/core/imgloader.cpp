@@ -16,7 +16,7 @@ void ImgLoader::loadFriendCface(const QString &uuid, const QString &file_name, c
     info.uuid = uuid;
     info.path = "temp/" + file_name;
     info.url = "/channel/get_cface2?lcid="+msg_id+"&guid="+file_name+"&to="+ to_uin+
-            "&count=5&time=1&clientid=5412354841&psessionid="+CaptchaInfo::singleton()->psessionid();
+            "&count=5&time=1&clientid=5412354841&psessionid="+CaptchaInfo::instance()->psessionid();
     info.host = "d.web2.qq.com";
 
     lock_.lock();
@@ -34,7 +34,7 @@ void ImgLoader::loadFriendOffpic(const QString &uuid, const QString &file_name, 
     info.path = "temp/" + file_name;
 
     info.url = "/channel/get_offpic2?file_path=" +file_name + "&f_uin=" + to_uin + "&clientid=5412354841&psessionid="+
-            CaptchaInfo::singleton()->psessionid();
+            CaptchaInfo::instance()->psessionid();
     info.host = "d.web2.qq.com";   
 
     lock_.lock();
@@ -50,7 +50,7 @@ void ImgLoader::loadGroupChatImg(const QString &file_name, QString uin, const QS
     LoadInfo info;
     info.img_name = file_name;
     info.path = "temp/" + file_name;
-    info.url = "/cgi-bin/get_group_pic?type=0&gid=" + gcode + "&uin=" + uin + "&rip=" +rip + "&rport=" + rport + "&fid=" + fid + "&pic=" + file_name + "&vfwebqq="+ CaptchaInfo::singleton()->vfwebqq() + "&t="+time;
+    info.url = "/cgi-bin/get_group_pic?type=0&gid=" + gcode + "&uin=" + uin + "&rip=" +rip + "&rport=" + rport + "&fid=" + fid + "&pic=" + file_name + "&vfwebqq="+ CaptchaInfo::instance()->vfwebqq() + "&t="+time;
     info.host = "web.qq.com";
 
     lock_.lock();
@@ -102,7 +102,7 @@ QByteArray ImgLoader::getImgUrl(const LoadInfo &info) const
     req.create(kGet, info.url);
     req.addHeaderItem("Host", info.host);
     req.addHeaderItem("Referer", "http://web.qq.com");
-    QString c = CaptchaInfo::singleton()->cookie().mid(0, CaptchaInfo::singleton()->cookie().length()-2);
+    QString c = CaptchaInfo::instance()->cookie().mid(0, CaptchaInfo::instance()->cookie().length()-2);
     qDebug()<<c<<endl;
     req.addHeaderItem("Cookie", c);
 
@@ -137,7 +137,7 @@ QByteArray ImgLoader::requestImgData(QString host, QString request_url)
     req.create(kGet, request_url);
     req.addHeaderItem("Host", host);
     req.addHeaderItem("Referer", "http://web.qq.com");
-    req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+    req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
 
     QTcpSocket fd;
     fd.connectToHost(host, 80);

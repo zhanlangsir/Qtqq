@@ -47,6 +47,15 @@ public:
             server_port_ = server_port;
     }
 
+    bool operator==(const QQChatItem &other)
+    {
+        if ( this->type_ == other.type_ &&
+             this->content_ == other.content_ )
+            return true;
+
+        return false;
+    }
+
 private:
     ChatItemType type_;
     QString content_ ;

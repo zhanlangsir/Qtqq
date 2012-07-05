@@ -39,7 +39,7 @@ void QQLoginCore::login(QString id, QString pwd, FriendStatus status)
     Request req;
     req.create(kGet, login_url);
     req.addHeaderItem("Host", "ptlogin2.qq.com");
-    req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+    req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
     req.addHeaderItem("Referer", "http://ui.ptlogin2.qq.com/cgi-bin/login?target=self&style=5&mibao_css=m_webqq&appid=1003903&enable_qlogin=0&no_verifyimg=1&s_url=http%3A%2F%2Fweb.qq.com%2Floginproxy.html&f_url=loginerroralert&strong_login=1&login_state=10&t=20120504001");
 
     fd_->connectToHost("ptlogin2.qq.com", 80);
@@ -95,9 +95,9 @@ void QQLoginCore::login(QString id, QString pwd, FriendStatus status)
             ptwebqq = value;
 
         if (key == "skey")
-            CaptchaInfo::singleton()->set_skey(value);
+            CaptchaInfo::instance()->set_skey(value);
 
-        CaptchaInfo::singleton()->set_cookie(CaptchaInfo::singleton()->cookie() + key + "=" + value + ";");
+        CaptchaInfo::instance()->set_cookie(CaptchaInfo::instance()->cookie() + key + "=" + value + ";");
     }
 
     getLoginInfo(ptwebqq);
@@ -156,7 +156,7 @@ QQLoginCore::AccountStatus QQLoginCore::checkState(QString id)
         int cookie_idx = result.indexOf("ptvfsession");
         int idx = result.indexOf(';', cookie_idx)+1;
         qDebug()<<"cookie"<<result.mid(cookie_idx, idx - cookie_idx)<<endl;
-        CaptchaInfo::singleton()->set_cookie(result.mid(cookie_idx, idx - cookie_idx));
+        CaptchaInfo::instance()->set_cookie(result.mid(cookie_idx, idx - cookie_idx));
 
         return kNormal;
     }
@@ -190,7 +190,7 @@ QPixmap QQLoginCore::getCapImg()
     
     int cookie_idx = result.indexOf("Set-Cookie") + 12;
     int idx = result.indexOf(';', cookie_idx)+1;
-    CaptchaInfo::singleton()->set_cookie(result.mid(cookie_idx, idx - cookie_idx));
+    CaptchaInfo::instance()->set_cookie(result.mid(cookie_idx, idx - cookie_idx));
 
     QPixmap pix;
     pix.loadFromData(result.mid(result.indexOf("\r\n\r\n") + 4));
@@ -233,7 +233,7 @@ void QQLoginCore::getLoginInfo(QString ptwebqq)
     Request req;
     req.create(kPost, login_info_path);
     req.addHeaderItem("Host", "d.web2.qq.com");
-    req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+    req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
     req.addHeaderItem("Referer", "http://d.web2.qq.com/channel/login2");
     req.addHeaderItem("Content-Length", QString::number(msg.length()));
     req.addHeaderItem("Content-Type", "application/x-www-form-urlencoded");
@@ -251,11 +251,11 @@ void QQLoginCore::getLoginInfoDone()
     int vfwebqq_f_idx = result.indexOf("vfwebqq") + 10;
     int vfwebqq_s_idx = result.indexOf(',', vfwebqq_f_idx) - 1;
 
-    CaptchaInfo::singleton()->set_vfwebqq(result.mid(vfwebqq_f_idx, vfwebqq_s_idx - vfwebqq_f_idx));
+    CaptchaInfo::instance()->set_vfwebqq(result.mid(vfwebqq_f_idx, vfwebqq_s_idx - vfwebqq_f_idx));
 
     int psessionid_f_idx = result.indexOf("psessionid") + 13;
     int  psessionid_s_idx = result.indexOf(',',  psessionid_f_idx) - 1;
-    CaptchaInfo::singleton()->set_psessionid(result.mid( psessionid_f_idx,  psessionid_s_idx -  psessionid_f_idx));
+    CaptchaInfo::instance()->set_psessionid(result.mid( psessionid_f_idx,  psessionid_s_idx -  psessionid_f_idx));
 
     emit sig_loginDone(kSucess);
 }

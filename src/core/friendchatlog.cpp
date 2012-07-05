@@ -21,7 +21,7 @@ FriendChatLog::FriendChatLog(QString to_id):
 
 QVector<ShareQQMsgPtr> FriendChatLog::getLog(int page)
 {
-    QString url = "/cgi-bin/webqq_chat/?cmd=1&tuin=" + to_id_ + "&vfwebqq="+ CaptchaInfo::singleton()->vfwebqq() +"&page="+ QString::number(page_count_ - page + 1) +
+    QString url = "/cgi-bin/webqq_chat/?cmd=1&tuin=" + to_id_ + "&vfwebqq="+ CaptchaInfo::instance()->vfwebqq() +"&page="+ QString::number(page_count_ - page + 1) +
             "&row=10&callback=alloy.app.chatLogViewer.rederChatLog&t=" +
             QString::number(QDateTime::currentMSecsSinceEpoch());
 
@@ -30,7 +30,7 @@ QVector<ShareQQMsgPtr> FriendChatLog::getLog(int page)
     req.addHeaderItem("Host", "web.qq.com");
     req.addHeaderItem("Connection", "keep-alive");
     req.addHeaderItem("Referer", "http://web.qq.com/");
-    req.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+    req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
 
     QTcpSocket fd;
     fd.connectToHost("web.qq.com", 80);

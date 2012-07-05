@@ -43,12 +43,12 @@ void PollThread::run()
 PollThread::PollThread()
 {
     QString poll_path = "/channel/poll2";
-    QByteArray msg = "r={\"clientid\":\"5412354841\",\"psessionid\":\"" + CaptchaInfo::singleton()->psessionid().toAscii() + "\","
-        "\"key\":0,\"ids\":[]}&clientid=" + "5412354841" + "&psessionid=" + CaptchaInfo::singleton()->psessionid().toAscii();
+    QByteArray msg = "r={\"clientid\":\"5412354841\",\"psessionid\":\"" + CaptchaInfo::instance()->psessionid().toAscii() + "\","
+        "\"key\":0,\"ids\":[]}&clientid=" + "5412354841" + "&psessionid=" + CaptchaInfo::instance()->psessionid().toAscii();
 
     req_.create(kPost, poll_path);
     req_.addHeaderItem("Host", "d.web2.qq.com");
-    req_.addHeaderItem("Cookie", CaptchaInfo::singleton()->cookie());
+    req_.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
     req_.addHeaderItem("Referer", "http://d.web2.qq.com/proxy.html");
     req_.addHeaderItem("Content-Length", QString::number(msg.length()));
     req_.addHeaderItem("Content-Type", "application/x-www-form-urlencoded");
