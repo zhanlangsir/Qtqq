@@ -18,8 +18,8 @@
 #include "core/qqitem.h"
 #include "qqiteminfohelper.h"
 
-FriendChatDlg::FriendChatDlg(QString uin, QString from_name, QString avatar_path, QString send_url, QWidget *parent) :
-    QQChatDlg(uin, from_name, send_url, parent),
+FriendChatDlg::FriendChatDlg(QString uin, QString from_name, QString avatar_path, QWidget *parent) :
+    QQChatDlg(uin, from_name, parent),
     ui(new Ui::FriendChatDlg()),
     avatar_path_(avatar_path)
 {
@@ -28,9 +28,10 @@ FriendChatDlg::FriendChatDlg(QString uin, QString from_name, QString avatar_path
    set_type(QQChatDlg::kFriend);
 
    initUi();
-   updateSkin();
    initConnections();
+   updateSkin();
 
+   send_url_ = "/channel/send_buddy_msg2";
    convertor_.addUinNameMap(id_, name_);
 
    te_input_.setFocus();
@@ -99,74 +100,6 @@ void FriendChatDlg::getSingleLongNick(QString id)
          ui->lbl_mood_->setText(QString::fromStdString(root["result"][0]["lnick"].asString()));
     }
 }
-
-/*
-QString FriendChatDlg::converToJson(const QString &raw_msg)
-{
-    QString msg_template = "r={\"to\":" + id_ +",\"face\":525,"
-            "\"content\":\"[";
-
-    //提取<p>....</p>内容
-    QRegExp p_reg("(<p.*</p>)");
-    p_reg.setMinimal(true);
-
-    int pos = 0;
-    while ( (pos = p_reg.indexIn(raw_msg, pos)) != -1 )
-    {
-        QString content = p_reg.cap(0);
-        while (!content.isEmpty())
-        {
-            if (content[0] == '<')
-            {
-                int match_end_idx = content.indexOf('>')+1;
-                QString single_chat_item = content.mid(0, match_end_idx);
-
-                int img_idx = single_chat_item.indexOf("src");
-                if (img_idx != -1)
-                {
-                    img_idx += 5;
-                    int img_end_idx = content.indexOf("\"", img_idx);
-                    QString src = content.mid(img_idx, img_end_idx - img_idx);
-
-                    if (src.contains(kQQFacePre))
-                    {
-                        msg_template.append("[\\\"face\\\"," + src.mid(kQQFacePre.length()) + "],");
-                    }
-                    else
-                    {
-                        msg_template.append("[\\\"offpic\\\",\\\""+ id_file_hash_[src].network_path + "\\\",\\\""+ id_file_hash_[src].name + "\\\"," + QString::number(id_file_hash_[src].size) + "],");
-                    }
-                }
-
-                content = content.mid(match_end_idx);
-            }
-            else
-            {
-                int idx = content.indexOf("<");
-                //&符号的html表示为&amp;而在json中为%26,所以要进行转换
-                QString word = content.mid(0,idx);
-                jsonEncoding(word);
-                msg_template.append("\\\"" + word + "\\\",");
-                if (idx == -1)
-                    content = "";
-                else
-                    content = content.mid(idx);
-            }
-        }
-
-        msg_template.append("\\\"\\\\n\\\",");
-        pos += p_reg.cap(0).length();
-    }
-
-    msg_template = msg_template +
-            "[\\\"font\\\",{\\\"name\\\":\\\"%E5%AE%8B%E4%BD%93\\\",\\\"size\\\":\\\"10\\\",\\\"style\\\":[0,0,0],\\\"color\\\":\\\"000000\\\"}]]\","
-            "\"msg_id\":" + QString::number(msg_id_++) + ",\"clientid\":\"5412354841\","
-            "\"psessionid\":\""+ CaptchaInfo::singleton()->psessionid() +"\"}"
-            "&clientid=5412354841&psessionid="+CaptchaInfo::singleton()->psessionid();
-    //msg_template.replace("/", "%2F");
-    return msg_template;
-}
-*/
 
 ImgSender* FriendChatDlg::getImgSender() const
 {

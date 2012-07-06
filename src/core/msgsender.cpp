@@ -1,15 +1,15 @@
-#include "qqmsgsender.h"
+#include "msgsender.h"
 
 #include <QTcpSocket>
 #include <QDebug>
 
-void QQMsgSender::send(const Request &req)
+void MsgSender::send(const Request &req)
 {
     msgs_be_send_.enqueue(req);
     start();
 }
 
-void QQMsgSender::run()
+void MsgSender::run()
 {  
     while (msgs_be_send_.count() != 0)
     {

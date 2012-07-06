@@ -106,6 +106,11 @@ QQMsg* ParseThread::createMsg(QString type, const Json::Value result)
        return createGroupMsg(result);
     }
     else
+//    if ( type == "sess_message" )
+//    {
+//        return createSessMsg(result);
+//    }
+//    else
     if (type == "buddies_status_change")
     {
         return createBuddiesStatusChangeMsg(result);
@@ -230,6 +235,58 @@ QQMsg *ParseThread::createGroupMsg(const Json::Value &result) const
     return g_chat_msg;
 }
 
+QQMsg *ParseThread::createSessMsg(const Json::Value &result) const
+{
+    QQSessChatMsg *chat_msg = new QQSessChatMsg();
+    chat_msg->set_type(QQMsg::kSess);
+    chat_msg->from_uin_ = QString::number(result["value"]["from_uin"].asLargestInt());
+    chat_msg->gid_ = QString::number(result["value"]["id"].asLargestInt());
+    chat_msg->msg_id_ = QString::number(result["value"]["msg_id"].asInt());
+    chat_msg->to_uin_ = QString::number(result["value"]["to_uin"].asLargestInt());
+    chat_msg->color_ = QString::fromStdString(result["value"]["content"][0][1]["color"].asString());
+    chat_msg->size_ = result["value"]["content"][0][1]["size"].asInt();
+    chat_msg->time_ = result["value"]["time"].asLargestInt();
+    chat_msg->font_name_ = QString::fromStdString(result["value"]["content"][0][1]["name"].asString());
+
+    for (unsigned int i = 1; i < result["value"]["content"].size(); ++i)
+    {
+        QQChatItem item;
+        Json::Value content = result["value"]["content"][i];
+
+        if (content.type() == Json::stringValue)
+        {
+            if ( isChatContentEmpty(QString::fromStdString(content.asString())) )
+                continue;
+
+            item.set_type(QQChatItem::kWord);
+            item.set_content(QString::fromStdString(content.asString()));
+        }
+        else
+        {
+            QString face_type =  QString::fromStdString(content[0].asString());
+
+            if (face_type == "face")
+            {
+                item.set_type(QQChatItem::kQQFace);
+                item.set_content(QString::number(content[1].asInt()));
+            }
+            else if (face_type == "offpic")
+            {
+                item.set_type(QQChatItem::kFriendOffpic);
+                item.set_content(QString::fromStdString(content[1]["file_path"].asString()));
+            }
+            else
+            {
+                item.set_type(QQChatItem::kFriendCface);
+                item.set_content(QString::fromStdString(content[1].asString()));
+            }
+        }
+        chat_msg->msg_.append(item);
+    }
+
+    return chat_msg;
+}
+
 QQMsg *ParseThread::createBuddiesStatusChangeMsg(const Json::Value &result) const
 {
     QQStatusChangeMsg *status_msg = new QQStatusChangeMsg();
@@ -279,5 +336,6 @@ bool ParseThread::isChatContentEmpty(QString content) const
 
 ParseThread::ParseThread()
 {
+    setTerminationEnabled(true);
     qRegisterMetaType<ShareQQMsgPtr>("ShareQQMsgPtr");
 }

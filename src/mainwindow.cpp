@@ -46,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
     poll_thread_(NULL),
     parse_thread_(NULL),
     message_queue_(new QQueue<QByteArray>()),
-    msg_tip_(new MsgTip(this)),
+    msg_tip_(new MsgTip()),
     msg_center_(new MsgCenter(msg_tip_)),
     open_chat_dlg_sc_(NULL)
 {
@@ -64,7 +64,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
 
-    connect(msg_tip_, SIGNAL(activatedChatDlg(QQMsg::MsgType, QString, QString)), this, SLOT(openChatDlg(QQMsg::MsgType,QString, QString)));
     connect(msg_tip_, SIGNAL(activateFriendRequestDlg(ShareQQMsgPtr)), this, SLOT(openFriendRequestDlg(ShareQQMsgPtr)));
     connect(msg_tip_, SIGNAL(activateGroupRequestDlg(ShareQQMsgPtr)), this, SLOT(openGroupRequestDlg(ShareQQMsgPtr)));
     
@@ -106,11 +105,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    main_http_->close();
-
-    if ( poll_thread_ )
-        poll_thread_->terminate();
-
     delete ui;
 }
 
@@ -120,10 +114,32 @@ void MainWindow::slot_logout()
     this->hide();
     SystemTray::instance()->hide();
 
+    if ( msg_tip_ )
+        msg_tip_->deleteLater();
+    msg_tip_ = NULL;
+
+    if ( chat_manager_ )
+        chat_manager_->deleteLater();
+    chat_manager_ = NULL;
+
+    if ( msg_center_ )
+        msg_center_->deleteLater();
+    msg_center_ = NULL;
+
     if ( poll_thread_ )
+    {
         poll_thread_->terminate();
+        poll_thread_->deleteLater();
+        poll_thread_ = NULL;
+    }
     if (parse_thread_)
-        parse_thread_->quit();
+    {
+        parse_thread_->terminate();
+        parse_thread_->deleteLater();
+        parse_thread_ = NULL;
+    }
+
+    main_http_->close();
     emit sig_logout();
 }
 
@@ -166,10 +182,6 @@ void MainWindow::changeFriendStatus(QString id, FriendStatus status, ClientType 
 
 void MainWindow::closeEvent(QCloseEvent *)
 {
-    if ( chat_manager_ )
-        delete chat_manager_;
-    chat_manager_ = NULL;
-
     if (QFile::exists("qqgroupdb"))
     {
         QFile::remove("qqgroupdb");
@@ -501,17 +513,5 @@ void MainWindow::openGroupRequestDlg(ShareQQMsgPtr msg)
     else
     {
 
-    }
-}
-
-void MainWindow::openChatDlg(QQMsg::MsgType type, QString id, QString gcode)
-{
-    if (type == QQMsg::kFriend)
-    {
-        chat_manager_->openFriendChatDlg(id);
-    }
-    else //kGroup
-    {
-        chat_manager_->openGroupChatDlg(id, gcode);
     }
 }

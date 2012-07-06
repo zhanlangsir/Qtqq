@@ -30,6 +30,8 @@ SystemTray::SystemTray(QObject *parent) :
     menu_(NULL),
     msg_tip_(NULL)
 {
+    check_cursor_pos_.setInterval(500);
+    connect(&check_cursor_pos_, SIGNAL(timeout()), this, SLOT(checkCursorPos()));
     tray_icon_ = gtk_status_icon_new_from_file("/home/zhanlang/projs/qtqq/skins/default/misc/qtqq.ico");
 
     g_signal_connect(G_OBJECT(tray_icon_), "activate",
@@ -104,6 +106,18 @@ void SystemTray::flicker(bool flicker)
     gtk_status_icon_set_blinking(tray_icon_, flicker);
 }
 
+
+void SystemTray::checkCursorPos()
+{
+    QPoint pos = QCursor::pos();
+
+    if ( qAbs(pos.x() - tray_pos_.x()) > 25 )
+    {
+         hideMsgTip();
+         check_cursor_pos_.stop();
+    }
+}
+
 static void gtkTrayIconActived(GtkStatusIcon *status_icon, gpointer user_data)
 {
     Q_UNUSED(status_icon)
@@ -135,7 +149,10 @@ static gboolean gtkQueryToolTip(GtkStatusIcon *status_icon,
     Q_UNUSED(tooltip)
     Q_UNUSED(user_data)
 
-    SystemTray::instance()->showMsgTip(QCursor::pos());
+    SystemTray *tray = SystemTray::instance();
+    tray->setTrayPos(QCursor::pos());
+    tray->beginCheckCursorPos();
+    tray->showMsgTip(QCursor::pos());
     return false;
 }
 

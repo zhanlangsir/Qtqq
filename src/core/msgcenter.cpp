@@ -28,12 +28,13 @@ void MsgCenter::run()
             break;
         }
 
+        case QQMsg::kSess:
         case QQMsg::kFriend:
         case QQMsg::kGroup:
         {
             if (msg->type() == QQMsg::kFriend)
                 emit friendChatMsgArrive(msg->talkTo());
-            else
+            else if (msg->type() == QQMsg::kGroup)
                 emit groupChatMsgArrive(msg->talkTo());
 
             bool is_msg_processed = false;

@@ -6,7 +6,7 @@
 #include "../mainwindow.h"
 #include "../groupchatdlg.h"
 #include "../friendchatdlg.h"
-#include "../groupchatdlg.h"
+#include "../sesschatdlg.h"
 #include "../frienditemmodel.h"
 #include "../groupitemmodel.h"
 #include "groupmsgencoder.h"
@@ -15,11 +15,6 @@
 #include "nameconvertor.h"
 #include "msgcenter.h"
 #include "qqitem.h"
-
-
-const QString ChatManager::kFriendSendUrl = "/channel/send_buddy_msg2";
-const QString ChatManager::kGroupSendUrl =  "/channel/send_qun_msg2";
-const QString ChatManager::kSessSendUrl = "/channel/send_sess_msg2";
 
 ChatManager::ChatManager(MainWindow *main_win, const NameConvertor *convertor) :
     main_win_(main_win),
@@ -43,7 +38,7 @@ void ChatManager::openFriendChatDlg(QString id)
     QQChatDlg *dlg = NULL;
     QString avatar_path = getFriendAvatarPath(id);
 
-    dlg= new FriendChatDlg(id, convertor_->convert(id), avatar_path, kFriendSendUrl);
+    dlg= new FriendChatDlg(id, convertor_->convert(id), avatar_path);
     MsgEncoder *encoder = new FriendMsgEncoder(dlg);
     dlg->setMsgEncoder(encoder);
 
@@ -67,7 +62,7 @@ void ChatManager::openGroupChatDlg(QString id, QString gcode)
 
     QString avatar_path = getGroupAvatarPath(id);
 
-    dlg = new GroupChatDlg(id, convertor_->convert(id), gcode, avatar_path, kGroupSendUrl, this, main_win_);
+    dlg = new GroupChatDlg(id, convertor_->convert(id), gcode, avatar_path, this, main_win_);
     MsgEncoder *encoder = new GroupMsgEncoder(dlg);
     dlg->setMsgEncoder(encoder);
 
@@ -91,12 +86,17 @@ void ChatManager::openSessChatDlg(QString id, QString group_id)
     QQChatDlg *dlg = NULL;
 
     GroupChatDlg* group_dlg = static_cast<GroupChatDlg *>(findChatDlg(group_id));
-    QQItem *info = group_dlg->model()->find(id);
+
+    const QQItemModel *model = group_dlg->model();
+    if ( !model )
+        return;
+
+    QQItem *info = model->find(id);
 
     if ( !info )
         return;
 
-    dlg = new FriendChatDlg(id, info->markName(), info->avatarPath(), kSessSendUrl);
+    dlg = new SessChatDlg(id, info->markName(), info->avatarPath(), group_dlg->name());
     MsgEncoder *encoder = new SessMsgEncoder(dlg, group_dlg->code(), group_dlg->msgSig());
     dlg->setMsgEncoder(encoder);
 

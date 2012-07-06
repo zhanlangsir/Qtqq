@@ -46,6 +46,7 @@ void MsgBrowse::onLinkClicked(const QUrl &url)
     QRegExp sender_reg("\\[(.*)\\]");
     if ( sender_reg.indexIn(url.toString()) != -1 )
     {
+        return;  //暂时关闭此功能
         qDebug()<<"open chatdlg"<<sender_reg.cap(1)<<endl;
         emit senderLinkClicked(sender_reg.cap(1));
     }
@@ -84,11 +85,21 @@ void MsgBrowse::appendContent(QString content, const ShowOptions &options)
         QRegExp link_reg("((http|https)://|www\\.)[0-9A-Za-z:/\\.?=\\-_&{}#]*");
         QString a_templace = "<a href=\"";
 
-        if ( link_reg.indexIn(content) != -1 )
+        int pos = 0;
+        while ( (pos = link_reg.indexIn(content, pos)) != -1 )
+        {
             if ( link_reg.cap(2).isEmpty() )
                 a_templace += "http://";
 
-        content.replace(link_reg, a_templace  + link_reg.cap(0) + "\">" + link_reg.cap(0)+ "</a>");
+            QString after = a_templace  + link_reg.cap(0) + "\">" + link_reg.cap(0)+ "</a>";
+            qDebug()<<link_reg.cap(0)<<endl;
+            qDebug()<<link_reg.cap(0).length()<<endl;
+            qDebug()<<after.length()<<endl;
+            content.replace(link_reg.cap(0), after);
+            qDebug()<<content.length()<<endl;
+
+            pos += after.length();
+        }
     }
 
     bool is_combine = ifCombineMsg(options);

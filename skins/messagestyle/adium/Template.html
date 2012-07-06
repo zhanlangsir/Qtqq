@@ -16,7 +16,12 @@
 
         function replaceIdToName(id, name)
         {
-            var element = document.getElementById('sender');
+            var elements = document.getElementsByName('sender');
+            for (var i=0; i<elements.length; i++ ) {
+                if (elements[i].innerHTML == (id) ) {
+                    elements[i].innerHTML = name;
+                }
+            }
             element.innerHTML = name;
         }
 

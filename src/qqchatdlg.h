@@ -10,7 +10,7 @@
 #include "core/types.h"
 #include "core/nameconvertor.h"
 #include "core/qqmsglistener.h"
-#include "core/qqmsgsender.h"
+#include "core/msgsender.h"
 #include "msgbrowse.h"
 #include "qqfacepanel.h"
 #include "qqtextedit.h"
@@ -33,8 +33,8 @@ signals:
     void msgSended(QString to_uin, bool ok);
 
 public:
-    enum ChatDlgType {kGroup, kFriend};
-    QQChatDlg(QString id, QString name, QString send_url, QWidget *parent = 0);
+    enum ChatDlgType {kGroup, kFriend, kSess};
+    QQChatDlg(QString id, QString name, QWidget *parent = 0);
     virtual ~QQChatDlg();
 
 public:
@@ -73,9 +73,9 @@ protected:
     MsgBrowse msgbrowse_;
     QQTextEdit te_input_;
     QHash<QString, FileInfo> id_file_hash_;
+    QString send_url_;
 
     QString id_;
-    //int msg_id_;
     QString name_;
     QTcpSocket fd_;
     QVector<QString> unconvert_ids_;
@@ -105,10 +105,9 @@ private:
     ImgSender *img_sender_;
     ImgLoader *img_loader_;
     QQFacePanel *qqface_panel_;
-    QQMsgSender *msg_sender_;
+    MsgSender *msg_sender_;
     MsgEncoder *msg_encoder_;
 
-    QString send_url_;
     ChatDlgType type_;
     
     QAction *act_return_;

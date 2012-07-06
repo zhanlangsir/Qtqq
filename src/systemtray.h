@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QPoint>
+#include <QTimer>
 
 #include "msgtip.h"
 
@@ -47,9 +48,21 @@ public:
             msg_tip_->show(pos);
         }
     }
+    void hideMsgTip()
+    {
+        if ( msg_tip_ )
+            msg_tip_->hide();
+    }
 
     void setIcon(const QString &file_path);
     void setContextMenu(TrayMenu *menu);
+
+    void setTrayPos(QPoint pos)
+    { tray_pos_ = pos; }
+    void beginCheckCursorPos()
+    {
+        check_cursor_pos_.start();
+    }
 
     void showMenu();
     void emitActivated();
@@ -61,6 +74,8 @@ public slots:
     void slotNewUncheckMsgArrived();
     void slotUncheckMsgEmpty();
 
+    void checkCursorPos();
+
 private:
     SystemTray(QObject *parent = 0);
 
@@ -69,6 +84,8 @@ private:
 
     GtkStatusIcon *tray_icon_;
     TrayMenu *menu_;
+    QPoint tray_pos_;
+    QTimer check_cursor_pos_;
 
     MsgTip *msg_tip_;
 };

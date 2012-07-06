@@ -29,8 +29,8 @@
 #include "mainwindow.h"
 
 GroupChatDlg::GroupChatDlg(QString gid, QString name, QString group_code, QString avatar_path,
-                           QString send_url, ChatManager *chat_manager, MainWindow *main_win, QWidget *parent) :
-    QQChatDlg(gid, name, send_url, parent),
+                           ChatManager *chat_manager, MainWindow *main_win, QWidget *parent) :
+    QQChatDlg(gid, name, parent),
     ui(new Ui::GroupChatDlg()),
     group_code_(group_code),
     model_(NULL),
@@ -44,6 +44,8 @@ GroupChatDlg::GroupChatDlg(QString gid, QString name, QString group_code, QStrin
    initUi();  
    updateSkin();
    initConnections();
+
+   send_url_ =  "/channel/send_qun_msg2";
 
    te_input_.setFocus();
    getGfaceSig();

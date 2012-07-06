@@ -61,6 +61,8 @@ public:
     { return msg_tip_; }
     MsgCenter* msgCenter() const
     { return msg_center_; }
+    ChatManager *chatManager() const
+    { return chat_manager_; }
 
 protected:
     void closeEvent(QCloseEvent *);
@@ -71,7 +73,6 @@ private slots:
     void getGroupListDone(bool err);
     void getOnlineBuddyDone(bool err);
     void getRecentListDone(bool err);
-    void openChatDlg(QQMsg::MsgType type, QString gid, QString gcode);
     void openChatDlgByDoubleClick(const QModelIndex& index);
     void openFriendRequestDlg(ShareQQMsgPtr msg);
     void openGroupRequestDlg(ShareQQMsgPtr msg);

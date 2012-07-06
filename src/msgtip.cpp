@@ -12,6 +12,9 @@
 #include "mainwindow.h"
 #include "frienditemmodel.h"
 #include "groupitemmodel.h"
+#include "core/qqitem.h"
+#include "qqiteminfohelper.h"
+#include "jsoncpp/include/json.h"
 
 MsgTip::MsgTip(QWidget *parent) :
     QWidget(parent),
@@ -19,7 +22,7 @@ MsgTip::MsgTip(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowOpacity(1);
-    setWindowFlags(Qt::WindowStaysOnTopHint | Qt::Popup | Qt::FramelessWindowHint);
+    setWindowFlags(Qt::WindowStaysOnTopHint | Qt::Dialog | Qt::FramelessWindowHint);
     qRegisterMetaType<SoundPlayer::SoundType>("SoundPlayer::SoundType");
 
     connect(ui->uncheckmsglist, SIGNAL(clicked(const QModelIndex&)), this, SLOT(slotActivated(const QModelIndex&)));
@@ -87,6 +90,18 @@ void MsgTip::addItem(ShareQQMsgPtr msg)
         trayIcon->showMessage("[" + convertor_->convert(msg->sendUin()) + "]" + "request to enter group [" + convertor_->convert(msg->sendUin()), msg->msg(),  200);
     }
         break;
+    case QQMsg::kSess:
+    {
+        QString name;
+        QString token;
+        getStrangerInfo(msg->sendUin(), msg->talkTo(), name, token);
+        QListWidgetItem *item = new QListWidgetItem(name);
+        item->setData(Qt::UserRole, QVariant::fromValue(msg));
+        ui->uncheckmsglist->addItem(item);
+
+        trayIcon->showMessage("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", msg->msg(), 200);
+        break;
+    }
     case QQMsg::kFriend:
     {
         //QListWidgetItem *item = new QListWidgetItem("[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]");
@@ -112,6 +127,22 @@ void MsgTip::addItem(ShareQQMsgPtr msg)
     int item_height = 25;
     this->resize(this->width(), ui->uncheckmsglist->count() * item_height);
     emit newUncheckMsgArrived();
+}
+
+bool MsgTip::getStrangerInfo(QString id, QString gid, QString &name, QString &token) const
+{
+    QByteArray info = QQItemInfoHelper::getStrangetInfo2(id, gid);
+
+    Json::Reader reader;
+    Json::Value root;
+
+    if (!reader.parse(QString(info).toStdString(), root, false))
+    {
+        return false;
+    }
+
+    name = QString::fromStdString(root["result"]["nick"].asString());
+    token = QString::fromStdString(root["result"]["token"].asString());
 }
 
 void MsgTip::removeItem(QString id)
@@ -172,9 +203,14 @@ void MsgTip::activatedChat(int i)
 
     switch (msg->type())
     {
+    case QQMsg::kSess:
+        main_win_->chatManager()->openSessChatDlg(msg->sendUin(), msg->talkTo());
+        break;
     case QQMsg::kFriend:
+        main_win_->chatManager()->openFriendChatDlg(msg->sendUin());
+        break;
     case QQMsg::kGroup:
-        emit activatedChatDlg(msg->type(), msg->talkTo(), msg->gCode());
+        main_win_->chatManager()->openGroupChatDlg(msg->talkTo(), msg->gCode());
         break;
     case QQMsg::kSystem:
         emit activateFriendRequestDlg(msg);

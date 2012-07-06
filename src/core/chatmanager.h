@@ -32,10 +32,6 @@ private:
     QVector<QQChatDlg*> opening_chatdlg_;
     MainWindow *main_win_;
     const NameConvertor *convertor_;
-
-    const static QString kFriendSendUrl;
-    const static QString kGroupSendUrl;
-    const static QString kSessSendUrl;
 };
 
 #endif // QTQQ_CORE_CHATMANAGER_H

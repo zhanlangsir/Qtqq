@@ -29,6 +29,7 @@ private:
     QQMsg *createMsg(QString type, const Json::Value result);
     QQMsg *createFriendMsg(const Json::Value &result) const;
     QQMsg *createGroupMsg(const Json::Value &result) const;
+    QQMsg *createSessMsg(const Json::Value &result) const;
     QQMsg *createBuddiesStatusChangeMsg(const Json::Value &result) const;
     QQMsg *createSystemGroupMsg(const Json::Value &result) const;
     QQMsg *createSystemMsg(const Json::Value &result) const;

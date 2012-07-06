@@ -55,13 +55,11 @@ HEADERS += friendinfodlg.h \
            core/groupimgsender.h \
            core/imgloader.h \
            core/imgsender.h \
-           core/msgsender.h \
            core/nameconvertor.h \
            core/qqavatarrequester.h \
            core/qqlogincore.h \
            core/qqmsg.h \
            core/qqmsglistener.h \
-           core/qqmsgsender.h \
            core/parsethread.h \
            core/pollthread.h \
            core/qqutility.h \
@@ -91,7 +89,9 @@ HEADERS += friendinfodlg.h \
     core/groupmsgencoder.h \
     core/friendmsgencoder.h \
     core/sessmsgencoder.h \
-    core/chatmanager.h
+    core/chatmanager.h \
+    core/msgsender.h \
+    sesschatdlg.h
 
 
 SOURCES += friendinfodlg.cpp \
@@ -121,7 +121,6 @@ SOURCES += friendinfodlg.cpp \
            core/qqavatarrequester.cpp \
            core/qqlogincore.cpp \
            core/qqmsg.cpp \
-           core/qqmsgsender.cpp \
            core/parsethread.cpp \
            core/pollthread.cpp \
            core/request.cpp \
@@ -150,7 +149,9 @@ SOURCES += friendinfodlg.cpp \
     core/groupmsgencoder.cpp \
     core/friendmsgencoder.cpp \
     core/sessmsgencoder.cpp \
-    core/chatmanager.cpp
+    core/chatmanager.cpp \
+    core/msgsender.cpp \
+    sesschatdlg.cpp
 
 FORMS += ui/captcha.ui \
          ui/friendinfodlg.ui \
@@ -163,3 +164,4 @@ FORMS += ui/captcha.ui \
          ui/mainwindow.ui \
          ui/msgtip.ui \
          ui/chatlogwin.ui \
+    ui/sesschatdlg.ui

@@ -23,7 +23,7 @@
 
 #include "core/msgencoder.h"
 
-QQChatDlg::QQChatDlg(QString id, QString name, QString send_url, QWidget *parent) :
+QQChatDlg::QQChatDlg(QString id, QString name, QWidget *parent) :
     QWidget(parent),
     id_(id),
     name_(name),
@@ -32,7 +32,6 @@ QQChatDlg::QQChatDlg(QString id, QString name, QString send_url, QWidget *parent
     qqface_panel_(NULL),
     msg_sender_(NULL),
     msg_encoder_(NULL),
-    send_url_(send_url),
     sc_close_win_(NULL)
 {
     setObjectName("chatWindow");
@@ -423,7 +422,7 @@ void QQChatDlg::sendMsg()
 
     if (!msg_sender_)
     {
-        msg_sender_ = new QQMsgSender();
+        msg_sender_ = new MsgSender();
         connect(msg_sender_, SIGNAL(sendDone(bool, QString)), this, SLOT(onMsgSendDone(bool, QString)));
     }
     

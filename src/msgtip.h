@@ -21,11 +21,10 @@ class MsgTip : public QWidget
 {
     Q_OBJECT
 public:
-    MsgTip(QWidget *parent);
+    MsgTip(QWidget *parent = 0);
 
 signals:
     void newUncheckMsgArrived();
-    void activatedChatDlg(QQMsg::MsgType type, QString talk_to, QString gcode);
     void activateFriendRequestDlg(ShareQQMsgPtr msg);
     void activateGroupRequestDlg(ShareQQMsgPtr msg);
     void noUncheckMsg();
@@ -50,6 +49,7 @@ protected:
 
 private:
     void bibibi(SoundPlayer::SoundType type);
+    bool getStrangerInfo(QString id, QString gid, QString &name, QString &token) const;
 
 private:
     Ui::MsgTip *ui;

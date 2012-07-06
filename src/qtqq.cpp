@@ -47,7 +47,7 @@ void Qtqq::slot_showMainPanel()
 void Qtqq::restart()
 {
     mainpanel_->close();
-    mainpanel_->deleteLater();
+    delete mainpanel_;
     mainpanel_ = NULL;
 
     start();

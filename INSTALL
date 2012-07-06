@@ -1,0 +1,23 @@
+ubuntu下，下载好压缩包后解压，然后给qtqq文件添加可执行权限
+
+1.解除unity托盘图标限制,使用一下命令,其中qtqq是必须的，其他可自行修改
+gsettings set com.canonical.Unity.Panel systray-whitelist "['qtqq','ibus','fcitx', 'Update-notifier'] "
+
+命令意思可以看这里或者自行google：http://www.linuxidc.com/Linux/2011-06/37019.htm
+
+2.开启声音 由于QtSdk提供的QSound在linux下无法正常发声，而QAudioOutput发出的声音也是怪怪的，所以使用了mpg123来进行发声。就是说你必须安装mpg123. 
+
+ubuntu:
+sudo apt-get install mpg123
+
+fedora:
+ yum install mpg123 
+其他发行版应该也是一样，安装mpg123即可。
+
+3.安装qt运行库,ubuntu用户请无视这条，ubuntu自带qt运行库,其他发行版用户可以安装以下库:
+*   libqt4-core
+*   libqt4-gui
+*   libqt4-network
+*   libqt4-sql
+*   libqt4-webkit
+*   libqt4-xml

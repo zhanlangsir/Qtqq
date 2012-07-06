@@ -1,3 +1,21 @@
+/*
+（群消息）group_messageg:
+from_uin : gid(群id)
+to_uin : 当前登陆用户uin
+send_uin: 发送此消息的成员uin
+
+
+(临时会话)sess_message:
+from_uin : 发送此消息的成员uin
+to_uin : 当前登陆用户uin
+id : gid(群id)
+
+
+（好友消息）message:
+from_uin : from_uin
+to_uin : 当前登陆用户uin
+*/
+
 #ifndef QTQQ_CORE_QQMSG_H
 #define QTQQ_CORE_QQMSG_H
 
@@ -11,7 +29,7 @@
 class QQMsg
 {
 public:
-    enum MsgType{kGroup, kFriend, kBuddiesStatusChange, kSystem, kSystemG};
+    enum MsgType{kGroup, kFriend, kBuddiesStatusChange, kSystem, kSystemG, kSess};
     virtual ~QQMsg() {}
 
 public:
@@ -63,6 +81,17 @@ public:
     bool u_;
 
     QVector<QQChatItem> msg_;
+};
+
+class QQSessChatMsg : public QQChatMsg
+{
+public:
+    QString talkTo() const
+    { return gid_; }
+    QString sendUin() const
+    { return from_uin_; }
+
+    QString gid_;
 };
 
 class QQGroupChatMsg : public QQChatMsg

@@ -24,7 +24,8 @@ class GroupChatDlg : public QQChatDlg
 {
     Q_OBJECT
 public:
-    GroupChatDlg(QString gid, QString name, QString group_code, QString avatar_path, QString send_url, ChatManager *chat_manager, MainWindow *main_win, QWidget *parent = 0);
+    GroupChatDlg(QString gid, QString name, QString group_code, QString avatar_path,
+                 ChatManager *chat_manager, MainWindow *main_win, QWidget *parent = 0);
     ~GroupChatDlg();
 
 public:
@@ -40,6 +41,8 @@ public:
     { return msg_sig_; }
     const QQItemModel* model() const
     { return model_; }
+    QString name() const
+    { return name_; }
 
 protected:
     void closeEvent(QCloseEvent *);
