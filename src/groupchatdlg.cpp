@@ -14,7 +14,7 @@
 
 #include <assert.h>
 
-#include "jsoncpp/include/json.h"
+#include <json/json.h>
 
 #include "qqitemmodel.h"
 #include "core/qqutility.h"

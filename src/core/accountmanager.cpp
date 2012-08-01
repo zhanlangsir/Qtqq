@@ -4,7 +4,7 @@
 
 #include <QFile>
 
-#include "jsoncpp/include/json.h"
+#include <json/json.h>
 
 AccountManager::AccountManager() :
     save_path_("user.json")

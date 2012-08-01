@@ -5,7 +5,7 @@
 #include <QUrl>
 #include <qmath.h>
 
-#include "jsoncpp/include/json.h"
+#include <json/json.h>
 
 #include "request.h"
 #include "sockethelper.h"

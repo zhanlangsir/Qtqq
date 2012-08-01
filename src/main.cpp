@@ -3,9 +3,9 @@
 #include <QSettings>
 #include <QTranslator>
 
-#include "log4qt/src/log4qt/logger.h"
-#include "log4qt/src/log4qt/propertyconfigurator.h"
-#include "log4qt/src/log4qt/logmanager.h"
+#include "log4qt/logger.h"
+#include "log4qt/propertyconfigurator.h"
+#include "log4qt/logmanager.h"
 
 #include "qtqq.h"
 

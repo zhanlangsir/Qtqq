@@ -12,8 +12,8 @@
 #include <QSettings>
 #include <QEvent>
 
-#include "3rdparty/qxtglobalshortcut/qxtglobalshortcut.h"
-#include "jsoncpp/include/json.h"
+#include "qxtglobalshortcut.h"
+#include <json/json.h>
 
 #include "core/qqavatarrequester.h"
 #include "core/types.h"

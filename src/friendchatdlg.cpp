@@ -9,7 +9,7 @@
 #include <QFileDialog>
 #include <QRegExp>
 
-#include "jsoncpp/include/json.h"
+#include <json/json.h>
 
 #include "core/friendimgsender.h"
 #include "core/qqskinengine.h"

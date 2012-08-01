@@ -2,7 +2,7 @@
 
 #include "msgencoder.h"
 #include "../qqchatdlg.h"
-#include "core/captchainfo.h"
+#include "captchainfo.h"
 
 FriendMsgEncoder::FriendMsgEncoder(QQChatDlg *dlg) :
     MsgEncoder(dlg)

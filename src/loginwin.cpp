@@ -17,7 +17,7 @@
 
 #include "core/types.h"
 #include "core/request.h"
-#include "jsoncpp/include/json.h"
+#include <json/json.h>
 #include "core/qqsetting.h"
 #include "core/qqskinengine.h"
 
