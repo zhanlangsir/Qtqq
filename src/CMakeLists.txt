@@ -171,10 +171,29 @@ include_directories(${GTK2_INCLUDE_DIRS})
 
 add_definitions(${QT_DEFINITIONS})
 
+set(lang_SOURCES
+	${CORE_SOURCES}
+	${UI_SOURCES}
+	${UI_FILES_HEADERS}
+)
+
+set(TRANSLATIONS_FILES ${TRANSLATIONS_DIR}/zh_CN.ts)
+
+# TURN ON UPDATE_TRANSLATIONS will delete all the *.ts files
+# BE CAREFUL!
+option(UPDATE_TRANSLATIONS "Update source translation files" OFF)
+
+if (UPDATE_TRANSLATIONS)
+	QT4_CREATE_TRANSLATION(QM_FILES ${lang_SOURCES} ${TRANSLATIONS_FILES})
+else (UPDATE_TRANSLATIONS)
+	QT4_ADD_TRANSLATION(QM_FILES ${TRANSLATIONS_FILES})
+endif (UPDATE_TRANSLATIONS)
+
 add_executable(qtqq
 	${CORE_SOURCES} ${CORE_HEADERS_MOC}
 	${UI_SOURCES} ${UI_HEADERS_MOC}
 	${UI_FILES_HEADERS}
+	${QM_FILES}
 )
 
 target_link_libraries(qtqq
@@ -187,3 +206,5 @@ target_link_libraries(qtqq
 )
 
 install(TARGETS qtqq DESTINATION ${prefix}/bin)
+
+install(FILES ${QM_FILES} DESTINATION ${pkgdatadir}/translations)

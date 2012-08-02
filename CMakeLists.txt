@@ -35,6 +35,11 @@ include_directories(${PROJECT_BINARY_DIR})
 set(THIRD_PARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
 set(LOG4QT_INCLUDE_DIR ${THIRD_PARTY_DIR}/log4qt/src)
 set(QXGS_INCLUDE_DIR ${THIRD_PARTY_DIR}/qxtglobalshortcut)
+set(TRANSLATIONS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/data/translations)
+
+if (NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE "Release")
+endif()
 
 add_subdirectory(cmake)
 add_subdirectory(3rdparty)
