@@ -8,6 +8,7 @@
 #include "log4qt/logmanager.h"
 
 #include "qtqq.h"
+#include "config.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,19 +17,19 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForTr(codec);
     QTextCodec::setCodecForCStrings(codec);
 
-    QCoreApplication::setOrganizationName("FuckGFW");
+    QCoreApplication::setOrganizationName("QtqqTeam");
     QCoreApplication::setApplicationName("Qtqq");
 
     QApplication a(argc, argv);
     a.setQuitOnLastWindowClosed(false);
 
     QTranslator translator;
-    QString transla_file_path = "resources/translate/";
-    translator.load("qtqq_" + QLocale::system().name(), transla_file_path);
+    QString transla_file_path = PKG_DATA_DIR"/translations";
+    translator.load(QLocale::system().name(), transla_file_path);
     a.installTranslator(&translator);
 
     Log4Qt::LogManager::setHandleQtMessages(true);
-    Log4Qt::PropertyConfigurator::configure("log4qt.conf");
+    Log4Qt::PropertyConfigurator::configure(PKG_DATA_DIR"/log4qt.conf");
 
     Qtqq qtqq;
     qtqq.start();
