@@ -79,12 +79,12 @@ MainWindow::MainWindow(QWidget *parent) :
     convertor_.addUinNameMap(QQSettings::instance()->currLoginInfo().id, tr("you"));
     msg_tip_->setConvertor(&convertor_);
 
-    if (QFile::exists("qqgroupdb"))
+    if (QFile::exists(QQSettings::configDir() + "/qqgroupdb"))
     {
-        QFile::remove("qqgroupdb");
+        QFile::remove(QQSettings::configDir() + "/qqgroupdb");
     }
 
-    QSettings setting("options.ini", QSettings::IniFormat);
+    QSettings setting(QQSettings::configDir() + "/options.ini", QSettings::IniFormat);
     main_menu_ = new QMenu(this);
     act_mute_ = new QAction(tr("Mute"), main_menu_);
     act_mute_->setCheckable(true);
@@ -182,9 +182,9 @@ void MainWindow::changeFriendStatus(QString id, FriendStatus status, ClientType 
 
 void MainWindow::closeEvent(QCloseEvent *)
 {
-    if (QFile::exists("qqgroupdb"))
+    if (QFile::exists(QQSettings::configDir() + "/qqgroupdb"))
     {
-        QFile::remove("qqgroupdb");
+        QFile::remove(QQSettings::configDir() + "/qqgroupdb");
     }
 }
 

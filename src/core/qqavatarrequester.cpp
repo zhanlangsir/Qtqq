@@ -2,10 +2,12 @@
 
 #include <QFile>
 #include <QTcpSocket>
+#include <QDir>
 
 #include "request.h"
 #include "captchainfo.h"
 #include "sockethelper.h"
+#include "qqsetting.h"
 
 bool QQAvatarRequester::isRequesting(QString id) const
 {
@@ -76,7 +78,8 @@ void QQAvatarRequester::run()
         {
             id = item->gCode();
         }
-        QString fold_path = "temp/avatar/";
+        QString fold_path = QQSettings::tempPath() + "/avatar/";
+		QDir().mkdir(fold_path);
         QString full_path = requestOne(getTypeNumber(item->type()), id, fold_path);
 
         item->set_avatarPath(full_path);
