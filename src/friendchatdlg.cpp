@@ -4,8 +4,6 @@
 #include <QScrollBar>
 #include <QTextEdit>
 #include <QTextCursor>
-#include <QDebug>
-#include <QMouseEvent>
 #include <QFileDialog>
 #include <QRegExp>
 
@@ -108,6 +106,7 @@ ImgSender* FriendChatDlg::getImgSender() const
 
 void FriendChatDlg::getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const
 {
+    Q_UNUSED(id)
     name = name_;
     avatar_path = avatar_path_.isEmpty() ? QQSkinEngine::instance()->getSkinRes("default_friend_avatar") : avatar_path_;
     ok = true;

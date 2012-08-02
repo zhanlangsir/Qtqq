@@ -456,6 +456,7 @@ void QQChatDlg::openQQFacePanel()
     QPoint face_btn_pos = QCursor::pos();
     QRect qqface_panel_geometry = qqface_panel_->frameGeometry();
     int new_x = face_btn_pos.x() - qqface_panel_geometry.width() / 2;
+    if ( new_x < 0 ) new_x = 0;
     int new_y = face_btn_pos.y() - qqface_panel_geometry.height() + 5;
     qqface_panel_->setGeometry(new_x, new_y, qqface_panel_geometry.width(), qqface_panel_geometry.height());
     qqface_panel_->show();

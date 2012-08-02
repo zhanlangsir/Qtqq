@@ -19,6 +19,7 @@ class QQItem;
 class QQItemModel;
 class ChatManager;
 class MainWindow;
+class QModelIndex;
 
 class GroupChatDlg : public QQChatDlg
 {

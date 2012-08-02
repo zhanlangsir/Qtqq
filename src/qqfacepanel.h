@@ -1,22 +1,21 @@
-#pragma once
+#ifndef QTQQ_QQFACEPANEL_H
+#define QTQQ_QQFACEPANEL_H
+
+#include <QDialog>
 
 namespace Ui
 {
     class QQFacePanel;
 }
 
-#include <QDialog>
-#include <QTableWidgetItem>
+class QTableWidgetItem;
 
 class QQFacePanel : public QDialog
 {
     Q_OBJECT
-
 public:
     QQFacePanel(QWidget *parent = NULL);
     ~QQFacePanel();
-
-public:
 
 signals:
     void qqfaceClicked(QString id);
@@ -32,6 +31,10 @@ private:
 
 private:
     Ui::QQFacePanel *ui_;
-    static const int kPerColumn_ = 14;
     QString qqface_path_;
+
+    static const int kPerColumn_ = 15;
+    static int no2path[105];
 };
+
+#endif //QTQQ_QQFACEPANEL_H

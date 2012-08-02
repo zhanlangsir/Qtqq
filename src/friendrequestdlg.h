@@ -1,14 +1,15 @@
 #ifndef QTQQ_FRIENDREQUESTDLG_H
 #define QTQQ_FRIENDREQUESTDLG_H
 
+#include <QDialog>
+
+#include "core/qqmsg.h"
+
 namespace Ui
 {
     class FriendRequestDlg;
 }
 
-#include <QDialog>
-
-#include "core/qqmsg.h"
 
 class FriendItemModel;
 
@@ -16,7 +17,6 @@ class FriendRequestDlg:public QDialog
 {
     Q_OBJECT
 public:
-    //QQFriendRequestDlg(QWidget *parnet = 0);
     FriendRequestDlg(const ShareQQMsgPtr msg, FriendItemModel *model, QWidget *parent = 0);
 
 private slots:

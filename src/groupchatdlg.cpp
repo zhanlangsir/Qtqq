@@ -4,7 +4,6 @@
 #include <QScrollBar>
 #include <QDateTime>
 #include <QHttpRequestHeader>
-#include <QMouseEvent>
 #include <QDebug>
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -340,11 +339,13 @@ void GroupChatDlg::parseGroupMemberList(const QByteArray &array)
 
     Json::Value members = root["result"]["minfo"];
 
+    qDebug() << "Group:" << name_ << "member count:" << members.size() << endl;
     for (unsigned int i = 0; i < members.size(); ++i)
     {
         QString nick = QString::fromStdString(members[i]["nick"].asString());
         QString uin = QString::number(members[i]["uin"].asLargestInt());
 
+        qDebug() << "member:" << nick <<  ' ';
         QQItem *info = new QQItem(QQItem::kFriend, nick, uin, model_->rootItem());
         info->set_status(kOffline);
         model_->insertItem(info);
@@ -393,10 +394,12 @@ void GroupChatDlg::readFromSql()
     model_ = new QQItemModel();
     model_->setIconSize(QSize(25, 25));
 
+    int i = 0;
     while (query.next())
     {
         QString uin = query.value(0).toString();
         QString nick = query.value(2).toString();
+        qDebug()<<"inserted from sql:"<<i++<<nick<<endl;
         QString mark_name = query.value(3).toString();
         FriendStatus stat = (FriendStatus)query.value(4).toInt();
         QString avatar_path = query.value(5).toString();
@@ -432,7 +435,7 @@ void GroupChatDlg::replaceUnconverId()
 {
     foreach (QString id, unconvert_ids_)
     {
-        msgbrowse_.replaceIdToName(id, convertor_.convert(id));
+        msgbrowse_.replaceIdToName(id, findItemById(id)->markName());
     }
 }
 
@@ -499,14 +502,15 @@ void GroupChatDlg::writeMemberInfoToSql()
 
         if ( !exist_record_count )
         {
+            QString insert_command = "INSERT INTO groupmemberinfo VALUES (%1, %2, '%3', '%4', %5, '%6')";
             QSqlDatabase::database().transaction();
             for (int i = 0; i < model_->rootItem()->children_.count(); ++i)
             {
                 QQItem *item = model_->rootItem()->children_[i];
 
                 //uin, gid, name, mark name, status, avatar path
-                QString insert_command = "INSERT INTO groupmemberinfo VALUES (%1, %2, '%3', '%4', %5, '%6')";
                 query.exec(insert_command.arg(item->id()).arg(id_).arg(item->name()).arg(item->markName()).arg(item->status()).arg(item->avatarPath()));
+                qDebug() << "inserted:" << i << item->name() << ' ';
             }
             QSqlDatabase::database().commit();
         }

@@ -14,10 +14,14 @@ fedora:
  yum install mpg123 
 其他发行版应该也是一样，安装mpg123即可。
 
-3.安装qt运行库,ubuntu用户请无视这条，ubuntu自带qt运行库,其他发行版用户可以安装以下库:
+3.安装qt运行库,ubuntu用户请无视这条，ubuntu自带qt运行库,其他基于debain的发行版用户可以安装以下库:
 *   libqt4-core
 *   libqt4-gui
 *   libqt4-network
 *   libqt4-sql
 *   libqt4-webkit
 *   libqt4-xml
+
+fedora用户安装以下库:
+*   qt
+*   qtwebkit

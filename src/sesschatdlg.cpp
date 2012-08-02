@@ -82,6 +82,7 @@ ImgSender* SessChatDlg::getImgSender() const
 
 void SessChatDlg::getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const
 {
+    Q_UNUSED(id)
     name = name_;
     avatar_path = avatar_path_.isEmpty() ? QQSkinEngine::instance()->getSkinRes("default_friend_avatar") : avatar_path_;
     ok = true;

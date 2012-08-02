@@ -20,7 +20,7 @@ PKGCONFIG += x11
 PKGCONFIG += gtk+-2.0
 
 LIBS += -L../libs
-LIBS += -ljsoncpp -llog4qt -lqjson -lqxtglobalshortcut
+LIBS += -ljsoncpp -llog4qt -lqxtglobalshortcut
 
 OBJECTS_DIR = ../.intermediate/obj
 MOC_DIR = ../.intermediate/moc

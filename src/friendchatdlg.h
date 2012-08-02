@@ -12,8 +12,6 @@ namespace Ui
     class FriendChatDlg;
 }
 
-class QMouseEvent;
-
 class FriendChatDlg : public QQChatDlg
 {
     Q_OBJECT

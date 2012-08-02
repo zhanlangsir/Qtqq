@@ -1,12 +1,8 @@
 #include "msgtip.h"
 #include "ui_msgtip.h"
 
-#include <QDebug>
 #include <QVBoxLayout>
-#include <QCursor>
-#include <QMouseEvent>
 #include <QModelIndex>
-#include <QScrollBar>
 
 #include "systemtray.h"
 #include "mainwindow.h"

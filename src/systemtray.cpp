@@ -4,6 +4,7 @@
 #include <QDebug>
 
 #include "traymenu.h"
+#include "core/qqsetting.h"
 
 #undef signals
 #include <gtk/gtk.h>
@@ -30,9 +31,10 @@ SystemTray::SystemTray(QObject *parent) :
     menu_(NULL),
     msg_tip_(NULL)
 {
+    gtk_init(0, NULL);
     check_cursor_pos_.setInterval(500);
     connect(&check_cursor_pos_, SIGNAL(timeout()), this, SLOT(checkCursorPos()));
-    tray_icon_ = gtk_status_icon_new_from_file("/home/zhanlang/projs/qtqq/skins/default/misc/qtqq.ico");
+    tray_icon_ = gtk_status_icon_new_from_file(QString(QQSettings::instance()->currSkinPath() + "/misc/qtqq.ico").toLatin1());
 
     g_signal_connect(G_OBJECT(tray_icon_), "activate",
                      G_CALLBACK(gtkTrayIconActived), NULL);

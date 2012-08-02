@@ -54,6 +54,7 @@ public:
         curr_login_.status = status;
         curr_login_.avatar_path = avatar_path;
     }
+
     QString messageStylePath() const
     { return app_path_ + "/skins/messagestyle"; }
     QString currentMessageStyle() const
