@@ -51,7 +51,7 @@ QQChatDlg::QQChatDlg(QString id, QString name, QWidget *parent) :
     send_type_menu_->addAction(act_return_);
     send_type_menu_->addAction(act_ctrl_return_);
 
-    QSettings setting("options.ini", QSettings::IniFormat);
+    QSettings setting(QQSettings::configDir() + "/options.ini", QSettings::IniFormat);
     send_by_return_ = setting.value("send_by_return").toBool();
 
     act_return_->setChecked(send_by_return_);
@@ -97,7 +97,7 @@ void QQChatDlg::setSendByReturn(bool checked)
     Q_UNUSED(checked)
     if (!send_by_return_)
     {
-        QSettings setting("options.ini", QSettings::IniFormat);
+        QSettings setting(QQSettings::configDir() + "/options.ini", QSettings::IniFormat);
         setting.setValue("send_by_return", true);
         send_by_return_ = true;
 
@@ -116,7 +116,7 @@ void QQChatDlg::setSendByCtrlReturn(bool checked)
     Q_UNUSED(checked)
     if (send_by_return_)
     {
-        QSettings setting("options.ini", QSettings::IniFormat);
+        QSettings setting(QQSettings::configDir() + "/options.ini", QSettings::IniFormat);
         setting.setValue("send_by_return", false);
         send_by_return_ = false;
         act_return_->setChecked(false);

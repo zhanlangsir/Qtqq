@@ -1,4 +1,5 @@
 #include "accountmanager.h"
+#include "qqsetting.h"
 
 #include <fstream>
 
@@ -7,7 +8,7 @@
 #include <json/json.h>
 
 AccountManager::AccountManager() :
-    save_path_("user.json")
+    save_path_(QQSettings::configDir() + "/user.json")
 {
     qRegisterMetaType<AccountRecord>("AccountRecord");
 }
@@ -61,7 +62,8 @@ void AccountManager::saveAccounts()
     root["users"] = users;
 
     std::ofstream os;
-    os.open("users.json", std::ios::out);
+	QString path = QQSettings::configDir() + "/users.json";
+    os.open(path.toStdString().c_str(), std::ios::out);
     os<<writer.write(root);
     os.close();
 }

@@ -27,6 +27,7 @@
 #include "core/sockethelper.h"
 #include "frienditemmodel.h"
 #include "mainwindow.h"
+#include "core/qqsetting.h"
 
 GroupChatDlg::GroupChatDlg(QString gid, QString name, QString group_code, QString avatar_path,
                            ChatManager *chat_manager, MainWindow *main_win, QWidget *parent) :
@@ -205,7 +206,7 @@ void GroupChatDlg::getGfaceSig()
         if (connection_names.isEmpty())
         {
             db = QSqlDatabase::addDatabase("QSQLITE");
-            db.setDatabaseName("qqgroupdb");
+            db.setDatabaseName(QQSettings::configDir() + "/qqgroupdb");
         }
         else
         {
@@ -476,7 +477,7 @@ void GroupChatDlg::writeMemberInfoToSql()
         if (connection_names.isEmpty())
         {
             db = QSqlDatabase::addDatabase("QSQLITE");
-            db.setDatabaseName("qqgroupdb");
+            db.setDatabaseName(QQSettings::configDir() + "/qqgroupdb");
         }
         else
         {

@@ -32,7 +32,7 @@ SystemTray::SystemTray(QObject *parent) :
 {
     check_cursor_pos_.setInterval(500);
     connect(&check_cursor_pos_, SIGNAL(timeout()), this, SLOT(checkCursorPos()));
-    tray_icon_ = gtk_status_icon_new_from_file("/home/zhanlang/projs/qtqq/skins/default/misc/qtqq.ico");
+    tray_icon_ = gtk_status_icon_new_from_file(PKG_DATA_DIR"/resources/WebQQ.ico");
 
     g_signal_connect(G_OBJECT(tray_icon_), "activate",
                      G_CALLBACK(gtkTrayIconActived), NULL);
