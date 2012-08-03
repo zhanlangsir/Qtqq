@@ -35,13 +35,15 @@ SystemTray::SystemTray(QObject *parent) :
     tray_icon_ = gtk_status_icon_new_from_file(PKG_DATA_DIR"/resources/WebQQ.ico");
 
     g_signal_connect(G_OBJECT(tray_icon_), "activate",
-                     G_CALLBACK(gtkTrayIconActived), NULL);
+                     G_CALLBACK(gtkTrayIconActived), this);
     g_signal_connect(G_OBJECT(tray_icon_), "popup-menu",
                      G_CALLBACK(gtkPopupMenu), NULL);
     g_signal_connect(G_OBJECT(tray_icon_), "query-tooltip",
                      G_CALLBACK(gtkQueryToolTip), NULL);
 
     gtk_status_icon_set_tooltip(tray_icon_, "qtqq");
+
+	_mainWindow = NULL;
 }
 
 SystemTray::~SystemTray()
@@ -121,7 +123,16 @@ void SystemTray::checkCursorPos()
 static void gtkTrayIconActived(GtkStatusIcon *status_icon, gpointer user_data)
 {
     Q_UNUSED(status_icon)
-    Q_UNUSED(user_data)
+	SystemTray *tray = (SystemTray *)user_data;
+	QWidget *mainWindow = tray->getMainWindow();
+
+	if (mainWindow)
+	{
+		if (mainWindow->isMinimized() || !mainWindow->isVisible())
+			mainWindow->showNormal();
+		else
+			mainWindow->hide();
+	}
 
     SystemTray::instance()->showMsgTip(QCursor::pos());
 }

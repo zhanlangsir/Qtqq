@@ -393,6 +393,7 @@ void MainWindow::createTray()
     SystemTray *tray_icon = NULL;
     tray_icon = SystemTray::instance();
     tray_icon->setMsgTip(msg_tip_);
+	tray_icon->setMainWindow(this);
 
     connect(msg_tip_, SIGNAL(newUncheckMsgArrived()), tray_icon,  SLOT(slotNewUncheckMsgArrived()));
     connect(msg_tip_, SIGNAL(noUncheckMsg()), tray_icon,  SLOT(slotUncheckMsgEmpty()));

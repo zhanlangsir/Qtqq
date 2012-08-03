@@ -68,7 +68,15 @@ public:
     void emitActivated();
 
     void setMsgTip(MsgTip *msg_tip)
-    { msg_tip_ = msg_tip; }    
+    { msg_tip_ = msg_tip; }
+
+	void setMainWindow(QWidget *window){
+		_mainWindow = window;
+	}
+
+	QWidget *getMainWindow() const {
+		return _mainWindow;
+	}
 
 public slots:
     void slotNewUncheckMsgArrived();
@@ -88,6 +96,8 @@ private:
     QTimer check_cursor_pos_;
 
     MsgTip *msg_tip_;
+
+	QWidget *_mainWindow;
 };
 
 #endif  //QTQQ_SYSTEMTRAY_H
