@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=qtqq
+Comment[en]=Linux QQ written in Qt
+Comment[zh_CN]=Linux平台用Qt写的QQ
+Exec=qtqq
+Icon=qtqq
+Terminal=false
+Type=Application
+Categories=Qt;Network;
+StartupNotify=true
+X-GNOME-Gettext-Domain=qtqq
