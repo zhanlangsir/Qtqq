@@ -16,7 +16,8 @@ AccountManager::AccountManager() :
 void AccountManager::readAccounts()
 {
     std::ifstream is;
-    is.open("users.json", std::ios::in);
+	QString path = QQSettings::configDir() + "/users.json";
+    is.open(path.toStdString().c_str(), std::ios::in);
     if (!is.is_open())
         return;
 
