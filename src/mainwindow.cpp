@@ -145,7 +145,7 @@ void MainWindow::slot_logout()
 
 void MainWindow::setMute(bool mute)
 {
-    QSettings setting("options.ini", QSettings::IniFormat);
+    QSettings setting(QQSettings::configDir() + "/options.ini", QSettings::IniFormat);
     setting.setValue("mute", mute);
 }
 
