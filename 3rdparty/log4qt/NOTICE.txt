@@ -1,0 +1,6 @@
+   Log4Qt
+   Copyright 2007 - 2009 Martin Heinrich
+
+   The software is derived from the Log4j package of the Apache Software 
+   Foundation (http://logging.apache.org/log4j).
+

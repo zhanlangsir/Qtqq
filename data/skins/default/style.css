@@ -1,0 +1,119 @@
+﻿#mainWindow QComboBox {
+    background-color: transparent;
+}
+
+#avatar {
+	border-image:url(%skin_path%/main_win/avatar-border.png) 0 0 0 0;
+}
+
+QToolButton#tb_min{
+    margin-top: -2px;
+	border-image: url(%skin_path%/ui/btn_mini_normal.png);
+}
+
+QToolButton#tb_min:hover {
+    margin-top: -2px;
+	border-image: url(%skin_path%/ui/btn_mini_highlight.png);
+}
+
+/*设置缺省窗口中"最小化"按钮鼠标点击的样式*/
+QToolButton#tb_min:pressed {
+    margin-top: -2px;
+	border-image: url(%skin_path%/ui/btn_mini_down.png);
+}
+
+/*设置缺省窗口中"关闭"按钮普通状态的样式*/
+QToolButton#tb_close{
+    margin-top: -2px;
+    margin-right: -1px;
+   	border-image: url(%skin_path%/ui/btn_close_normal.png);
+}
+
+/*设置缺省窗口中"关闭"按钮鼠标经过的样式*/
+QToolButton#tb_close:hover {
+    margin-top: -2px;
+    margin-right: -1px;
+	border-image: url(%skin_path%/ui/btn_close_highlight.png);
+}
+
+/*设置缺省窗口中"关闭"按钮鼠标点击的样式*/
+QToolButton#tb_close:pressed {
+    margin-top: -2px;
+    margin-right: -1px;
+	border-image: url(%skin_path%/ui/btn_close_down.png);
+}
+
+QToolButton#tb_skin{
+    margin-top: -2px;
+   	border-image: url(%skin_path%/ui/btn_skin_normal.png);
+}
+
+QToolButton#tb_skin:hover {
+    margin-top: -2px;
+	border-image: url(%skin_path%/ui/btn_skin_highlight.png);
+}
+
+/*设置缺省窗口中"关闭"按钮鼠标点击的样式*/
+QToolButton#tb_skin:pressed {
+    margin-top: -2px;
+	border-image: url(%skin_path%/ui/btn_skin_down.png);
+}
+
+QPushButton#pb_login{
+    border:1px solid gray;
+    border-radius:5px;
+}
+
+QPushButton#pb_login:focus {
+    border:1px solid gray;
+    border-radius:5px;
+    background-image: url(%skin_path%/login_win/btn_focus.png);
+}
+
+QPushButton#pb_login:hover {
+    border:1px solid gray;
+    border-radius:5px;
+    background-image: url(%skin_path%/login_win/btn_highlight.png);
+}
+
+QPushButton#pb_login:pressed {
+    border:1px solid gray;
+    border-radius:5px;
+    background-image: url(%skin_path%/login_win/btn_down.png);
+}
+
+QFrame#frame_login_btm {
+    background-image:url(%skin_path%/login_win/down.png);
+}
+
+QToolButton#btn_qqface {
+    border:none;
+    background-image:url(%skin_path%/chatdlg/qqface.png);
+    background-repeat:no-repeat;
+}
+
+QToolButton#btn_qqface:hover {
+    border:1px solid gray;
+    border-radius:3px;
+}
+
+QToolButton#btn_send_img {
+    border:none;
+    background-repeat:no-repeat;
+    background-image:url(%skin_path%/chatdlg/sendimg.png);
+}
+
+QToolButton#btn_send_img:hover {
+    border:1px solid gray;
+    border-radius:3px;
+}
+
+#frame_mainwin_bottom {
+    background-color: #E8ECED;
+}
+
+#splitter_main {
+    background-color: #E7ECEE;
+}
+
+
