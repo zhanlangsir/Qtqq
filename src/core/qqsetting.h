@@ -41,17 +41,17 @@ public:
     QString currSkinPath() const
     { return PKG_DATA_DIR"/skins/" + value("skin", "default").toString(); }
 
-    static QString resourcePath() const
-    { return Singleton<QQGlobal>::instance()->resourcePath(); }
+    QString resourcePath() const
+    { return QQGlobal::resourcePath(); }
 
-    QString QQSettings::configDir() const
+    static QString configDir()
     {
-        return Singleton<QQGlobal>::instance()->resourcePath();
+        return QQGlobal::configPath();
     }
 
-    QString QQSettings::tempPath() const
+    static QString tempPath()
     {
-        return Singleton<QQGlobal>::instance()->tempPath();
+        return QQGlobal::tempPath();
     }
 
     void setCurrLoginInfo(QString id, QString name, FriendStatus status, QString avatar_path)
@@ -79,8 +79,6 @@ public:
     QString loginName()
     { return curr_login_.name; }
 
-    static QString userConfigDir() ;
-    static QString configDir() ;
 
 private:
     static QPointer<QQSettings> settings_;

@@ -54,7 +54,7 @@ QString QQAvatarRequester::requestOne(int type, QString id, QString save_path)
     int format_end_idx = result.indexOf("\r\n", format_idx);
 
     QString format = result.mid(format_idx, format_end_idx - format_idx);
-    QString save_full_path = save_path + id + "." + format;
+    QString save_full_path = save_path + '/' + id + "." + format;
 
     QFile file(save_full_path);
     file.open(QIODevice::WriteOnly);

@@ -35,7 +35,7 @@ SystemTray::SystemTray(QObject *parent) :
     check_cursor_pos_.setInterval(500);
     connect(&check_cursor_pos_, SIGNAL(timeout()), this, SLOT(checkCursorPos()));
 
-    tray_icon_ = gtk_status_icon_new_from_file(Singleton<QQGlobal>::instance()->resourcePath() + "/WebQQ.ico");
+    tray_icon_ = gtk_status_icon_new_from_file(QString(QQGlobal::resourcePath() + "/WebQQ.ico").toLatin1());
 
     g_signal_connect(G_OBJECT(tray_icon_), "activate",
                      G_CALLBACK(gtkTrayIconActived), NULL);

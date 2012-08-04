@@ -131,19 +131,6 @@
            <number>4</number>
           </property>
           <item>
-           <widget class="QToolButton" name="toolButton_4">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>18</width>
-              <height>18</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QToolButton" name="btn_qqface">
             <property name="text">
              <string/>
@@ -158,32 +145,6 @@
           </item>
           <item>
            <widget class="QToolButton" name="btn_send_img">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>18</width>
-              <height>18</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="toolButton_8">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>18</width>
-              <height>18</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="toolButton_9">
             <property name="text">
              <string/>
             </property>

@@ -8,7 +8,7 @@
 #include "log4qt/logmanager.h"
 
 #include "qtqq.h"
-#include "config.h"
+#include "qqglobal.h"
 
 int main(int argc, char *argv[])
 {
@@ -24,12 +24,12 @@ int main(int argc, char *argv[])
     a.setQuitOnLastWindowClosed(false);
 
     QTranslator translator;
-    QString transla_file_path = PKG_DATA_DIR"/translations";
+	QString transla_file_path = QQGlobal::dataPath() + "/translations";
     translator.load(QLocale::system().name(), transla_file_path);
     a.installTranslator(&translator);
 
     Log4Qt::LogManager::setHandleQtMessages(true);
-    Log4Qt::PropertyConfigurator::configure(PKG_DATA_DIR"/log4qt.conf");
+	Log4Qt::PropertyConfigurator::configure(QQGlobal::dataPath() + "/misc/log4qt.conf");
 
     Qtqq qtqq;
     qtqq.start();

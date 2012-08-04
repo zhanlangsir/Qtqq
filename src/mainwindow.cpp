@@ -38,6 +38,7 @@
 #include "core/msgencoder.h"
 #include "core/friendmsgencoder.h"
 #include "core/groupmsgencoder.h"
+#include "qqglobal.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
@@ -314,7 +315,7 @@ void MainWindow::getOnlineBuddyDone(bool err)
 
 void MainWindow::getPersonalFace()
 {
-    QString avatar_path =   QQAvatarRequester::requestOne(QQAvatarRequester::getTypeNumber(QQItem::kFriend), QQSettings::instance()->currLoginInfo().id,  "temp/avatar/");
+    QString avatar_path =   QQAvatarRequester::requestOne(QQAvatarRequester::getTypeNumber(QQItem::kFriend), QQSettings::instance()->currLoginInfo().id, QQGlobal::tempPath());
     QQSettings::instance()->currLoginInfo().avatar_path = avatar_path;
 
     QFile file(avatar_path);

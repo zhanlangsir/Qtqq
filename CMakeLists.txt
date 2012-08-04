@@ -17,20 +17,27 @@ add_custom_target(uninstall
 include(CheckIncludeFiles)
 include(FindPkgConfig)
 
-set(app Qtqq)
-set(prefix	${CMAKE_INSTALL_PREFIX})
-set(appPath ${prefix})
-set(binPath ${prefix}/bin)
-set(libPath ${Prefix}/lib)
-set(includePath ${CMAKE_INSTALL_PREFIX}/include)
+if (NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE "Release")
+endif()
+
+if ( CMAKE_BUILD_TYPE MATCHES "Debug" )
+    set(prefix ${PROJECT_SOURCE_DIR})
+    set(pkgdatadir ${prefix}/data)
+else ()
+    set(prefix	${CMAKE_INSTALL_PREFIX})
+    set(pkgdatadir ${prefix}/share/${package})
+endif ()
+
+set(package	Qtqq)
+set(bindir ${prefix}/bin)
+set(libdir ${prefix}/lib)
+set(includedir ${prefix}/include)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib)
 
-configure_file(
-    ${PROJECT_SOURCE_DIR}/config.h.in 
-    ${PROJECT_BINARY_DIR}/config.h
-    )
+configure_file(${PROJECT_SOURCE_DIR}/config.h.in ${PROJECT_BINARY_DIR}/config.h)
 
 include_directories(${PROJECT_BINARY_DIR})
 
@@ -38,10 +45,6 @@ set(THIRD_PARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
 set(LOG4QT_INCLUDE_DIR ${THIRD_PARTY_DIR}/log4qt/src)
 set(QXGS_INCLUDE_DIR ${THIRD_PARTY_DIR}/qxtglobalshortcut)
 set(TRANSLATIONS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/data/translations)
-
-if (NOT CMAKE_BUILD_TYPE)
-	set(CMAKE_BUILD_TYPE "Release")
-endif()
 
 add_subdirectory(cmake)
 add_subdirectory(3rdparty)

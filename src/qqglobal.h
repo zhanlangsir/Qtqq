@@ -6,17 +6,16 @@
 #include <QString>
 
 #include "config.h"
-#include "core/singleton.h"
 
-class QQGlobal : public Singleton<QQGlobal>
+class QQGlobal
 {
 public:
-    static QString appName() const
+    static QString appName() 
     {
         return app_name_;
     }
 
-    static QString configPath() const
+    static QString configPath()
     {
         QString config_path = QDir::homePath() + "/." + appName();
 
@@ -27,15 +26,21 @@ public:
         return config_path;
     }
 
-    static QString resourcePath() const
+    static QString resourcePath() 
     { return dataPath() + "/resources"; }
 
-    static QString tempPath() const
+    static QString tempPath() 
     {
-        return QDir::tempPath();
+        QString temp_path = QDir::tempPath() + '/' + appName();
+
+        QDir temp_dir(temp_path);
+        if ( !temp_dir.exists() )
+            temp_dir.mkdir(temp_path);
+
+        return temp_path;
     }
 
-    static QString dataPath() const
+    static QString dataPath()
     {
         return data_path_;
     }
@@ -50,7 +55,5 @@ private:
     static const QString data_path_;
 };
 
-const QString QQGlobal::app_name_ = PACKAGE;
-const QString QQGlobal::data_path_ = PKG_DATA_DIR;
 
 #endif //QTQQ_CORE_QQGLOBAL_H

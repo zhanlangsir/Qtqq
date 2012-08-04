@@ -38,7 +38,7 @@ protected:
     }
 
 private slots:
-    void onLoginBtnClicked();
+	void beginLogin();
     void loginDone(QQLoginCore::LoginResult result);
     void onAutoLoginBtnClicked(bool checked);
     void currentUserChanged(QString text);

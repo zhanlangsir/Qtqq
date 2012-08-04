@@ -132,6 +132,7 @@ set(UI_SOURCES
 	loginwin.cpp
 	groupitemmodel.cpp
 	qqiteminfohelper.cpp
+    qqglobal.cpp
 )
 
 set(UI_FILES
@@ -190,7 +191,6 @@ if (UPDATE_TRANSLATIONS)
 else (UPDATE_TRANSLATIONS)
 	QT4_ADD_TRANSLATION(QM_FILES ${TRANSLATIONS_FILES})
 endif (UPDATE_TRANSLATIONS)
-    core/singleton.h
 
 add_executable(qtqq
 	${CORE_SOURCES} ${CORE_HEADERS_MOC}
@@ -209,5 +209,4 @@ target_link_libraries(qtqq
 )
 
 install(TARGETS qtqq DESTINATION ${prefix}/bin)
-
 install(FILES ${QM_FILES} DESTINATION ${pkgdatadir}/translations)

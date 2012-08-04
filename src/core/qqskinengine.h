@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QApplication>
 #include <QFile>
+#include <QDebug>
 
 #include "qqskinable.h"
 #include "qqsetting.h"
