@@ -21,18 +21,20 @@ if (NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "Release")
 endif()
 
+
+set(package	${PROJECT_NAME})
 if ( CMAKE_BUILD_TYPE MATCHES "Debug" )
+    set(DEBUG_MODE 1)
     set(prefix ${PROJECT_SOURCE_DIR})
     set(pkgdatadir ${prefix}/data)
 else ()
     set(prefix	${CMAKE_INSTALL_PREFIX})
     set(pkgdatadir ${prefix}/share/${package})
 endif ()
-
-set(package	Qtqq)
 set(bindir ${prefix}/bin)
 set(libdir ${prefix}/lib)
 set(includedir ${prefix}/include)
+
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib)

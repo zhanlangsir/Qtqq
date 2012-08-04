@@ -6,6 +6,9 @@
 #include "log4qt/logger.h"
 #include "log4qt/propertyconfigurator.h"
 #include "log4qt/logmanager.h"
+#include "log4qt/appender.h"
+#include "log4qt/fileappender.h"
+#include "log4qt/ttcclayout.h"
 
 #include "qtqq.h"
 #include "qqglobal.h"
@@ -30,6 +33,16 @@ int main(int argc, char *argv[])
 
     Log4Qt::LogManager::setHandleQtMessages(true);
 	Log4Qt::PropertyConfigurator::configure(QQGlobal::dataPath() + "/misc/log4qt.conf");
+
+	//set up file logger, log file in ~/.Qtqq/log.log
+	Log4Qt::Logger *logger = Log4Qt::Logger::rootLogger();
+	Log4Qt::FileAppender *file_appender = new Log4Qt::FileAppender();
+	file_appender->setName("FileAppender");
+	file_appender->setFile(QQGlobal::configPath() + "/log.log");
+	Log4Qt::TTCCLayout *filelayout = new Log4Qt::TTCCLayout(Log4Qt::TTCCLayout::ISO8601);
+	file_appender->setLayout(filelayout);
+	file_appender->activateOptions();
+	logger->addAppender(file_appender);
 
     Qtqq qtqq;
     qtqq.start();

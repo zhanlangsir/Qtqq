@@ -1,0 +1,19 @@
+[Desktop Entry]
+Categories=GNOME;KDE;Qt;Network;Chat;
+Comment[zh_CN]=基于webqq协议的linuxqq!
+Comment=A linuxqq base on webqq protocol!
+Exec=qtqq
+GenericName[zh_CN]=Qtqq
+GenericName=Qtqq
+Icon=/usr/share/Qtqq/resources/WebQQ.ico
+Name=Qtqq
+Name[zh_CN]=Qtqq
+Name[en_UK]=Qtqq
+Name[en_US]=Qtqq
+Path=
+StartupNotify=true
+Terminal=false
+TerminalOptions=
+Type=Application
+Version=4.0.4
+X-KDE-SubstituteUID=false
