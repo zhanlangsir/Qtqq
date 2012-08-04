@@ -1,0 +1,12 @@
+#ifndef __CONFIG_H__
+#define __CONFIG_H__
+
+#cmakedefine HAVE_UNISTD_H
+#cmakedefine HAVE_MALLOC_H
+
+#define PACKAGE "@package@"
+#define DATA_DIR "@prefix@/share"
+#define PKG_DATA_DIR "@pkgdatadir@"
+#define VERSION "@version@"
+
+#endif /* __CONFIG_H__ */

@@ -1,6 +1,6 @@
 #include "recentlistitemmodel.h"
 
-#include "jsoncpp/include/json.h"
+#include <json/json.h>
 
 #include "frienditemmodel.h"
 #include "groupitemmodel.h"

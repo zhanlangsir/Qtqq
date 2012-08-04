@@ -7,6 +7,8 @@
 #include <QApplication>
 
 #include "types.h"
+#include "config.h"
+#include "../qqglobal.h"
 
 class QQSettings : public QSettings
 {
@@ -14,17 +16,15 @@ public:
     explicit QQSettings(QString path, Format format, QObject *parent = NULL) :
         QSettings(path, format, parent)
     {
-        app_path_ = QCoreApplication::applicationDirPath();
-        if (app_path_.endsWith("debug"))
-            app_path_.replace("/debug", "");
-        else if (app_path_.endsWith("release"))
-            app_path_.replace("/release", "");
     }
 
     static QQSettings* instance()
     {
         if (!settings_)
-            settings_ = new QQSettings("options.ini", QSettings::IniFormat);
+		{
+			QString file = configDir() + "/options.ini";
+            settings_ = new QQSettings(file, QSettings::IniFormat);
+		}
 
         return settings_;
     }
@@ -35,17 +35,24 @@ public:
     QString skin() const
     { return value("skin", "default").toString(); }
 
-    QString skinsDir() const
-    { return app_path_ + "/skins"; }
+    static QString skinsDir()
+    { return PKG_DATA_DIR"/skins"; }
 
     QString currSkinPath() const
-    { return app_path_ + "/skins/" + value("skin", "default").toString(); }
+    { return PKG_DATA_DIR"/skins/" + value("skin", "default").toString(); }
 
-    QString resourcePath() const
-    { return app_path_ + "/resources"; }
+    static QString resourcePath() const
+    { return Singleton<QQGlobal>::instance()->resourcePath(); }
 
-    QString tempPath() const
-    { return app_path_ + "/temp"; }
+    QString QQSettings::configDir() const
+    {
+        return Singleton<QQGlobal>::instance()->resourcePath();
+    }
+
+    QString QQSettings::tempPath() const
+    {
+        return Singleton<QQGlobal>::instance()->tempPath();
+    }
 
     void setCurrLoginInfo(QString id, QString name, FriendStatus status, QString avatar_path)
     { 
@@ -54,9 +61,9 @@ public:
         curr_login_.status = status;
         curr_login_.avatar_path = avatar_path;
     }
+    static QString messageStylePath()
+    { return PKG_DATA_DIR"/skins/messagestyle"; }
 
-    QString messageStylePath() const
-    { return app_path_ + "/skins/messagestyle"; }
     QString currentMessageStyle() const
     { return "adium"; }
 
@@ -72,9 +79,11 @@ public:
     QString loginName()
     { return curr_login_.name; }
 
+    static QString userConfigDir() ;
+    static QString configDir() ;
+
 private:
     static QPointer<QQSettings> settings_;
-    QString app_path_;
 
     LoginInfo curr_login_;
 };

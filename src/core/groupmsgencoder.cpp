@@ -2,7 +2,7 @@
 
 #include <QRegExp>
 
-#include "core/captchainfo.h"
+#include "captchainfo.h"
 #include "../qqchatdlg.h"
 #include "../groupchatdlg.h"
 

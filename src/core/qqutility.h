@@ -1,7 +1,7 @@
 #ifndef QTQQ_QQUTILITY_H
 #define QTQQ_QQUTILITY_H
 
-#include "include/zlib/zlib.h"
+#include <zlib.h>
 
 #include "types.h"
 

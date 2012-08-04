@@ -2,7 +2,7 @@
 #define QTQQ_CORE_PARSETHREAD_H
 
 #include "qqmsg.h"
-#include "jsoncpp/include/json.h"
+#include <json/json.h>
 
 #include <QThread>
 #include <QString>

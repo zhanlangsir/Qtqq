@@ -2,12 +2,14 @@
 #include "ui_friendrequestdlg.h"
 
 #include <QTcpSocket>
+#include <QDir>
 
 #include "frienditemmodel.h"
 #include "core/qqavatarrequester.h"
 #include "core/qqmsg.h"
 #include "core/request.h"
 #include "core/captchainfo.h"
+#include "core/qqsetting.h"
 
 FriendRequestDlg::FriendRequestDlg(const ShareQQMsgPtr msg, FriendItemModel *model, QWidget *parent) :
     QDialog(parent),
@@ -17,9 +19,11 @@ FriendRequestDlg::FriendRequestDlg(const ShareQQMsgPtr msg, FriendItemModel *mod
     ui_->setupUi(this);
     initialize();
     const QQSystemMsg *sys_msg = static_cast<const QQSystemMsg*>(msg.data());
+	QString avatarPath = QQSettings::tempPath() + "/avatar/";
+	QDir().mkdir(avatarPath);
     QString path = QQAvatarRequester::requestOne(QQAvatarRequester::getTypeNumber(QQItem::kFriend),
                                                  sys_msg->from_,
-                                                 "temp/avatar/");
+                                                 avatarPath);
     QPixmap pix(path);
     ui_->lbl_avatar_->setPixmap(pix);
     ui_->lbl_account_->setText(sys_msg->account_);

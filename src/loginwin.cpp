@@ -17,7 +17,7 @@
 
 #include "core/types.h"
 #include "core/request.h"
-#include "jsoncpp/include/json.h"
+#include <json/json.h>
 #include "core/qqsetting.h"
 #include "core/qqskinengine.h"
 
@@ -273,7 +273,7 @@ void LoginWin::showCapImg(QPixmap pix)
 
 FriendStatus LoginWin::getLoginStatus() const
 {
-    QSettings setting("options.ini", QSettings::IniFormat);
+    QSettings setting(QQSettings::configDir() + "/options.ini", QSettings::IniFormat);
     FriendStatus status;
 
     if (setting.value("auto_login").toBool())

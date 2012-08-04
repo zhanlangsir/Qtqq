@@ -3,7 +3,7 @@
 #include <QDateTime>
 #include <QTcpSocket>
 
-#include "jsoncpp/include/json.h"
+#include <json/json.h>
 #include "core/nameconvertor.h"
 #include "core/captchainfo.h"
 

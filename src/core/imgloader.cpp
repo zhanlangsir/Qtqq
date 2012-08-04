@@ -7,6 +7,7 @@
 #include <QDir>
 
 #include "captchainfo.h"
+#include "qqsetting.h"
 
 void ImgLoader::loadFriendCface(const QString &uuid, const QString &file_name, const QString &to_uin, const QString &msg_id)
 {
@@ -14,7 +15,7 @@ void ImgLoader::loadFriendCface(const QString &uuid, const QString &file_name, c
 
     info.img_name = file_name;
     info.uuid = uuid;
-    info.path = "temp/" + file_name;
+    info.path = QQSettings::configDir() + "/temp/" + file_name;
     info.url = "/channel/get_cface2?lcid="+msg_id+"&guid="+file_name+"&to="+ to_uin+
             "&count=5&time=1&clientid=5412354841&psessionid="+CaptchaInfo::instance()->psessionid();
     info.host = "d.web2.qq.com";
@@ -31,7 +32,7 @@ void ImgLoader::loadFriendOffpic(const QString &uuid, const QString &file_name, 
     LoadInfo info;
     info.img_name = file_name;
     info.uuid = uuid;
-    info.path = "temp/" + file_name;
+    info.path = QQSettings::configDir() + "/temp/" + file_name;
 
     info.url = "/channel/get_offpic2?file_path=" +file_name + "&f_uin=" + to_uin + "&clientid=5412354841&psessionid="+
             CaptchaInfo::instance()->psessionid();
@@ -49,7 +50,7 @@ void ImgLoader::loadGroupChatImg(const QString &file_name, QString uin, const QS
 {
     LoadInfo info;
     info.img_name = file_name;
-    info.path = "temp/" + file_name;
+    info.path = QQSettings::configDir() + "/temp/" + file_name;
     info.url = "/cgi-bin/get_group_pic?type=0&gid=" + gcode + "&uin=" + uin + "&rip=" +rip + "&rport=" + rport + "&fid=" + fid + "&pic=" + file_name + "&vfwebqq="+ CaptchaInfo::instance()->vfwebqq() + "&t="+time;
     info.host = "web.qq.com";
 

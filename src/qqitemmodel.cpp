@@ -1,5 +1,5 @@
 #include "qqitemmodel.h"
-#include "jsoncpp/include/json.h"
+#include <json/json.h>
 #include <QPixmap>
 #include <QIcon>
 #include <QFile>

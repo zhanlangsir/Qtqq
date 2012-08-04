@@ -10,7 +10,7 @@
 #include "groupitemmodel.h"
 #include "core/qqitem.h"
 #include "qqiteminfohelper.h"
-#include "jsoncpp/include/json.h"
+#include <json/json.h>
 
 MsgTip::MsgTip(QWidget *parent) :
     QWidget(parent),

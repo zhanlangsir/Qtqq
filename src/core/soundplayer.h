@@ -33,7 +33,7 @@ protected:
 public:
     void play(SoundType type, QString file_name = "")
     {
-        QSettings setting("options.ini", QSettings::IniFormat);
+        QSettings setting(QQSettings::configDir() + "/options.ini", QSettings::IniFormat);
         bool mute = setting.value("mute").toBool();
         if (mute)
             return;
