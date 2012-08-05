@@ -8,6 +8,7 @@
 
 #undef signals
 #include <gtk/gtk.h>
+#include <libnotify/notify.h>
 
 typedef int gint;
 typedef gint gboolean;
@@ -47,22 +48,34 @@ SystemTray::SystemTray(QObject *parent) :
     gtk_status_icon_set_tooltip(tray_icon_, "qtqq");
 
 	_mainWindow = NULL;
+
+	notify_init("qtqq");
+
+	_notification = notify_notification_new("QtQQ Notification", "QtQQ", "qtqq");
 }
 
 SystemTray::~SystemTray()
 {
     delete menu_;
     delete tray_icon_;
+
+	if (_notification)
+		notify_notification_close(_notification, NULL);
 }
 
 SystemTray* SystemTray::system_tray_;
 
 
-void SystemTray::showMessage(const QString &title, const QString &msg, int msecs)
+void SystemTray::showMessage(const QString &icon, const QString &title, const QString &msg, int msecs)
 {
-    Q_UNUSED(title)
-    Q_UNUSED(msg)
-    Q_UNUSED(msecs)
+	notify_notification_clear_hints(_notification);
+	notify_notification_update(_notification,
+				title.toStdString().c_str(),
+				msg.toStdString().c_str(),
+				icon.isEmpty() ? "qtqq" : icon.toStdString().c_str());
+
+	notify_notification_set_timeout(_notification, msecs);
+	notify_notification_show(_notification, NULL);
 }
 
 void SystemTray::setIcon(const QString &file_path)

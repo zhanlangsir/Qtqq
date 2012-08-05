@@ -13,6 +13,7 @@ typedef struct _GdkPixbuf GdkPixbuf;
 class QTimer;
 
 class TrayMenu;
+struct _NotifyNotification;
 
 class SystemTray : public QObject
 {
@@ -40,7 +41,7 @@ public:
         现在此方法无任何作用
         可以使用libnotify实现
     */
-    void showMessage(const QString &title, const QString &msg, int msecs);
+    void showMessage(const QString &icon, const QString &title, const QString &msg, int msecs);
     void showMsgTip(QPoint pos)
     {
         if (msg_tip_)
@@ -98,6 +99,7 @@ private:
     MsgTip *msg_tip_;
 
 	QWidget *_mainWindow;
+	struct _NotifyNotification *_notification;
 };
 
 #endif  //QTQQ_SYSTEMTRAY_H
