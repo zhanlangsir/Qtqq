@@ -425,7 +425,10 @@ void MainWindow::createTray()
 
 void MainWindow::openFirstChatDlg()
 {
-    msg_tip_->activatedChat(0);
+	if ( !msg_tip_->activatedChat(0) )
+	{
+		this->activateWindow();
+	}
 }
 
 QString MainWindow::getStatusByIndex(int idx) const

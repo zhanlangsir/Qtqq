@@ -26,6 +26,8 @@ private:
     int end_seq_;
     int curr_page_;
     int page_count_;
+
+	static const int log2loacl[105];
 };
 
 #endif // QTQQ_GROUPCHATLOG_H

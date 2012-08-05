@@ -34,7 +34,7 @@ private:
     QString qqface_path_;
 
     static const int kPerColumn_ = 15;
-    static int no2path[105];
+    static const int no2path[105];
 };
 
 #endif //QTQQ_QQFACEPANEL_H

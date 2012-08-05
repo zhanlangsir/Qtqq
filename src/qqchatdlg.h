@@ -71,7 +71,7 @@ protected:
 
 protected:
     MsgBrowse msgbrowse_;
-    QQTextEdit te_input_;
+	QQTextEdit te_input_;
     QHash<QString, FileInfo> id_file_hash_;
     QString send_url_;
 

@@ -1,7 +1,7 @@
 /*
 （群消息）group_messageg:
 from_uin : gid(群id)
-to_uin : 当前登陆用户uin
+to_uin : gid(群id)
 send_uin: 发送此消息的成员uin
 
 
@@ -44,7 +44,9 @@ public:
     virtual QString sendUin() const { return ""; }
     virtual QString talkTo() const { return ""; }
 
+    virtual QString gid() const { return ""; }
     virtual QString gCode() const {return ""; }
+
     virtual QString msg() const { return ""; }
 
     virtual long time() const { return 0; }
@@ -86,10 +88,13 @@ public:
 class QQSessChatMsg : public QQChatMsg
 {
 public:
-    QString talkTo() const
-    { return gid_; }
-    QString sendUin() const
+    virtual QString talkTo() const
     { return from_uin_; }
+    virtual QString sendUin() const
+    { return from_uin_; }
+
+    virtual QString gid() const 
+    { return gid_; }
 
     QString gid_;
 };
@@ -98,7 +103,7 @@ class QQGroupChatMsg : public QQChatMsg
 {
 public:
     QString talkTo() const
-    { return to_uin_; }
+    { return from_uin_; }
     QString sendUin() const
     { return send_uin_; }
 

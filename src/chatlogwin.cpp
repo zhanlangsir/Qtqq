@@ -152,7 +152,10 @@ void ChatLogWin::insertWord(const QString &text, QFont font, QColor color, int s
     QTextBlockFormat block_format;
     block_format.setLeftMargin(8);
     block_format.setTopMargin(5);
-    block_format.setLineHeight(5, QTextBlockFormat::LineDistanceHeight);
+
+#if QT_VERSION >= 0x040800
+	block_format.setLineHeight(5, QTextBlockFormat::LineDistanceHeight);
+#endif
 
     QTextCharFormat char_format;
     char_format.setForeground(color);

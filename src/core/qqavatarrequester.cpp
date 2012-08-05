@@ -30,6 +30,9 @@ void QQAvatarRequester::finishRequest()
     finish_ = true;
 }
 
+
+//type = 1, request friend or stranger avatar
+//type = 2, request group avatar
 QString QQAvatarRequester::requestOne(int type, QString id, QString save_path)
 {
     QTcpSocket fd;

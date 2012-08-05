@@ -40,7 +40,7 @@ public:
     { convertor_ = convertor; }
     void setMainWindow(const MainWindow *main_win)
     { main_win_ = main_win; }
-    void activatedChat(int i);
+	bool activatedChat(int i);
 
     void show(QPoint pos);
 

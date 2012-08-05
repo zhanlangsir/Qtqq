@@ -4,7 +4,6 @@
 #include <QFileInfo>
 #include <QTcpSocket>
 #include <QDateTime>
-#include <QDebug>
 
 #include "captchainfo.h"
 #include "request.h"

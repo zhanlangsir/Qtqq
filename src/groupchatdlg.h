@@ -45,6 +45,8 @@ public:
     QString name() const
     { return name_; }
 
+	static QString getMsgSig(QString gid,  QString to_id);
+
 protected:
     void closeEvent(QCloseEvent *);
 
@@ -64,7 +66,6 @@ private:
     void initConnections();
 
     void getGfaceSig();
-    QString getMsgSig(QString to_id) const;
     void getGroupMemberList();
     void parseGroupMemberList(const QByteArray &array);
 

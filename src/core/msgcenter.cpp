@@ -94,9 +94,9 @@ QVector<ShareQQMsgPtr> MsgCenter::getOldMsg(QQMsgListener *listener)
     QVector<ShareQQMsgPtr> msgs;
     foreach(msg, old_msg_)
     {
-        if (msg->talkTo() == listener->id())
+		if (msg->talkTo() == listener->id())
         {
-            msgs.append(msg);
+			msgs.append(msg);
             old_msg_.removeOne(msg);
         }
     }

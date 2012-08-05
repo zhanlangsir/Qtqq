@@ -106,11 +106,11 @@ QQMsg* ParseThread::createMsg(QString type, const Json::Value result)
        return createGroupMsg(result);
     }
     else
-//    if ( type == "sess_message" )
-//    {
-//        return createSessMsg(result);
-//    }
-//    else
+    if ( type == "sess_message" )
+    {
+        return createSessMsg(result);
+    }
+    else
     if (type == "buddies_status_change")
     {
         return createBuddiesStatusChangeMsg(result);
@@ -189,7 +189,7 @@ QQMsg *ParseThread::createGroupMsg(const Json::Value &result) const
     g_chat_msg->set_type(QQMsg::kGroup);
     g_chat_msg->send_uin_ = QString::number(result["value"]["send_uin"].asLargestInt());
     g_chat_msg->from_uin_ = QString::number(result["value"]["from_uin"].asLargestInt());
-    g_chat_msg->to_uin_ = QString::number(result["value"]["from_uin"].asLargestInt());
+	g_chat_msg->to_uin_ = QString::number(result["value"]["to_uin"].asLargestInt());
     g_chat_msg->info_seq_ = QString::number(result["value"]["info_seq"].asLargestInt());
     g_chat_msg->group_code_ =QString::number(result["value"]["group_code"].asLargestInt());
     g_chat_msg->color_ = QString::fromStdString(result["value"]["content"][0][1]["color"].asString());

@@ -149,14 +149,14 @@ void GroupChatDlg::openSessOrFriendChatDlg(QString id)
         chat_manager_->openFriendChatDlg(id);
     else
     {
-        msg_sig_ = getMsgSig(id);
+		msg_sig_ = getMsgSig(id_, id);
         chat_manager_->openSessChatDlg(id, id_);
     }
 }
 
-QString GroupChatDlg::getMsgSig(QString to_id) const
+QString GroupChatDlg::getMsgSig(QString gid,  QString to_id)
 {
-    QString msg_sig_url = "/channel/get_c2cmsg_sig2?id="+ id_ +"&to_uin=" + to_id +
+	QString msg_sig_url = "/channel/get_c2cmsg_sig2?id="+ gid +"&to_uin=" + to_id +
             "&service_type=0&clientid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid() +"&t=" + QString::number(QDateTime::currentMSecsSinceEpoch());
 
     Request req;
@@ -455,7 +455,7 @@ void GroupChatDlg::createSql()
 
     if (query.lastError().isValid())
     {
-        qDebug()<<query.lastError();
+        qDebug() << query.lastError();
     }
 
     query.exec("CREATE TABLE IF NOT EXISTS groupinfo ("
@@ -465,7 +465,7 @@ void GroupChatDlg::createSql()
 
     if (query.lastError().isValid())
     {
-        qDebug()<<query.lastError();
+        qDebug() << query.lastError();
     }
 }
 

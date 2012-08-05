@@ -15,6 +15,8 @@
 #include "nameconvertor.h"
 #include "msgcenter.h"
 #include "qqitem.h"
+#include "../qqiteminfohelper.h"
+#include "json/json.h"
 
 ChatManager::ChatManager(MainWindow *main_win, const NameConvertor *convertor) :
     main_win_(main_win),
@@ -85,19 +87,26 @@ void ChatManager::openSessChatDlg(QString id, QString group_id)
 
     QQChatDlg *dlg = NULL;
 
-    GroupChatDlg* group_dlg = static_cast<GroupChatDlg *>(findChatDlg(group_id));
+	QByteArray info = QQItemInfoHelper::getStrangetInfo2(id, group_id);
+	info = info.mid(info.indexOf("\r\n\r\n") + 4);
 
-    const QQItemModel *model = group_dlg->model();
-    if ( !model )
-        return;
+	Json::Reader reader;
+	Json::Value root;
 
-    QQItem *info = model->find(id);
+	if (!reader.parse(QString(info).toStdString(), root, false))
+	{
+		return;
+	}
 
-    if ( !info )
-        return;
+	QString name = QString::fromStdString(root["result"]["nick"].asString());
+	//暂时不明白token的作用
+	//QString	token = QString::fromStdString(root["result"]["token"].asString());
 
-    dlg = new SessChatDlg(id, info->markName(), info->avatarPath(), group_dlg->name());
-    MsgEncoder *encoder = new SessMsgEncoder(dlg, group_dlg->code(), group_dlg->msgSig());
+	QQItem *ginfo = main_win_->groupModel()->find(group_id);
+    QString avatar_path = QQAvatarRequester::requestOne(1, id, QQGlobal::tempPath());
+
+	dlg = new SessChatDlg(id, name, avatar_path, ginfo->name());
+	MsgEncoder *encoder = new SessMsgEncoder(dlg, ginfo->gCode(), GroupChatDlg::getMsgSig(group_id, id));
     dlg->setMsgEncoder(encoder);
 
     connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));

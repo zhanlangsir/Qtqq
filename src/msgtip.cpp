@@ -128,6 +128,7 @@ void MsgTip::addItem(ShareQQMsgPtr msg)
 bool MsgTip::getStrangerInfo(QString id, QString gid, QString &name, QString &token) const
 {
     QByteArray info = QQItemInfoHelper::getStrangetInfo2(id, gid);
+	info = info.mid(info.indexOf("\r\n\r\n") + 4);
 
     Json::Reader reader;
     Json::Value root;
@@ -188,10 +189,10 @@ void MsgTip::slotActivated(const QModelIndex &index)
    activatedChat(index.row());
 }
 
-void MsgTip::activatedChat(int i)
+bool MsgTip::activatedChat(int i)
 {
     if (ui->uncheckmsglist->count() < i+1)
-        return;
+		return false;
 
     QListWidgetItem *item = ui->uncheckmsglist->item(i);
     ShareQQMsgPtr msg = item->data(Qt::UserRole).value<ShareQQMsgPtr>();
@@ -200,7 +201,7 @@ void MsgTip::activatedChat(int i)
     switch (msg->type())
     {
     case QQMsg::kSess:
-        main_win_->chatManager()->openSessChatDlg(msg->sendUin(), msg->talkTo());
+        main_win_->chatManager()->openSessChatDlg(msg->sendUin(), msg->gid());
         break;
     case QQMsg::kFriend:
         main_win_->chatManager()->openFriendChatDlg(msg->sendUin());
@@ -215,4 +216,5 @@ void MsgTip::activatedChat(int i)
         emit activateGroupRequestDlg(msg);
         break;
     }
+	return true;
 }

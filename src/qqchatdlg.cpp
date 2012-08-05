@@ -388,6 +388,7 @@ void QQChatDlg::showMsg(ShareQQMsgPtr msg)
     if (this->isMinimized())
     {
         SoundPlayer::singleton()->play(SoundPlayer::kMsg);
+		QApplication::alert(this, 1500);
     }
 }
 

@@ -84,8 +84,8 @@ QVector<ShareQQMsgPtr> GroupChatLog::getLog(int page)
     result = result.mid(result.indexOf("\r\n\r\n")+4);
 
     QVector<ShareQQMsgPtr> chat_logs;
-    parse(result, chat_logs);
 
+    parse(result, chat_logs);
     curr_page_ = page;
     return chat_logs;
 }
@@ -123,22 +123,46 @@ void GroupChatLog::parse(QByteArray &arr, QVector<ShareQQMsgPtr> &chat_logs)
         for (unsigned int j = 0; j < chat_datas.size(); ++j)
         {
             QQChatItem item;
-            if (chat_datas[j]["t"].asInt() == 0)  //小写字母l，非数字1，下同
-            {
-                item.set_type(QQChatItem::kWord);         
-                item.set_content(QString::fromStdString(chat_datas[j]["v"].asString()));
-            }
-            if (chat_datas[j]["t"].asInt() == 2)
-            {
-                item.set_type(QQChatItem::kGroupChatImg);
-                item.set_content(QString::fromStdString(chat_datas[j]["v"].asString()));
-                item.set_server_port(QString::number(chat_datas[j]["port"].asInt()));
-                item.set_file_id(QString::number(chat_datas[j]["fid"].asLargestInt()));
-                item.set_server_ip(QString::number(chat_datas[j]["ip"].asLargestInt()));
-            }
+			int type = chat_datas[j]["t"].asInt();
+			switch ( type )
+			{
+			case 0:
+				item.set_type(QQChatItem::kWord);
+				item.set_content(QString::fromStdString(chat_datas[j]["v"].asString()));
+				break;
+			case 1:
+			{
+				item.set_type(QQChatItem::kQQFace);
+				int idx = QString::fromStdString(chat_datas[j]["v"].asString()).toInt();
+				item.set_content(QString::number(GroupChatLog::log2loacl[idx]));
+			}
+				break;
+			case 2:
+				item.set_type(QQChatItem::kGroupChatImg);
+				item.set_content(QString::fromStdString(chat_datas[j]["v"].asString()));
+				item.set_server_port(QString::number(chat_datas[j]["port"].asInt()));
+				item.set_file_id(QString::number(chat_datas[j]["fid"].asLargestInt()));
+				item.set_server_ip(QString::number(chat_datas[j]["ip"].asLargestInt()));
+				break;
+			default:
+				break;
+			}
+
             msg->msg_.append(item);
         }
         ShareQQMsgPtr share_msg_ptr(msg);
         chat_logs.append(share_msg_ptr);
     }
 }
+
+
+const int GroupChatLog::log2loacl[105] = {
+	14,  1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,   0,
+	50,  51,  96,  53,  54,  73,  74,  75,  76,  77,  78,  55,  56,  57,   58,
+	79,  80,  81,  82,  83,  84,  85,  86,  87,  88,  97,  98,  99,  100,  101,
+	102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 32,  113, 114,  115,
+	63,  64,  59,  33,  34,  116, 66,  68,  38,  91,  92,  93,  29,  117,  72,
+	45,  42,  39,  62,  46,  47,  71,  95,  118, 119, 120, 121, 122, 123,  124,
+	27,  21,  23,  25,  26,  125, 126, 127, 128, 129, 130, 131, 132, 133,  134
+};
+

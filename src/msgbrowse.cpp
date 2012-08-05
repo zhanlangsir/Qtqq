@@ -1,3 +1,8 @@
+/*
+ *  从vacuum抽出来的adium风格消息浏览器,有些东西是原项目中的,这里没用,先留着
+ *
+ */
+
 #include "msgbrowse.h"
 
 #include <QByteArray>
@@ -46,8 +51,6 @@ void MsgBrowse::onLinkClicked(const QUrl &url)
     QRegExp sender_reg("\\[(.*)\\]");
     if ( sender_reg.indexIn(url.toString()) != -1 )
     {
-        return;  //暂时关闭此功能
-        qDebug()<<"open chatdlg"<<sender_reg.cap(1)<<endl;
         emit senderLinkClicked(sender_reg.cap(1));
     }
     else

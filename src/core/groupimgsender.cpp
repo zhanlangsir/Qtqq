@@ -3,7 +3,6 @@
 #include <QByteArray>
 #include <QFileInfo>
 #include <QTcpSocket>
-#include <QDebug>
 #include <QByteArray>
 
 #include "captchainfo.h"

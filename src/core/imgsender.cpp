@@ -6,7 +6,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTcpSocket>
-#include <QDebug>
 #include <QHttp>
 
 #include "captchainfo.h"

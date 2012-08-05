@@ -1,7 +1,6 @@
 #include "pollthread.h"
 
 #include <QTcpSocket>
-#include <QDebug>
 
 #include "captchainfo.h"
 

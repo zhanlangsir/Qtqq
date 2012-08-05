@@ -35,11 +35,11 @@ SystemTray::SystemTray(QObject *parent) :
     check_cursor_pos_.setInterval(500);
     connect(&check_cursor_pos_, SIGNAL(timeout()), this, SLOT(checkCursorPos()));
 
-    tray_icon_ = gtk_status_icon_new_from_file(QString(QQGlobal::resourcePath() + "/WebQQ.ico").toLatin1());
+	tray_icon_ = gtk_status_icon_new_from_file(QString(QQGlobal::resourcePath() + "/WebQQ.ico").toStdString().c_str());
 
     g_signal_connect(G_OBJECT(tray_icon_), "activate",
                      G_CALLBACK(gtkTrayIconActived), NULL);
-    g_signal_connect(G_OBJECT(tray_icon_), "popup-menu",
+	g_signal_connect(G_OBJECT(tray_icon_), "popup-menu",
                      G_CALLBACK(gtkPopupMenu), NULL);
     g_signal_connect(G_OBJECT(tray_icon_), "query-tooltip",
                      G_CALLBACK(gtkQueryToolTip), NULL);
@@ -65,7 +65,7 @@ void SystemTray::showMessage(const QString &title, const QString &msg, int msecs
 
 void SystemTray::setIcon(const QString &file_path)
 {
-   gtk_status_icon_set_from_file(tray_icon_, file_path.toLatin1().data());
+   gtk_status_icon_set_from_file(tray_icon_, file_path.toStdString().c_str());
 }
 
 void SystemTray::setContextMenu(TrayMenu *menu)

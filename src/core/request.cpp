@@ -1,5 +1,4 @@
 #include "request.h"
-#include <QDebug>
 
 void Request::addDefaultHeader()
 {
