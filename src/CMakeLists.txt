@@ -157,6 +157,7 @@ QT4_WRAP_UI(UI_FILES_HEADERS ${UI_FILES})
 
 PKG_CHECK_MODULES(ZLIB REQUIRED "zlib")
 PKG_CHECK_MODULES(GTK2 REQUIRED "gtk+-2.0")
+PKG_CHECK_MODULES(LIBNOTIFY REQUIRED "libnotify")
 
 set(QT_USE_QTNETWORK TRUE)
 set(QT_USE_QTWEBKIT TRUE)
@@ -170,6 +171,7 @@ include_directories(${JSONCPP_INCLUDE_DIR})
 include_directories(${LOG4QT_INCLUDE_DIR})
 include_directories(${QXGS_INCLUDE_DIR})
 include_directories(${GTK2_INCLUDE_DIRS})
+include_directories(${LIBNOTIFY_INCLUDE_DIRS})
 
 add_definitions(${QT_DEFINITIONS})
 
@@ -205,6 +207,7 @@ target_link_libraries(qtqq
 	${QT_LIBRARIES}
 	${GTK2_LIBRARIES}
 	${ZLIB_LIBRARIES}
+	${LIBNOTIFY_LIBRARIES}
 )
 
 install(TARGETS qtqq DESTINATION ${prefix}/bin)
