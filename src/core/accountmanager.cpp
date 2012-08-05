@@ -8,7 +8,7 @@
 #include <json/json.h>
 
 AccountManager::AccountManager() :
-    save_path_(QQSettings::configDir() + "/user.json")
+    save_path_(QQSettings::configDir() + "/users.json")
 {
     qRegisterMetaType<AccountRecord>("AccountRecord");
 }
