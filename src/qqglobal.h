@@ -17,7 +17,7 @@ public:
 
     static QString configPath()
     {
-        QString config_path = QDir::homePath() + "/." + appName();
+        QString config_path = QDir::homePath() + "/.config/" + appName();
 
         QDir config_dir(config_path);
         if ( !config_dir.exists() )
