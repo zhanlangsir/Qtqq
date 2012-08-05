@@ -39,9 +39,7 @@ LoginWin::LoginWin(QWidget *parent) :
 
     move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
 
-    //过滤回车键，因为每次在QComboBox中按回车会自动添加一个补全信息
-	ui->comb_username_->installEventFilter(this);
-	ui->le_password_->installEventFilter(this);
+	installEventFilter(this);
 
     setupStatus();
     setupAccountRecords();
@@ -237,7 +235,8 @@ void LoginWin::checkAccoutStatus()
 
 bool LoginWin::eventFilter(QObject *obj, QEvent *e)
 {
-	if (obj == ui->comb_username_ || obj == ui->le_password_)
+	if (obj == ui->comb_username_ || obj == ui->le_password_ ||
+		obj == this)
     {
         if (e->type() == QEvent::KeyPress)
         {
