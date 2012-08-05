@@ -1,3 +1,15 @@
+qtqq (0.6.0-1-oneiric) oneiric; urgency=low
+
+  * Daily build
+
+ -- Weitian Leung <weitianleung@gmail.com>  Sun, 05 Aug 2012 22:33:21 +0800
+
+qtqq (0.6.0-1-precise) precise; urgency=low
+
+  * Daily build
+
+ -- Weitian Leung <weitianleung@gmail.com>  Sun, 05 Aug 2012 22:30:01 +0800
+
 qtqq (0.6.0-0-precise) precise; urgency=low
 
   * Daily build
