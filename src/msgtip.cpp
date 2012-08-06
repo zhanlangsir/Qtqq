@@ -14,7 +14,7 @@
 
 #include "qqglobal.h"
 
-const static int NOTIFY_TIMEOUT_MS	= 3000;
+const static int NOTIFY_TIMEOUT_MS	= 5000;
 
 MsgTip::MsgTip(QWidget *parent) :
     QWidget(parent),
