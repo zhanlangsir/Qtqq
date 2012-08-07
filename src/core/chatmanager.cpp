@@ -32,9 +32,9 @@ ChatManager::~ChatManager()
     }
 }
 
-void ChatManager::openFriendChatDlg(QString id)
+void ChatManager::openFriendChatDlg(const QString &id)
 {
-    if ( isOpening(id) )
+	if ( isOpening(id) || id.isEmpty() )
         return;
 
     QQChatDlg *dlg = NULL;

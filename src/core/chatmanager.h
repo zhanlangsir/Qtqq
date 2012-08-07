@@ -21,7 +21,7 @@ public:
     QString getGroupAvatarPath(const QString &id) const;
 
 public slots:
-    void openFriendChatDlg(QString id);
+	void openFriendChatDlg(const QString &id);
     void openGroupChatDlg(QString id, QString gcode);
     void openSessChatDlg(QString id, QString group_id);
 

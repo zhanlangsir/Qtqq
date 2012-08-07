@@ -28,6 +28,7 @@ class QQItem;
 class MsgTip;
 class MsgCenter;
 class QQLoginCore;
+class FriendSearcher;
 
 class TrayMenu;
 class TrayMenuItem;

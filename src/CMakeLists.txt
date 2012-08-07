@@ -65,6 +65,8 @@ set(UI_HEADERS
 	traymenu.h
 	friendinfodlg.h
     qqglobal.h
+    friendsearcher.h
+    friendsearchlineedit.h
 )
 
 QT4_WRAP_CPP(UI_HEADERS_MOC ${UI_HEADERS})
@@ -133,6 +135,8 @@ set(UI_SOURCES
 	groupitemmodel.cpp
 	qqiteminfohelper.cpp
     qqglobal.cpp
+    friendsearcher.cpp
+    friendsearchlineedit.cpp
 )
 
 set(UI_FILES
@@ -171,6 +175,7 @@ include_directories(${JSONCPP_INCLUDE_DIRS})
 include_directories(${LOG4QT_INCLUDE_DIR})
 include_directories(${QXGS_INCLUDE_DIR})
 include_directories(${GTK2_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_definitions(${QT_DEFINITIONS})
 

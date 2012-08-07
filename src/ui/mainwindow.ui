@@ -134,19 +134,9 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
-          <widget class="QLineEdit" name="le_search_">
+          <widget class="FriendSearchLineEdit" name="le_search_">
            <property name="styleSheet">
             <string notr="true"/>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pb_search_">
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="text">
-            <string>Search</string>
            </property>
           </widget>
          </item>
@@ -302,6 +292,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FriendSearchLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>friendsearchlineedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -221,6 +221,9 @@ QQMsg *ParseThread::createGroupMsg(const Json::Value &result) const
             }
             else
             {
+                if ( content[0].asString() == "cface_idx" )
+                    continue;
+
                 item.set_type(QQChatItem::kGroupChatImg);
                 item.set_content(QString::fromStdString(content[1]["name"].asString()));
                 item.set_file_id(QString::number(content[1]["file_id"].asLargestInt()));

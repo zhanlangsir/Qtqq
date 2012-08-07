@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
     message_queue_(new QQueue<QByteArray>()),
     msg_tip_(new MsgTip()),
     msg_center_(new MsgCenter(msg_tip_)),
-    open_chat_dlg_sc_(NULL)
+	open_chat_dlg_sc_(NULL)
 {
     ui->setupUi(this);
 
@@ -109,7 +109,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
 void MainWindow::slot_logout()
 {
     this->hide();
@@ -119,7 +118,7 @@ void MainWindow::slot_logout()
         msg_tip_->deleteLater();
     msg_tip_ = NULL;
 
-    if ( chat_manager_ )
+	if ( chat_manager_ )
         chat_manager_->deleteLater();
     chat_manager_ = NULL;
 
@@ -215,6 +214,9 @@ void MainWindow::getFriendListDone(bool err)
 
     friend_model_ = new FriendItemModel(this);
     friend_model_->parse(friends_info, &convertor_);
+
+    FriendSearcher *friend_searcher = new FriendSearcher(this);
+    ui->le_search_->setSearcher(friend_searcher);
 
     ui->tv_friendlist_->setModel(friend_model_);
 
@@ -385,7 +387,8 @@ void MainWindow::initialize()
     
     getFriendList();
 
-    chat_manager_ = new ChatManager(this, &convertor_),
+	chat_manager_ = new ChatManager(this, &convertor_);
+	connect(ui->le_search_, SIGNAL(friendActivated(const QString&)), chat_manager_, SLOT(openFriendChatDlg(const QString&)));
     msg_tip_->setMainWindow(this);
 }
 
@@ -427,7 +430,7 @@ void MainWindow::openFirstChatDlg()
 {
 	if ( !msg_tip_->activatedChat(0) )
 	{
-		this->activateWindow();
+		activateWindow();
 	}
 }
 
