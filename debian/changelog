@@ -1,3 +1,9 @@
+qtqq (0.6.0-3-precise) precise; urgency=low
+
+  * Daily build
+
+ -- Weitian Leung <weitianleung@gmail.com>  Tue, 06 Aug 2012 20:18:52 +0800 
+
 qtqq (0.6.0-2-oneiric) oneiric; urgency=low
 
   * Fixed no libnotify-dev dependency
