@@ -49,10 +49,35 @@ void MsgTip::pushMsg(ShareQQMsgPtr new_msg)
     lock.lock();
     for (int i = 0; i < ui->uncheckmsglist->count(); ++i)
     {
-        ShareQQMsgPtr msg = ui->uncheckmsglist->item(i)->data(Qt::UserRole).value<ShareQQMsgPtr>();
+		QListWidgetItem *item = ui->uncheckmsglist->item(i);
+        ShareQQMsgPtr msg = item->data(Qt::UserRole).value<ShareQQMsgPtr>();
 
         if (msg->talkTo() == new_msg->talkTo())
         {
+			QString text = item->text();
+			int idx = text.indexOf('\t', 0);
+			// 仅一条未读
+			if (idx == -1)
+			{
+				item->setText(text + "\t(2)");
+			}
+			else
+			{
+				QString number;
+				QString newText = text;
+				newText.truncate(idx);
+
+				for(int i=idx+2; i<text.length(); ++i)
+				{
+					if (text.at(i) == ')')
+						break;
+					number.append(text.at(i));
+				}
+
+				uint count = number.toUInt();
+				item->setText(newText + "\t(" + QString::number(count + 1) + ")");
+			}
+			// removeItem(msg->talkTo());
             lock.unlock();
             return;
         }
@@ -220,6 +245,18 @@ void MsgTip::activatedChat(int i)
         emit activateGroupRequestDlg(msg);
         break;
     }
+
+	// 设置闪烁的头像为最后一个
+	int count = ui->uncheckmsglist->count();
+	if (count > 0)
+	{
+		QListWidgetItem *item = ui->uncheckmsglist->item(count - 1);
+		ShareQQMsgPtr msg = item->data(Qt::UserRole).value<ShareQQMsgPtr>();
+
+		SystemTray *trayIcon = SystemTray::instance();
+
+		trayIcon->setIcon(uidImage(msg->talkTo()));
+	}
 }
 
 QString MsgTip::uidImage(const QString &uid)

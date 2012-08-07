@@ -74,13 +74,20 @@ void SystemTray::showMessage(const QString &icon, const QString &title, const QS
 				msg.toStdString().c_str(),
 				icon.isEmpty() ? "qtqq" : icon.toStdString().c_str());
 
+	// 切换到当前发消息者的头像
+	if (!icon.isEmpty()){
+		setIcon(icon);
+	} else {
+		gtk_status_icon_set_from_icon_name(tray_icon_, "qtqq");
+	}
+
 	notify_notification_set_timeout(_notification, msecs);
 	notify_notification_show(_notification, NULL);
 }
 
 void SystemTray::setIcon(const QString &file_path)
 {
-   gtk_status_icon_set_from_file(tray_icon_, file_path.toLatin1().data());
+   gtk_status_icon_set_from_file(tray_icon_, file_path.toStdString().c_str());
 }
 
 void SystemTray::setContextMenu(TrayMenu *menu)
@@ -106,6 +113,7 @@ void SystemTray::slotNewUncheckMsgArrived()
 
 void SystemTray::slotUncheckMsgEmpty()
 {
+	gtk_status_icon_set_from_icon_name(tray_icon_, "qtqq");
     flicker(false);
 }
 
