@@ -159,9 +159,9 @@ set(UI_FILES
 
 QT4_WRAP_UI(UI_FILES_HEADERS ${UI_FILES})
 
-PKG_CHECK_MODULES(JSONCPP REQUIRED "jsoncpp")
 PKG_CHECK_MODULES(ZLIB REQUIRED "zlib")
 PKG_CHECK_MODULES(GTK2 REQUIRED "gtk+-2.0")
+PKG_CHECK_MODULES(LIBNOTIFY REQUIRED "libnotify")
 
 set(QT_USE_QTNETWORK TRUE)
 set(QT_USE_QTWEBKIT TRUE)
@@ -171,11 +171,12 @@ set(QT_USE_QTXML TRUE)
 include(${QT_USE_FILE})
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${JSONCPP_INCLUDE_DIRS})
+include_directories(${JSONCPP_INCLUDE_DIR})
 include_directories(${LOG4QT_INCLUDE_DIR})
 include_directories(${QXGS_INCLUDE_DIR})
 include_directories(${GTK2_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${LIBNOTIFY_INCLUDE_DIRS})
 
 add_definitions(${QT_DEFINITIONS})
 
@@ -207,10 +208,11 @@ add_executable(qtqq
 target_link_libraries(qtqq
 	log4qt
 	qxtglobalshortcut
+	jsoncxx
 	${QT_LIBRARIES}
-	${JSONCPP_LIBRARIES}
 	${GTK2_LIBRARIES}
 	${ZLIB_LIBRARIES}
+	${LIBNOTIFY_LIBRARIES}
 )
 
 install(TARGETS qtqq DESTINATION ${prefix}/bin)

@@ -46,6 +46,7 @@ include_directories(${PROJECT_BINARY_DIR})
 set(THIRD_PARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
 set(LOG4QT_INCLUDE_DIR ${THIRD_PARTY_DIR}/log4qt/src)
 set(QXGS_INCLUDE_DIR ${THIRD_PARTY_DIR}/qxtglobalshortcut)
+set(JSONCPP_INCLUDE_DIR ${THIRD_PARTY_DIR}/jsoncpp/include)
 set(TRANSLATIONS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/data/translations)
 
 add_subdirectory(cmake)

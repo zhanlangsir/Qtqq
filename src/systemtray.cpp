@@ -8,6 +8,7 @@
 
 #undef signals
 #include <gtk/gtk.h>
+#include <libnotify/notify.h>
 
 typedef int gint;
 typedef gint gboolean;
@@ -38,29 +39,50 @@ SystemTray::SystemTray(QObject *parent) :
 	tray_icon_ = gtk_status_icon_new_from_file(QString(QQGlobal::resourcePath() + "/WebQQ.ico").toStdString().c_str());
 
     g_signal_connect(G_OBJECT(tray_icon_), "activate",
-                     G_CALLBACK(gtkTrayIconActived), NULL);
-	g_signal_connect(G_OBJECT(tray_icon_), "popup-menu",
+                     G_CALLBACK(gtkTrayIconActived), this);
+    g_signal_connect(G_OBJECT(tray_icon_), "popup-menu",
                      G_CALLBACK(gtkPopupMenu), NULL);
     g_signal_connect(G_OBJECT(tray_icon_), "query-tooltip",
                      G_CALLBACK(gtkQueryToolTip), NULL);
 
     gtk_status_icon_set_tooltip(tray_icon_, "qtqq");
+
+	_mainWindow = NULL;
+
+	notify_init("qtqq");
+
+	_notification = notify_notification_new("QtQQ Notification", "QtQQ", "qtqq");
 }
 
 SystemTray::~SystemTray()
 {
     delete menu_;
     delete tray_icon_;
+
+	if (_notification)
+		notify_notification_close(_notification, NULL);
 }
 
 SystemTray* SystemTray::system_tray_;
 
 
-void SystemTray::showMessage(const QString &title, const QString &msg, int msecs)
+void SystemTray::showMessage(const QString &icon, const QString &title, const QString &msg, int msecs)
 {
-    Q_UNUSED(title)
-    Q_UNUSED(msg)
-    Q_UNUSED(msecs)
+	notify_notification_clear_hints(_notification);
+	notify_notification_update(_notification,
+				title.toStdString().c_str(),
+				msg.toStdString().c_str(),
+				icon.isEmpty() ? "qtqq" : icon.toStdString().c_str());
+
+	// 切换到当前发消息者的头像
+	if (!icon.isEmpty()){
+		setIcon(icon);
+	} else {
+		gtk_status_icon_set_from_icon_name(tray_icon_, "qtqq");
+	}
+
+	notify_notification_set_timeout(_notification, msecs);
+	notify_notification_show(_notification, NULL);
 }
 
 void SystemTray::setIcon(const QString &file_path)
@@ -91,6 +113,7 @@ void SystemTray::slotNewUncheckMsgArrived()
 
 void SystemTray::slotUncheckMsgEmpty()
 {
+	gtk_status_icon_set_from_icon_name(tray_icon_, "qtqq");
     flicker(false);
 }
 
@@ -124,7 +147,16 @@ void SystemTray::checkCursorPos()
 static void gtkTrayIconActived(GtkStatusIcon *status_icon, gpointer user_data)
 {
     Q_UNUSED(status_icon)
-    Q_UNUSED(user_data)
+	SystemTray *tray = (SystemTray *)user_data;
+	QWidget *mainWindow = tray->getMainWindow();
+
+	if (mainWindow)
+	{
+		if (mainWindow->isMinimized() || !mainWindow->isVisible())
+			mainWindow->showNormal();
+		else
+			mainWindow->hide();
+	}
 
     SystemTray::instance()->showMsgTip(QCursor::pos());
 }

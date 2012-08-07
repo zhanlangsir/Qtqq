@@ -47,6 +47,10 @@ public:
 protected:
     void leaveEvent(QEvent *);
 
+	QString uidImage(const QString &uid);
+
+	void showMessage(ShareQQMsgPtr msg);
+
 private:
     void bibibi(SoundPlayer::SoundType type);
     bool getStrangerInfo(QString id, QString gid, QString &name, QString &token) const;

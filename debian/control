@@ -1,0 +1,25 @@
+Source: qtqq
+Section: utils
+Priority: extra
+Maintainer: Weitian Leung <weitianleung@gmail.com>
+Standards-Version: 3.9.2
+Homepage: https://github.com/timxx/Qtqq
+Build-Depends: debhelper (>= 8.0.0), cmake,
+         libgtk2.0-dev, pkg-config, cdbs,
+         libqt4-dev, zlib1g-dev,
+         libqtwebkit-dev, libnotify-dev
+
+Package: qtqq
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+         qtqq-data
+Description: Linux QQ for human beings
+ qtqq written in Qt4, which is free for all Linuxer!
+ Protol based from Tencent's Web QQ
+
+Package: qtqq-data
+Architecture: all
+Depends: ${misc:Depends}
+Recommends: qtqq
+Description: data files for qtqq
+ Data files such as icons, ui files etc. for qtqq
