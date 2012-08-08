@@ -34,7 +34,7 @@ private:
     QQMsg *createSystemGroupMsg(const Json::Value &result) const;
     QQMsg *createSystemMsg(const Json::Value &result) const;
 
-    bool isChatContentEmpty(QString content) const;
+	bool isChatContentEmpty(const QQChatMsg *msg, const QString &content) const;
 
     void sortByTime(QVector<QQMsg*> &be_sorting_msg) const;
 

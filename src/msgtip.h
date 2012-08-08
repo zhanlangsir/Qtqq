@@ -47,13 +47,13 @@ public:
 protected:
     void leaveEvent(QEvent *);
 
-	QString getItemAvatar(const QString &uid);
-
-	void showMessage(ShareQQMsgPtr msg);
-
 private:
     void bibibi(SoundPlayer::SoundType type);
     bool getStrangerInfo(QString id, QString gid, QString &name, QString &token) const;
+
+	QString getItemAvatar(const QString &uid, QQMsg::MsgType type);
+
+	void showMessage(ShareQQMsgPtr msg);
 
 private:
     Ui::MsgTip *ui;
