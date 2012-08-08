@@ -136,7 +136,7 @@ QString ChatManager::getFriendAvatarPath(const QString &id) const
     QQItem *item = main_win_->friendModel()->find(id);
 
     if (item)
-        return  item->avatarPath();
+        return item->avatarPath();
 
     return "";
 }
@@ -146,7 +146,7 @@ QString ChatManager::getGroupAvatarPath(const QString &id) const
     QQItem *item = main_win_->groupModel()->find(id);
 
     if (item)
-        return  item->avatarPath();
+        return item->avatarPath();
 
     return "";
 }

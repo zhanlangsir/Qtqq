@@ -5,7 +5,6 @@
 #include <QModelIndex>
 #include <QStandardItem>
 #include <QPoint>
-#include <QDebug>
 
 #include "core/qqitem.h"
 
@@ -55,6 +54,7 @@ void FriendSearchLineEdit::addFindedFriend(QVector<QQItem*> items)
 		avatar.addPixmap(pix);
 
 		QStandardItem *view_item = new QStandardItem(avatar, item->markName());
+		view_item->setData(item->id(), Qt::UserRole);
 
 		model_->appendRow(view_item);
     }

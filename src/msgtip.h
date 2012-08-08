@@ -47,7 +47,7 @@ public:
 protected:
     void leaveEvent(QEvent *);
 
-	QString uidImage(const QString &uid);
+	QString getItemAvatar(const QString &uid);
 
 	void showMessage(ShareQQMsgPtr msg);
 
