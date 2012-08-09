@@ -1,3 +1,3 @@
 #include "captchainfo.h"
 
-CaptchaInfo* CaptchaInfo::instance_;
+CaptchaInfo* CaptchaInfo::instance_ = NULL;

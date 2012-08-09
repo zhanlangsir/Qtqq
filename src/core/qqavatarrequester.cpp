@@ -39,7 +39,6 @@ QString QQAvatarRequester::requestOne(int type, QString id, QString save_path)
     QString avatar_url = "/cgi/svr/face/getface?cache=0&type=%1&fid=0&uin=%2&vfwebqq=%3";
 
     Request req;
-
     req.create(kGet, avatar_url.arg(type).arg(id).arg(CaptchaInfo::instance()->vfwebqq()));
     req.addHeaderItem("Host", "face1.qun.qq.com");
     req.addHeaderItem("Referer", "http://web.qq.com");

@@ -15,7 +15,7 @@ void ImgLoader::loadFriendCface(const QString &uuid, const QString &file_name, c
 
     info.img_name = file_name;
     info.uuid = uuid;
-    info.path = QQSettings::configDir() + "/temp/" + file_name;
+    info.path = QQGlobal::tempPath() + '/' + file_name;
     info.url = "/channel/get_cface2?lcid="+msg_id+"&guid="+file_name+"&to="+ to_uin+
             "&count=5&time=1&clientid=5412354841&psessionid="+CaptchaInfo::instance()->psessionid();
     info.host = "d.web2.qq.com";

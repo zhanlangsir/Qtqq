@@ -5,6 +5,7 @@
 #include <QModelIndex>
 #include <QStandardItem>
 #include <QPoint>
+#include <QFile>
 
 #include "core/qqitem.h"
 

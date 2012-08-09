@@ -340,13 +340,11 @@ void GroupChatDlg::parseGroupMemberList(const QByteArray &array)
 
     Json::Value members = root["result"]["minfo"];
 
-    qDebug() << "Group:" << name_ << "member count:" << members.size() << endl;
     for (unsigned int i = 0; i < members.size(); ++i)
     {
         QString nick = QString::fromStdString(members[i]["nick"].asString());
         QString uin = QString::number(members[i]["uin"].asLargestInt());
 
-        qDebug() << "member:" << nick <<  ' ';
         QQItem *info = new QQItem(QQItem::kFriend, nick, uin, model_->rootItem());
         info->set_status(kOffline);
         model_->insertItem(info);
@@ -400,7 +398,6 @@ void GroupChatDlg::readFromSql()
     {
         QString uin = query.value(0).toString();
         QString nick = query.value(2).toString();
-        qDebug()<<"inserted from sql:"<<i++<<nick<<endl;
         QString mark_name = query.value(3).toString();
         FriendStatus stat = (FriendStatus)query.value(4).toInt();
         QString avatar_path = query.value(5).toString();
@@ -451,7 +448,7 @@ void GroupChatDlg::createSql()
         "markname VARCHAR(25),"
         "status INTEGER,"
         "avatarpath VARCHAR(20),"
-        "PRIMARY KEY (uin))");
+        "PRIMARY KEY (uin, gid))");
 
     if (query.lastError().isValid())
     {
@@ -511,7 +508,8 @@ void GroupChatDlg::writeMemberInfoToSql()
 
                 //uin, gid, name, mark name, status, avatar path
                 query.exec(insert_command.arg(item->id()).arg(id_).arg(item->name()).arg(item->markName()).arg(item->status()).arg(item->avatarPath()));
-                qDebug() << "inserted:" << i << item->name() << ' ';
+                if ( query.lastError().isValid() )
+                    qDebug() << "Write sql failed:" << item->name() << "  " <<  query.lastError().text() << endl;
             }
             QSqlDatabase::database().commit();
         }

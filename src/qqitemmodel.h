@@ -33,6 +33,8 @@ public:
         return icon_size_;
     }
 
+    void notifyItemDataChanged(QQItem * item);
+
     void insertItem(QQItem *item);
     void insertItem(QQItem *item, QQItem *parent);
 
