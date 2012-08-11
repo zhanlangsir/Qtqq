@@ -26,7 +26,8 @@ public:
     virtual void run() = 0;
 };
 
-class GetAvatarTsk : public Task
+/*
+class GetAvatarTask : public Task
 {
 public:
     GetAvatarTask(TaskPriority pri, TaskType type) : 
@@ -55,7 +56,8 @@ public:
 private:
     TaskPriority priority_; 
     TaskType type_;
-}:
+};
+*/
 
 class GetAvatarTask : public QRunnable
 {
