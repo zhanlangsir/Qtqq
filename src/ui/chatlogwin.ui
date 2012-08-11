@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>聊天记录</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
