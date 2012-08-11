@@ -34,6 +34,7 @@ set(CORE_HEADERS
 	core/captchainfo.h
 	core/qqutility.h
     core/singleton.h
+    core/tasks.h
 )
 
 set(UI_HEADERS

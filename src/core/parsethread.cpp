@@ -151,7 +151,7 @@ QQMsg *ParseThread::createFriendMsg(const Json::Value &result) const
 
         if (content.type() == Json::stringValue)
         {
-            if ( isChatContentEmpty(QString::fromStdString(content.asString())) )
+			if ( isChatContentEmpty(chat_msg, QString::fromStdString(content.asString())) )
                 continue;
 
             item.set_type(QQChatItem::kWord);
@@ -204,7 +204,7 @@ QQMsg *ParseThread::createGroupMsg(const Json::Value &result) const
 
         if (content.type() == Json::stringValue)
         {
-            if ( isChatContentEmpty(QString::fromStdString(content.asString())) )
+			if ( isChatContentEmpty(g_chat_msg, QString::fromStdString(content.asString())) )
                 continue;
 
             item.set_type(QQChatItem::kWord);
@@ -258,7 +258,7 @@ QQMsg *ParseThread::createSessMsg(const Json::Value &result) const
 
         if (content.type() == Json::stringValue)
         {
-            if ( isChatContentEmpty(QString::fromStdString(content.asString())) )
+			if ( isChatContentEmpty(chat_msg, QString::fromStdString(content.asString())) )
                 continue;
 
             item.set_type(QQChatItem::kWord);
@@ -332,9 +332,18 @@ QQMsg *ParseThread::createSystemMsg(const Json::Value &result) const
     return system_msg;
 }
 
-bool ParseThread::isChatContentEmpty(QString content) const
+bool ParseThread::isChatContentEmpty(const QQChatMsg *msg, const QString &content) const
 {
-    return (content.size() == 1 && ( content[0] == '\n' || content[0] == ' ' ));
+	//对方用webqq发送好友图片的时候,会在图片后加上"\n "文本,这里判断"\n "后还有没有其他输入文字,
+    //没有把"\n "过滤掉,否则到显示的时候会显示一行\n,就是一个空行
+	if ( msg->msg_.size() == 0 )
+		return false;
+    //如果上一个消息为好友图片类型,则判断"\n "后是否没有其他文字
+    if ( msg->msg_[msg->msg_.size()-1].type() == QQChatItem::kFriendOffpic  )
+		return  (content.size() == 2 &&  content[0] == '\n');
+	else  //如果是群图片,会在图片后加" "(一个空格),这里也过滤掉
+		return (content.size() == 1 &&  content[0] == ' ');
+
 }
 
 ParseThread::ParseThread()

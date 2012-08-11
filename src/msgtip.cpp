@@ -13,6 +13,7 @@
 #include <json/json.h>
 
 #include "qqglobal.h"
+#include "core/qqskinengine.h"
 
 const static int NOTIFY_TIMEOUT_MS	= 5000;
 
@@ -256,26 +257,30 @@ bool MsgTip::activatedChat(int i)
 
 		SystemTray *trayIcon = SystemTray::instance();
 
-		trayIcon->setIcon(getItemAvatar(msg->talkTo()));
+		trayIcon->setIcon(getItemAvatar(msg->talkTo(), msg->type()));
 	}
 
 	return true;
 }
 
-QString MsgTip::getItemAvatar(const QString &uid)
+QString MsgTip::getItemAvatar(const QString &uid, QQMsg::MsgType type)
 {
-	QString path;
-	if ( main_win_ && main_win_->chatManager() )
-	{
-		path = main_win_->chatManager()->getFriendAvatarPath(uid);
+    QString path;
 
-		if ( path.isEmpty() )
-		{
-			path = main_win_->chatManager()->getGroupAvatarPath(uid);
-		}
-	}
+    if ( type == QQMsg::kFriend )
+    {
+        path = main_win_->chatManager()->getFriendAvatarPath(uid);
+        if ( path.isEmpty() )
+            path =  QQSkinEngine::instance()->getSkinRes("default_friend_avatar");
+    }
+    else if ( type == QQMsg::kGroup )
+    {
+        path = main_win_->chatManager()->getGroupAvatarPath(uid);
+        if ( path.isEmpty() )
+            path = QQSkinEngine::instance()->getSkinRes("default_group_avatar");
+    }
 
-	return path;
+    return path;
 }
 
 void MsgTip::showMessage(ShareQQMsgPtr msg)
@@ -284,23 +289,23 @@ void MsgTip::showMessage(ShareQQMsgPtr msg)
 	switch(msg->type())
 	{
 	case QQMsg::kSystem:
-		trayIcon->showMessage(getItemAvatar(msg->talkTo()), "[" + convertor_->convert(msg->talkTo()) + "]" + "request to add you", msg->msg(),  NOTIFY_TIMEOUT_MS);
+		trayIcon->showMessage(getItemAvatar(msg->talkTo(), msg->type()), "[" + convertor_->convert(msg->talkTo()) + "]" + "request to add you", msg->msg(),  NOTIFY_TIMEOUT_MS);
         break;
 
     case QQMsg::kSystemG:
-		trayIcon->showMessage(getItemAvatar(msg->sendUin()), "[" + convertor_->convert(msg->sendUin()) + "]" + "request to enter group [" + convertor_->convert(msg->sendUin()), msg->msg(),  NOTIFY_TIMEOUT_MS);
+		trayIcon->showMessage(getItemAvatar(msg->sendUin(), msg->type()), "[" + convertor_->convert(msg->sendUin()) + "]" + "request to enter group [" + convertor_->convert(msg->sendUin()), msg->msg(),  NOTIFY_TIMEOUT_MS);
         break;
 
     case QQMsg::kSess:
-		trayIcon->showMessage(getItemAvatar(msg->sendUin()), "[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", msg->msg(), NOTIFY_TIMEOUT_MS);
+		trayIcon->showMessage(getItemAvatar(msg->sendUin(), msg->type()), "[" + convertor_->convert(msg->talkTo()) + "]" + " have new message", msg->msg(), NOTIFY_TIMEOUT_MS);
         break;
 
     case QQMsg::kFriend:
-		trayIcon->showMessage(getItemAvatar(msg->sendUin()), "[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", msg->msg(), NOTIFY_TIMEOUT_MS);
+		trayIcon->showMessage(getItemAvatar(msg->sendUin(), msg->type()), "[" + convertor_->convert(msg->talkTo()) + "]" + " have new message", msg->msg(), NOTIFY_TIMEOUT_MS);
         break;
 
     case QQMsg::kGroup:
-		trayIcon->showMessage(getItemAvatar(msg->talkTo()), "[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", msg->msg(), NOTIFY_TIMEOUT_MS);
+		trayIcon->showMessage(getItemAvatar(msg->talkTo(), msg->type()), "[" + convertor_->convert(msg->talkTo()) + "]" + " have new message", msg->msg(), NOTIFY_TIMEOUT_MS);
         break;
     }
 }

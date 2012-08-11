@@ -33,7 +33,12 @@ QQItemModel::~QQItemModel()
     }
 }
 
-
+void QQItemModel::notifyItemDataChanged(QQItem * item)
+{
+	 QQItem *parent = item->parent();
+     QModelIndex index = createIndex(parent->children_.indexOf(item), 0, item);
+	 dataChanged(index, index);
+}
 
 void QQItemModel::insertItem(QQItem *item)
 {
@@ -115,7 +120,6 @@ QVariant QQItemModel::data(const QModelIndex &index, int role) const
 
     if (role != Qt::DisplayRole)
     {
-
         return QVariant();
     }
     else
@@ -217,7 +221,7 @@ void QQItemModel::getPixmap(const QQItem *item, QPixmap &pix) const
 
 void QQItemModel::requestAvatar(QQItem *item)
 {
-    avatar_requester_.request(item);
+	avatar_requester_.request(item);
 }
 
 QModelIndex QQItemModel::index(int row, int column, const QModelIndex &parent) const

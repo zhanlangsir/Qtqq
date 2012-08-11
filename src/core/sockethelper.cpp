@@ -14,7 +14,8 @@ void getByLength(QTcpSocket *fd, QByteArray &out)
 
     while ((out.length()-content_idx) < content_length)
     {
-        fd->waitForReadyRead();
+		if ( !fd->waitForReadyRead() )
+			break;
         out.append(fd->readAll());
     }
 }
@@ -64,8 +65,8 @@ void getByTransferEncoding(QTcpSocket *fd, QByteArray &out)
         }
 
         int n = result.length();
-        //È·±£¿ÉÒÔ¶ÁÈ¡µ½chunkedºóÃæµÄ\r\nÖÕÖ¹·û£¬·ñÔò¶ÁÈ¡chunk_size-2¸ö×Ö½Ú£¬Ê£Óà
-        //1-2×Ö½ÚÏÂ´ÎÔÙ¶ÁÈ¡
+        //ç¡®ä¿å¯ä»¥è¯»å–åˆ°chunkedåé¢çš„\r\nç»ˆæ­¢ç¬¦ï¼Œå¦åˆ™è¯»å–chunk_size-2ä¸ªå­—èŠ‚ï¼Œå‰©ä½™
+        //1-2å­—èŠ‚ä¸‹æ¬¡å†è¯»å–
         if ((n == chunk_size) || (n == chunk_size + 1))
             n = chunk_size - 2;
 

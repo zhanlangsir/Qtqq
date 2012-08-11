@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     translator.load(QLocale::system().name(), transla_file_path);
     a.installTranslator(&translator);
 
-    Log4Qt::LogManager::setHandleQtMessages(true);
+	Log4Qt::LogManager::setHandleQtMessages(true);
 	Log4Qt::PropertyConfigurator::configure(QQGlobal::dataPath() + "/misc/log4qt.conf");
 
 	//set up file logger, log file in ~/.Qtqq/log.log

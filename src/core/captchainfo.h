@@ -1,5 +1,5 @@
-#ifndef QTQQ_CORE_CAPTCHAINFO_H
-#define QTQQ_CORECAPTCHAINFO_H
+#ifndef CAPTCHAINFO_H
+#define CAPTCHAINFO_H
 
 #include <QString>
 
@@ -46,4 +46,4 @@ private:
     QString cookie_;
 };
 
-#endif // QTQQ_CORE_CAPTCHAINFO_H
+#endif // CAPTCHAINFO_H

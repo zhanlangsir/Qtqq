@@ -1,7 +1,10 @@
 #include "groupitemmodel.h"
 
+#include <QThreadPool>
+
 #include <json/json.h>
 #include "core/nameconvertor.h"
+#include "core/tasks.h"
 
 void GroupItemModel::parse(const QByteArray &array, NameConvertor *convertor)
 {
@@ -22,12 +25,18 @@ void GroupItemModel::parse(const QByteArray &array, NameConvertor *convertor)
         QString gid = QString::number(gnamelist[i]["gid"].asLargestInt());
         QString code = QString::number(gnamelist[i]["code"].asLargestInt());
 
-        QQItem *info = new QQItem(QQItem::kGroup, name, gid, root_);
-        info->set_gCode(code);
+        QQItem *item = new QQItem(QQItem::kGroup, name, gid, root_);
+        item->set_gCode(code);
 
-        items_.append(info);
+        items_.append(item);
         convertor->addUinNameMap(gid, name);;
 
-        root_->children_.append(info);
+        root_->children_.append(item);
+
+        if ( item->type() != QQItem::kCategory )
+        {
+            GetAvatarTask *task = new GetAvatarTask(item, this);
+            QThreadPool::globalInstance()->start(task);
+        }
     }
 }
