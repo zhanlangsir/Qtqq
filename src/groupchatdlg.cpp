@@ -10,6 +10,7 @@
 #include <QSqlError>
 #include <QRegExp>
 #include <QTcpSocket>
+#include <QThreadPool>
 
 #include <assert.h>
 
@@ -27,6 +28,7 @@
 #include "frienditemmodel.h"
 #include "mainwindow.h"
 #include "core/qqsetting.h"
+#include "core/tasks.h"
 
 GroupChatDlg::GroupChatDlg(QString gid, QString name, QString group_code, QString avatar_path,
                            ChatManager *chat_manager, MainWindow *main_win, QWidget *parent) :
@@ -338,31 +340,34 @@ void GroupChatDlg::parseGroupMemberList(const QByteArray &array)
     if (!reader.parse(QString(array).toStdString(), root, false))
         return;
 
-    Json::Value members = root["result"]["minfo"];
-
-    for (unsigned int i = 0; i < members.size(); ++i)
-    {
-        QString nick = QString::fromStdString(members[i]["nick"].asString());
-        QString uin = QString::number(members[i]["uin"].asLargestInt());
-
-        QQItem *info = new QQItem(QQItem::kFriend, nick, uin, model_->rootItem());
-        info->set_status(kOffline);
-        model_->insertItem(info);
-
-        convertor_.addUinNameMap(uin, nick);
-    }
-
     Json::Value mark_names = root["result"]["cards"];
+    QHash <QString, QString> uin_marknames;
     for (unsigned int i = 0; i < mark_names.size(); ++i)
     {
         QString uin = QString::number(mark_names[i]["muin"].asLargestInt());
         QString mark_name = QString::fromStdString(mark_names[i]["card"].asString());
 
-        QQItem *item = model_->find(uin);
-        assert(item);
-
-        item->set_markName(mark_name);
+        uin_marknames.insert(uin, mark_name);
     }
+
+    Json::Value members = root["result"]["minfo"];
+    for (unsigned int i = 0; i < members.size(); ++i)
+    {
+        QString nick = QString::fromStdString(members[i]["nick"].asString());
+        QString uin = QString::number(members[i]["uin"].asLargestInt());
+
+        QQItem *item = new QQItem(QQItem::kFriend, nick, uin, model_->rootItem());
+        item->set_markName(uin_marknames.value(uin, ""));
+        item->set_status(kOffline);
+        model_->insertItem(item);
+
+        convertor_.addUinNameMap(uin, nick);
+
+        //thread pool, have some problem
+        //GetAvatarTask *task = new GetAvatarTask(item, model_);
+        //QThreadPool::globalInstance()->start(task);
+    }
+
 
     Json::Value stats = root["result"]["stats"];
     for (unsigned int i = 0; i < stats.size(); ++i)
@@ -507,9 +512,12 @@ void GroupChatDlg::writeMemberInfoToSql()
                 QQItem *item = model_->rootItem()->children_[i];
 
                 //uin, gid, name, mark name, status, avatar path
-                query.exec(insert_command.arg(item->id()).arg(id_).arg(item->name()).arg(item->markName()).arg(item->status()).arg(item->avatarPath()));
+                query.exec(insert_command.arg(item->id()).arg(id_).arg(item->name().replace('\'', "''")).arg(item->markName().replace('\'', "''")).arg(item->status()).arg(item->avatarPath()));
+
                 if ( query.lastError().isValid() )
+				{
                     qDebug() << "Write sql failed:" << item->name() << "  " <<  query.lastError().text() << endl;
+				}
             }
             QSqlDatabase::database().commit();
         }

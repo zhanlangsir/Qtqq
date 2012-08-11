@@ -297,15 +297,15 @@ void MsgTip::showMessage(ShareQQMsgPtr msg)
         break;
 
     case QQMsg::kSess:
-		trayIcon->showMessage(getItemAvatar(msg->sendUin(), msg->type()), "[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", msg->msg(), NOTIFY_TIMEOUT_MS);
+		trayIcon->showMessage(getItemAvatar(msg->sendUin(), msg->type()), "[" + convertor_->convert(msg->talkTo()) + "]" + " have new message", msg->msg(), NOTIFY_TIMEOUT_MS);
         break;
 
     case QQMsg::kFriend:
-		trayIcon->showMessage(getItemAvatar(msg->sendUin(), msg->type()), "[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", msg->msg(), NOTIFY_TIMEOUT_MS);
+		trayIcon->showMessage(getItemAvatar(msg->sendUin(), msg->type()), "[" + convertor_->convert(msg->talkTo()) + "]" + " have new message", msg->msg(), NOTIFY_TIMEOUT_MS);
         break;
 
     case QQMsg::kGroup:
-		trayIcon->showMessage(getItemAvatar(msg->talkTo(), msg->type()), "[" + convertor_->convert(msg->talkTo()) + "]" + " send message to " + "[" + tr("you") + "]", msg->msg(), NOTIFY_TIMEOUT_MS);
+		trayIcon->showMessage(getItemAvatar(msg->talkTo(), msg->type()), "[" + convertor_->convert(msg->talkTo()) + "]" + " have new message", msg->msg(), NOTIFY_TIMEOUT_MS);
         break;
     }
 }

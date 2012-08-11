@@ -42,7 +42,6 @@ void FriendSearcher::getFriendSpell(MainWindow *main_win)
         ItemSpell spell;
         spell.item = item;
         spell.spell = getChineseSpell(item->markName());
-        qDebug()<< item->markName() << "  " << spell.spell << endl;
         item_spells_.insert(item->id(), spell);
     }
 }

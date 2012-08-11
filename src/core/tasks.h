@@ -5,6 +5,7 @@
 #include <QTcpSocket>
 #include <QString>
 #include <QFile>
+#include <QPointer>
 
 #include "../qqitemmodel.h"
 #include "captchainfo.h"
@@ -12,6 +13,49 @@
 #include "qqitem.h"
 #include "sockethelper.h"
 #include "../qqglobal.h"
+
+#include <cstring>
+using std::string;
+
+class Task
+{
+public:
+    enum TaskPriority { kLow, kMiddle, kHigh };
+    enum TaskType { kAvatar, kLongNick };
+    virtual string identify() = 0;
+    virtual void run() = 0;
+};
+
+class GetAvatarTsk : public Task
+{
+public:
+    GetAvatarTask(TaskPriority pri, TaskType type) : 
+        priority_(pri),
+        type_(type)
+    {
+
+    }
+
+public:
+    string identify()
+    {
+        char priority_str[5];
+        sprintf(priority_str, "%d", priority_);
+        string result(priority_str);
+        result.append(item->id().toStdString());
+        result.append(type_);
+        return result;
+    }
+
+    void run()
+    {
+
+    }
+
+private:
+    TaskPriority priority_; 
+    TaskType type_;
+}:
 
 class GetAvatarTask : public QRunnable
 {
@@ -76,13 +120,17 @@ protected:
         file.close();
         fd.close();
 
-        item_->set_avatarPath(save_full_path);
-        model_->notifyItemDataChanged(item_);
+        if ( !model_.isNull() )
+        {
+            item_->set_avatarPath(save_full_path);
+            model_->notifyItemDataChanged(item_);
+        }
     }
 
 private:
     QQItem *item_;
-    QQItemModel *model_;
+    //QQItemModel *model_;
+    QPointer<QQItemModel> model_;
 };
 
 #endif //TASKS_H
