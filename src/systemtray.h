@@ -37,10 +37,6 @@ public:
 
     void flicker(bool flicker);
 
-    /*
-        现在此方法无任何作用
-        可以使用libnotify实现
-    */
     void showMessage(const QString &icon, const QString &title, const QString &msg, int msecs);
     void showMsgTip(QPoint pos)
     {
@@ -78,6 +74,8 @@ public:
 	QWidget *getMainWindow() const {
 		return _mainWindow;
 	}
+
+	void setTooltip(const QString &text) const;
 
 public slots:
     void slotNewUncheckMsgArrived();

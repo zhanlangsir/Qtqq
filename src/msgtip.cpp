@@ -260,7 +260,7 @@ bool MsgTip::activatedChat(int i)
 	}
     else
     {
-        trayIcon->setIcon(QQGlobal::dataPath() + "/resources/WebQQ.ico");
+        trayIcon->setIcon(QQGlobal::resourcePath() + "/WebQQ.ico");
     }
 
 	return true;

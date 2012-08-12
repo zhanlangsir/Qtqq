@@ -72,7 +72,11 @@ void SystemTray::showMessage(const QString &icon, const QString &title, const QS
 	notify_notification_update(_notification,
 				title.toStdString().c_str(),
 				msg.toStdString().c_str(),
+<<<<<<< HEAD
 				icon.isEmpty() ? QString(QQGlobal::dataPath() + "/resources/WebQQ.ico").toStdString().c_str() : icon.toStdString().c_str());
+=======
+				icon.isEmpty() ? QString(QQGlobal::resourcePath() + "/WebQQ.ico").toStdString().c_str() : icon.toStdString().c_str());
+>>>>>>> f67982ef074712091dff1a94f6f6bf623f8e6dee
 
 	// 切换到当前发消息者的头像
 	if (!icon.isEmpty()){
@@ -144,6 +148,13 @@ void SystemTray::checkCursorPos()
     }
 }
 
+void SystemTray::setTooltip(const QString &text) const
+{
+	if (tray_icon_){
+		gtk_status_icon_set_tooltip_text(tray_icon_, text.toStdString().c_str());
+	}
+}
+
 static void gtkTrayIconActived(GtkStatusIcon *status_icon, gpointer user_data)
 {
     Q_UNUSED(status_icon)
@@ -190,4 +201,3 @@ static gboolean gtkQueryToolTip(GtkStatusIcon *status_icon,
     tray->showMsgTip(QCursor::pos());
     return false;
 }
-

@@ -140,6 +140,9 @@ void MainWindow::slot_logout()
     }
 
     main_http_->close();
+
+	SystemTray::instance()->setTooltip("qtqq");
+	
     emit sig_logout();
 }
 
@@ -170,6 +173,8 @@ void MainWindow::changeMyStatus(int idx)
     main_http_->request(header);
 
     QQSettings::instance()->currLoginInfo().status = ui->cb_status_->itemData(idx).value<FriendStatus>();
+
+	updateLoginUser();
 }
 
 void MainWindow::changeFriendStatus(QString id, FriendStatus status, ClientType client_type)
@@ -522,4 +527,18 @@ void MainWindow::openGroupRequestDlg(ShareQQMsgPtr msg)
     {
 
     }
+}
+
+void MainWindow::updateLoginUser() const
+{
+	SystemTray *tray = SystemTray::instance();
+	QQSettings *sett = QQSettings::instance();
+
+	QString tooltip("qtqq - ");
+
+	tooltip += sett->loginId() + "\n";
+	tooltip += sett->loginName() + " (";
+	tooltip += QQUtility::StatusToString(sett->loginStatus()) + ")";
+	
+	tray->setTooltip(tooltip);
 }

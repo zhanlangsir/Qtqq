@@ -39,6 +39,7 @@ void Qtqq::slot_showMainPanel()
     mainpanel_ = new MainWindow();
     connect(mainpanel_, SIGNAL(sig_logout()), this, SLOT(restart()));
     mainpanel_->show();
+	mainpanel_->updateLoginUser();
 
     login_dlg_->deleteLater();
     login_dlg_ = NULL;
