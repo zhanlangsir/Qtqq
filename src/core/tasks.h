@@ -27,7 +27,7 @@ public:
     virtual void run() = 0;
 };
 
-class GetAvatarTsk : public Task
+class GetAvatarTask : public Task
 {
 public:
     GetAvatarTask(TaskPriority pri, TaskType type) : 
@@ -58,6 +58,7 @@ private:
     TaskType type_;
 }:
 */
+
 class GetAvatarTask : public QRunnable
 {
 public:
