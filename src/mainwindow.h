@@ -65,6 +65,9 @@ public:
     ChatManager *chatManager() const
     { return chat_manager_; }
 
+	// 更新托盘显示的用户信息
+	void updateLoginUser() const;
+
 protected:
     void closeEvent(QCloseEvent *);
 
