@@ -14,6 +14,7 @@
 #include "sockethelper.h"
 #include "../qqglobal.h"
 
+/*
 #include <cstring>
 using std::string;
 
@@ -56,7 +57,7 @@ private:
     TaskPriority priority_; 
     TaskType type_;
 }:
-
+*/
 class GetAvatarTask : public QRunnable
 {
 public:

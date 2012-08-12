@@ -250,15 +250,18 @@ bool MsgTip::activatedChat(int i)
 
 	// 设置闪烁的头像为最后一个
 	int count = ui->uncheckmsglist->count();
+    SystemTray *trayIcon = SystemTray::instance();
 	if (count > 0)
 	{
 		QListWidgetItem *item = ui->uncheckmsglist->item(count - 1);
 		ShareQQMsgPtr msg = item->data(Qt::UserRole).value<ShareQQMsgPtr>();
 
-		SystemTray *trayIcon = SystemTray::instance();
-
 		trayIcon->setIcon(getItemAvatar(msg->talkTo(), msg->type()));
 	}
+    else
+    {
+        trayIcon->setIcon(QQGlobal::dataPath() + "/icons/24x24/apps/qtqq.png");
+    }
 
 	return true;
 }
