@@ -1,9 +1,9 @@
 Source: qtqq
 Section: utils
 Priority: extra
-Maintainer: Weitian Leung <weitianleung@gmail.com>
+Maintainer: zhanlangsir <zhanlangsir@gmail.com>
 Standards-Version: 3.9.2
-Homepage: https://github.com/timxx/Qtqq
+Homepage: https://github.com/zhanlangsir/Qtqq
 Build-Depends: debhelper (>= 8.0.0), cmake,
          libgtk2.0-dev, pkg-config, cdbs,
          libqt4-dev, zlib1g-dev,
