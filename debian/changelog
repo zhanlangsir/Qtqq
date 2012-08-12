@@ -1,3 +1,15 @@
+qtqq (0.7.0-20120812-oneiric) oneiric; urgency=low
+
+  * Daily build
+
+ -- Weitian Leung <weitianleung@gmail.com>  Sun, 12 Aug 2012 22:26:05 +0800 
+
+qtqq (0.7.0-20120812-precise) precise; urgency=low
+
+  * Daily build
+
+ -- Weitian Leung <weitianleung@gmail.com>  Sun, 12 Aug 2012 22:25:15 +0800 
+
 qtqq (0.7.1-beta-oneiric) oneiric; urgency=low
 
   * 修复托盘图表问题
