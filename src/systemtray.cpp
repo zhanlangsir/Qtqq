@@ -72,11 +72,7 @@ void SystemTray::showMessage(const QString &icon, const QString &title, const QS
 	notify_notification_update(_notification,
 				title.toStdString().c_str(),
 				msg.toStdString().c_str(),
-<<<<<<< HEAD
-				icon.isEmpty() ? QString(QQGlobal::dataPath() + "/resources/WebQQ.ico").toStdString().c_str() : icon.toStdString().c_str());
-=======
 				icon.isEmpty() ? QString(QQGlobal::resourcePath() + "/WebQQ.ico").toStdString().c_str() : icon.toStdString().c_str());
->>>>>>> f67982ef074712091dff1a94f6f6bf623f8e6dee
 
 	// 切换到当前发消息者的头像
 	if (!icon.isEmpty()){

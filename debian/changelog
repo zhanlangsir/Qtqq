@@ -1,23 +1,11 @@
-qtqq (0.7.1-beta-oneiric) oneiric; urgency=low
+qtqq (0.7.0-beta-precise) precise; urgency=low
 
-  * 修复托盘图表问题
+  * 0.7.0 beta 
 
- -- zhanlangsir <zhanlangsir@gmail.com>  Sun, 12 Aug 2012 16:34:11 +0800
-
-qtqq (0.7.1-beta-precise) precise; urgency=low
-
-  * 修复托盘图表问题
-
- -- zhanlangsir <zhanlangsir@gmail.com>  Sun, 12 Aug 2012 16:34:11 +0800
+ -- zhanlangsir <zhanlangsir@gmail.com>  Sun, 12 Aug 2012 21:30:37 +0800
 
 qtqq (0.7.0-beta-oneiric) oneiric; urgency=low
 
   * 0.7.0 beta 
 
- -- zhanlangsir <zhanlangsir@gmail.com>  Sun, 12 Aug 2012 16:26:33 +0800
-
-qtqq (0.7.0-beta-precise) precise; urgency=low
-
-  * 0.7.0 beta 
-
- -- zhanlangsir <zhanlangsir@gmail.com>  Sun, 12 Aug 2012 16:15:46 +0800
+ -- zhanlangsir <zhanlangsir@gmail.com>  Sun, 12 Aug 2012 21:30:37 +0800
