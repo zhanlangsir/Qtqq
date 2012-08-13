@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 project(Qtqq)
-set(version 0.6.0)
+set(version 0.7.0)
 
 find_package(Qt4 REQUIRED)
 
