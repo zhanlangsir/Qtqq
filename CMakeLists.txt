@@ -21,6 +21,9 @@ if (NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "Release")
 endif()
 
+if (NOT CMAKE_INSTALL_PREFIX)
+    set(CMAKE_INSTALL_PREFIX "/usr")
+endif()
 
 set(package	${PROJECT_NAME})
 if ( CMAKE_BUILD_TYPE MATCHES "Debug" )
