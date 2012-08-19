@@ -31,7 +31,6 @@ QQLoginCore::~QQLoginCore()
 void QQLoginCore::login(QString id, QString pwd, FriendStatus status)
 {
     status_ = status;
-
     QString login_url = "/login?u=" + id + "&p=" + getPwMd5(pwd) + "&verifycode="+vc_+
             "&webqq_type=10&remember_uin=0&login2qq=1&aid=1003903&u1=http%3A%2F%2Fweb.qq.com%2Floginproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&h=1&ptredirect=0&ptlang=2052&from_ui=1&pttype=1&dumy=&fp=loginerroralert&action=2-6-22950&mibao_css=m_webqq&t=1&g=1";
 
@@ -109,6 +108,28 @@ void QQLoginCore::login(QString id, QString pwd, FriendStatus status, QString vc
     login(id, pwd, status);
 }
 
+QByteArray QQLoginCore::getMd5Uin(const QByteArray &result, int begin_idx)
+{
+	int uin_s_idx = result.indexOf('\'', begin_idx) + 1;
+	int uin_e_idx = result.indexOf('\'', uin_s_idx);
+
+	QString uin = result.mid(uin_s_idx, uin_e_idx - uin_s_idx);
+	QStringList dex_uin = uin.split("\\x");
+
+	QByteArray dec_uin;
+	QString dex;
+
+	foreach (dex, dex_uin)
+	{
+		if (dex.isEmpty())
+			continue;
+
+		bool ok;
+		dec_uin.append((char)dex.toInt(&ok, 16));
+	}
+	return dec_uin;
+}
+
 QQLoginCore::AccountStatus QQLoginCore::checkState(QString id)
 {
     qDebug()<<"checking state"<<endl;
@@ -128,30 +149,13 @@ QQLoginCore::AccountStatus QQLoginCore::checkState(QString id)
     QByteArray result = fd_->readAll();
     qDebug()<<"check status result"<<result<<endl;
     fd_->disconnectFromHost();
+
     if (result.contains('!'))
     {
         int vc_idx = result.indexOf('!');
         vc_ = result.mid(vc_idx, 4);
 
-        int uin_s_idx = result.indexOf('\'', vc_idx + 5) + 1;
-        int uin_e_idx = result.indexOf('\'', uin_s_idx);
-
-        QString uin = result.mid(uin_s_idx, uin_e_idx - uin_s_idx);
-        QStringList dex_uin = uin.split("\\x");
-
-        QByteArray dec_uin;
-        QString dex;
-
-        foreach (dex, dex_uin)
-        {
-            if (dex.isEmpty())
-                continue;
-
-            bool ok;
-            dec_uin.append((char)dex.toInt(&ok, 16));
-        }
-
-        uin_ = dec_uin;
+		md5_uin_ = getMd5Uin(result, vc_idx+5);
 
         int cookie_idx = result.indexOf("ptvfsession");
         int idx = result.indexOf(';', cookie_idx)+1;
@@ -163,10 +167,12 @@ QQLoginCore::AccountStatus QQLoginCore::checkState(QString id)
     else
     {
         int ptui_idx = result.indexOf("ptui");
-        int first_idx = result.indexOf(',', ptui_idx)+2;
-        int second_idx = result.indexOf('\'', first_idx);
+		int sum_s_idx = result.indexOf(',', ptui_idx)+2;
+		int sum_e_idx = result.indexOf('\'', sum_s_idx);
 
-        sum_ = result.mid(first_idx, second_idx - first_idx);
+		sum_ = result.mid(sum_s_idx, sum_e_idx - sum_s_idx);
+
+		md5_uin_ = getMd5Uin(result, sum_e_idx+2);
 
         return kExceptionCpaImg;
     }
@@ -275,7 +281,7 @@ QByteArray QQLoginCore::getPwMd5(QString pwd)
 {
     QByteArray md5;   
     md5 = QCryptographicHash::hash(pwd.toAscii(), QCryptographicHash::Md5);
-    md5 = QCryptographicHash::hash(md5.append(uin_), QCryptographicHash::Md5).toHex().toUpper();
+	md5 = QCryptographicHash::hash(md5.append(md5_uin_), QCryptographicHash::Md5).toHex().toUpper();
     md5 = QCryptographicHash::hash(md5.append(vc_.toUpper()), QCryptographicHash::Md5).toHex().toUpper();
 
     return md5;
@@ -284,6 +290,5 @@ QByteArray QQLoginCore::getPwMd5(QString pwd)
 char QQLoginCore::getResultState(const QByteArray &array)
 {
     int idx = array.indexOf("ptuiCB");
-    return array[idx + 8];
+	return array[idx + 8];
 }
-

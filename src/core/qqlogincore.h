@@ -39,12 +39,13 @@ private:
     QString getLoginStatus() const;
     void getCaptchaImg(QByteArray sum);
     void setupStatus(QString id, QString pwd, FriendStatus status);
+	QByteArray getMd5Uin(const QByteArray &result, int begin_idx);
     
 private:
     QTcpSocket *fd_;
     QString vc_;
     QByteArray sum_;
-    QByteArray uin_;
+	QByteArray md5_uin_;
 
     QString id_;
     QString pwd_;
