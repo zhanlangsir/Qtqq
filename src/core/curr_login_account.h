@@ -12,16 +12,6 @@ class MainWindow;
 class CurrLoginAccount
 {
 public:
-	/*
-	static CurrLoginAccount* instance()
-	{
-		if ( !instance_ )
-			instance_ = new CurrLoginAccount();
-
-		return instance_;
-	}
-	*/
-
 	static QString id() 
 	{ return id_; }
 	static QString name()
@@ -54,10 +44,6 @@ private:
 	CurrLoginAccount() {}
 	CurrLoginAccount(const CurrLoginAccount&);
 	CurrLoginAccount& operator=(const CurrLoginAccount&);
-
-	/*
-	static CurrLoginAccount *instance_;
-	*/
 
 	friend class QQLoginCore;
 	friend class MainWindow;
