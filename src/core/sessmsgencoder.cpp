@@ -1,8 +1,8 @@
 #include "sessmsgencoder.h"
 
-#include "../qqchatdlg.h"
-#include "../groupchatdlg.h"
-#include "captchainfo.h"
+#include "chatwidget/qqchatdlg.h"
+#include "chatwidget/groupchatdlg.h"
+#include "core/captchainfo.h"
 
 SessMsgEncoder::SessMsgEncoder(QQChatDlg *dlg, QString code, QString sig) :
     MsgEncoder(dlg),

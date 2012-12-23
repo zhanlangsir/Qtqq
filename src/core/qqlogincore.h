@@ -21,8 +21,8 @@ public:
 
 public:
     QPixmap getCapImg();
-    void login(QString id, QString pwd, FriendStatus status);
-    void login(QString id, QString pwd, FriendStatus status, QString vc);
+    void login(QString id, QString pwd, ContactStatus status);
+    void login(QString id, QString pwd, ContactStatus status, QString vc);
     AccountStatus checkState(QString id);
 
 signals:
@@ -38,7 +38,7 @@ private slots:
 private:
     QString getLoginStatus() const;
     void getCaptchaImg(QByteArray sum);
-    void setupStatus(QString id, QString pwd, FriendStatus status);
+    void setupStatus(QString id, QString pwd, ContactStatus status);
 	QByteArray getMd5Uin(const QByteArray &result, int begin_idx);
     
 private:
@@ -49,7 +49,7 @@ private:
 
     QString id_;
     QString pwd_;
-    FriendStatus status_;
+    ContactStatus status_;
 };
 
 #endif // QTQQ_QQLOGINCORE_H

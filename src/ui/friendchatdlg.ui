@@ -179,7 +179,7 @@
          <item>
           <widget class="QToolButton" name="btn_chat_log">
            <property name="text">
-            <string>消息记录</string>
+            <string>message log</string>
            </property>
           </widget>
          </item>
@@ -227,14 +227,14 @@
             <item>
              <widget class="QPushButton" name="btn_close">
               <property name="text">
-               <string>关闭</string>
+               <string>close</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="btn_send_msg">
               <property name="text">
-               <string>发送</string>
+               <string>send</string>
               </property>
               <property name="default">
                <bool>true</bool>

@@ -14,7 +14,7 @@
 #include "sockethelper.h"
 #include "captchainfo.h"
 #include "request.h"
-#include "qqsetting.h"
+#include "core/curr_login_account.h"
 
 QQLoginCore::QQLoginCore()
 {
@@ -28,9 +28,12 @@ QQLoginCore::~QQLoginCore()
     delete fd_;
 }
 
-void QQLoginCore::login(QString id, QString pwd, FriendStatus status)
+void QQLoginCore::login(QString id, QString pwd, ContactStatus status)
 {
+	id_ = id;
+	pwd_ = pwd;
     status_ = status;
+
     QString login_url = "/login?u=" + id + "&p=" + getPwMd5(pwd) + "&verifycode="+vc_+
             "&webqq_type=10&remember_uin=0&login2qq=1&aid=1003903&u1=http%3A%2F%2Fweb.qq.com%2Floginproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&h=1&ptredirect=0&ptlang=2052&from_ui=1&pttype=1&dumy=&fp=loginerroralert&action=2-6-22950&mibao_css=m_webqq&t=1&g=1";
 
@@ -102,7 +105,7 @@ void QQLoginCore::login(QString id, QString pwd, FriendStatus status)
     getLoginInfo(ptwebqq);
 }
 
-void QQLoginCore::login(QString id, QString pwd, FriendStatus status, QString vc)
+void QQLoginCore::login(QString id, QString pwd, ContactStatus status, QString vc)
 {
     vc_ = vc;
     login(id, pwd, status);
@@ -133,7 +136,8 @@ QByteArray QQLoginCore::getMd5Uin(const QByteArray &result, int begin_idx)
 QQLoginCore::AccountStatus QQLoginCore::checkState(QString id)
 {
     qDebug()<<"checking state"<<endl;
-    QQSettings::instance()->currLoginInfo().id = id;
+	CurrLoginAccount::setId(id);
+    //QQSettings::instance()->currLoginInfo().id = id;
     QString check_url = "/check?uin=%1&appid=1003903&r=0.5354662109559408";
     fd_ = new QTcpSocket();
     fd_->connectToHost("check.ptlogin2.qq.com",80);
@@ -183,7 +187,7 @@ QPixmap QQLoginCore::getCapImg()
     QString captcha_str ="/getimage?uin=%1&vc_type=%2&aid=1003909&r=0.5354663109529408";
 
     Request req;
-    req.create(kGet, captcha_str.arg(QQSettings::instance()->loginId()).arg(QString(sum_)));
+    req.create(kGet, captcha_str.arg(CurrLoginAccount::id()).arg(QString(sum_)));
     req.addHeaderItem("Host", "captcha.qq.com");
     req.addHeaderItem("Connection", "Keep-Alive");
 
@@ -210,17 +214,17 @@ QString QQLoginCore::getLoginStatus() const
 {
     switch (status_)
     {
-    case kOnline:
+    case CS_Online:
         return "online";
-    case kCallMe:
+    case CS_CallMe:
         return "callme";
-    case kAway:
+    case CS_Away:
         return "away";
-    case kBusy:
+    case CS_Busy:
         return "busy";
-    case kSilent:
+    case CS_Silent:
         return "silent";
-    case kHidden:
+    case CS_Hidden:
         return "hidden";
     default:
         break;
@@ -262,6 +266,9 @@ void QQLoginCore::getLoginInfoDone()
     int psessionid_f_idx = result.indexOf("psessionid") + 13;
     int  psessionid_s_idx = result.indexOf(',',  psessionid_f_idx) - 1;
     CaptchaInfo::instance()->set_psessionid(result.mid( psessionid_f_idx,  psessionid_s_idx -  psessionid_f_idx));
+
+	CurrLoginAccount::setId(id_);
+	CurrLoginAccount::setStatus(status_);
 
     emit sig_loginDone(kSucess);
 }

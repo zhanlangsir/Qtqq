@@ -10,8 +10,8 @@
 
 #include "core/qqchatlog.h"
 #include "core/qqmsg.h"
-#include "core/qqsetting.h"
 #include "core/nameconvertor.h"
+#include "qqglobal.h"
 
 ChatLogWin::ChatLogWin(QWidget *parent) :
     QWidget(parent),
@@ -137,7 +137,7 @@ void ChatLogWin::insertQQFace(const QString &face_id)
     QTextCursor cursor(doc);
     cursor.movePosition(QTextCursor::End);
 
-    QString path = QQSettings::instance()->resourcePath() + "/qqface/default/" + face_id + ".gif";
+    QString path = QQGlobal::resourceDir() + "/qqface/default/" + face_id + ".gif";
     QImage img(path);
     QUrl url(face_id);
     doc->addResource(QTextDocument::ImageResource, url, img);
@@ -174,7 +174,7 @@ void ChatLogWin::insertImg(const QString &img_name)
     QTextCursor cursor(doc);
     cursor.movePosition(QTextCursor::End);
 
-    QImage img(QQSettings::instance()->tempPath() + "/" + img_name);
+    QImage img(QQGlobal::tempDir() + "/" + img_name);
     QUrl url(img_name);
     doc->addResource(QTextDocument::ImageResource, url, img);
     cursor.insertImage(img_name);

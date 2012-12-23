@@ -9,7 +9,7 @@
 #include <QMimeData>
 #include <QDebug>
 
-#include "core/qqsetting.h"
+#include "qqglobal.h"
 
 QQTextEdit::QQTextEdit(QWidget *parent) : QTextEdit(parent)
 {
@@ -77,7 +77,7 @@ void QQTextEdit::insertQQFace(const QString &face_id)
     QTextCursor cursor(doc);
     cursor.movePosition(QTextCursor::End);
 
-    QString path = QQSettings::instance()->resourcePath() + "/qqface/default/" + face_id + ".gif";
+    QString path = QQGlobal::resourceDir() + "/qqface/default/" + face_id + ".gif";
     QImage img(path);
     QUrl url(kQQFacePre+face_id);
     doc->addResource(QTextDocument::ImageResource, url, img);

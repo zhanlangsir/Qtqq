@@ -10,7 +10,7 @@
 #include "sockethelper.h"
 #include "captchainfo.h"
 #include "qqmsg.h"
-#include "qqsetting.h"
+#include "core/curr_login_account.h"
 
 FriendChatLog::FriendChatLog(QString to_id):
     to_id_(to_id),
@@ -89,7 +89,7 @@ void FriendChatLog::parse(QByteArray &arr, QVector<ShareQQMsgPtr> &chat_logs)
 
         int cmd = arr.mid(cmd_s_idx, cmd_e_idx - cmd_s_idx).toInt();
 
-        msg->from_uin_ = cmd == 17 ? uin : QQSettings::instance()->loginId();
+        msg->from_uin_ = cmd == 17 ? uin : CurrLoginAccount::id();
 
         int time_s_idx = arr.indexOf("time:", log_s_idx)+5;
 

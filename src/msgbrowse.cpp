@@ -7,15 +7,14 @@
 
 #include <QByteArray>
 #include <QWebFrame>
-#include <QDebug>
 #include <QFile>
 #include <QDateTime>
 #include <QWebPage>
 #include <QRegExp>
 #include <QDesktopServices>
 
-#include "core/qqsetting.h"
 #include "core/captchainfo.h"
+#include "skinengine/msgstyle_manager.h"
 
 #define APPEND_MESSAGE_WITH_SCROLL          "checkIfScrollToBottomIsNeeded(); appendMessage(\"%1\"); scrollToBottomIfNeeded();"
 #define APPEND_NEXT_MESSAGE_WITH_SCROLL     "checkIfScrollToBottomIsNeeded(); appendNextMessage(\"%1\"); scrollToBottomIfNeeded();"
@@ -59,24 +58,24 @@ void MsgBrowse::onLinkClicked(const QUrl &url)
 
 void MsgBrowse::initUi()
 {
-      QString template_file = QQSettings::instance()->messageStylePath() + "/adium/Template.html";
-      QFile fd(template_file);
-      fd.open(QIODevice::ReadOnly);
-      QByteArray file_content_arr = fd.readAll();
+	QString template_file = MsgStyleManager::instance()->styleRes("template"); 
+	QFile fd(template_file);
+	fd.open(QIODevice::ReadOnly);
+	QByteArray file_content_arr = fd.readAll();
 
-      QString html = QString::fromUtf8(file_content_arr.data(), file_content_arr.size());
+	QString html = QString::fromUtf8(file_content_arr.data(), file_content_arr.size());
 
-      QString header = "";
+	QString header = "";
 
-      html.replace("%msg_style_path%", QUrl::fromLocalFile(QQSettings::instance()->messageStylePath()).toString());
-      html.replace(html.indexOf("%@"), 2, header);
-      html.replace(html.indexOf("%@"), 2, "");
-      html.replace("==bodyBackground==", "margin-top: 5px; ");
+	html.replace("%msg_style_path%", QUrl::fromLocalFile(QQGlobal::messageStyleDir()).toString());
+	html.replace(html.indexOf("%@"), 2, header);
+	html.replace(html.indexOf("%@"), 2, "");
+	html.replace("==bodyBackground==", "margin-top: 5px; ");
 
-      setHtml(html);
+	setHtml(html);
 
-      page()->settings()->setFontSize(QWebSettings::DefaultFontSize, 7);
-      page()->settings()->setFontFamily(QWebSettings::StandardFont,  "Monospace");
+	page()->settings()->setFontSize(QWebSettings::DefaultFontSize, 7);
+	page()->settings()->setFontFamily(QWebSettings::StandardFont,  "Monospace");
 }
 
 void MsgBrowse::appendContent(QString content, const ShowOptions &options)
@@ -95,11 +94,7 @@ void MsgBrowse::appendContent(QString content, const ShowOptions &options)
                 a_templace += "http://";
 
             QString after = a_templace  + link_reg.cap(0) + "\">" + link_reg.cap(0)+ "</a>";
-            qDebug()<<link_reg.cap(0)<<endl;
-            qDebug()<<link_reg.cap(0).length()<<endl;
-            qDebug()<<after.length()<<endl;
             content.replace(link_reg.cap(0), after);
-            qDebug()<<content.length()<<endl;
 
             pos += after.length();
         }
@@ -250,10 +245,10 @@ QString MsgBrowse::loadFileData(QString name)
 
 void MsgBrowse::loadTemplate()
 {
-    in_content_html_ =      loadFileData( QQSettings::instance()->messageStylePath() + "/adium/Incoming/Content.html");
-    in_next_content_html_ =  loadFileData(QQSettings::instance()->messageStylePath()  + "/adium/Incoming/NextContent.html");
+    in_content_html_ = loadFileData(MsgStyleManager::instance()->styleRes("incomming_content"));
+    in_next_content_html_ = loadFileData(MsgStyleManager::instance()->styleRes("incomming_nextcontent"));
 
-    out_content_html_ =     loadFileData(QQSettings::instance()->messageStylePath()  + "/adium/Outgoing/Content.html");
-    out_next_content_html_ = loadFileData(QQSettings::instance()->messageStylePath()  + "/adium/Outgoing/NextContent.html");
-    status_html_ = loadFileData(QQSettings::instance()->messageStylePath()  + "/adium/Status.html");
+    out_content_html_ = loadFileData(MsgStyleManager::instance()->styleRes("outgoing_content"));
+    out_next_content_html_ = loadFileData(MsgStyleManager::instance()->styleRes("outgoing_nextcontent"));
+    status_html_ = loadFileData(MsgStyleManager::instance()->styleRes("status"));
 }

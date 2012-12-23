@@ -45,6 +45,8 @@ void RecentListItemModel::parse(const QByteArray &array)
         }
         else if(type == 0)
         {
+			if ( !friend_model_ )
+				continue;
             item = friend_model_->find(id);
         }
         if (!item)

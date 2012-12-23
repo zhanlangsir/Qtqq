@@ -65,14 +65,14 @@ public:
     void set_gCode(QString gcode)
     { gcode_ = gcode; }
 
-    FriendStatus status() const
+    ContactStatus status() const
     { return status_; }
-    void set_status(FriendStatus status)
+    void set_status(ContactStatus status)
     { status_ = status; }
 
-    ClientType clientType() const
+    ContactClientType clientType() const
     { return client_type_; }
-    void set_clientType(ClientType type)
+    void set_clientType(ContactClientType type)
     { client_type_ = type;  }
 
     QString id() const
@@ -109,8 +109,8 @@ private:
     int online_count_;
 
     QString mark_name_;
-    FriendStatus status_;
-    ClientType client_type_;
+    ContactStatus status_;
+    ContactClientType client_type_;
 
     QString gcode_;
 };

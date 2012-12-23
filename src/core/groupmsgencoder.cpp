@@ -2,9 +2,9 @@
 
 #include <QRegExp>
 
-#include "captchainfo.h"
-#include "../qqchatdlg.h"
-#include "../groupchatdlg.h"
+#include "core/captchainfo.h"
+#include "chatwidget/qqchatdlg.h"
+#include "chatwidget/groupchatdlg.h"
 
 GroupMsgEncoder::GroupMsgEncoder(QQChatDlg *dlg) :
     MsgEncoder(dlg)

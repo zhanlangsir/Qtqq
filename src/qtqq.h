@@ -7,24 +7,50 @@
 
 class LoginWin;
 class MainWindow;
+class QAction;
 
 class Qtqq : public QObject
 {
     Q_OBJECT
 public:
-    Qtqq();
     ~Qtqq();
+	static Qtqq *instance()
+	{
+		if ( !instance_ )
+			instance_ = new Qtqq();
+
+		return instance_;
+	}
+
+	MainWindow *mainWin() const
+	{ return main_win_; }
 
 public:
     void start();
 
 private slots:
-    void slot_showMainPanel();
-    void restart();
+    void showMainPanel();
+
+	void onMinimize();
+	void onRestore();
+    void onLogout();
+	void onQuit();
 
 private:
     LoginWin *login_dlg_;
-    MainWindow *mainpanel_;
+    MainWindow *main_win_;
+
+	QAction *minimize_;
+	QAction *restore_;
+	QAction *logout_;
+	QAction *quit_;
+
+private:
+    Qtqq();
+	Qtqq(const Qtqq &);
+	Qtqq &operator=(const Qtqq &);
+
+	static Qtqq *instance_;
 };
 
 #endif // QTQQ_QTQQ_H

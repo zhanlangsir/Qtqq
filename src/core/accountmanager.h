@@ -4,13 +4,13 @@
 #include <QVector>
 #include <QString>
 
-#include "types.h"
+#include "utils/contact_status.h"
 
 struct AccountRecord
 {
     QString id_;
     QString pwd_;
-    FriendStatus login_status_;
+    ContactStatus login_status_;
     bool rem_pwd_;
 };
 

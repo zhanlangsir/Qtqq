@@ -9,7 +9,6 @@
 #include <QHttp>
 
 #include "captchainfo.h"
-#include "qqsetting.h"
 
 void ImgSender::send(const QString uinque_id, const QString full_path)
 {

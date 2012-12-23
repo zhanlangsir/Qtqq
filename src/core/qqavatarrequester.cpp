@@ -7,7 +7,7 @@
 #include "request.h"
 #include "captchainfo.h"
 #include "sockethelper.h"
-#include "qqsetting.h"
+#include "qqglobal.h"
 
 bool QQAvatarRequester::isRequesting(QString id) const
 {
@@ -80,7 +80,7 @@ void QQAvatarRequester::run()
         {
             id = item->gCode();
         }
-        QString fold_path = QQSettings::tempPath() + "/avatar/";
+        QString fold_path = QQGlobal::tempDir() + "/avatar/";
 		QDir().mkdir(fold_path);
         QString full_path = requestOne(getTypeNumber(item->type()), id, fold_path);
 

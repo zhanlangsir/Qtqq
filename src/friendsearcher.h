@@ -7,35 +7,28 @@
 #include <QVector>
 #include <QStringList>
 
-
-class QQItem;
-class MainWindow;
-
-struct ItemSpell
+struct ContactSpell
 {
-    QQItem *item;
+	QString id;
     QString spell;
 };
 
 class FriendSearcher : public QObject
 {
-    Q_OBJECT
-signals:
-    void findMatchItem(QVector<QQItem*> items);
-
 public:
-    FriendSearcher(MainWindow *main_win);
+    FriendSearcher();
 
-public slots:
-    void search(const QString &str);
+	void initialize();
+
+    void search(const QString &str, QVector<QString> &result);
 
 private:
     QString getChineseSpell(QString str);
     bool readCn2LetterData();
-    void getFriendSpell(MainWindow *main_win);
+    void getFriendSpell();
 
 private:
-    QMap<QString, ItemSpell> item_spells_;
+    QVector<ContactSpell> contact_spells_;
     QStringList cn2letter_;
 };
 

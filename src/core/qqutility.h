@@ -3,58 +3,60 @@
 
 #include <zlib.h>
 
-#include "types.h"
+#include <QString>
+
+#include "utils/contact_status.h"
 
 namespace QQUtility
 {
 inline
-FriendStatus stringToStatus(QString status)
+ContactStatus stringToStatus(QString status)
 {
     if (status == "online")
     {
-        return kOnline;
+        return CS_Online;
     }
     else if (status == "callme")
     {
-        return kCallMe;
+        return CS_CallMe;
     }
     else if (status == "away")
     {
-        return kAway;
+        return CS_Away;
     }
     else if (status == "busy")
     {
-        return kBusy;
+        return CS_Busy;
     }
     else if (status == "silent")
     {
-        return kSilent;
+        return CS_Silent;
     }
     else if (status == "offline")
     {
-        return kOffline;
+        return CS_Offline;
     }
-    return kOffline;
+    return CS_Offline;
 }
 
 inline
-QString StatusToString(FriendStatus status)
+QString StatusToString(ContactStatus status)
 {
     switch (status)
     {
-    case kOnline:
+    case CS_Online:
         return "online";
-    case kCallMe:
+    case CS_CallMe:
         return "callme";
-    case kAway:
+    case CS_Away:
         return "away";
-    case kBusy:
+    case CS_Busy:
         return "busy";
-    case kSilent:
+    case CS_Silent:
         return "silent";
-    case kHidden:
+    case CS_Hidden:
         return "hidden";
-    case kOffline:
+    case CS_Offline:
         return "offline";
     default:
         break;

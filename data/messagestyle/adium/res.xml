@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding='UTF-8'?>
+
+<MsgStyleRes 
+template="Template.html"
+status = "Status.html"
+
+incomming_content="Incoming/Content.html"
+incomming_nextcontent = "Incoming/NextContent.html"
+
+outgoing_content = "Outgoing/Content.html"
+outgoing_nextcontent = "Outgoing/NextContent.html"
+/>

@@ -1,14 +1,14 @@
 #include "accountmanager.h"
-#include "qqsetting.h"
 
 #include <fstream>
 
 #include <QFile>
 
-#include <json/json.h>
+#include "json/json.h"
+#include "qqglobal.h"
 
 AccountManager::AccountManager() :
-    save_path_(QQSettings::configDir() + "/users.json")
+    save_path_(QQGlobal::configDir() + "/users.json")
 {
     qRegisterMetaType<AccountRecord>("AccountRecord");
 }
@@ -16,7 +16,7 @@ AccountManager::AccountManager() :
 void AccountManager::readAccounts()
 {
     std::ifstream is;
-	is.open(QString(QQSettings::configDir() + "/users.json").toStdString().c_str(), std::ios::in);
+	is.open(QString(QQGlobal::configDir() + "/users.json").toStdString().c_str(), std::ios::in);
     if (!is.is_open())
         return;
 
@@ -36,7 +36,7 @@ void AccountManager::readAccounts()
         AccountRecord *record = new AccountRecord;
         record->id_ =  QString::fromStdString(users[i]["id"].asString());
         record->pwd_ =  QString::fromStdString(users[i]["pwd"].asString());
-        record->login_status_  = (FriendStatus)users[i]["login_status"].asInt();
+        record->login_status_  = (ContactStatus)users[i]["login_status"].asInt();
         record->rem_pwd_ =  users[i]["rem_pwd"].asBool();
 
         login_records_.append(record);
@@ -62,7 +62,7 @@ void AccountManager::saveAccounts()
     root["users"] = users;
 
     std::ofstream os;
-	QString path = QQSettings::configDir() + "/users.json";
+	QString path = QQGlobal::configDir() + "/users.json";
     os.open(path.toStdString().c_str(), std::ios::out);
     os<<writer.write(root);
     os.close();
