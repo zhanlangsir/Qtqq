@@ -58,7 +58,7 @@ public:
     QQItem *find(QString id) const;
 
 public slots:
-    virtual void changeFriendStatus(QString id, FriendStatus status, ClientType client_type) { Q_UNUSED(id) Q_UNUSED(status) Q_UNUSED(client_type)}
+    virtual void changeFriendStatus(QString id, ContactStatus status, ContactClientType client_type) { Q_UNUSED(id) Q_UNUSED(status) Q_UNUSED(client_type)}
 
 protected:
     QQItem* itemFromIndex(const QModelIndex &index) const ;

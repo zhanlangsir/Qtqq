@@ -11,7 +11,6 @@
 #include "sockethelper.h"
 #include "captchainfo.h"
 #include "qqmsg.h"
-#include "qqsetting.h"
 #include "sockethelper.h"
 
 GroupChatLog::GroupChatLog(QString gid):

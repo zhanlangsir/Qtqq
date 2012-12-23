@@ -2,24 +2,26 @@
 #include "ui_loginwin.h"
 #include "ui_captcha.h"
 
-#include <QByteArray>
-#include <QDebug>
-#include <QPixmap>
-#include <QCryptographicHash>
-#include <QTcpSocket>
 #include <assert.h>
+
+#include <QApplication>
+#include <QByteArray>
+#include <QDesktopServices>
+#include <QKeyEvent>
+#include <QPixmap>
+#include <QTcpSocket>
 #include <QMessageBox>
 #include <QDesktopWidget>
 #include <QSettings>
-#include <QMetaType>
-#include <QDesktopServices>
 #include <QUrl>
+
+#include <QDebug>
+
+#include "json/json.h"
 
 #include "core/types.h"
 #include "core/request.h"
-#include <json/json.h>
-#include "core/qqsetting.h"
-#include "core/qqskinengine.h"
+#include "skinengine/qqskinengine.h"
 
 LoginWin::LoginWin(QWidget *parent) :
     QWidget(parent),
@@ -29,7 +31,8 @@ LoginWin::LoginWin(QWidget *parent) :
     ui->setupUi(this);
 
     setObjectName("loginWindow");
-    setWindowIcon(QIcon(QQSkinEngine::instance()->getSkinRes("app_icon")));
+
+    setWindowIcon(QIcon(QQGlobal::instance()->appIconPath()));
 
 	connect(ui->pb_login, SIGNAL(clicked()), this, SLOT(beginLogin()));
     connect(login_core_, SIGNAL(sig_loginDone(QQLoginCore::LoginResult)),
@@ -55,12 +58,12 @@ LoginWin::~LoginWin()
 
 void LoginWin::setupStatus()
 {
-    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_online")), tr("Online"), QVariant::fromValue<FriendStatus>(kOnline));
-    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_qme")), tr("CallMe"), QVariant::fromValue<FriendStatus>(kCallMe));
-    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_away")), tr("Away"), QVariant::fromValue<FriendStatus>(kAway));
-    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_busy")), tr("Busy"), QVariant::fromValue<FriendStatus>(kBusy));
-    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_mute")), tr("Silent"), QVariant::fromValue<FriendStatus>(kSilent));
-    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_hidden")), tr("Hidden"), QVariant::fromValue<FriendStatus>(kHidden));
+    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_online")), tr("Online"), QVariant::fromValue<ContactStatus>(CS_Online));
+    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_qme")), tr("CallMe"), QVariant::fromValue<ContactStatus>(CS_CallMe));
+    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_away")), tr("Away"), QVariant::fromValue<ContactStatus>(CS_Away));
+    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_busy")), tr("Busy"), QVariant::fromValue<ContactStatus>(CS_Busy));
+    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_mute")), tr("Silent"), QVariant::fromValue<ContactStatus>(CS_Silent));
+    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_hidden")), tr("Hidden"), QVariant::fromValue<ContactStatus>(CS_Hidden));
 }
 
 void LoginWin::setupAccountRecords()
@@ -88,11 +91,11 @@ void LoginWin::setUserLoginInfo(QString text)
     ui->cb_status->setCurrentIndex(getStatusIndex(record->login_status_));
 }
 
-int LoginWin::getStatusIndex(FriendStatus status) const
+int LoginWin::getStatusIndex(ContactStatus status) const
 {
     for (int i = 0; i < ui->cb_status->count(); ++i)
     {
-        if (ui->cb_status->itemData(i).value<FriendStatus>() == status)
+        if (ui->cb_status->itemData(i).value<ContactStatus>() == status)
             return i;
     }
     return -1;
@@ -129,10 +132,7 @@ void LoginWin::loginDone(QQLoginCore::LoginResult result)
     {
         curr_login_account_.pwd_ = ui->cekb_rem_pwd_->isChecked() ? ui->le_password_->text() : QString::null;
 
-        QQSettings::instance()->currLoginInfo().id = curr_login_account_.id_;
-        QQSettings::instance()->currLoginInfo().status = curr_login_account_.login_status_;
-
-        if (ui->comb_username_->findText(curr_login_account_.id_) == -1)
+		if (ui->comb_username_->findText(curr_login_account_.id_) == -1)
         {
             ui->comb_username_->insertItem(0, curr_login_account_.id_);
         }
@@ -253,39 +253,46 @@ bool LoginWin::eventFilter(QObject *obj, QEvent *e)
         return QWidget::eventFilter(obj, e);
 }
 
-void LoginWin::showCapImg(QPixmap pix)
+void LoginWin::closeEvent(QCloseEvent *event)
 {
-    QDialog *captcha_dialog = new QDialog();
-    Ui::QQCaptcha *cap_ui = new Ui::QQCaptcha;
-    cap_ui->setupUi(captcha_dialog);
-    cap_ui->lbl_captcha_->setPixmap(pix);
-
-    QString vc;
-    if (captcha_dialog->exec())
-    {
-        vc = cap_ui->le_captcha_->text().toUpper();
-    }
-
-    delete captcha_dialog;
-    captcha_dialog = NULL;
-
-    login_core_->login(curr_login_account_.id_, curr_login_account_.pwd_, getLoginStatus(), vc);
+	Q_UNUSED(event)
+		qApp->quit();
 }
 
-FriendStatus LoginWin::getLoginStatus() const
+
+void LoginWin::showCapImg(QPixmap pix)
 {
-    QSettings setting(QQSettings::configDir() + "/options.ini", QSettings::IniFormat);
-    FriendStatus status;
+	QDialog *captcha_dialog = new QDialog();
+	Ui::QQCaptcha *cap_ui = new Ui::QQCaptcha;
+	cap_ui->setupUi(captcha_dialog);
+	cap_ui->lbl_captcha_->setPixmap(pix);
 
-    if (setting.value("auto_login").toBool())
-    {
-        status = setting.value("login_status").value<FriendStatus>();
-    }
-    else
-    {
-        int idx = ui->cb_status->currentIndex();
-        status = ui->cb_status->itemData(idx).value<FriendStatus>();
-    }
+	QString vc;
+	if (captcha_dialog->exec())
+	{
+		vc = cap_ui->le_captcha_->text().toUpper();
+	}
 
-    return status;
+	delete captcha_dialog;
+	captcha_dialog = NULL;
+
+	login_core_->login(curr_login_account_.id_, curr_login_account_.pwd_, getLoginStatus(), vc);
+}
+
+ContactStatus LoginWin::getLoginStatus() const
+{
+	QSettings setting(QQGlobal::configDir() + "/options.ini", QSettings::IniFormat);
+	ContactStatus status;
+
+	if (setting.value("auto_login").toBool())
+	{
+		status = setting.value("login_status").value<ContactStatus>();
+	}
+	else
+	{
+		int idx = ui->cb_status->currentIndex();
+		status = ui->cb_status->itemData(idx).value<ContactStatus>();
+	}
+
+	return status;
 }

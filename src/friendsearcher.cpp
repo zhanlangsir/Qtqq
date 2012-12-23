@@ -3,20 +3,23 @@
 #include <QFile>
 #include <QDebug>
 
-#include "core/qqitem.h"
-#include "frienditemmodel.h"
 #include "qqglobal.h"
-#include "mainwindow.h"
+#include "roster/roster.h"
+#include "core/talkable.h"
 
-FriendSearcher::FriendSearcher(MainWindow *main_win)
+FriendSearcher::FriendSearcher()
+{
+}
+
+void FriendSearcher::initialize()
 {
     if ( readCn2LetterData() )
-        getFriendSpell(main_win);
+        getFriendSpell();
 }
 
 bool FriendSearcher::readCn2LetterData()
 {
-    QFile cn2str_fd(QQGlobal::dataPath() + "/misc/words.data"); 
+    QFile cn2str_fd(QQGlobal::dataDir() + "/misc/words.data"); 
 
     if ( !cn2str_fd.open(QIODevice::ReadOnly) )
     {
@@ -32,17 +35,16 @@ bool FriendSearcher::readCn2LetterData()
     return true;
 }
 
-void FriendSearcher::getFriendSpell(MainWindow *main_win)
+void FriendSearcher::getFriendSpell()
 {
-    foreach ( QQItem *item, main_win->friendModel()->items() )
-    { 
-        if ( item->type() == QQItem::kCategory )
-            continue;
+	const Roster *roster = Roster::instance();
 
-        ItemSpell spell;
-        spell.item = item;
-        spell.spell = getChineseSpell(item->markName());
-        item_spells_.insert(item->id(), spell);
+    foreach ( Contact *contact, roster->contacts() )
+    { 
+		ContactSpell spell;
+		spell.id = contact->id();
+		spell.spell = getChineseSpell(contact->markname());
+        contact_spells_.append(spell);
     }
 }
 
@@ -73,14 +75,12 @@ QString FriendSearcher::getChineseSpell(QString str)
     return result;
 }
 
-void FriendSearcher::search(const QString &str)
+void FriendSearcher::search(const QString &str, QVector<QString> &result)
 {
-    QVector<QQItem*> result;
-    foreach ( ItemSpell spell, item_spells_.values() ) 
+    foreach ( const ContactSpell &spell, contact_spells_ ) 
     {
-        if ( spell.spell.contains(str.toUpper()) || spell.item->markName().contains(str.toUpper()) )
-            result.append(spell.item);
+		Contact *contact = Roster::instance()->contact(spell.id);
+        if ( spell.spell.contains(str.toUpper()) || contact->markname().contains(str.toUpper()) )
+            result.append(spell.id);
     }
-
-    emit findMatchItem(result);
 }

@@ -2,6 +2,7 @@
 #include <QTextCodec>
 #include <QSettings>
 #include <QTranslator>
+#include <QCleanlooksStyle>
 
 #include "log4qt/logger.h"
 #include "log4qt/propertyconfigurator.h"
@@ -27,25 +28,23 @@ int main(int argc, char *argv[])
     a.setQuitOnLastWindowClosed(false);
 
     QTranslator translator;
-	QString transla_file_path = QQGlobal::dataPath() + "/translations";
-    translator.load(QLocale::system().name(), transla_file_path);
+	QString transla_file_path = QQGlobal::dataDir() + "/translations";
+	translator.load(QLocale::system(), "qtqq", "_", transla_file_path, ".qm");
     a.installTranslator(&translator);
 
 	Log4Qt::LogManager::setHandleQtMessages(true);
-	Log4Qt::PropertyConfigurator::configure(QQGlobal::dataPath() + "/misc/log4qt.conf");
+	Log4Qt::PropertyConfigurator::configure(QQGlobal::dataDir() + "/misc/log4qt.conf");
 
 	//set up file logger, log file in ~/.Qtqq/log.log
 	Log4Qt::Logger *logger = Log4Qt::Logger::rootLogger();
 	Log4Qt::FileAppender *file_appender = new Log4Qt::FileAppender();
 	file_appender->setName("FileAppender");
-	file_appender->setFile(QQGlobal::configPath() + "/log.log");
+	file_appender->setFile(QQGlobal::configDir() + "/log.log");
 	Log4Qt::TTCCLayout *filelayout = new Log4Qt::TTCCLayout(Log4Qt::TTCCLayout::ISO8601);
 	file_appender->setLayout(filelayout);
 	file_appender->activateOptions();
 	logger->addAppender(file_appender);
 
-    Qtqq qtqq;
-    qtqq.start();
-
+	Qtqq::instance()->start() ;
     return a.exec();
 }

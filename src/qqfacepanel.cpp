@@ -3,10 +3,10 @@
 
 #include <QTableWidgetItem>
 
-#include "core/qqsetting.h"
+#include "qqglobal.h"
 
 QQFacePanel::QQFacePanel(QWidget *parent) : QDialog(parent), ui_(new Ui::QQFacePanel),
-    qqface_path_(QQSettings::instance()->resourcePath() + "/qqface/default/")
+    qqface_path_(QQGlobal::resourceDir() + "/qqface/default/")
 {
     ui_->setupUi(this);
     ui_->tbw_qqface_->setIconSize(QSize(30,30));

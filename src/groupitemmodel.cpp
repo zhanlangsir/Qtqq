@@ -35,8 +35,8 @@ void GroupItemModel::parse(const QByteArray &array, NameConvertor *convertor)
 
         if ( item->type() != QQItem::kCategory )
         {
-            GetAvatarTask *task = new GetAvatarTask(item, this);
-            QThreadPool::globalInstance()->start(task);
+            //GetAvatarTask *task = new GetAvatarTask(item, this);
+            //QThreadPool::globalInstance()->start(task);
         }
     }
 }

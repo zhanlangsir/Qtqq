@@ -186,7 +186,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>&lt;a href=&quot;http://zc.qq.com/chs/index.html&quot;&gt;注册帐号&lt;/a&gt;</string>
+       <string>&lt;a href=&quot;http://zc.qq.com/chs/index.html&quot;&gt;sign up&lt;/a&gt;</string>
       </property>
      </widget>
      <widget class="QLabel" name="find_password">
@@ -199,7 +199,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>&lt;a href=&quot;https://aq.qq.com/cn2/findpsw/pc/pc_find_pwd_input_account&quot;&gt;找回密码&lt;/a&gt;</string>
+       <string>&lt;a href=&quot;https://aq.qq.com/cn2/findpsw/pc/pc_find_pwd_input_account&quot;&gt;find password&lt;/a&gt;</string>
       </property>
      </widget>
     </widget>

@@ -2,14 +2,9 @@
 #define QTQQ_CORE_TYPES_H
 
 #include <QString>
-#include <QMetaType>
 
-#include "qqchatitem.h"
-
-enum FriendStatus {kCallMe=60, kOnline=10, kAway=30, kBusy=50, kSilent=70, kHidden=40, kOffline=100};
-enum ClientType{kPc=1, kPhone=21, kIphone=24, kWeb=41, kIpad};
-
-Q_DECLARE_METATYPE(FriendStatus)
+#include "core/qqchatitem.h"
+#include "utils/contact_status.h"
 
 struct FileInfo
 {
@@ -24,7 +19,7 @@ struct LoginInfo
 {
     QString id;
     QString name;
-    FriendStatus status;
+    ContactStatus status;
     QString avatar_path;
 };
 

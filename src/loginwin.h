@@ -1,19 +1,11 @@
 #ifndef QTQQ_LOGINDLG_H
 #define QTQQ_LOGINDLG_H
 
+#include <QWidget>
+
 #include "core/types.h"
-
-#include <QDialog>
-#include <QMouseEvent>
-#include <QPoint>
-#include <QVector>
-#include <QApplication>
-
 #include "core/qqlogincore.h"
 #include "core/accountmanager.h"
-
-class QByteArray;
-class QTcpSocket;
 
 namespace Ui {
 class LoginWin;
@@ -31,11 +23,7 @@ public:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *e);
-    void closeEvent(QCloseEvent *event)
-    {
-        Q_UNUSED(event)
-        qApp->quit();
-    }
+    void closeEvent(QCloseEvent *event);
 
 private slots:
 	void beginLogin();
@@ -50,10 +38,10 @@ private:
     void setupStatus();
     void checkAccoutStatus();
     void showCapImg(QPixmap pix);
-    FriendStatus getLoginStatus() const;
+    ContactStatus getLoginStatus() const;
     void setupAccountRecords();
     void setUserLoginInfo(QString text);
-    int getStatusIndex(FriendStatus status) const;
+    int getStatusIndex(ContactStatus status) const;
     
 private:
     Ui::LoginWin *ui;

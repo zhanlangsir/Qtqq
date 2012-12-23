@@ -2,6 +2,7 @@
 #define QTQQ_CHATLOGWIN_H
 
 #include <QWidget>
+
 #include "core/qqmsg.h"
 
 namespace Ui

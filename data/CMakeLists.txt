@@ -4,8 +4,9 @@ install(FILES qtqq.desktop DESTINATION ${prefix}/share/applications)
 
 set(data_folds 
     misc
-    resources
+    res
     skins
+	messagestyle
     )
 
 install(DIRECTORY ${data_folds} DESTINATION ${pkgdatadir})

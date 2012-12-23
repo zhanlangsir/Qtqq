@@ -1,8 +1,9 @@
-#ifndef QTQQ_CORE_QQGLOBAL_H
-#define QTQQ_CORE_QQGLOBAL_H
+#ifndef QQGLOBAL_H
+#define QQGLOBAL_H
 
-
+#include <QtXml/QDomDocument>
 #include <QDir>
+#include <QFile>
 #include <QString>
 
 #include "config.h"
@@ -10,12 +11,20 @@
 class QQGlobal
 {
 public:
+	static QQGlobal *instance()
+	{
+		if ( !instance_ )
+			instance_ = new QQGlobal();
+
+		return instance_;
+	}
+
     static QString appName() 
     {
         return app_name_;
     }
 
-    static QString configPath()
+    static QString configDir()
     {
         QString config_path = QDir::homePath() + "/.config/" + appName();
 
@@ -26,10 +35,15 @@ public:
         return config_path;
     }
 
-    static QString resourcePath() 
-    { return dataPath() + "/resources"; }
+	static QString skinsDir() 
+	{ return dataDir() + "/skins"; }
+    static QString resourceDir() 
+    { return dataDir() + "/res"; }
+	static QString messageStyleDir()
+	{
+		return dataDir() + "/messagestyle"; }
 
-    static QString tempPath() 
+    static QString tempDir() 
     {
         QString temp_path = QDir::tempPath() + '/' + appName();
 
@@ -40,20 +54,29 @@ public:
         return temp_path;
     }
 
-    static QString dataPath()
+    static QString dataDir()
     {
         return data_path_;
     }
+
+	QString appIconPath() const
+	{
+        return appicon_path_;
+	}
+
+private:
+	QString appicon_path_;
+
+    static const QString app_name_;
+    static const QString data_path_;
+	static const QString version_;
 
 private:
     QQGlobal();
     QQGlobal(const QQGlobal&);
     QQGlobal& operator=(const QQGlobal&);
 
-private:
-    static const QString app_name_;
-    static const QString data_path_;
+	static QQGlobal *instance_;
 };
 
-
-#endif //QTQQ_CORE_QQGLOBAL_H
+#endif //QQGLOBAL_H

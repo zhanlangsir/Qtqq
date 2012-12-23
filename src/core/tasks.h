@@ -13,6 +13,7 @@
 #include "qqitem.h"
 #include "sockethelper.h"
 #include "../qqglobal.h"
+#include "talkable.h"
 
 /*
 #include <cstring>
@@ -62,31 +63,34 @@ private:
 class GetAvatarTask : public QRunnable
 {
 public:
-    GetAvatarTask(QQItem *item, QQItemModel *model) : item_(item), model_(model)
+    GetAvatarTask(Talkable *talkable, QQItemModel *model) : talkable_(talkable), model_(model)
     {
     }
+    GetAvatarTask(QQItem *item, QQItemModel *model) 
+	{
+	}
 
-    static int getTypeNumber(QQItem::ItemType type)
+    static int getTypeNumber(Talkable::TalkableType type)
     {
-        if (type == QQItem::kFriend)
+        if (type == Talkable::kContact)
         {
             return 1;
         }
-        else if (type == QQItem::kGroup)
+        else if (type == Talkable::kGroup)
         {
             return 4;
         }
     }
 
-    static QString getRequestId(QQItem *item)
+    static QString getRequestId(Talkable *talkable)
     {
-		if (item->type() == QQItem::kFriend)
+		if (talkable->type() == Talkable::kContact)
         {
-            return item->id(); 
+            return talkable->id(); 
         }
-		else if (item->type() == QQItem::kGroup)
+		else if (talkable->type() == Talkable::kGroup)
         {
-            return item->gCode();
+            return talkable->gcode();
         }
     }
 
@@ -97,7 +101,7 @@ protected:
         QString avatar_url = "/cgi/svr/face/getface?cache=0&type=%1&fid=0&uin=%2&vfwebqq=%3";
 
         Request req;
-		req.create(kGet, avatar_url.arg(getTypeNumber(item_->type())).arg(getRequestId(item_)).arg(CaptchaInfo::instance()->vfwebqq()));
+		req.create(kGet, avatar_url.arg(getTypeNumber(talkable_->type())).arg(getRequestId(talkable_)).arg(CaptchaInfo::instance()->vfwebqq()));
         req.addHeaderItem("Host", "face1.qun.qq.com");
         req.addHeaderItem("Referer", "http://web.qq.com");
         req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
@@ -114,7 +118,7 @@ protected:
         int format_end_idx = result.indexOf("\r\n", format_idx);
 
         QString format = result.mid(format_idx, format_end_idx - format_idx);
-        QString save_full_path = QQGlobal::tempPath() + '/' + item_->id() + "." + format;
+        QString save_full_path = QQGlobal::tempDir() + '/' + talkable_->id() + "." + format;
 
         QFile file(save_full_path);
         file.open(QIODevice::WriteOnly);
@@ -124,14 +128,12 @@ protected:
 
         if ( !model_.isNull() )
         {
-            item_->set_avatarPath(save_full_path);
-            model_->notifyItemDataChanged(item_);
+            talkable_->setIconPath(save_full_path);
         }
     }
 
 private:
-    QQItem *item_;
-    //QQItemModel *model_;
+    Talkable *talkable_;
     QPointer<QQItemModel> model_;
 };
 

@@ -1,91 +1,82 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <assert.h>
+
 #include <QDesktopWidget>
 #include <QHttp>
-#include <QDebug>
-#include <QTreeWidgetItem>
-#include <QSemaphore>
 #include <QDateTime>
-#include <assert.h>
 #include <QFile>
 #include <QSettings>
 #include <QEvent>
 
+#include <QDebug>
+
 #include "qxtglobalshortcut.h"
-#include <json/json.h>
+#include "json/json.h"
 
 #include "core/qqavatarrequester.h"
 #include "core/types.h"
 #include "core/qqutility.h"
-#include "core/msgcenter.h"
-#include "core/pollthread.h"
-#include "core/parsethread.h"
 #include "core/qqlogincore.h"
-#include "core/captchainfo.h"
-#include "frienditemmodel.h"
-#include "groupitemmodel.h"
-#include "grouprequestdlg.h"
-#include "qqiteminfohelper.h"
-#include "friendrequestdlg.h"
-#include "friendchatdlg.h"
-#include "msgtip.h"
-#include "groupchatdlg.h"
-#include "core/qqskinengine.h"
+#include "skinengine/qqskinengine.h"
 #include "core/sockethelper.h"
-#include "traymenu.h"
-#include "traymenuitem.h"
 #include "core/msgencoder.h"
 #include "core/friendmsgencoder.h"
 #include "core/groupmsgencoder.h"
+#include "core/captchainfo.h"
+#include "core/curr_login_account.h"
+#include "msgprocessor/msg_processor.h"
+#include "chatwidget/friendchatdlg.h"
+#include "chatwidget/groupchatdlg.h"
+#include "chatwidget/chatdlg_manager.h"
+#include "chatwidget/chatmsg_processor.h"
+#include "roster/roster.h"
+#include "rostermodel/roster_model.h"
+#include "rostermodel/recent_model.h"
+#include "rostermodel/contact_proxy_model.h"
+#include "requestwidget/requestmsg_processor.h"
+#include "qq_protocol/qq_protocol.h"
+#include "trayicon/systemtray.h"
+#include "friendsearcher.h"
+#include "qqiteminfohelper.h"
 #include "qqglobal.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MainWindow),
     main_http_(new QHttp),
-    poll_thread_(NULL),
-    parse_thread_(NULL),
-    message_queue_(new QQueue<QByteArray>()),
-    msg_tip_(new MsgTip()),
-    msg_center_(new MsgCenter(msg_tip_)),
+	contact_model_(NULL),
+	group_model_(NULL),
+	recent_model_(NULL),
 	open_chat_dlg_sc_(NULL)
 {
     ui->setupUi(this);
 
-    qRegisterMetaType<ClientType>("ClientType");
+    qRegisterMetaType<ContactClientType>("ContactClientType");
 
     setObjectName("mainWindow");
-    setWindowIcon(QIcon(QQSkinEngine::instance()->getSkinRes("app_icon")));
-    setWindowTitle(QQSettings::instance()->currLoginInfo().name);
+    setWindowIcon(QIcon(QQGlobal::instance()->appIconPath()));
+    setWindowTitle(CurrLoginAccount::name());
 
-    createTray();
+	ui->tv_friendlist_->setSortingEnabled(true);
 
     setupLoginStatus();
 
     move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
 
-    connect(msg_tip_, SIGNAL(activateFriendRequestDlg(ShareQQMsgPtr)), this, SLOT(openFriendRequestDlg(ShareQQMsgPtr)));
-    connect(msg_tip_, SIGNAL(activateGroupRequestDlg(ShareQQMsgPtr)), this, SLOT(openGroupRequestDlg(ShareQQMsgPtr)));
     
-    connect(msg_center_, SIGNAL(buddiesStateChangeMsgArrive(QString,FriendStatus, ClientType)),  this, SLOT(changeFriendStatus(QString,FriendStatus, ClientType)));
-    connect(msg_center_, SIGNAL(newUnProcessMsg(ShareQQMsgPtr)), msg_tip_, SLOT(pushMsg(ShareQQMsgPtr)));
-
-    connect(ui->tv_friendlist_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openChatDlgByDoubleClick(QModelIndex)));
-    connect(ui->lv_grouplist_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openChatDlgByDoubleClick(QModelIndex)));
-    connect(ui->lv_recentlist_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openChatDlgByDoubleClick(QModelIndex)));
     connect(ui->cb_status_, SIGNAL(currentIndexChanged(int)), this, SLOT(changeMyStatus(int)));
     connect(ui->pb_mainmenu_, SIGNAL(clicked()), this, SLOT(openMainMenu()));
 
-    convertor_.addUinNameMap(QQSettings::instance()->currLoginInfo().id, tr("you"));
-    msg_tip_->setConvertor(&convertor_);
+    convertor_.addUinNameMap(CurrLoginAccount::id(), tr("you"));
 
-    if (QFile::exists(QQSettings::configDir() + "/qqgroupdb"))
+    if (QFile::exists(QQGlobal::configDir() + "/qqgroupdb"))
     {
-        QFile::remove(QQSettings::configDir() + "/qqgroupdb");
+        QFile::remove(QQGlobal::configDir() + "/qqgroupdb");
     }
 
-    QSettings setting(QQSettings::configDir() + "/options.ini", QSettings::IniFormat);
+    QSettings setting(QQGlobal::configDir() + "/options.ini", QSettings::IniFormat);
     main_menu_ = new QMenu(this);
     act_mute_ = new QAction(tr("Mute"), main_menu_);
     act_mute_->setCheckable(true);
@@ -100,55 +91,53 @@ MainWindow::MainWindow(QWidget *parent) :
         open_chat_dlg_sc_ = new QxtGlobalShortcut(QKeySequence("Ctrl+Alt+Z"), this);
         connect(open_chat_dlg_sc_, SIGNAL(activated()), this, SLOT(openFirstChatDlg()));
     }
-
-    initialize();
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+	if ( ui )
+		delete ui;
+	ui = NULL;
+
+	clean();
+
+	if ( contact_model_ )
+		delete contact_model_;
+	contact_model_ = NULL;
+
+	if ( group_model_ )
+		delete group_model_;
+	group_model_ = NULL;
+
+	if ( recent_model_ )
+		delete recent_model_;
+	recent_model_ = NULL;
+
+	if ( main_http_ )
+	{
+		main_http_->close();
+		delete main_http_;
+		main_http_ = NULL;
+	}
 }
 
-void MainWindow::slot_logout()
+void MainWindow::clean()
 {
-    this->hide();
-    SystemTray::instance()->hide();
+	if ( contact_model_ )
+		contact_model_->clean();
 
-    if ( msg_tip_ )
-        msg_tip_->deleteLater();
-    msg_tip_ = NULL;
+	if ( group_model_ )
+		group_model_->clean();
 
-	if ( chat_manager_ )
-        chat_manager_->deleteLater();
-    chat_manager_ = NULL;
-
-    if ( msg_center_ )
-        msg_center_->deleteLater();
-    msg_center_ = NULL;
-
-    if ( poll_thread_ )
-    {
-        poll_thread_->terminate();
-        poll_thread_->deleteLater();
-        poll_thread_ = NULL;
-    }
-    if (parse_thread_)
-    {
-        parse_thread_->terminate();
-        parse_thread_->deleteLater();
-        parse_thread_ = NULL;
-    }
+	if ( recent_model_ )
+		recent_model_->clean();
 
     main_http_->close();
-
-	SystemTray::instance()->setTooltip("qtqq");
-	
-    emit sig_logout();
 }
 
 void MainWindow::setMute(bool mute)
 {
-    QSettings setting(QQSettings::configDir() + "/options.ini", QSettings::IniFormat);
+    QSettings setting(QQGlobal::configDir() + "/options.ini", QSettings::IniFormat);
     setting.setValue("mute", mute);
 }
 
@@ -172,24 +161,16 @@ void MainWindow::changeMyStatus(int idx)
     main_http_->setHost("d.web2.qq.com");
     main_http_->request(header);
 
-    QQSettings::instance()->currLoginInfo().status = ui->cb_status_->itemData(idx).value<FriendStatus>();
+	CurrLoginAccount::setStatus(ui->cb_status_->itemData(idx).value<ContactStatus>());
 
 	updateLoginUser();
 }
 
-void MainWindow::changeFriendStatus(QString id, FriendStatus status, ClientType client_type)
-{
-    friend_model_->changeFriendStatus(id, status, client_type);
-
-    ui->recents->setUpdatesEnabled(false);
-    ui->recents->setUpdatesEnabled(true);
-}
-
 void MainWindow::closeEvent(QCloseEvent *)
 {
-    if (QFile::exists(QQSettings::configDir() + "/qqgroupdb"))
+    if (QFile::exists(QQGlobal::configDir() + "/qqgroupdb"))
     {
-        QFile::remove(QQSettings::configDir() + "/qqgroupdb");
+        QFile::remove(QQGlobal::configDir() + "/qqgroupdb");
     }
 }
 
@@ -215,22 +196,38 @@ void MainWindow::getFriendListDone(bool err)
 {
     Q_UNUSED(err)
     disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getFriendListDone(bool)));
-    QByteArray friends_info = main_http_->readAll();
+    QByteArray contact_info = main_http_->readAll();
+	qDebug() << "Contact list:\n" << contact_info << endl;
 
-    friend_model_ = new FriendItemModel(this);
-    friend_model_->parse(friends_info, &convertor_);
+	contact_model_ = new RosterModel(this);
+	ContactProxyModel *contact_proxy_model = new ContactProxyModel(contact_model_);
+	contact_proxy_model->setSourceModel(contact_model_);
+	contact_model_->setProxyModel(contact_proxy_model);
 
-    FriendSearcher *friend_searcher = new FriendSearcher(this);
-    ui->le_search_->setSearcher(friend_searcher);
+    connect(ui->tv_friendlist_, SIGNAL(doubleClicked(const QModelIndex &)), contact_model_, SLOT(slotOnDoubleclicked(const QModelIndex &)));
+	Roster *roster = Roster::instance();
+	connect(roster, SIGNAL(sigNewCategory(const Category *)), contact_model_, SLOT(slotNewCategoryItem(const Category *)));
+	connect(roster, SIGNAL(sigContactDataChanged(QString, QVariant, TalkableDataRole)), contact_model_, SLOT(slotTalkableDataChanged(QString, QVariant, TalkableDataRole)));
+	connect(roster, SIGNAL(sigCategoryDataChanged(int, QVariant, TalkableDataRole)), contact_model_, SLOT(slotCategoryDataChanged(int, QVariant, TalkableDataRole)));
 
-    ui->tv_friendlist_->setModel(friend_model_);
+	connect(roster, SIGNAL(sigNewContact(const Contact *)), contact_model_, SLOT(slotNewContactItem(const Contact *)));
+
+	roster->parseContact(contact_info);
+
+    FriendSearcher *friend_searcher = new FriendSearcher();
+	//may initialize after the friend list had set up
+	friend_searcher->initialize();
+	contact_proxy_model->setFilter(friend_searcher);
+	connect(ui->le_search_, SIGNAL(textChanged(const QString &)), contact_proxy_model, SLOT(onSearch(const QString &)));
+
+    ui->tv_friendlist_->setModel(contact_proxy_model);
 
     getGroupList();
 }
 
 void MainWindow::getSingleLongNick()
 {
-    QByteArray result = QQItemInfoHelper::getSingleLongNick(QQSettings::instance()->currLoginInfo().id);
+    QByteArray result = QQItemInfoHelper::getSingleLongNick(CurrLoginAccount::id());
     result = result.mid(result.indexOf("\r\n\r\n")+4);
     Json::Reader reader;
     Json::Value root;
@@ -263,282 +260,204 @@ void MainWindow::getGroupListDone(bool err)
     Q_UNUSED(err)
     disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getGroupListDone(bool)));
     QByteArray groups_info = main_http_->readAll();
-    qDebug()<<"group list"<<groups_info<<endl;
-    group_model_ = new GroupItemModel(this);
-    group_model_->parse(groups_info, &convertor_);
+	qDebug() << "Group List: \n" << groups_info << endl;
 
-    msg_tip_->setConvertor(&convertor_);
-    ui->lv_grouplist_->setModel(group_model_);
+	group_model_ = new RosterModel(this);
+    connect(ui->lv_grouplist_, SIGNAL(doubleClicked(const QModelIndex &)), group_model_, SLOT(slotOnDoubleclicked(const QModelIndex &)));
+	Roster *roster = Roster::instance();
+	connect(roster, SIGNAL(sigNewGroup(const Group *)), group_model_, SLOT(slotNewGroupItem(const Group *)));
+	connect(roster, SIGNAL(sigGroupDataChanged(QString, QVariant, TalkableDataRole)), group_model_, SLOT(slotTalkableDataChanged(QString, QVariant, TalkableDataRole)));
 
-    getRecentList();
+	roster->parseGroup(groups_info);
+
+	ui->lv_grouplist_->setModel(group_model_);
+
+	getRecentList();
 }
 
 void MainWindow::getOnlineBuddy()
 {
-    QString get_online_buddy = "/channel/get_online_buddies2?clientid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid() + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
-    QHttpRequestHeader header("GET", get_online_buddy);
-    header.addValue("Host", "d.web2.qq.com");
-    setDefaultHeaderValue(header);
-    header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=2011033100");
-    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
+	QString get_online_buddy = "/channel/get_online_buddies2?clientid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid() + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
+	QHttpRequestHeader header("GET", get_online_buddy);
+	header.addValue("Host", "d.web2.qq.com");
+	setDefaultHeaderValue(header);
+	header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=2011033100");
+	header.addValue("Cookie", CaptchaInfo::instance()->cookie());
 
-    main_http_->setHost("d.web2.qq.com");
-    connect(main_http_, SIGNAL(done(bool)), this, SLOT(getOnlineBuddyDone(bool)));
-    main_http_->request(header);
+	main_http_->setHost("d.web2.qq.com");
+	connect(main_http_, SIGNAL(done(bool)), this, SLOT(getOnlineBuddyDone(bool)));
+	main_http_->request(header);
 }
 
 void MainWindow::getOnlineBuddyDone(bool err)
 {
-    Q_UNUSED(err)
-    disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getOnlineBuddyDone(bool)));
-    QByteArray online_buddies = main_http_->readAll();
+	Q_UNUSED(err)
+	disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getOnlineBuddyDone(bool)));
+	QByteArray online_buddies = main_http_->readAll();
+	Roster::instance()->parseContactStatus(online_buddies);
 
-    Json::Reader reader;
-    Json::Value root;
+	Protocol::QQProtocol *protocol = Protocol::QQProtocol::instance();
+	MsgProcessor *msg_processor = MsgProcessor::instance();
+	connect(protocol, SIGNAL(newQQMsg(QByteArray)), msg_processor, SLOT(pushRawMsg(QByteArray)));
+    connect(msg_processor, SIGNAL(contactStatusChanged(QString, ContactStatus, ContactClientType)), Roster::instance(), SLOT(slotContactStatusChanged(QString, ContactStatus, ContactClientType)));
 
-    if (!reader.parse(QString(online_buddies).toStdString(), root, false))
-    {
-        return;
-    }
-
-    const Json::Value result = root["result"];
-
-    for (unsigned int i = 0; i < result.size(); ++i)
-    {
-        QString id = QString::number(result[i]["uin"].asLargestInt());
-        QString status = QString::fromStdString(result[i]["status"].asString());
-        ClientType client_type = (ClientType)result[i]["client_type"].asInt();
-        friend_model_->changeFriendStatus(id, QQUtility::stringToStatus(status), client_type);
-    }
-
-    poll_thread_ = new PollThread();
-    parse_thread_ = new ParseThread();
-    connect(poll_thread_, SIGNAL(signalNewMsgArrive(QByteArray)), parse_thread_, SLOT(pushRawMsg(QByteArray)));
-    connect(parse_thread_, SIGNAL(parseDone(ShareQQMsgPtr)), msg_center_, SLOT(pushMsg(ShareQQMsgPtr)));
-    poll_thread_->start();
-    parse_thread_->start();
-    msg_center_->start();
+	protocol->run();
+	msg_processor->start();
 }
 
 void MainWindow::getPersonalFace()
 {
-    QString avatar_path =   QQAvatarRequester::requestOne(QQAvatarRequester::getTypeNumber(QQItem::kFriend), QQSettings::instance()->currLoginInfo().id, QQGlobal::tempPath());
-    QQSettings::instance()->currLoginInfo().avatar_path = avatar_path;
+	QString avatar_path = QQAvatarRequester::requestOne(QQAvatarRequester::getTypeNumber(QQItem::kFriend), CurrLoginAccount::id(), QQGlobal::tempDir());
+	CurrLoginAccount::setAvatarPath(avatar_path);
 
-    QFile file(avatar_path);
-    file.open(QIODevice::ReadOnly);
-    QPixmap pix;
-    pix.loadFromData(file.readAll());
-    file.close();
-    ui->avatar->setIconSize(QSize(pix.size().width() + 4, pix.size().height()+4));
-    ui->avatar->setIcon(QIcon(pix));
+	QFile file(avatar_path);
+	file.open(QIODevice::ReadOnly);
+	QPixmap pix;
+	pix.loadFromData(file.readAll());
+	file.close();
+	ui->avatar->setIconSize(QSize(pix.size().width() + 4, pix.size().height()+4));
+	ui->avatar->setIcon(QIcon(pix));
 }
 
 void MainWindow::getPersonalInfo()
 {
-    QByteArray result = QQItemInfoHelper::getFriendInfo2(QQSettings::instance()->currLoginInfo().id);
-    result = result.mid(result.indexOf("\r\n\r\n")+4);
-    Json::Reader reader;
-    Json::Value root;
+	QByteArray result = QQItemInfoHelper::getFriendInfo2(CurrLoginAccount::id());
+	result = result.mid(result.indexOf("\r\n\r\n")+4);
+	Json::Reader reader;
+	Json::Value root;
 
-    if (reader.parse(QString(result).toStdString(), root, false))
-    {
-        QQSettings::instance()->currLoginInfo().name = QString::fromStdString(root["result"]["nick"].asString());
-        ui->lbl_name_->setText(QQSettings::instance()->loginName());
-        convertor_.addUinNameMap(QQSettings::instance()->loginId(), QQSettings::instance()->loginName());
-    } 
+	if (reader.parse(QString(result).toStdString(), root, false))
+	{
+		CurrLoginAccount::setName(QString::fromStdString(root["result"]["nick"].asString()));
+		ui->lbl_name_->setText(CurrLoginAccount::name());
+		convertor_.addUinNameMap(CurrLoginAccount::id(), CurrLoginAccount::name());
+	} 
 }
 
 void MainWindow::getRecentList()
 {
-    QString recent_list_url ="/channel/get_recent_list2";
-    QString msg_content = "r={\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq() +
-            "\",\"clientid\":\"5412354841\",\"psessionid\":\"" + CaptchaInfo::instance()->psessionid() +
-            "\"}&cliendid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid();
+	QString recent_list_url ="/channel/get_recent_list2";
+	QString msg_content = "r={\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq() +
+		"\",\"clientid\":\"5412354841\",\"psessionid\":\"" + CaptchaInfo::instance()->psessionid() +
+		"\"}&cliendid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid();
 
-    QHttpRequestHeader header("POST", recent_list_url);
-    header.addValue("Host", "d.web2.qq.com");
-    setDefaultHeaderValue(header);
-    header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1");
-    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
-    header.setContentType("application/x-www-form-urlencoded");
-    header.setContentLength(msg_content.length());
+	QHttpRequestHeader header("POST", recent_list_url);
+	header.addValue("Host", "d.web2.qq.com");
+	setDefaultHeaderValue(header);
+	header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1");
+	header.addValue("Cookie", CaptchaInfo::instance()->cookie());
+	header.setContentType("application/x-www-form-urlencoded");
+	header.setContentLength(msg_content.length());
 
-    main_http_->setHost("d.web2.qq.com");
-    connect(main_http_, SIGNAL(done(bool)), this, SLOT(getRecentListDone(bool)));
-    main_http_->request(header, msg_content.toAscii());
+	main_http_->setHost("d.web2.qq.com");
+	connect(main_http_, SIGNAL(done(bool)), this, SLOT(getRecentListDone(bool)));
+	main_http_->request(header, msg_content.toAscii());
 }
 
 void MainWindow::getRecentListDone(bool err)
 {
-    Q_UNUSED(err)
-    disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getRecentListDone(bool)));
-    QByteArray recent_list = main_http_->readAll();
+	Q_UNUSED(err)
+	disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getRecentListDone(bool)));
+	QByteArray recent_list = main_http_->readAll();
+	
+	recent_model_ = new RecentModel(this);
+    connect(ui->lv_recentlist_, SIGNAL(doubleClicked(const QModelIndex &)), recent_model_, SLOT(slotOnDoubleclicked(const QModelIndex &)));
 
-    recent_model_ = new RecentListItemModel(friend_model_, group_model_, this);
-    connect(msg_center_, SIGNAL(groupChatMsgArrive(QString)), recent_model_, SLOT(improveItem(QString)));
-    connect(msg_center_, SIGNAL(friendChatMsgArrive(QString)), recent_model_, SLOT(improveItem(QString)));
-    recent_model_->parse(recent_list);
-    ui->lv_recentlist_->setModel(recent_model_);
+	connect(MsgProcessor::instance(), SIGNAL(newChatMsg(ShareQQMsgPtr)), recent_model_, SLOT(slotNewChatMsg(ShareQQMsgPtr)));
 
-    getOnlineBuddy();
+	recent_model_->parseRecentContact(recent_list);
+	ui->lv_recentlist_->setModel(recent_model_);
+
+	getOnlineBuddy();
 }
 
 void MainWindow::initialize()
 {
-    getPersonalInfo();
-    getPersonalFace();
-    getSingleLongNick();
-    
-    getFriendList();
+	getPersonalInfo();
+	getPersonalFace();
+	getSingleLongNick();
 
-	chat_manager_ = new ChatManager(this, &convertor_);
-	connect(ui->le_search_, SIGNAL(friendActivated(const QString&)), chat_manager_, SLOT(openFriendChatDlg(const QString&)));
-    msg_tip_->setMainWindow(this);
-}
+	getFriendList();
 
-void MainWindow::createTray()
-{
-    SystemTray *tray_icon = NULL;
-    tray_icon = SystemTray::instance();
-    tray_icon->setMsgTip(msg_tip_);
-	tray_icon->setMainWindow(this);
+	ChatDlgManager *chat_manager = ChatDlgManager::instance();
+	chat_manager->setMainWin(this);
 
-    connect(msg_tip_, SIGNAL(newUncheckMsgArrived()), tray_icon,  SLOT(slotNewUncheckMsgArrived()));
-    connect(msg_tip_, SIGNAL(noUncheckMsg()), tray_icon,  SLOT(slotUncheckMsgEmpty()));
-
-    tray_menu_ = new TrayMenu();
-
-    minimize_ = new TrayMenuItem(tr("Minimize"));
-    connect(minimize_, SIGNAL(triggered()), this, SLOT(hide()));
-
-    restore_ = new TrayMenuItem(tr("Restore"));
-    connect(restore_, SIGNAL(triggered()), this, SLOT(showNormal()));
-
-    quit_ = new TrayMenuItem(tr("Quit"));
-    connect(quit_, SIGNAL(triggered()), qApp, SLOT(quit()));
-
-    logout_ = new TrayMenuItem(tr("Logout"));
-    connect(logout_, SIGNAL(triggered()), this, SLOT(slot_logout()));
-
-    tray_menu_->appendMenuItem(minimize_);
-    tray_menu_->appendMenuItem(restore_);
-    tray_menu_->appendMenuItem(logout_);
-    tray_menu_->appendMenuItem(quit_);
-
-    tray_icon->setIcon(QQSkinEngine::instance()->getSkinRes("app_icon"));
-    tray_icon->setContextMenu(tray_menu_);
-
-    tray_icon->show();
+	connect(ui->le_search_, SIGNAL(friendActivated(const QString&)), chat_manager, SLOT(openFriendChatDlg(const QString&)));
 }
 
 void MainWindow::openFirstChatDlg()
 {
-	if ( !msg_tip_->activatedChat(0) )
+	SystemTrayIcon *tray = SystemTrayIcon::instance();
+
+	if ( tray->hasNotify() )
 	{
+		tray->activatedUnReadChat();
+	}
+	else
+	{
+		if ( !isVisible() )
+			showNormal();
+
 		activateWindow();
 	}
 }
 
 QString MainWindow::getStatusByIndex(int idx) const
 {
-    switch (ui->cb_status_->itemData(idx).value<FriendStatus>())
-    {
-    case kOnline:
-        return "online";
-    case kCallMe:
-        return "callme";
-    case kAway:
-        return "away";
-    case kBusy:
-        return "busy";
-    case kSilent:
-        return "silent";
-    case kHidden:
-        return "hidden";
-    case kOffline:
-        return "offline";
-    default:
-        break;
-    }
-    return "offline";
+	switch (ui->cb_status_->itemData(idx).value<ContactStatus>())
+	{
+		case CS_Online:
+			return "online";
+		case CS_CallMe:
+			return "callme";
+		case CS_Away:
+			return "away";
+		case CS_Busy:
+			return "busy";
+		case CS_Silent:
+			return "silent";
+		case CS_Hidden:
+			return "hidden";
+		case CS_Offline:
+			return "offline";
+		default:
+			break;
+	}
+	return "offline";
 }
 
 void MainWindow::setupLoginStatus()
 {
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_online")), tr("Online"), QVariant::fromValue<FriendStatus>(kOnline));
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_qme")), tr("CallMe"), QVariant::fromValue<FriendStatus>(kCallMe));
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_away")), tr("Away"), QVariant::fromValue<FriendStatus>(kAway));
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_busy")), tr("Busy"), QVariant::fromValue<FriendStatus>(kBusy));
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_mute")), tr("Silent"), QVariant::fromValue<FriendStatus>(kSilent));
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_hidden")), tr("Hidden"), QVariant::fromValue<FriendStatus>(kHidden));
-    ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->getSkinRes("status_offline")), tr("Offline"), QVariant::fromValue<FriendStatus>(kOffline));
+	ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_online")), tr("Online"), QVariant::fromValue<ContactStatus>(CS_Online));
+	ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_qme")), tr("CallMe"), QVariant::fromValue<ContactStatus>(CS_CallMe));
+	ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_away")), tr("Away"), QVariant::fromValue<ContactStatus>(CS_Away));
+	ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_busy")), tr("Busy"), QVariant::fromValue<ContactStatus>(CS_Busy));
+	ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_mute")), tr("Silent"), QVariant::fromValue<ContactStatus>(CS_Silent));
+	ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_hidden")), tr("Hidden"), QVariant::fromValue<ContactStatus>(CS_Hidden));
+	ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_offline")), tr("Offline"), QVariant::fromValue<ContactStatus>(CS_Offline));
 
-    int status_idx = getStatusIndex(QQSettings::instance()->currLoginInfo().status);
+	int status_idx = getStatusIndex(CurrLoginAccount::status());
 
-    ui->cb_status_->setCurrentIndex(status_idx);
+	ui->cb_status_->setCurrentIndex(status_idx);
 }
 
-int MainWindow::getStatusIndex(FriendStatus status)
+int MainWindow::getStatusIndex(ContactStatus status)
 {
-    for (int i = 0; i < ui->cb_status_->count(); ++i)
-    {
-        if (ui->cb_status_->itemData(i).value<FriendStatus>() == status)
-            return i;
-    }
-    return -1;
-}
-
-void MainWindow::openChatDlgByDoubleClick(const QModelIndex& index)
-{
-    QQItem *item =  static_cast<QQItem*>(index.internalPointer());
-
-    if (item->type() == QQItem::kFriend)
-    {
-        chat_manager_->openFriendChatDlg(item->id());
-    }
-    else if (item->type() == QQItem::kGroup)
-    {
-        chat_manager_->openGroupChatDlg(item->id(), item->gCode());
-    }
-}
-
-void MainWindow::openFriendRequestDlg(ShareQQMsgPtr msg)
-{
-    FriendRequestDlg dlg(msg, (FriendItemModel*)friend_model_);
-    if (dlg.exec() == QDialog::Accepted)
-    {
-
-    }
-    else
-    {
-
-    }
-}
-
-void MainWindow::openGroupRequestDlg(ShareQQMsgPtr msg)
-{
-    GroupRequestDlg dlg(msg, (FriendItemModel*)friend_model_, (GroupItemModel*)group_model_);
-    if (dlg.exec() == QDialog::Accepted)
-    {
-
-    }
-    else
-    {
-
-    }
+	for (int i = 0; i < ui->cb_status_->count(); ++i)
+	{
+		if (ui->cb_status_->itemData(i).value<ContactStatus>() == status)
+			return i;
+	}
+	return -1;
 }
 
 void MainWindow::updateLoginUser() const
 {
-	SystemTray *tray = SystemTray::instance();
-	QQSettings *sett = QQSettings::instance();
+	SystemTrayIcon *tray = SystemTrayIcon::instance();
 
 	QString tooltip("qtqq - ");
 
-	tooltip += sett->loginId() + "\n";
-	tooltip += sett->loginName() + " (";
-	tooltip += QQUtility::StatusToString(sett->loginStatus()) + ")";
-	
-	tray->setTooltip(tooltip);
+	tooltip += CurrLoginAccount::id() + "\n";
+	tooltip += CurrLoginAccount::name() + " (";
+	tooltip += QQUtility::StatusToString(CurrLoginAccount::status()) + ")";
 }

@@ -1,5 +1,5 @@
 #include "qqitemmodel.h"
-#include <json/json.h>
+
 #include <QPixmap>
 #include <QIcon>
 #include <QFile>
@@ -8,9 +8,9 @@
 
 #include <assert.h>
 
+#include "json/json.h"
 #include "core/qqitem.h"
-#include "core/qqskinengine.h"
-#include "core/qqsetting.h"
+#include "skinengine/qqskinengine.h"
 
 QQItemModel::QQItemModel(QObject *parent) :
     QAbstractItemModel(parent),
@@ -146,27 +146,27 @@ QQItem* QQItemModel::find(QString id) const
 
 void QQItemModel::setPixmapDecoration(const QQItem *item, QPixmap &pixmap) const
 {
-    if (item->status() == kOnline || item->status() == kOffline)
+    if (item->status() == CS_Online || item->status() == CS_Offline)
         return;
 
     QPainter painter(&pixmap);
     QImage img;
 
-    if (item->status() == kCallMe)
+    if (item->status() == CS_CallMe)
     {
-        img.load(QQSettings::instance()->resourcePath() + "/avatar/callme.png");
+        img.load(QQGlobal::resourceDir() + "/avatar/callme.png");
     }
-    else if (item->status() == kBusy)
+    else if (item->status() == CS_Busy)
     {
-        img.load(QQSettings::instance()->resourcePath() + "/avatar/busy.png");
+        img.load(QQGlobal::resourceDir() + "/avatar/busy.png");
     }
-    else if (item->status() == kAway)
+    else if (item->status() == CS_Away)
     {
-        img.load(QQSettings::instance()->resourcePath() + "/avatar/away.png");
+        img.load(QQGlobal::resourceDir() + "/avatar/away.png");
     }
-    else if (item->status() == kSilent)
+    else if (item->status() == CS_Silent)
     {
-        img.load(QQSettings::instance()->resourcePath() + "/avatar/silent.png");
+        img.load(QQGlobal::resourceDir() + "/avatar/silent.png");
     }
 
     QSize avatar_size = pixmap.size();
@@ -179,9 +179,9 @@ void QQItemModel::getDefaultPixmap(const QQItem *item, QPixmap &pix) const
 {
     if (item->type() == QQItem::kFriend)
     {
-        QIcon icon(QQSkinEngine::instance()->getSkinRes("default_friend_avatar"));
+        QIcon icon(QQSkinEngine::instance()->skinRes("default_friend_avatar"));
 
-        if (item->status() == kOffline)
+        if (item->status() == CS_Offline)
         {
             pix = icon.pixmap(QSize(icon_size_), QIcon::Disabled, QIcon::On);
         }
@@ -191,7 +191,7 @@ void QQItemModel::getDefaultPixmap(const QQItem *item, QPixmap &pix) const
 
     if (item->type() == QQItem::kGroup)
     {
-        QIcon icon(QQSkinEngine::instance()->getSkinRes("default_group_avatar"));
+        QIcon icon(QQSkinEngine::instance()->skinRes("default_group_avatar"));
         pix = icon.pixmap(QSize(icon_size_));
     }
 }
@@ -208,7 +208,7 @@ void QQItemModel::getPixmap(const QQItem *item, QPixmap &pix) const
     QIcon icon;
     icon.addPixmap(pix);
 
-    if (item->status() == kOffline)
+    if (item->status() == CS_Offline)
     {
         pix = icon.pixmap(QSize(icon_size_), QIcon::Disabled, QIcon::On);
     }
