@@ -1,6 +1,7 @@
 add_subdirectory(icons)
 
 install(FILES qtqq.desktop DESTINATION ${prefix}/share/applications)
+install(FILES res.xml DESTINATION ${pkgdatadir})
 
 set(data_folds 
     misc

@@ -30,6 +30,7 @@ private:
     virtual ImgSender* getImgSender() const;
     virtual QQChatLog *getChatlog() const;
     virtual void getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const;
+	virtual QString chatItemToJson(const QVector<QQChatItem> &items);
 
     void initUi();
     void initConnections();

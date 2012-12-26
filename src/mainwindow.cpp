@@ -21,9 +21,6 @@
 #include "core/qqlogincore.h"
 #include "skinengine/qqskinengine.h"
 #include "core/sockethelper.h"
-#include "core/msgencoder.h"
-#include "core/friendmsgencoder.h"
-#include "core/groupmsgencoder.h"
 #include "core/captchainfo.h"
 #include "core/curr_login_account.h"
 #include "msgprocessor/msg_processor.h"
@@ -381,8 +378,6 @@ void MainWindow::initialize()
 
 	ChatDlgManager *chat_manager = ChatDlgManager::instance();
 	chat_manager->setMainWin(this);
-
-	connect(ui->le_search_, SIGNAL(friendActivated(const QString&)), chat_manager, SLOT(openFriendChatDlg(const QString&)));
 }
 
 void MainWindow::openFirstChatDlg()

@@ -10,9 +10,6 @@
 #include "chatwidget/qqchatdlg.h"
 #include "chatwidget/sesschatdlg.h"
 #include "chatwidget/chatmsg_processor.h"
-#include "core/groupmsgencoder.h"
-#include "core/friendmsgencoder.h"
-#include "core/sessmsgencoder.h"
 #include "core/qqitem.h"
 #include "rostermodel/recent_model.h"
 #include "roster/roster.h"
@@ -56,8 +53,6 @@ void ChatDlgManager::openFriendChatDlg(const QString &id)
 
     QQChatDlg *dlg = NULL;
     dlg= new FriendChatDlg(contact);
-    MsgEncoder *encoder = new FriendMsgEncoder(dlg);
-    dlg->setMsgEncoder(encoder);
 
     connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
 	if ( main_win_->recentModel() )
@@ -86,8 +81,6 @@ void ChatDlgManager::openGroupChatDlg(QString id, QString gcode)
 
     QQChatDlg *dlg = NULL;
     dlg = new GroupChatDlg(group);
-    MsgEncoder *encoder = new GroupMsgEncoder(dlg);
-    dlg->setMsgEncoder(encoder);
 
     connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
 

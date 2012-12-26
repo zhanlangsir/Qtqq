@@ -1,21 +1,17 @@
 set(CORE_HEADERS
-	core/groupmsgencoder.h
 	core/qqlogincore.h
 	core/qqmsglistener.h
 	core/groupchatlog.h
 	core/friendchatlog.h
 	core/request.h
 	core/msgsender.h
-	core/friendmsgencoder.h
 	core/types.h
-	core/sessmsgencoder.h
 	core/qqavatarrequester.h
 	core/groupimgloader.h
 	core/qqmsg.h
 	core/nameconvertor.h
 	core/groupimgsender.h
 	core/qqskinable.h
-	core/msgencoder.h
 	core/qqchatlog.h
 	core/imgsender.h
 	core/accountmanager.h
@@ -117,18 +113,14 @@ QT4_WRAP_CPP(UI_HEADERS_MOC ${UI_HEADERS})
 QT4_WRAP_CPP(CORE_HEADERS_MOC ${CORE_HEADERS})
 
 set(CORE_SOURCES
-	core/sessmsgencoder.cpp
 	core/qqlogincore.cpp
 	core/friendimgsender.cpp
 	core/qqchatitem.cpp
 	core/groupchatlog.cpp
-	core/groupmsgencoder.cpp
 	core/qqavatarrequester.cpp
 	core/imgloader.cpp
 	core/types.cpp
 	core/groupimgsender.cpp
-	core/msgencoder.cpp
-	core/friendmsgencoder.cpp
 	core/sockethelper.cpp
 	core/captchainfo.cpp
 	#core/qqsetting.cpp

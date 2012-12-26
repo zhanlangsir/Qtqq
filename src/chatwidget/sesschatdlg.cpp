@@ -4,15 +4,18 @@
 #include <QFile>
 
 #include "skinengine/qqskinengine.h"
+#include "core/captchainfo.h"
 #include "core/friendchatlog.h"
+#include "core/talkable.h"
+#include "chatwidget/groupchatdlg.h"
 
-SessChatDlg::SessChatDlg(Contact *contact, QString group_name, ChatDlgType type, QWidget *parent) :
+SessChatDlg::SessChatDlg(Contact *contact, Group *group, ChatDlgType type, QWidget *parent) :
     QQChatDlg(contact, type, parent),
     ui_(new Ui::SessChatDlg())
 {
     ui_->setupUi(this);
 
-    initUi(group_name);
+    initUi();
     initConnections();
     updateSkin();
 
@@ -22,7 +25,7 @@ SessChatDlg::SessChatDlg(Contact *contact, QString group_name, ChatDlgType type,
 }
 
 
-void SessChatDlg::initUi(QString group_name)
+void SessChatDlg::initUi()
 {
     setWindowTitle(talkable_->name());
     ui_->lbl_name_->setText(talkable_->name());
@@ -38,15 +41,12 @@ void SessChatDlg::initUi(QString group_name)
     sizes.append(ui_->splitter_main->midLineWidth());
     ui_->splitter_main->setSizes(sizes);
 
-    if (avatar_path_.isEmpty())
-        avatar_path_ = QQSkinEngine::instance()->skinRes("default_friend_avatar");
-    QFile file(avatar_path_);
-    file.open(QIODevice::ReadOnly);
-    QPixmap pix;
-    pix.loadFromData(file.readAll());
-    file.close();
-    ui_->lbl_avatar_->setPixmap(pix);
-    ui_->group_name->setText(group_name);
+	QPixmap pix = talkable_->icon();
+	if ( pix.isNull() )
+        pix = QPixmap(QQSkinEngine::instance()->skinRes("default_friend_avatar"));
+
+	ui_->lbl_avatar_->setPixmap(pix);
+	ui_->group_name->setText(group_->name());
 
     resize(this->minimumSize());
 }
@@ -79,11 +79,39 @@ void SessChatDlg::getInfoById(QString id, QString &name, QString &avatar_path, b
 {
     Q_UNUSED(id)
     name = talkable_->name();
-    avatar_path = avatar_path_.isEmpty() ? QQSkinEngine::instance()->skinRes("default_friend_avatar") : avatar_path_;
+    avatar_path =  QQSkinEngine::instance()->skinRes("default_friend_avatar");
     ok = true;
 }
 
 QQChatLog *SessChatDlg::getChatlog() const
 {
     return new FriendChatLog(id());
+}
+
+QString SessChatDlg::chatItemToJson(const QVector<QQChatItem> &items) 
+{
+    QString json_msg = "r={\"to\":" + id() + ",\"group_sig\":\"" + GroupChatDlg::getMsgSig(group_->id(), id()) + "\",\"face\":291,\"content\":\"[";
+
+	foreach ( const QQChatItem &item, items )
+	{
+		switch ( item.type() )
+		{
+			case QQChatItem::kWord:
+				json_msg.append("\\\"" + item.content() + "\\\",");
+				break;
+			case QQChatItem::kQQFace:
+				json_msg.append("[\\\"face\\\"," + item.content() + "],");
+				break;
+			case QQChatItem::kFriendOffpic:
+				json_msg.append("[\\\"offpic\\\",\\\"" + getUploadedFileInfo(item.content()).network_path + "\\\",\\\"" + getUploadedFileInfo(item.content()).name + "\\\"," + QString::number(getUploadedFileInfo(item.content()).size) + "],");
+				break;
+		}
+	}
+	json_msg = json_msg +
+        "[\\\"font\\\",{\\\"name\\\":\\\"%E5%AE%8B%E4%BD%93\\\",\\\"size\\\":\\\"10\\\",\\\"style\\\":[0,0,0],\\\"color\\\":\\\"000000\\\"}]]\","
+        "\"msg_id\":" + QString::number(msg_id_++) + ",\"service_type\":0,\"clientid\":\"5412354841\","
+        "\"psessionid\":\""+ CaptchaInfo::instance()->psessionid() +"\"}"
+        "&clientid=5412354841&psessionid="+CaptchaInfo::instance()->psessionid();
+
+	return json_msg;
 }

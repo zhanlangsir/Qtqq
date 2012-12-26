@@ -5,16 +5,18 @@
 #include <QHash>
 #include <QScrollBar>
 #include <QTcpSocket>
+#include <QVector>
 #include <QUuid>
 
 #include "core/types.h"
 #include "core/nameconvertor.h"
 #include "core/qqmsglistener.h"
 #include "core/msgsender.h"
+#include "core/qqchatitem.h"
+#include "core/talkable.h"
 #include "msgbrowse.h"
 #include "qqfacepanel.h"
 #include "qqtextedit.h"
-#include "core/talkable.h"
 
 class QAction;
 class QMenu;
@@ -24,7 +26,6 @@ class ImgSender;
 class ImgLoader;
 class QQChatLog;
 class QQItem;
-class MsgEncoder;
 
 class QQChatDlg : public QWidget, public QQMsgListener
 {
@@ -59,11 +60,6 @@ public:
     { return type_; }
     virtual void updateSkin() = 0;
 
-    void setMsgEncoder(MsgEncoder *encoder)
-    {
-        msg_encoder_ = encoder; 
-    }
-
     FileInfo getUploadedFileInfo(QString src)
     {
         return id_file_hash_[src];
@@ -78,6 +74,7 @@ protected:
 	QQTextEdit te_input_;
     QHash<QString, FileInfo> id_file_hash_;
     QString send_url_;
+	int msg_id_;
 
 	Talkable *talkable_;
     QTcpSocket fd_;
@@ -96,10 +93,11 @@ private slots:
     void setSendByCtrlReturn(bool checked);
 
 private:
-    //virtual QString converToJson(const QString &raw_msg) = 0;
+	virtual QString chatItemToJson(const QVector<QQChatItem> &items) = 0;
     virtual ImgSender* getImgSender() const = 0;
-    virtual QQChatLog *getChatlog() const;
+    virtual QQChatLog *getChatlog() const = 0;
     virtual ImgLoader* getImgLoader() const;
+
     virtual void getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const = 0;
     QString converToShow(const QString &converting_html);
     QString escape(QString raw_html) const;
@@ -109,7 +107,6 @@ private:
     ImgLoader *img_loader_;
     QQFacePanel *qqface_panel_;
     MsgSender *msg_sender_;
-    MsgEncoder *msg_encoder_;
 
     ChatDlgType type_;
     

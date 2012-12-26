@@ -48,6 +48,8 @@ void StrangerManager::parseStranger(const QByteArray &array)
 
 	if (!reader.parse(QString(array).toStdString(), root, false))
 	{
+		qDebug() << "StrangerManager parse stranger failed" << endl;
+		qDebug() << "error json:" << array << endl;
 		return;
 	}
 

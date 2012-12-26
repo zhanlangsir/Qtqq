@@ -20,17 +20,17 @@
 #include "core/qqchatlog.h"
 #include "core/groupchatlog.h"
 #include "core/qqitem.h"
-#include "core/msgencoder.h"
+#include "msghandle/htmltomsgparser.h"
 #include "core/curr_login_account.h"
 
 QQChatDlg::QQChatDlg(Talkable *talkable, ChatDlgType type, QWidget *parent) :
     QWidget(parent),
+	msg_id_(4462000),
 	talkable_(talkable),
     img_sender_(NULL),
     img_loader_(NULL),
     qqface_panel_(NULL),
     msg_sender_(NULL),
-    msg_encoder_(NULL),
 	type_(type),
     sc_close_win_(NULL)
 {
@@ -90,10 +90,6 @@ QQChatDlg::~QQChatDlg()
         msg_sender_->deleteLater();
     }
     msg_sender_ = NULL;
-
-	if ( msg_encoder_ )
-		delete msg_encoder_;
-	msg_encoder_ = NULL;
 }
 
 void QQChatDlg::setSendByReturn(bool checked)
@@ -216,10 +212,12 @@ QString QQChatDlg::escape(QString raw_html) const
     return raw_html.replace('<', "&lt").replace('>', "&gt");
 }
 
+/*
 QQChatLog *QQChatDlg::getChatlog() const
 {
     return NULL;
 }
+*/
 
 void QQChatDlg::openPathDialog(bool)
 {
@@ -232,7 +230,6 @@ void QQChatDlg::openPathDialog(bool)
     {
         img_sender_ = getImgSender();
         connect(img_sender_, SIGNAL(postResult(QString,FileInfo)), this, SLOT(setFileInfo(QString, FileInfo)));
-        //connect(img_sender_, SIGNAL(sendDone(const QString &, const QString&)), &te_input_, SLOT(setRealImg(const QString&,const QString&)));
     }
 
     QString unique_id = getUniqueId();
@@ -406,9 +403,9 @@ void QQChatDlg::sendMsg()
         return;
     }
 
-    assert(msg_encoder_);
     QString msg = te_input_.toHtml();
-    QString json_msg = msg_encoder_->encode(msg);
+	QVector<QQChatItem> chat_items = HtmlToMsgParser::parse(msg);
+    QString json_msg = chatItemToJson(chat_items);
 
     Request req;
     req.create(kPost, send_url_);
