@@ -111,7 +111,7 @@ void StrangerManager::onNewSystemMsg(ShareQQMsgPtr msg)
 	{
 		QQSystemGMsg *sysg_msg = (QQSystemGMsg *)msg.data();	
 		gid = sysg_msg->from_uin;
-		if ( sysg_msg->sys_g_type == "group_leave" )
+		if ( sysg_msg->sys_g_type == "group_leave" || sysg_msg->sys_g_type == "group_join" )
 		{
 			qDebug() << sysg_msg->sendUin() << "had leave group" << endl;
 			return;
