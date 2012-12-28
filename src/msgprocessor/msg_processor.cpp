@@ -10,6 +10,10 @@ MsgProcessor::MsgProcessor()
 {
 	setTerminationEnabled(true);
 	qRegisterMetaType<ShareQQMsgPtr>("ShareQQMsgPtr");
+
+	connect(this, SIGNAL(newFriendChatMsg(ShareQQMsgPtr)), this, SIGNAL(newChatMsg(ShareQQMsgPtr)));
+	connect(this, SIGNAL(newGroupChatMsg(ShareQQMsgPtr)), this, SIGNAL(newChatMsg(ShareQQMsgPtr)));
+	connect(this, SIGNAL(newSessChatMsg(ShareQQMsgPtr)), this, SIGNAL(newChatMsg(ShareQQMsgPtr)));
 }
 
 MsgProcessor::~MsgProcessor()
