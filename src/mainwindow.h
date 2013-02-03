@@ -50,6 +50,7 @@ private slots:
     void openMainMenu();
     void setMute(bool mute);
     void openFirstChatDlg();
+    void onTrayIconClicked();
 
 private:
     void getFriendList();

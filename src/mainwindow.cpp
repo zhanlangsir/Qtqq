@@ -88,6 +88,9 @@ MainWindow::MainWindow(QWidget *parent) :
         open_chat_dlg_sc_ = new QxtGlobalShortcut(QKeySequence("Ctrl+Alt+Z"), this);
         connect(open_chat_dlg_sc_, SIGNAL(activated()), this, SLOT(openFirstChatDlg()));
     }
+
+	SystemTrayIcon *tray = SystemTrayIcon::instance();
+    connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(onTrayIconClicked()));
 }
 
 MainWindow::~MainWindow()
@@ -116,6 +119,14 @@ MainWindow::~MainWindow()
 		delete main_http_;
 		main_http_ = NULL;
 	}
+}
+
+void MainWindow::onTrayIconClicked()
+{
+    if (isMinimized() || !isVisible())
+        showNormal();
+    else
+        hide();
 }
 
 void MainWindow::clean()
@@ -462,8 +473,6 @@ int MainWindow::getStatusIndex(ContactStatus status)
 
 void MainWindow::updateLoginUser() const
 {
-	SystemTrayIcon *tray = SystemTrayIcon::instance();
-
 	QString tooltip("qtqq - ");
 
 	tooltip += CurrLoginAccount::id() + "\n";
