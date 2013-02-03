@@ -15,45 +15,33 @@
 #include "core/sockethelper.h"
 #include "protocol/qq_protocol.h"
 #include "roster/group_presister.h"
+#include "rostermodel/contact_proxy_model.h"
+#include "rostermodel/contact_searcher.h"
 #include "rostermodel/roster_model.h"
 #include "roster/roster.h"
 #include "skinengine/qqskinengine.h"
 
 GroupChatDlg::GroupChatDlg(Group *group, ChatDlgType type, QWidget *parent) :
     QQChatDlg(group, type, parent),
-    ui(new Ui::GroupChatDlg()),
-    model_ (new RosterModel)
+    ui(new Ui::GroupChatDlg())
 {
     ui->setupUi(this);
+
+    model_  = new RosterModel();
+	proxy_model_ = new ContactProxyModel(this);
+	proxy_model_->setSourceModel(model_);
+	model_->setProxyModel(proxy_model_);
 
     initUi();  
     updateSkin();
     initConnections();
 
-    te_input_.setFocus();
-    ui->lv_members_->setModel(model_);
-
     setupMemberList();
-}
 
-void GroupChatDlg::setupMemberList()
-{
-    Group *group = static_cast<Group *>(talkable_);
+    searcher_ = new ContactSearcher(this);
+	searcher_->initialize(((Group *)talkable_)->members());
 
-    if ( group->memberCount() == 0 )
-    {
-        Protocol::QQProtocol *protocol = Protocol::QQProtocol::instance();
-        protocol->requestGroupMemberList((Group *)talkable_);
-    }
-    else
-    {
-        QList<Contact *> members = ((Group *)talkable_)->members();
-        foreach ( Contact *contact, members )
-        {
-            model_->addContactItem(contact);
-            replaceUnconverId(contact);
-        }
-    }
+    ui->member_view->setModel(proxy_model_);
 }
 
 GroupChatDlg::~GroupChatDlg()
@@ -68,9 +56,30 @@ GroupChatDlg::~GroupChatDlg()
     delete ui;
 }
 
+void GroupChatDlg::setupMemberList()
+{
+    Group *group = static_cast<Group *>(talkable_);
+
+    if ( group->memberCount() == 0 )
+    {
+        Protocol::QQProtocol *protocol = Protocol::QQProtocol::instance();
+        protocol->requestGroupMemberList((Group *)talkable_);
+    }
+    else
+    {
+        QVector<Contact *> members = ((Group *)talkable_)->members();
+        foreach ( Contact *contact, members )
+        {
+            model_->addContactItem(contact);
+            replaceUnconverId(contact);
+        }
+    }
+}
+
 void GroupChatDlg::initUi()
 {
     setWindowTitle(talkable_->name());
+    ui->member_view->setSortingEnabled(true);
     ui->lbl_name_->setText(talkable_->name());
     ui->announcement->setPlainText(((Group *)talkable_)->announcement());
 
@@ -107,6 +116,7 @@ void GroupChatDlg::initUi()
     ui->splitter_right->setSizes(right_sizes);
 
     this->resize(600, 500);
+    te_input_.setFocus();
 }
 
 void GroupChatDlg::initConnections()
@@ -122,9 +132,11 @@ void GroupChatDlg::initConnections()
     connect(ui->btn_send_msg, SIGNAL(clicked()), this, SLOT(sendMsg())); connect(ui->btn_qqface, SIGNAL(clicked()), this, SLOT(openQQFacePanel()));
     connect(ui->btn_close, SIGNAL(clicked()), this, SLOT(close()));
     connect(ui->btn_chat_log, SIGNAL(clicked()), this, SLOT(openChatLogWin()));
-    connect(ui->lv_members_, SIGNAL(doubleClicked(const QModelIndex &)), model_, SLOT(onDoubleClicked(const QModelIndex &)));
+    connect(ui->member_view, SIGNAL(doubleClicked(const QModelIndex &)), model_, SLOT(onDoubleClicked(const QModelIndex &)));
 
     connect(&msgbrowse_, SIGNAL(senderLinkClicked(QString)), this, SLOT(openSessOrFriendChatDlg(QString)));
+
+	connect(ui->member_searcher, SIGNAL(textChanged(const QString &)), this, SLOT(onSearch(const QString &)));
 }
 
 void GroupChatDlg::updateSkin()
@@ -202,12 +214,13 @@ void GroupChatDlg::onMemberAdded(Contact *contact)
 {
     model_->addContactItem(contact);
 
+    searcher_->appendSpell(contact);
     replaceUnconverId(contact);
 }
 
 void GroupChatDlg::onMemberRemoved(Contact *contact)
 {
-
+    //searcher_->removeSpell(contact);
 }
 
 void GroupChatDlg::replaceUnconverId(Contact *contact)
@@ -246,4 +259,17 @@ void GroupChatDlg::onGroupMemberDataChanged(Contact *member, TalkableDataRole ro
 Contact *GroupChatDlg::getSender(const QString &id) const
 {
     return findContactById(id);
+}
+
+void GroupChatDlg::onSearch(const QString &str)
+{
+    if ( str.isEmpty() )
+        proxy_model_->endFilter();
+    else
+    {
+        QVector<QString> result;
+		searcher_->search(str, result);
+
+        proxy_model_->setFilter(result);
+    }
 }

@@ -4,15 +4,14 @@
 #include <assert.h>
 
 #include <QDateTime>
-#include <QSharedPointer>
 
 #include "json/json.h"
-#include "qqiteminfohelper.h"
-#include "groupitemmodel.h"
-#include "frienditemmodel.h"
+
 #include "core/qqmsg.h"
 #include "core/captchainfo.h"
 #include "core/talkable.h"
+#include "core/request.h"
+#include "qqiteminfohelper.h"
 
 GroupRequestDlg::GroupRequestDlg(const ShareQQMsgPtr msg, Contact *contact, Group *group, QWidget *parent) : QDialog(parent),
     ui_(new Ui::GroupRequestDlg)

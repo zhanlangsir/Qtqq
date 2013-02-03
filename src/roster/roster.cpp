@@ -79,7 +79,6 @@ void Roster::parseContactList(const QByteArray &array)
 		uin_markname.insert(uin, mark_name);
 	}
 
-	//Protocol::QQProtocol *proto = Protocol::QQProtocol::instance();
 	//set friends
 	const Json::Value friends = root["result"]["friends"];
 	const Json::Value info = root["result"]["info"];

@@ -3,24 +3,26 @@
 
 #include <QCloseEvent>
 #include <QMenu>
+#include <QSystemTrayIcon>
 
-#include "core/nameconvertor.h"
-#include "core/qqmsg.h"
-
-class QHttp;
-
-class QQChatDlg;
-class QQLoginCore;
-class FriendSearcher;
-class RosterModel;
-class RecentModel;
+#include "utils/contact_status.h"
 
 namespace Ui
 {
     class MainWindow;
 }
 
+class QHttp;
+
 class QxtGlobalShortcut;
+
+class ContactProxyModel;
+class ContactSearcher;
+class FriendSearcher;
+class QQChatDlg;
+class QQLoginCore;
+class RecentModel;
+class RosterModel;
 
 class MainWindow : public QWidget
 {
@@ -50,7 +52,8 @@ private slots:
     void openMainMenu();
     void setMute(bool mute);
     void openFirstChatDlg();
-    void onTrayIconClicked();
+    void onTrayIconClicked(QSystemTrayIcon::ActivationReason reason);
+	void onSearch(const QString &str);
 
 private:
     void getFriendList();
@@ -68,10 +71,12 @@ private:
     Ui::MainWindow *ui;
     QHttp *main_http_;
 
-    NameConvertor convertor_;
 	RosterModel *contact_model_;
     RosterModel *group_model_;
     RecentModel *recent_model_;
+
+    ContactSearcher *searcher_;
+	ContactProxyModel *contact_proxy_model_;
 
     QMenu *main_menu_;
     QAction *act_mute_;

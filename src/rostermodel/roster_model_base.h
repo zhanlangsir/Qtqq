@@ -26,7 +26,6 @@ public:
 	void setProxyModel(QAbstractProxyModel *proxy);
 	QAbstractProxyModel *proxyModel() const;
 
-
     void setIconSize(QSize size)
     {
         icon_size_=size;

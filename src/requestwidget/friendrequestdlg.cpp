@@ -1,18 +1,17 @@
 #include "friendrequestdlg.h"
 #include "ui_friendrequestdlg.h"
 
-#include <QTcpSocket>
-#include <QPixmap>
 #include <QDir>
+#include <QPixmap>
+#include <QTcpSocket>
 
-#include "frienditemmodel.h"
+#include "core/captchainfo.h"
 #include "core/qqavatarrequester.h"
 #include "core/qqmsg.h"
 #include "core/request.h"
-#include "core/captchainfo.h"
-#include "roster/roster.h"
 #include "core/talkable.h"
 #include "qqiteminfohelper.h"
+#include "roster/roster.h"
 #include "strangermanager/stranger_manager.h"
 
 FriendRequestDlg::FriendRequestDlg(const ShareQQMsgPtr msg, Contact *contact, QWidget *parent) :

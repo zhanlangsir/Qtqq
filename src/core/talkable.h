@@ -250,13 +250,13 @@ public:
         return n_member_;
     }
 
-    QList<Contact *> members() 
+    QVector<Contact *> members() 
     {
         if ( members_.count() == 0 && n_member_ != 0 )
         {
             depresist();
         }
-        return members_.values();
+        return members_.values().toVector();
     }
 
     Contact *member(QString id) const

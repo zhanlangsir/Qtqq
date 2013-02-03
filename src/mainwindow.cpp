@@ -24,12 +24,9 @@
 #include "core/sockethelper.h"
 #include "core/types.h"
 #include "event_handle/event_handle.h"
-#include "friendsearcher.h"
 #include "msgprocessor/msg_processor.h"
 #include "protocol/event_center.h"
 #include "protocol/qq_protocol.h"
-#include "qqglobal.h"
-#include "qqiteminfohelper.h"
 #include "requestwidget/requestmsg_processor.h"
 #include "rostermodel/contact_proxy_model.h"
 #include "rostermodel/recent_model.h"
@@ -37,6 +34,9 @@
 #include "roster/roster.h"
 #include "skinengine/qqskinengine.h"
 #include "trayicon/systemtray.h"
+#include "rostermodel/contact_searcher.h"
+#include "qqglobal.h"
+#include "qqiteminfohelper.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
@@ -66,8 +66,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pb_mainmenu, SIGNAL(clicked()), this, SLOT(openMainMenu()));
     connect(Protocol::EventCenter::instance(), SIGNAL(eventTrigger(Protocol::Event *)), EventHandle::instance(), SLOT(onEventTrigger(Protocol::Event *)));
 
-    convertor_.addUinNameMap(CurrLoginAccount::id(), tr("you"));
-
     if (QFile::exists(QQGlobal::configDir() + "/qqgroupdb"))
     {
         QFile::remove(QQGlobal::configDir() + "/qqgroupdb");
@@ -90,7 +88,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
 	SystemTrayIcon *tray = SystemTrayIcon::instance();
-    connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(onTrayIconClicked()));
+    connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(onTrayIconClicked(QSystemTrayIcon::ActivationReason)));
 }
 
 MainWindow::~MainWindow()
@@ -101,17 +99,17 @@ MainWindow::~MainWindow()
 
 	clean();
 
-	if ( contact_model_ )
-		delete contact_model_;
-	contact_model_ = NULL;
-
-	if ( group_model_ )
-		delete group_model_;
-	group_model_ = NULL;
-
-	if ( recent_model_ )
-		delete recent_model_;
-	recent_model_ = NULL;
+#define CLEAN(x) { \
+    if ( x ) \
+    { \
+        delete x; \
+        x = NULL; \
+    } \
+}
+    CLEAN(contact_model_)
+    CLEAN(group_model_)
+    CLEAN(recent_model_)
+#undef CLEAN
 
 	if ( main_http_ )
 	{
@@ -121,8 +119,11 @@ MainWindow::~MainWindow()
 	}
 }
 
-void MainWindow::onTrayIconClicked()
+void MainWindow::onTrayIconClicked(QSystemTrayIcon::ActivationReason reason)
 {
+    if ( reason != QSystemTrayIcon::Trigger )
+        return;
+
     if (isMinimized() || !isVisible())
         showNormal();
     else
@@ -208,9 +209,9 @@ void MainWindow::getFriendListDone(bool err)
 	qDebug() << "Contact list:\n" << contact_info << endl;
 
 	contact_model_ = new RosterModel(this);
-	ContactProxyModel *contact_proxy_model = new ContactProxyModel(contact_model_);
-	contact_proxy_model->setSourceModel(contact_model_);
-	contact_model_->setProxyModel(contact_proxy_model);
+	contact_proxy_model_ = new ContactProxyModel(contact_model_);
+	contact_proxy_model_->setSourceModel(contact_model_);
+	contact_model_->setProxyModel(contact_proxy_model_);
 
     connect(ui->tv_friendlist, SIGNAL(doubleClicked(const QModelIndex &)), contact_model_, SLOT(onDoubleClicked(const QModelIndex &)));
 	Roster *roster = Roster::instance();
@@ -222,13 +223,11 @@ void MainWindow::getFriendListDone(bool err)
 
 	roster->parseContactList(contact_info);
 
-    FriendSearcher *friend_searcher = new FriendSearcher();
-	//may initialize after the friend list had set up
-	friend_searcher->initialize();
-	contact_proxy_model->setFilter(friend_searcher);
-	connect(ui->le_search, SIGNAL(textChanged(const QString &)), contact_proxy_model, SLOT(onSearch(const QString &)));
+    searcher_ = new ContactSearcher(this);
+	searcher_->initialize(Roster::instance()->contacts());
+	connect(ui->le_search, SIGNAL(textChanged(const QString &)), this, SLOT(onSearch(const QString &)));
 
-    ui->tv_friendlist->setModel(contact_proxy_model);
+    ui->tv_friendlist->setModel(contact_proxy_model_);
 
     getGroupList();
 }
@@ -351,8 +350,6 @@ void MainWindow::getPersonalInfo()
         }
         else
             ui->vip_label->setText("");
-
-		convertor_.addUinNameMap(CurrLoginAccount::id(), CurrLoginAccount::name());
 	} 
 }
 
@@ -478,4 +475,27 @@ void MainWindow::updateLoginUser() const
 	tooltip += CurrLoginAccount::id() + "\n";
 	tooltip += CurrLoginAccount::name() + " (";
 	tooltip += QQUtility::StatusToString(CurrLoginAccount::status()) + ")";
+}
+
+void MainWindow::onSearch(const QString &str)
+{
+    if ( str.isEmpty() )
+        contact_proxy_model_->endFilter();
+    else
+    {
+        QVector<QString> result;
+        searcher_->search(str, result);
+
+		//contact's category also should be shown
+		foreach ( const QString &id, result )
+		{
+			Contact *contact = Roster::instance()->contact(id);
+            assert(contact->category());
+            QString cat_index = QString::number(contact->category()->index());
+            if ( !result.contains(cat_index) )
+                result.append(cat_index);
+		}
+
+        contact_proxy_model_->setFilter(result);
+    }
 }

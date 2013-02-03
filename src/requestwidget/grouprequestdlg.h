@@ -13,9 +13,6 @@ namespace Ui
 class Contact;
 class Group;
 
-class FriendItemModel;
-class GroupItemModel;
-
 class GroupRequestDlg : public QDialog
 {
     Q_OBJECT
@@ -32,6 +29,7 @@ private slots:
 
 private:
     Ui::GroupRequestDlg *ui_;
+
     QString gid_;
     QString id_;
 };

@@ -8,8 +8,6 @@
 
 class QModelIndex;
 
-class FriendSearcher;
-
 class ContactProxyModel : public QSortFilterProxyModel
 {
 	Q_OBJECT
@@ -17,21 +15,25 @@ public:
 	ContactProxyModel(QObject *parent = NULL);
 	~ContactProxyModel();
 
-	void setFilter(FriendSearcher *searcher);
+    void setFilter(const QVector<QString> &filter)
+    {
+        filter_ = filter;
+        invalidateFilter();
+    }
+    void endFilter()
+    {
+        filter_.clear();
+        invalidateFilter();
+    }
 
 protected:
 	bool filterAcceptsRow(int row, const QModelIndex &parent) const;
-
-private slots:
-	void onSearch(const QString &str);
 
 private:
 	virtual bool lessThan(const QModelIndex & left, const QModelIndex & right) const;
 
 private:
-	QVector<QString> search_result_;
-	FriendSearcher *searcher_;
-	bool is_searching_;
+	QVector<QString> filter_;
 };
 
 #endif //CONTACT_PROXY_MODEL_H

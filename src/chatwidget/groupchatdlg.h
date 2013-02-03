@@ -16,6 +16,8 @@ class QModelIndex;
 
 class Contact;
 class RosterModel;
+class ContactSearcher;
+class ContactProxyModel;
 
 class GroupChatDlg : public QQChatDlg
 {
@@ -46,6 +48,7 @@ private slots:
     void onGroupMemberDataChanged(Contact *member, TalkableDataRole role);
     void onMemberAdded(Contact *contact);
     void onMemberRemoved(Contact *contact);
+    void onSearch(const QString &str);
 
 private:
     virtual ImgLoader* getImgLoader() const;
@@ -65,7 +68,10 @@ private:
     QString msg_sig_;
     QString connection_name_;
 
+    ContactSearcher *searcher_;
+
 	RosterModel *model_;
+    ContactProxyModel *proxy_model_;
 };
 
 #endif //GROUPCHATDLG_H

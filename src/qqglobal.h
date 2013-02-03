@@ -21,7 +21,14 @@ public:
 
     static QString appName() 
     {
+        static const QString app_name_ = PACKAGE; 
         return app_name_;
+    }
+
+    static QString dataDir()
+    {
+        static const QString data_path = QString::fromUtf8(PKG_DATA_DIR);
+        return  data_path;
     }
 
     static QString configDir()
@@ -54,10 +61,6 @@ public:
         return temp_path;
     }
 
-    static QString dataDir()
-    {
-        return data_path_;
-    }
 
 	QString appIconPath() const
 	{
@@ -67,8 +70,6 @@ public:
 private:
 	QString appicon_path_;
 
-    static const QString app_name_;
-    static const QString data_path_;
 	static const QString version_;
 
 private:

@@ -8,7 +8,6 @@ set(CORE_HEADERS
 	core/qqavatarrequester.h
 	core/groupimgloader.h
 	core/qqmsg.h
-	core/nameconvertor.h
 	core/groupimgsender.h
 	core/qqskinable.h
 	core/qqchatlog.h
@@ -76,6 +75,7 @@ set(CORE_HEADERS
 	rostermodel/roster_model.h
 	rostermodel/recent_model.h
 	rostermodel/contact_proxy_model.h
+    rostermodel/contact_searcher.h
 
 	#skinengine
 	skinengine/qqskinengine.h
@@ -102,23 +102,17 @@ set(UI_HEADERS
 	chatlogwin.h
 	frienditem.h
 	qtqq.h
-	frienditemmodel.h
 	qqtextedit.h
 	moveablehandler.h
 	qqtitlebar.h
-	recentlistitemmodel.h
-	groupitemmodel.h
 	msgbrowse.h
 	mainwindow.h
 	loginwin.h
 	qqfacepanel.h
 	qqiteminfohelper.h
 	qqwidget.h
-	qqitemmodel.h
 	friendinfodlg.h
     qqglobal.h
-    friendsearcher.h
-    friendsearchlineedit.h
 )
 
 QT4_WRAP_CPP(UI_HEADERS_MOC ${UI_HEADERS})
@@ -179,6 +173,7 @@ set(CORE_SOURCES
 	rostermodel/roster_index.cpp
 	rostermodel/roster_model.cpp
 	rostermodel/contact_proxy_model.cpp
+    rostermodel/contact_searcher.cpp
 
 	#skinengine
 	skinengine/qqskinengine.cpp
@@ -221,20 +216,14 @@ set(UI_SOURCES
 	chatlogwin.cpp
 	moveablehandler.cpp
 	friendinfodlg.cpp
-	qqitemmodel.cpp
 	msgbrowse.cpp
 	qqwidget.cpp
 	mainwindow.cpp
 	qqtextedit.cpp
 	qqfacepanel.cpp
-	recentlistitemmodel.cpp
-	frienditemmodel.cpp
 	loginwin.cpp
-	groupitemmodel.cpp
 	qqiteminfohelper.cpp
     qqglobal.cpp
-    friendsearcher.cpp
-    friendsearchlineedit.cpp
 )
 
 set(UI_FILES

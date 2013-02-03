@@ -50,10 +50,10 @@ void RosterModel::addContactItem(const Contact *contact)
     }
     else
     {
-        root_->appendChild(index);
-
         QModelIndex changed_index = modelIndexByRosterIndex(index);
-        dataChanged(changed_index, changed_index);
+        beginInsertRows(QModelIndex(), root_->childCount(), root_->childCount());
+        root_->appendChild(index);
+        endInsertRows();
     }
     indexs_.insert(contact->id(), index);
 }	

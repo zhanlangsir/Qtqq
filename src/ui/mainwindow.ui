@@ -134,7 +134,7 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
-          <widget class="FriendSearchLineEdit" name="le_search">
+          <widget class="QLineEdit" name="le_search">
            <property name="styleSheet">
             <string notr="true"/>
            </property>
@@ -156,7 +156,7 @@
         <enum>QTabWidget::Rounded</enum>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <property name="elideMode">
         <enum>Qt::ElideLeft</enum>
@@ -292,13 +292,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>FriendSearchLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>friendsearchlineedit.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>
