@@ -38,7 +38,7 @@ GroupRequestDlg::GroupRequestDlg(const ShareQQMsgPtr msg, Contact *contact, Grou
 
 	if ( contact )
 	{
-		ui_->lbl_avatar_->setPixmap(contact->icon());
+		ui_->lbl_avatar_->setPixmap(contact->avatar());
 	}
     ui_->pte_msg_->appendPlainText(msg->msg());
 

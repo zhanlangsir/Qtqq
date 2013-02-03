@@ -116,4 +116,6 @@ QToolButton#btn_send_img:hover {
     background-color: #E7ECEE;
 }
 
-
+QLabel#vip_label {
+    color: rgb(255, 0, 0);
+}

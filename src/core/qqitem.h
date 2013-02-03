@@ -1,9 +1,10 @@
-#ifndef QTQQ_CORE_QQITEM_H
-#define QTQQ_CORE_QQITEM_H
+#ifndef QQITEM_H
+#define QQITEM_H
 
-#include "types.h"
 #include <QString>
 #include <QVector>
+
+#include "utils/contact_status.h"
 
 class QQItem
 {
@@ -115,4 +116,4 @@ private:
     QString gcode_;
 };
 
-#endif //QTQQ_CORE_QQITEM_H
+#endif //QQITEM_H

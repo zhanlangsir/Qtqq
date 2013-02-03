@@ -39,7 +39,7 @@ public:
 	void clean();
 
 protected:
-    void closeEvent(QCloseEvent *);
+    virtual void closeEvent(QCloseEvent *);
 
 private slots:
     void changeMyStatus(int idx);

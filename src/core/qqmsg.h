@@ -21,8 +21,8 @@ to_uin : 本登录号的qq号
 request_uin : 请求者uin
 */
 
-#ifndef QTQQ_CORE_QQMSG_H
-#define QTQQ_CORE_QQMSG_H
+#ifndef QQMSG_H
+#define QQMSG_H
 
 #include <QMetaType>
 #include <QVector>
@@ -37,6 +37,7 @@ class QQMsg
 {
 public:
     enum MsgType{kGroup, kFriend, kBuddiesStatusChange, kSystem, kSystemG, kSess};
+
 	QQMsg(MsgType type) : type_(type) {}
     virtual ~QQMsg() {}
 
@@ -79,11 +80,23 @@ public:
 	{
 	}
 
-    QString talkTo() const
+    virtual QString talkTo() const
     { return from_uin_; }
-    QString sendUin() const
+
+    virtual QString sendUin() const
     { return from_uin_; }
-    long time() const { return time_; }
+
+    virtual long time() const 
+	{ return time_; }
+
+    virtual QString msg() const 
+	{
+		QString msg_str;
+		foreach ( QQChatItem msg, msgs_ )
+		{
+			msg_str.append(msg.content());
+		}
+	}
 
     QString msg_id_;
     QString msg_id2_;
@@ -97,7 +110,7 @@ public:
     bool i_;
     bool u_;
 
-    QVector<QQChatItem> msg_;
+    QVector<QQChatItem> msgs_;
 };
 
 class QQSessChatMsg : public QQChatMsg
@@ -206,4 +219,4 @@ public:
     QString msg_;
 };
 
-#endif //QTQQ_CORE_QQMSG_H
+#endif //QQMSG_H

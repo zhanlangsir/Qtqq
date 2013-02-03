@@ -9,8 +9,7 @@
 #include "chatwidget/chatdlg_manager.h"
 #include "soundplayer/soundplayer.h" 
 #include "roster/roster.h"
-#include "utils/request_callback.h"
-#include "qq_protocol/qq_protocol.h"
+#include "protocol/qq_protocol.h"
 
 SystemTrayIcon* SystemTrayIcon::system_tray_ = NULL;
 

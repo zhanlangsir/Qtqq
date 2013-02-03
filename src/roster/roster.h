@@ -3,13 +3,16 @@
 
 #include <QObject>
 #include <QString>
+#include <QList>
 #include <QByteArray>
 #include <QVector>
 #include <QHash>
 
 #include "core/talkable.h"
+#include "interfaces/iobserver.h"
+#include "protocol/event_center.h"
 
-class Roster : public QObject
+class Roster : public QObject, public IObserver
 {
 	Q_OBJECT
 signals:
@@ -31,13 +34,14 @@ public:
 		return instance_;
 	}
 
-	void parseContact(const QByteArray &array);
-	void parseGroup(const QByteArray &array);
+	void parseContactList(const QByteArray &array);
+	void parseGroupList(const QByteArray &array);
+	void parseGroupMemberList(const QString &gid, const QByteArray &array);
 	void parseContactStatus(const QByteArray &array);
 
 	void addContact(Contact *contact, Category *cat);
 
-	Talkable *talkable(const QString  &id) const;;
+	Talkable *talkable(const QString  &id) const;
 	Contact *contact(QString id) const;
 	Group *group(QString id) const;
 
@@ -55,6 +59,12 @@ public:
 private slots:
 	void slotIconRequestDone(QString id, QByteArray icon_data);
 	void slotContactStatusChanged(QString id, ContactStatus status, ContactClientType type);
+
+private:
+    virtual void onNotify(Protocol::Event *e);
+
+    void updateTalkableIcon(Talkable *talkable, QByteArray data);
+    void presistGroup(const QString &gid);
 
 private:
 	QHash<QString, Contact*> contacts_;

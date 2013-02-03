@@ -242,7 +242,7 @@ QVariant FriendItemModel::data(const QModelIndex &index, int role) const
 			return QVariant();
 
 		QPixmap pix(icon_size_);
-		if (talkable->iconPath().isEmpty())
+		if (talkable->avatarPath().isEmpty())
 		{
 			//if (!avatar_requester_.isRequesting(talkable->id()))
 				//emit noAvatar(item);

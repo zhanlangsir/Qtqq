@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>GroupRequestDlg</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
@@ -19,7 +19,7 @@
      <item>
       <widget class="QLabel" name="lbl_avatar_">
        <property name="text">
-        <string>TextLabel</string>
+        <string>Avatar</string>
        </property>
       </widget>
      </item>
@@ -30,7 +30,7 @@
          <item>
           <widget class="QLabel" name="lbl_request_name_">
            <property name="text">
-            <string>TextLabel</string>
+            <string>Requester</string>
            </property>
           </widget>
          </item>
@@ -44,7 +44,7 @@
          <item>
           <widget class="QLabel" name="lbl_group_name_">
            <property name="text">
-            <string>TextLabel</string>
+            <string>GroupName</string>
            </property>
           </widget>
          </item>
@@ -85,6 +85,12 @@
         <widget class="QRadioButton" name="rb_allow_">
          <property name="text">
           <string>Allow</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+         <property name="autoRepeat">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -149,6 +155,9 @@
       <widget class="QPushButton" name="pb_ok_">
        <property name="text">
         <string>Ok</string>
+       </property>
+       <property name="default">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

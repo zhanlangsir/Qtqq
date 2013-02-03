@@ -149,7 +149,7 @@ void ChatMsgProcessor::createTrayNotify(ShareQQMsgPtr msg)
 		if ( !talkable )
 			return;
 
-		QPixmap pix = talkable->icon();
+		QPixmap pix = talkable->avatar();
 		QIcon icon;
 		if ( !pix.isNull() )
 			icon.addPixmap(pix);

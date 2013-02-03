@@ -1,6 +1,7 @@
 #include "roster_model.h"
 
 #include "chatwidget/chatdlg_manager.h"
+#include "roster/roster.h"
 #include "rostermodel/roster_index.h"
 
 RosterModel::RosterModel(QObject *parent) : __RosterModelBase(parent)
@@ -14,7 +15,7 @@ RosterModel::~RosterModel()
 }
 
 
-void RosterModel::slotNewCategoryItem(const Category *cat)
+void RosterModel::addCategoryItem(const Category *cat)
 {
 	RosterIndex *index = new RosterIndex(RIT_Category);
 	index->setData(TDR_Name, cat->name());
@@ -25,7 +26,7 @@ void RosterModel::slotNewCategoryItem(const Category *cat)
 }
 
 
-void RosterModel::slotNewContactItem(const Contact *contact)
+void RosterModel::addContactItem(const Contact *contact)
 {
 	RosterIndex *index = new RosterIndex(RIT_Contact);
 	index->setData(TDR_Name, contact->name());
@@ -35,17 +36,29 @@ void RosterModel::slotNewContactItem(const Contact *contact)
 	if ( !contact->markname().isEmpty() )
 		index->setData(TDR_Markname, contact->markname());
 
-	RosterIndex *cat = findCategoryIndex(contact->category()->index());
-	indexs_.insert(contact->id(), index);
-	assert(cat);
-	cat->appendChild(index);
+    if ( !contact->avatar().isNull() )
+        index->setData(TDR_Avatar, contact->avatar());
 
-	QModelIndex changed_index = modelIndexByRosterIndex(cat);
-	dataChanged(changed_index, changed_index);
+    if ( contact->category() )
+    {
+        RosterIndex *cat = findCategoryIndex(contact->category()->index());
+        assert(cat);
+        cat->appendChild(index);
+
+        QModelIndex changed_index = modelIndexByRosterIndex(cat);
+        dataChanged(changed_index, changed_index);
+    }
+    else
+    {
+        root_->appendChild(index);
+
+        QModelIndex changed_index = modelIndexByRosterIndex(index);
+        dataChanged(changed_index, changed_index);
+    }
+    indexs_.insert(contact->id(), index);
 }	
 
-
-void RosterModel::slotNewGroupItem(const Group *group)
+void RosterModel::addGroupItem(const Group *group)
 {
 	RosterIndex *index = new RosterIndex(RIT_Group);
 	index->setData(TDR_Id, group->id());
@@ -81,7 +94,7 @@ RosterIndex *RosterModel::findCategoryIndex(int cat_index)
 }
 
 
-void RosterModel::slotTalkableDataChanged(QString id, QVariant data, TalkableDataRole role)
+void RosterModel::talkableDataChanged(QString id, QVariant data, TalkableDataRole role)
 {
 	RosterIndex *index = findRosterIndexById(id);
 	if ( !index )
@@ -93,7 +106,7 @@ void RosterModel::slotTalkableDataChanged(QString id, QVariant data, TalkableDat
 }
 
 
-void RosterModel::slotCategoryDataChanged(int index, QVariant data, TalkableDataRole role)
+void RosterModel::categoryDataChanged(int index, QVariant data, TalkableDataRole role)
 {
 	RosterIndex *roster_index = findCategoryIndex(index);
 	assert(roster_index);
@@ -114,7 +127,7 @@ RosterIndex *RosterModel::findRosterIndexById(QString id)
 	return NULL;
 }
 
-void RosterModel::slotOnDoubleclicked(const QModelIndex &index)
+void RosterModel::onDoubleClicked(const QModelIndex &index)
 {
 	ChatDlgManager *chat_mgr = ChatDlgManager::instance();
 
@@ -126,7 +139,10 @@ void RosterModel::slotOnDoubleclicked(const QModelIndex &index)
 	if ( type == RIT_Contact )
 	{
 		QString id = roster_index->data(TDR_Id).toString();
-		chat_mgr->openFriendChatDlg(id);
+        if ( Roster::instance()->contact(id) )
+            chat_mgr->openFriendChatDlg(id);
+        //else
+        //chat_mgr->openSessChatDlg(id);
 	}
 	else if ( type == RIT_Group )
 	{
@@ -135,7 +151,6 @@ void RosterModel::slotOnDoubleclicked(const QModelIndex &index)
 		chat_mgr->openGroupChatDlg(id, gcode);
 	}
 }
-
 
 void RosterModel::clean()
 {

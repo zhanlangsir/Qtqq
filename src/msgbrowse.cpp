@@ -119,7 +119,7 @@ void MsgBrowse::appendContent(QString content, const ShowOptions &options)
 
     this->page()->mainFrame()->evaluateJavaScript(script);
 
-    last_send_id_ = options.send_uin;
+    last_send_id_ = options.sender_uin;
     last_kind_ = options.type;
 }
 
@@ -146,7 +146,7 @@ void MsgBrowse::replaceKeyWord(QString &html, const ShowOptions &options)
     html.replace("%shortTime%", "20:30");
     html.replace("%service%",QString::null);
 
-    QString avatar = options.send_avatar_path;
+    QString avatar = options.sender_avatar_path;
     /*
     if (!QFile::exists(avatar))
     {
@@ -156,8 +156,8 @@ void MsgBrowse::replaceKeyWord(QString &html, const ShowOptions &options)
     }
     */
     html.replace("%userIconPath%",avatar);
-    html.replace("%sender%", options.send_name);
-    html.replace("%sender_id%", options.send_uin);
+    html.replace("%sender%", options.sender_name);
+    html.replace("%sender_id%", options.sender_uin);
 
 
     QString time =  options.time.toString("hh:mm:ss");
@@ -220,7 +220,7 @@ inline
 bool MsgBrowse::ifCombineMsg(const ShowOptions &options) const
 {
     bool is_combine = false;
-    if ( options.send_uin == last_send_id_ && options.type == last_kind_)
+    if ( options.sender_uin == last_send_id_ && options.type == last_kind_)
         is_combine = true;
 
     return is_combine;

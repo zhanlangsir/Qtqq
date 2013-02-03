@@ -4,12 +4,11 @@
 #include <QDateTime>
 #include <QDebug>
 
-#include "utils/request_callback.h"
 #include "core/captchainfo.h"
+#include "strangermanager/stranger_manager.h"
 
-StrangerInfo2Job::StrangerInfo2Job(QString id, QString gid, RequestCallbackBase *callback, JobType type) :
-	__JobBase(id, type, callback),
-	gid_(gid),
+StrangerInfo2Job::StrangerInfo2Job(Talkable *job_for, JobType type) :
+	__JobBase(job_for, type),
 	http_(this)
 {
 	connect(&http_, SIGNAL(done(bool)), this, SLOT(requestDone(bool)));
@@ -18,7 +17,7 @@ StrangerInfo2Job::StrangerInfo2Job(QString id, QString gid, RequestCallbackBase 
 void StrangerInfo2Job::run()
 {
 
-    QString get_stranger_info_url = "/api/get_stranger_info2?tuin=" + id_ + "&verifysession=&gid=0&code=group_request_join-"+gid_+"&vfwebqq=" +
+    QString get_stranger_info_url = "/api/get_stranger_info2?tuin=" + for_->id() + "&verifysession=&gid=0&code=group_request_join-"+((Contact *)for_)->group()->id() +"&vfwebqq=" +
             CaptchaInfo::instance()->vfwebqq() + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
 
 	QHttpRequestHeader header;
@@ -41,12 +40,10 @@ void StrangerInfo2Job::requestDone(bool error)
 		http_.close();
 
 		StrangerManager::instance()->parseStranger(data);
-
-		callback_->callback();
 	}
 	else
 	{
-		qDebug() << "request stranger for " << id_ << " failed! " << endl;
+		qDebug() << "request stranger for " << for_->id() << " failed! " << endl;
 		qDebug() << "error: " << http_.errorString() << endl;
 	}
 

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>FriendRequestDlg</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -19,7 +19,7 @@
      <item>
       <widget class="QLabel" name="lbl_avatar_">
        <property name="text">
-        <string/>
+        <string>Avatar</string>
        </property>
       </widget>
      </item>
@@ -28,7 +28,7 @@
        <item>
         <widget class="QLabel" name="lbl_account_">
          <property name="text">
-          <string>TextLabel</string>
+          <string>Name</string>
          </property>
         </widget>
        </item>
@@ -79,6 +79,9 @@
     <widget class="QRadioButton" name="rb_allow_and_add_">
      <property name="text">
       <string>Allow and add</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

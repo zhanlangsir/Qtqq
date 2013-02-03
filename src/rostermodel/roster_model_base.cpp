@@ -6,7 +6,7 @@
 #include "utils/icon_decorator.h"
 #include "skinengine/qqskinengine.h"
 
-__RosterModelBase::__RosterModelBase(QObject *parent) : QAbstractItemModel(parent), proxy_(NULL)
+__RosterModelBase::__RosterModelBase(QObject *parent) : QAbstractItemModel(parent), proxy_(NULL), icon_size_(35, 35)
 {
 	root_ = new RosterIndex(RIT_Root);
 }
@@ -47,10 +47,13 @@ QVariant __RosterModelBase::data(const QModelIndex &index, int role) const
 			{
 				QPixmap pix = data.value<QPixmap>();
 				IconDecorator::decorateIcon(roster_index->data(TDR_Status).value<ContactStatus>(), pix);	
-				return pix;
+                return pix.scaled(icon_size_, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 			}
 			else
-				return QPixmap(QQSkinEngine::instance()->skinRes("default_friend_avatar"));
+            {
+				QPixmap pix(QQSkinEngine::instance()->skinRes("default_friend_avatar"));
+                return pix.scaled(icon_size_, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+            }
 		}
 		else if ( roster_index->type() == RIT_Group )
 		{
@@ -89,29 +92,6 @@ QModelIndex __RosterModelBase::modelIndexByRosterIndex(const RosterIndex *index)
 
 	return QModelIndex();
 }
-
-/*
-void __RosterModelBase::getDefaultPixmap(const QQItem *item, QPixmap &pix) const
-{
-    if (item->type() == QQItem::kFriend)
-    {
-        QIcon icon(QQSkinEngine::instance()->getSkinRes("default_friend_avatar"));
-
-        if (item->status() == CS_Offline)
-        {
-            pix = icon.pixmap(QSize(icon_size_), QIcon::Disabled, QIcon::On);
-        }
-        else
-            pix = icon.pixmap(QSize(icon_size_));
-    }
-
-    if (item->type() == QQItem::kGroup)
-    {
-        QIcon icon(QQSkinEngine::instance()->getSkinRes("default_group_avatar"));
-        pix = icon.pixmap(QSize(icon_size_));
-    }
-}
-*/
 
 void __RosterModelBase::setProxyModel(QAbstractProxyModel *proxy)
 {

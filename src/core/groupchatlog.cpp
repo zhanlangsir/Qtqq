@@ -147,7 +147,7 @@ void GroupChatLog::parse(QByteArray &arr, QVector<ShareQQMsgPtr> &chat_logs)
 				break;
 			}
 
-            msg->msg_.append(item);
+            msg->msgs_.append(item);
         }
         ShareQQMsgPtr share_msg_ptr(msg);
         chat_logs.append(share_msg_ptr);

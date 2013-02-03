@@ -48,10 +48,10 @@ void TabWindow::addTab(QQChatDlg *page, const QString &label)
 	Talkable *talkable = page->talkable();
 	pages_.insert(talkable->id(), page);
 	connect(page, SIGNAL(chatFinish(QQChatDlg * )), this, SLOT(onPageClosting(QQChatDlg *)));
-	connect(page->talkable(),  SIGNAL(sigDataChanged(QVariant, TalkableDataRole)), this, SLOT(onTalkableDataChanged(QVariant, TalkableDataRole)));
+	connect(page->talkable(),  SIGNAL(dataChanged(QVariant, TalkableDataRole)), this, SLOT(onTalkableDataChanged(QVariant, TalkableDataRole)));
 
 	QIcon icon;
-	QPixmap pix = talkable->icon();
+	QPixmap pix = talkable->avatar();
 	if ( !pix.isNull() )
 		icon.addPixmap(pix);
 	else
@@ -112,7 +112,7 @@ void TabWindow::onTalkableDataChanged(QVariant data, TalkableDataRole role)
 
 	switch ( role )
 	{
-		case TDR_Icon:
+		case TDR_Avatar:
 			{
 				QIcon icon;
 				QPixmap pix = data.value<QPixmap>();
@@ -142,7 +142,7 @@ void TabWindow::onCurrentTabChanged(int index)
 	{
 		after = (QQChatDlg *)widget(index);
 		QIcon icon;
-		QPixmap pix = after->talkable()->icon();
+		QPixmap pix = after->talkable()->avatar();
 		if ( !pix.isNull() )
 			icon.addPixmap(pix);
 		setWindowIcon(icon);
@@ -190,7 +190,7 @@ void TabWindow::onBlinkTimeout()
 			if ( visiable )
 			{
 				QIcon icon;
-				QPixmap pix = dlg->talkable()->icon();
+				QPixmap pix = dlg->talkable()->avatar();
 				icon.addPixmap(pix);
 				ui->tab_widget->setTabIcon(index, icon);
 			}
@@ -208,7 +208,7 @@ void TabWindow::stopBlink(QQChatDlg *dlg)
 	int index = indexOf(dlg);
 
 	QIcon icon;
-	QPixmap pix = dlg->talkable()->icon();
+	QPixmap pix = dlg->talkable()->avatar();
 	if ( !pix.isNull() )
 	{
 		icon.addPixmap(pix);

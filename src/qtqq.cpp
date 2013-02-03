@@ -3,16 +3,17 @@
 #include <QSettings>
 #include <QMessageBox>
 
+#include "chatwidget/chatdlg_manager.h"
+#include "chatwidget/chatmsg_processor.h"
 #include "loginwin.h"
 #include "mainwindow.h"
-#include "skinengine/qqskinengine.h"
-#include "qq_protocol/qq_protocol.h"
 #include "msgprocessor/msg_processor.h"
-#include "chatwidget/chatmsg_processor.h"
+#include "protocol/qq_protocol.h"
 #include "requestwidget/requestmsg_processor.h"
-#include "chatwidget/chatdlg_manager.h"
 #include "roster/roster.h"
 #include "skinengine/qqskinengine.h"
+#include "skinengine/qqskinengine.h"
+#include "strangermanager/stranger_manager.h"
 #include "trayicon/systemtray.h"
 
 Qtqq *Qtqq::instance_ = NULL;

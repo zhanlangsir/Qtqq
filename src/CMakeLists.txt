@@ -4,7 +4,6 @@ set(CORE_HEADERS
 	core/groupchatlog.h
 	core/friendchatlog.h
 	core/request.h
-	core/msgsender.h
 	core/types.h
 	core/qqavatarrequester.h
 	core/groupimgloader.h
@@ -36,6 +35,13 @@ set(CORE_HEADERS
 	chatwidget/chatmsg_processor.h
 	chatwidget/chatdlg_manager.h
 
+    #event handle
+    event_handle/event_handle.h
+
+    #interfaces/
+    interfaces/iobserver.h
+    interfaces/isubject.h
+    
 	#request widget
 	requestwidget/grouprequestdlg.h
 	requestwidget/friendrequestdlg.h
@@ -45,17 +51,24 @@ set(CORE_HEADERS
 	msgprocessor/msg_processor.h
 
 	#qq_protocol
-	qq_protocol/qq_protocol.h
-	qq_protocol/pollthread.h
+	protocol/qq_protocol.h
+	protocol/pollthread.h
+    protocol/event_center.h
+	protocol/imgsender.h
+    protocol/msgsender.h
 
 	#request_jobs
-	qq_protocol/request_jobs/job_base.h
-	qq_protocol/request_jobs/friendinfo2_job.h
-	qq_protocol/request_jobs/strangerinfo2_job.h
-	qq_protocol/request_jobs/icon_job.h
+	protocol/request_jobs/friendinfo2_job.h
+	protocol/request_jobs/group_memberlist_job.h
+	protocol/request_jobs/icon_job.h
+	protocol/request_jobs/job_base.h
+	protocol/request_jobs/sendmsg_job.h
+    protocol/request_jobs/sendimg_job.h
+	protocol/request_jobs/strangerinfo2_job.h
 
 	#roster
 	roster/roster.h
+    roster/group_presister.h
 
 	#roster model
 	rostermodel/roster_model_base.h
@@ -78,7 +91,6 @@ set(CORE_HEADERS
 	strangermanager/stranger_manager.h
 
 	#utils
-	utils/request_callback.h
 	utils/contact_status.h
 	utils/icon_decorator.h
 
@@ -123,9 +135,7 @@ set(CORE_SOURCES
 	core/groupimgsender.cpp
 	core/sockethelper.cpp
 	core/captchainfo.cpp
-	#core/qqsetting.cpp
 	core/groupimgloader.cpp
-	core/msgsender.cpp
 	core/qqitem.cpp
 	core/friendchatlog.cpp
 	core/qqchatlog.cpp
@@ -134,26 +144,34 @@ set(CORE_SOURCES
 	core/qqutility.cpp
 	core/accountmanager.cpp
 	core/qqmsg.cpp
-	#core/msgcenter.cpp
-	#core/uncheckmsg_notifier.cpp
 	core/curr_login_account.cpp
+    core/talkable.cpp
 
+    #event handle
+    event_handle/event_handle.cpp
 
 	#msgprocessor
 	msgprocessor/msg_processor.cpp
 
 	#qq_protocol
-	qq_protocol/qq_protocol.cpp
-	qq_protocol/pollthread.cpp
+	protocol/qq_protocol.cpp
+	protocol/pollthread.cpp
+    protocol/event_center.cpp
+	protocol/imgsender.cpp
+    protocol/msgsender.cpp
 
-	#request_jobs
-	qq_protocol/request_jobs/job_base.cpp
-	qq_protocol/request_jobs/icon_job.cpp
-	qq_protocol/request_jobs/friendinfo2_job.cpp
-	qq_protocol/request_jobs/strangerinfo2_job.cpp
+    #request_jobs
+	protocol/request_jobs/friendinfo2_job.cpp
+	protocol/request_jobs/group_memberlist_job.cpp
+	protocol/request_jobs/icon_job.cpp
+	protocol/request_jobs/job_base.cpp
+	protocol/request_jobs/sendmsg_job.cpp
+    protocol/request_jobs/sendimg_job.cpp
+	protocol/request_jobs/strangerinfo2_job.cpp
 
 	#roster
 	roster/roster.cpp
+    roster/group_presister.cpp
 
 	#roster model
 	rostermodel/roster_model_base.cpp
@@ -176,7 +194,6 @@ set(CORE_SOURCES
 	strangermanager/stranger_manager.cpp
 
 	#utils
-	utils/request_callback.cpp
 	utils/icon_decorator.cpp
 
 	#chat widget

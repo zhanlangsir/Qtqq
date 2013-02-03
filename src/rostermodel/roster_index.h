@@ -36,7 +36,8 @@ public slots:
 public:
 	RosterIndex(RosterIndexType type) :
 		type_(type),
-		parent_(NULL)
+		parent_(NULL),
+        pix("/home/zhanlang/proj/qtqq/data/res/webqq.ico")
 	{
 	}
 	~RosterIndex()
@@ -106,9 +107,9 @@ public:
 			}
 			break;
 		case Qt::DecorationRole:
-			if ( datas_.contains(TDR_Icon) )
+			if ( datas_.contains(TDR_Avatar) )
 			{
-				return datas_[TDR_Icon];
+				return datas_[TDR_Avatar];
 			}
 			return QVariant();
 			break;
@@ -130,29 +131,30 @@ public:
 			datas_[role] = data;
 			//emit sigDataChanged(datas_[TDR_Id].toString(), data, role);
 		}
-	}
+    }
 
-	void setParent(RosterIndex *parent)
-	{
-		parent_ = parent;
-	}
+    void setParent(RosterIndex *parent)
+    {
+        parent_ = parent;
+    }
 
-	RosterIndex *parent() const
-	{
-		return parent_;
-	}
+    RosterIndex *parent() const
+    {
+        return parent_;
+    }
 
-	QList<RosterIndex *>& childs() 
-	{
-		return childs_;
-	}
+    QList<RosterIndex *>& childs() 
+    {
+        return childs_;
+    }
 
 private:
-	RosterIndexType type_;
-	QMap<int, QVariant> datas_;
+    RosterIndexType type_;
+    QMap<int, QVariant> datas_;
 
-	RosterIndex *parent_;
-	QList<RosterIndex *> childs_;
+    QPixmap pix;
+    RosterIndex *parent_;
+    QList<RosterIndex *> childs_;
 };
 
 #endif //ROSTER_INDEX_H

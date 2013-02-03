@@ -19,8 +19,6 @@ SessChatDlg::SessChatDlg(Contact *contact, Group *group, ChatDlgType type, QWidg
     initConnections();
     updateSkin();
 
-    send_url_ = "/channel/send_sess_msg2";
-
     te_input_.setFocus();
 }
 
@@ -41,7 +39,7 @@ void SessChatDlg::initUi()
     sizes.append(ui_->splitter_main->midLineWidth());
     ui_->splitter_main->setSizes(sizes);
 
-	QPixmap pix = talkable_->icon();
+	QPixmap pix = talkable_->avatar();
 	if ( pix.isNull() )
         pix = QPixmap(QQSkinEngine::instance()->skinRes("default_friend_avatar"));
 
@@ -70,24 +68,13 @@ void SessChatDlg::updateSkin()
 
 }
 
-ImgSender* SessChatDlg::getImgSender() const
-{
-    return NULL;
-}
-
-void SessChatDlg::getInfoById(QString id, QString &name, QString &avatar_path, bool &ok) const
-{
-    Q_UNUSED(id)
-    name = talkable_->name();
-    avatar_path =  QQSkinEngine::instance()->skinRes("default_friend_avatar");
-    ok = true;
-}
 
 QQChatLog *SessChatDlg::getChatlog() const
 {
     return new FriendChatLog(id());
 }
 
+/*
 QString SessChatDlg::chatItemToJson(const QVector<QQChatItem> &items) 
 {
     QString json_msg = "r={\"to\":" + id() + ",\"group_sig\":\"" + GroupChatDlg::getMsgSig(group_->id(), id()) + "\",\"face\":291,\"content\":\"[";
@@ -115,3 +102,4 @@ QString SessChatDlg::chatItemToJson(const QVector<QQChatItem> &items)
 
 	return json_msg;
 }
+*/

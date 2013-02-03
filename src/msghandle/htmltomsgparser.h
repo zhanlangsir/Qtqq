@@ -6,11 +6,12 @@
 #include <QVector>
 
 #include "core/qqchatitem.h"
+#include "core/talkable.h"
 
 class HtmlToMsgParser
 {
 public:
-	static QVector<QQChatItem> parse(const QString &raw_msg)
+	static QVector<QQChatItem> parse(const QString &raw_msg, Talkable::TalkableType type)
 	{
 		QVector<QQChatItem> result;
 
@@ -43,8 +44,16 @@ public:
 						}
 						else
 						{
-							QQChatItem offpic_item(QQChatItem::kFriendOffpic,img_src);
-							result.push_back(offpic_item);
+                            if ( type == Talkable::kContact )
+                            {
+                                QQChatItem offpic_item(QQChatItem::kFriendOffpic,img_src);
+                                result.push_back(offpic_item);
+                            }
+                            else 
+                            {
+                                QQChatItem cface_item(QQChatItem::kGroupChatImg, img_src);
+                                result.push_back(cface_item);
+                            }
 						}
 					}
 

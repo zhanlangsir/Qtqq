@@ -1,22 +1,22 @@
 #include "chatlogwin.h"
 #include "ui_chatlogwin.h"
 
+#include <QDateTime>
+#include <QDesktopWidget>
 #include <QTextBlockFormat>
+#include <QTextCodec>
 #include <QTextCursor>
 #include <QUrl>
-#include <QDateTime>
-#include <QTextCodec>
-#include <QDesktopWidget>
 
 #include "core/qqchatlog.h"
 #include "core/qqmsg.h"
-#include "core/nameconvertor.h"
 #include "qqglobal.h"
 
-ChatLogWin::ChatLogWin(QWidget *parent) :
+ChatLogWin::ChatLogWin(QMap<QString, QString> names, QWidget *parent) :
     QWidget(parent),
     ui_(new Ui::ChatLogWin),
-    chat_log_(NULL)
+    chat_log_(NULL),
+    names_(names)
 {
     ui_->setupUi(this);
 
@@ -194,19 +194,20 @@ void ChatLogWin::showChatLog(QVector<ShareQQMsgPtr> &chat_logs)
         date_time.setMSecsSinceEpoch(time * 1000);
         QString time_str = date_time.toString("dd ap hh:mm:ss");
 
-        insertNameLine(convertor_->convert(chat_msg->sendUin()) + " " + time_str, Qt::blue);
+        QString send_id = chat_msg->sendUin();
+        insertNameLine(names_.value(send_id, send_id) + " " + time_str, Qt::blue);
 
-        for (int i = 0; i < chat_msg->msg_.size(); ++i)
+        for (int i = 0; i < chat_msg->msgs_.size(); ++i)
         {
-            if (chat_msg->msg_[i].type() == QQChatItem::kQQFace)
+            if (chat_msg->msgs_[i].type() == QQChatItem::kQQFace)
             {
-                insertQQFace(chat_msg->msg_[i].content());
+                insertQQFace(chat_msg->msgs_[i].content());
             }
-            else if (chat_msg->msg_[i].type() == QQChatItem::kWord)
-                insertWord(chat_msg->msg_[i].content(), QFont(), Qt::black, 9);
+            else if (chat_msg->msgs_[i].type() == QQChatItem::kWord)
+                insertWord(chat_msg->msgs_[i].content(), QFont(), Qt::black, 9);
             else
             {
-                insertImg(chat_msg->msg_[i].content());
+                insertImg(chat_msg->msgs_[i].content());
             }
         }
     }

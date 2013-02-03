@@ -1,14 +1,14 @@
-#ifndef QTQQ_QQLOGINCORE_H
-#define QTQQ_QQLOGINCORE_H
+#ifndef QQLOGINCORE_H
+#define QQLOGINCORE_H
 
+#include <QObject>
+#include <QByteArray>
 #include <QTcpSocket>
 
 #include "types.h"
+#include "utils/contact_status.h"
 
-class QByteArray;
 class QTcpSocket;
-
-#include <QObject>
 
 class QQLoginCore : public QObject
 {

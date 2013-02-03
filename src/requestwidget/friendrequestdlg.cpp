@@ -36,7 +36,7 @@ void FriendRequestDlg::initUi(ShareQQMsgPtr msg)
 
 	if ( contact_ )
 	{
-		QPixmap pix = contact_->icon();
+		QPixmap pix = contact_->avatar();
 		if ( !pix.isNull() )
 			ui_->lbl_avatar_->setPixmap(pix);
 
@@ -71,7 +71,7 @@ void FriendRequestDlg::updateRequesterInfo(QString id, Contact *contact)
 		return;
 
 	contact_ = contact;
-	QPixmap pix = contact->icon();
+	QPixmap pix = contact->avatar();
 	if ( !pix.isNull() )
 		ui_->lbl_avatar_->setPixmap(pix);
 

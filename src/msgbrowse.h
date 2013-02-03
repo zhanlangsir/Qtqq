@@ -18,7 +18,6 @@ signals:
 public:
     enum MsgKind {kWord, kImg, kDateSeprate, kWorn, kError};
     explicit MsgBrowse(QWidget *parent = 0);
-    
     void appendContent(QString content,const ShowOptions &options);
     void replaceIdToName(const QString &id, const QString &name);
 
@@ -54,9 +53,9 @@ struct ShowOptions
 {
     MsgBrowse::MsgKind type;
     QDateTime time;
-    QString send_uin;
-    QString send_name;
-    QString send_avatar_path;
+    QString sender_uin;
+    QString sender_name;
+    QString sender_avatar_path;
 
     bool is_msg_in;
 };

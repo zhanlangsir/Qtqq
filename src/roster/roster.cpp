@@ -7,7 +7,9 @@
 #include "json/json.h"
 
 #include "core/qqutility.h"
-#include "qq_protocol/qq_protocol.h"
+#include "event_handle/event_handle.h"
+#include "protocol/qq_protocol.h"
+#include "roster/group_presister.h"
 
 Roster* Roster::instance_ = NULL;
 
@@ -15,17 +17,25 @@ Roster::Roster()
 {
 	connect(this, SIGNAL(sigContactDataChanged(QString, QVariant, TalkableDataRole)), this, SIGNAL(sigTalkableDataChanged(QString, QVariant, TalkableDataRole)));
 	connect(this, SIGNAL(sigGroupDataChanged(QString, QVariant, TalkableDataRole)), this, SIGNAL(sigTalkableDataChanged(QString, QVariant, TalkableDataRole)));
+
+
+    EventHandle::instance()->registerObserver(Protocol::ET_OnAvatarUpdate, this);
+    EventHandle::instance()->registerObserver(Protocol::ET_OnGroupMemberListUpdate, this);
 }
 
 
 Roster::~Roster()
 {
 	clean();
+
+    EventHandle::instance()->removeObserver(Protocol::ET_OnAvatarUpdate, this);
+    EventHandle::instance()->removeObserver(Protocol::ET_OnGroupMemberListUpdate, this);
+
 	instance_ = NULL;
 }
 
 
-void Roster::parseContact(const QByteArray &array)
+void Roster::parseContactList(const QByteArray &array)
 {
 	Json::Reader reader;
 	Json::Value root;
@@ -106,13 +116,11 @@ void Roster::addContact(Contact *contact, Category *cat)
 	Protocol::QQProtocol *proto = Protocol::QQProtocol::instance();
 	if ( !proto->isRequesting(contact->id(), JT_Icon) )
 	{
-		IconRequestCallback *callback = new IconRequestCallback(contact->id());
-		connect(callback, SIGNAL(sigRequestDone(QString, QByteArray)), this, SLOT(slotIconRequestDone(QString, QByteArray)));
-		proto->requestIconFor(contact->id(), callback);
+		proto->requestIconFor(contact);
 	}
 }
 
-void Roster::parseGroup(const QByteArray &array)
+void Roster::parseGroupList(const QByteArray &array)
 {
 	Json::Reader reader;
 	Json::Value root;
@@ -131,20 +139,76 @@ void Roster::parseGroup(const QByteArray &array)
 	{
 		QString name = QString::fromStdString(gnamelist[i]["name"].asString());
 		QString gid = QString::number(gnamelist[i]["gid"].asLargestInt());
-		QString code = QString::number(gnamelist[i]["code"].asLargestInt());
+		QString gcode = QString::number(gnamelist[i]["code"].asLargestInt());
 
-		Group *group = new Group(gid, code, name);
+		Group *group = new Group(gid, gcode, name);
 		groups_.insert(gid, group);
 
 		emit sigNewGroup(group);
 
-		IconRequestCallback *callback = new IconRequestCallback(gid);
-		connect(callback, SIGNAL(sigRequestDone(QString, QByteArray)), this, SLOT(slotIconRequestDone(QString, QByteArray)));
-		proto->requestIconFor(gid, callback);
+		proto->requestIconFor(group);
 	}
-
 }
 
+void Roster::parseGroupMemberList(const QString &gid, const QByteArray &data)
+{
+    Json::Value root;
+    Json::Reader reader;
+
+    if (!reader.parse(QString(data).toStdString(), root, false))
+        return;
+
+    Group *group = this->group(gid);
+    Json::Value mark_names = root["result"]["cards"];
+    QHash <QString, QString> uin_marknames;
+    for (unsigned int i = 0; i < mark_names.size(); ++i)
+    {
+        QString uin = QString::number(mark_names[i]["muin"].asLargestInt());
+        QString mark_name = QString::fromStdString(mark_names[i]["card"].asString());
+
+        uin_marknames.insert(uin, mark_name);
+    }
+
+    Json::Value members = root["result"]["minfo"];
+    for (unsigned int i = 0; i < members.size(); ++i)
+    {
+        QString nick = QString::fromStdString(members[i]["nick"].asString());
+        QString uin = QString::number(members[i]["uin"].asLargestInt());
+
+        Contact *contact = new Contact(uin, nick);
+        contact->setGroup((Group *)group);
+        contact->setMarkname(uin_marknames.value(uin, ""));
+        contact->setStatus(CS_Offline);
+
+        group->addMember(contact); 
+
+        Protocol::QQProtocol *proto = Protocol::QQProtocol::instance();
+        if ( !proto->isRequesting(contact->id(), JT_Icon) )
+        {
+            proto->requestIconFor(contact);
+        }
+    }
+
+    Json::Value stats = root["result"]["stats"];
+    for (unsigned int i = 0; i < stats.size(); ++i)
+    {
+        ContactClientType client_type = (ContactClientType)stats[i]["client_type"].asInt();
+
+        ContactStatus stat = (ContactStatus)stats[i]["stat"].asInt();
+        QString uin = QString::number(stats[i]["uin"].asLargestInt());
+
+        Contact *contact  = group->member(uin);
+        contact->setStatus(stat);
+        contact->setClientType(client_type);
+
+        group->notifyMemberDataChanged(contact, TDR_Status);
+        group->notifyMemberDataChanged(contact, TDR_ClientType);
+    }
+
+    Json::Value ginfo = root["result"]["ginfo"];
+    QString g_announcement = QString::fromStdString(ginfo["memo"].asString());
+    group->setAnnouncement(g_announcement);
+}
 
 void Roster::parseContactStatus(const QByteArray &array)
 {
@@ -171,16 +235,58 @@ void Roster::parseContactStatus(const QByteArray &array)
 	}
 }
 
+void Roster::updateTalkableIcon(Talkable *talkable, QByteArray data)
+{
+    if ( talkable->type() == Talkable::kContact )
+    {
+        Contact *contact = static_cast<Contact *>(talkable);
+        contact->setAvatar(data);
+
+        if ( contact->group() != NULL )
+        {
+            Group *group = contact->group();
+            group->notifyMemberDataChanged(contact, TDR_Avatar);
+            GroupPresister::instance()->setModifiedFlag(group->id());
+            GroupPresister::instance()->setActivateFlag(group->id());
+        }
+        else
+        {
+            emit sigContactDataChanged(contact->id(), contact->avatar(), TDR_Avatar);
+        }
+    }
+    else if ( talkable->type() == Talkable::kGroup )
+    {
+        Group *group = static_cast<Group *>(talkable);
+        group->setAvatar(data);
+        emit sigGroupDataChanged(group->id(), group->avatar(), TDR_Avatar);
+    }
+}
+
+void Roster::onNotify(Protocol::Event *e)
+{
+    switch ( e->type() )
+    {
+        case Protocol::ET_OnAvatarUpdate:
+            updateTalkableIcon(e->eventFor(), e->data());
+            break;
+        case Protocol::ET_OnGroupMemberListUpdate:
+            {
+                Talkable *group = e->eventFor();
+                parseGroupMemberList(group->id(), e->data());
+            }
+            break;
+    }
+}
 
 void Roster::slotIconRequestDone(QString id, QByteArray icon_data)
 {
 	Talkable *talkable = this->talkable(id);	
-	talkable->setIcon(icon_data);
+	talkable->setAvatar(icon_data);
 
 	if ( talkable->type() == Talkable::kContact )
-		emit sigContactDataChanged(talkable->id(), talkable->icon(), TDR_Icon);
+		emit sigContactDataChanged(talkable->id(), talkable->avatar(), TDR_Avatar);
 	else if ( talkable->type() == Talkable::kGroup )
-		emit sigGroupDataChanged(talkable->id(), talkable->icon(), TDR_Icon);
+		emit sigGroupDataChanged(talkable->id(), talkable->avatar(), TDR_Avatar);
 }
 
 

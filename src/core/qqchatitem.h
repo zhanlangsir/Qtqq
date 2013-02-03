@@ -7,54 +7,26 @@ class QQChatItem
 {
 public:
     enum ChatItemType {kQQFace, kFriendOffpic, kFriendCface, kGroupChatImg, kWord};
-    QQChatItem(ChatItemType type, QString content) : type_(type), content_(content) {}
-    QQChatItem() {}
 
-    ChatItemType type() const
-    { return type_; }
-    void set_type(ChatItemType type)
-    { type_ = type; }
+    QQChatItem(ChatItemType type, QString content);
+    QQChatItem();
 
-    QString content() const
-    { return content_; }
-    void set_content(QString content)
-    {
-        if (content_ != content)
-            content_ = content;
-    }
+    ChatItemType type() const;
+    void set_type(ChatItemType type);
 
-    QString file_id() const
-    { return file_id_; }
-    void set_file_id(QString file_id)
-    {
-        if (file_id_ != file_id)
-            file_id_ = file_id;
-    }
+    QString content() const;
+    void set_content(QString content);
 
-    QString server_ip() const
-    { return server_ip_; }
-    void set_server_ip(QString server_ip)
-    {
-        if (server_ip_ != server_ip)
-            server_ip_ = server_ip;
-    }
+    QString file_id() const;
+    void set_file_id(QString file_id);
 
-    QString server_port() const
-    { return server_port_; }
-    void set_server_port(QString server_port)
-    {
-        if (server_port_ != server_port)
-            server_port_ = server_port;
-    }
+    QString server_ip() const;
+    void set_server_ip(QString server_ip);
 
-    bool operator==(const QQChatItem &other)
-    {
-        if ( this->type_ == other.type_ &&
-             this->content_ == other.content_ )
-            return true;
+    QString server_port() const;
+    void set_server_port(QString server_port);
 
-        return false;
-    }
+    bool operator==(const QQChatItem &other);
 
 private:
     ChatItemType type_;

@@ -69,8 +69,8 @@ RosterIndex *RecentModel::createIndexFromContact(Contact *contact) const
 
 	if ( !(contact->markname().isEmpty()) )
 		newIndex->setData(TDR_Markname, contact->markname());
-	if ( !(contact->icon().isNull()) )
-		newIndex->setData(TDR_Icon, contact->icon());
+	if ( !(contact->avatar().isNull()) )
+		newIndex->setData(TDR_Avatar, contact->avatar());
 
 	return newIndex;
 }
@@ -81,8 +81,8 @@ RosterIndex *RecentModel::createIndexFromGroup(Group *group) const
 	newIndex->setData(TDR_Id, group->id());
 	newIndex->setData(TDR_Name, group->name());
 
-	if ( !(group->icon().isNull()) )
-		newIndex->setData(TDR_Icon, group->icon());
+	if ( !(group->avatar().isNull()) )
+		newIndex->setData(TDR_Avatar, group->avatar());
 
 	return newIndex;
 }
@@ -130,8 +130,8 @@ void RecentModel::improveIndex(QString id)
 
 		if ( !(contact->markname().isEmpty()) )
 			newIndex->setData(TDR_Markname, contact->markname());
-		if ( !(contact->icon().isNull()) )
-			newIndex->setData(TDR_Icon, contact->icon());
+		if ( !(contact->avatar().isNull()) )
+			newIndex->setData(TDR_Avatar, contact->avatar());
 
 		root_->childs().push_front(newIndex);
 	}
@@ -143,8 +143,8 @@ void RecentModel::improveIndex(QString id)
 		newIndex->setData(TDR_Id, group->id());
 		newIndex->setData(TDR_Name, group->name());
 
-		if ( !(group->icon().isNull()) )
-			newIndex->setData(TDR_Icon, group->icon());
+		if ( !(group->avatar().isNull()) )
+			newIndex->setData(TDR_Avatar, group->avatar());
 
 		root_->childs().push_front(newIndex);
 	}
@@ -173,14 +173,13 @@ void RecentModel::slotTalkableDataChanged(QString id, QVariant data, TalkableDat
 }
 
 
-void RecentModel::slotOnDoubleclicked(const QModelIndex &index)
+void RecentModel::onDoubleClicked(const QModelIndex &index)
 {
 	/*
 	 * now, all code in this function is the same 
-	 * with RosterModel::slotOnDoubleclicked()
+	 * with RosterModel::onDoubleclicked()
 	 * 
 	 */
-
 	ChatDlgManager *chat_mgr = ChatDlgManager::instance();
 
 	QModelIndex real_index = proxy_ ? proxy_->mapToSource(index) : index;

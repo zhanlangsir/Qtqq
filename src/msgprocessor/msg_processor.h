@@ -1,6 +1,7 @@
 #ifndef MSG_PROCESSOR_H
 #define MSG_PROCESSOR_H
 
+#include <QList>
 #include <QThread>
 #include <QString>
 #include <QQueue>
@@ -14,6 +15,7 @@ class MsgProcessor : public QThread
     Q_OBJECT
 signals:
     void contactStatusChanged(QString uin, ContactStatus state, ContactClientType client_type);
+
     void newGroupChatMsg(ShareQQMsgPtr msg);
     void newFriendChatMsg(ShareQQMsgPtr msg);
 	void newSessChatMsg(ShareQQMsgPtr msg);
@@ -39,6 +41,7 @@ public slots:
 
 private:
 	void dispatchMsg(QVector<QQMsg *> &msgs);
+
     QQMsg *createMsg(QString type, const Json::Value result);
     QQMsg *createFriendMsg(const Json::Value &result) const;
     QQMsg *createGroupMsg(const Json::Value &result) const;
@@ -49,6 +52,7 @@ private:
 
 	bool isChatContentEmpty(const QQChatMsg *msg, const QString &content) const;
 	bool isMsgRepeat(const Json::Value &msg);
+
     void sortByTime(QVector<QQMsg*> &be_sorting_msg) const;
 
 private:

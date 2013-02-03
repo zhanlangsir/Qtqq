@@ -44,7 +44,7 @@
       <number>10</number>
      </property>
      <item>
-      <layout class="QVBoxLayout" name="top_v_layout_">
+      <layout class="QVBoxLayout" name="top_v_layout">
        <property name="sizeConstraint">
         <enum>QLayout::SetMinimumSize</enum>
        </property>
@@ -89,7 +89,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout">
              <item>
-              <widget class="QComboBox" name="cb_status_">
+              <widget class="QComboBox" name="cb_status">
                <property name="focusPolicy">
                 <enum>Qt::NoFocus</enum>
                </property>
@@ -99,7 +99,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="lbl_name_">
+              <widget class="QLabel" name="lbl_name">
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
@@ -109,19 +109,19 @@
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="lbl_leave_">
+              <widget class="QLabel" name="vip_label">
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
                <property name="text">
-                <string>Lv</string>
+                <string>Vip Level</string>
                </property>
               </widget>
              </item>
             </layout>
            </item>
            <item>
-            <widget class="QLineEdit" name="le_mood_">
+            <widget class="QLineEdit" name="le_mood">
              <property name="styleSheet">
               <string notr="true"/>
              </property>
@@ -134,7 +134,7 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
-          <widget class="FriendSearchLineEdit" name="le_search_">
+          <widget class="FriendSearchLineEdit" name="le_search">
            <property name="styleSheet">
             <string notr="true"/>
            </property>
@@ -145,7 +145,7 @@
       </layout>
      </item>
      <item>
-      <widget class="QTabWidget" name="tab_main_">
+      <widget class="QTabWidget" name="tab_main">
        <property name="styleSheet">
         <string notr="true"/>
        </property>
@@ -156,7 +156,7 @@
         <enum>QTabWidget::Rounded</enum>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>2</number>
        </property>
        <property name="elideMode">
         <enum>Qt::ElideLeft</enum>
@@ -176,7 +176,7 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
-          <widget class="QTreeView" name="tv_friendlist_">
+          <widget class="QTreeView" name="tv_friendlist">
            <attribute name="headerVisible">
             <bool>false</bool>
            </attribute>
@@ -190,7 +190,7 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <widget class="QListView" name="lv_grouplist_"/>
+          <widget class="QListView" name="lv_grouplist"/>
          </item>
         </layout>
        </widget>
@@ -200,7 +200,7 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <widget class="QListView" name="lv_recentlist_"/>
+          <widget class="QListView" name="lv_recentlist"/>
          </item>
         </layout>
        </widget>
@@ -241,7 +241,7 @@
          <enum>QLayout::SetDefaultConstraint</enum>
         </property>
         <item>
-         <widget class="QPushButton" name="pb_mainmenu_">
+         <widget class="QPushButton" name="pb_mainmenu">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>

@@ -48,7 +48,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>TextLabel</string>
+          <string>Avatar</string>
          </property>
          <property name="margin">
           <number>5</number>
@@ -72,16 +72,22 @@
             </font>
            </property>
            <property name="text">
-            <string>TextLabel</string>
+            <string>Name</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="lbl_category_">
-           <property name="text">
-            <string>TextLabel</string>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
-          </widget>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </item>

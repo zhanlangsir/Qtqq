@@ -7,8 +7,8 @@
 #include "core/talkable.h"
 #include "core/qqmsg.h"
 #include "msgprocessor/msg_processor.h"
-#include "qq_protocol/qq_protocol.h"
-#include "qq_protocol/request_jobs/job_base.h"
+#include "protocol/qq_protocol.h"
+#include "protocol/request_jobs/job_base.h"
 
 StrangerManager *StrangerManager::instance_ = NULL;
 
@@ -120,15 +120,12 @@ void StrangerManager::onNewSystemMsg(ShareQQMsgPtr msg)
 
 	if ( !Protocol::QQProtocol::instance()->isRequesting(msg->sendUin(), JT_StrangerInfo2) )
 	{
-		StrangerInfo2RequestCallback *callback = new StrangerInfo2RequestCallback(msg->sendUin());
+		/*StrangerInfo2RequestCallback *callback = new StrangerInfo2RequestCallback(msg->sendUin());
 		connect(callback, SIGNAL(sigRequestDone(QString, Contact *)), this, SLOT(onInfoRequestDone(QString, Contact *)));
 
 		Protocol::QQProtocol::instance()->requestStrangerInfo2(msg->sendUin(), gid, callback);
 
-		IconRequestCallback *icon_callback = new IconRequestCallback(msg->sendUin());
-		connect(icon_callback, SIGNAL(sigRequestDone(QString, QByteArray)), this, SLOT(onIconRequestDone(QString, QByteArray)));
-
-		Protocol::QQProtocol::instance()->requestIconFor(msg->sendUin(),  icon_callback);
+		Protocol::QQProtocol::instance()->requestIconForStranger(msg->sendUin());*/
 	}
 }
 
@@ -141,7 +138,7 @@ void StrangerManager::onInfoRequestDone(QString id, Contact *stranger)
 void StrangerManager::onIconRequestDone(QString id, QByteArray icon_data)
 {
 	Contact *stranger = strangerInfo(id);
-	stranger->setIcon(icon_data);
+	stranger->setAvatar(icon_data);
 
 	QPixmap pix;
 	pix.loadFromData(icon_data);

@@ -5,17 +5,20 @@
 #include <QList>
 #include <QMap>
 
-#include "qq_protocol/request_jobs/job_base.h"
-#include "utils/request_callback.h"
+#include "protocol/request_jobs/job_base.h"
+#include "protocol/imgsender.h"
+#include "protocol/msgsender.h"
 
 class __JobBase;
 typedef JobType RequestType;
 
 namespace Protocol
 {
-	class QQProtocol;
+class QQProtocol;
 	class PollThread;
 };
+
+class Talkable;
 
 class Protocol::QQProtocol : public QObject
 {
@@ -36,22 +39,40 @@ public:
 	void run();
 	void stop();
 
-	void requestIconFor(QString requester_id, RequestCallbackBase* callback);
-	void requestSingleLongNick(QString id, RequestCallbackBase* callback);
-	void requestContactInfo(QString id, RequestCallbackBase* callback);
-	void requestFriendInfo2(QString id, RequestCallbackBase *callback);
-	void requestStrangerInfo2(QString id, QString gid, RequestCallbackBase *callback);
+	void requestIconFor(Talkable *req_for);
+
+	void requestSingleLongNick(QString id);
+	void requestContactInfo(QString id);
+	void requestFriendInfo2(Talkable *job_for);
+	void requestStrangerInfo2(Talkable *job_for);
+    void requestGroupMemberList(Group *job_for);
+    void requestGroupSig();
+
+    void sendImg(Talkable *sender, QString file_name, QByteArray data);
+    void sendGroupImg();
+    void sendMsg(Talkable *to, const QVector<QQChatItem> &msgs); 
+    void sendGroupMsg(const QVector<QQChatItem> &msgs); 
+
 	bool isRequesting(QString id, RequestType type)
 	{
 		return requesting_.values(type).contains(id);
 	}
 
+    ImgSender *imgSender() const
+    { return imgsender_; }
+
 private slots:
 	void slotJobDone(__JobBase* job, bool error);
 
 private:
+    void runJob(__JobBase *job);
+
+private:
 	QMap<JobType, QString> requesting_;
 	Protocol::PollThread *poll_thread_;
+
+    ImgSender *imgsender_;
+    //MsgSender *msgsender_;
 
 private:
 	QQProtocol(); 

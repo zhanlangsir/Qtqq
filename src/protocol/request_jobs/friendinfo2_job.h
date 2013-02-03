@@ -3,7 +3,7 @@
 
 #include <QHttp>
 
-#include "qq_protocol/request_jobs/job_base.h"
+#include "protocol/request_jobs/job_base.h"
 
 class FriendInfo2Job : public __JobBase
 {
@@ -12,7 +12,7 @@ signals:
 	void sigJobDone(__JobBase *job, bool error);
 
 public:
-	FriendInfo2Job(QString id, RequestCallbackBase *callback, JobType type = JT_FriendInfo2);	
+	FriendInfo2Job(Talkable *job_for, JobType type = JT_FriendInfo2);	
 
 	virtual void run();
 

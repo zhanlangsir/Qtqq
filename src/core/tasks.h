@@ -128,7 +128,7 @@ protected:
 
         if ( !model_.isNull() )
         {
-            talkable_->setIconPath(save_full_path);
+            talkable_->setAvatarPath(save_full_path);
         }
     }
 

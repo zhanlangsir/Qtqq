@@ -1,43 +1,42 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <assert.h>
-
-#include <QDesktopWidget>
-#include <QHttp>
 #include <QDateTime>
-#include <QFile>
-#include <QSettings>
+#include <QDesktopWidget>
 #include <QEvent>
-
+#include <QFile>
+#include <QHttp>
+#include <QSettings>
 #include <QDebug>
 
 #include "qxtglobalshortcut.h"
 #include "json/json.h"
 
-#include "core/qqavatarrequester.h"
-#include "core/types.h"
-#include "core/qqutility.h"
-#include "core/qqlogincore.h"
-#include "skinengine/qqskinengine.h"
-#include "core/sockethelper.h"
-#include "core/captchainfo.h"
-#include "core/curr_login_account.h"
-#include "msgprocessor/msg_processor.h"
-#include "chatwidget/friendchatdlg.h"
-#include "chatwidget/groupchatdlg.h"
 #include "chatwidget/chatdlg_manager.h"
 #include "chatwidget/chatmsg_processor.h"
-#include "roster/roster.h"
-#include "rostermodel/roster_model.h"
-#include "rostermodel/recent_model.h"
-#include "rostermodel/contact_proxy_model.h"
-#include "requestwidget/requestmsg_processor.h"
-#include "qq_protocol/qq_protocol.h"
-#include "trayicon/systemtray.h"
+#include "chatwidget/friendchatdlg.h"
+#include "chatwidget/groupchatdlg.h"
+#include "core/captchainfo.h"
+#include "core/curr_login_account.h"
+#include "core/qqavatarrequester.h"
+#include "core/qqlogincore.h"
+#include "core/qqutility.h"
+#include "core/sockethelper.h"
+#include "core/types.h"
+#include "event_handle/event_handle.h"
 #include "friendsearcher.h"
-#include "qqiteminfohelper.h"
+#include "msgprocessor/msg_processor.h"
+#include "protocol/event_center.h"
+#include "protocol/qq_protocol.h"
 #include "qqglobal.h"
+#include "qqiteminfohelper.h"
+#include "requestwidget/requestmsg_processor.h"
+#include "rostermodel/contact_proxy_model.h"
+#include "rostermodel/recent_model.h"
+#include "rostermodel/roster_model.h"
+#include "roster/roster.h"
+#include "skinengine/qqskinengine.h"
+#include "trayicon/systemtray.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
@@ -56,15 +55,16 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowIcon(QIcon(QQGlobal::instance()->appIconPath()));
     setWindowTitle(CurrLoginAccount::name());
 
-	ui->tv_friendlist_->setSortingEnabled(true);
+	ui->tv_friendlist->setSortingEnabled(true);
 
     setupLoginStatus();
 
     move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
 
     
-    connect(ui->cb_status_, SIGNAL(currentIndexChanged(int)), this, SLOT(changeMyStatus(int)));
-    connect(ui->pb_mainmenu_, SIGNAL(clicked()), this, SLOT(openMainMenu()));
+    connect(ui->cb_status, SIGNAL(currentIndexChanged(int)), this, SLOT(changeMyStatus(int)));
+    connect(ui->pb_mainmenu, SIGNAL(clicked()), this, SLOT(openMainMenu()));
+    connect(Protocol::EventCenter::instance(), SIGNAL(eventTrigger(Protocol::Event *)), EventHandle::instance(), SLOT(onEventTrigger(Protocol::Event *)));
 
     convertor_.addUinNameMap(CurrLoginAccount::id(), tr("you"));
 
@@ -158,7 +158,7 @@ void MainWindow::changeMyStatus(int idx)
     main_http_->setHost("d.web2.qq.com");
     main_http_->request(header);
 
-	CurrLoginAccount::setStatus(ui->cb_status_->itemData(idx).value<ContactStatus>());
+	CurrLoginAccount::setStatus(ui->cb_status->itemData(idx).value<ContactStatus>());
 
 	updateLoginUser();
 }
@@ -201,23 +201,23 @@ void MainWindow::getFriendListDone(bool err)
 	contact_proxy_model->setSourceModel(contact_model_);
 	contact_model_->setProxyModel(contact_proxy_model);
 
-    connect(ui->tv_friendlist_, SIGNAL(doubleClicked(const QModelIndex &)), contact_model_, SLOT(slotOnDoubleclicked(const QModelIndex &)));
+    connect(ui->tv_friendlist, SIGNAL(doubleClicked(const QModelIndex &)), contact_model_, SLOT(onDoubleClicked(const QModelIndex &)));
 	Roster *roster = Roster::instance();
-	connect(roster, SIGNAL(sigNewCategory(const Category *)), contact_model_, SLOT(slotNewCategoryItem(const Category *)));
-	connect(roster, SIGNAL(sigContactDataChanged(QString, QVariant, TalkableDataRole)), contact_model_, SLOT(slotTalkableDataChanged(QString, QVariant, TalkableDataRole)));
-	connect(roster, SIGNAL(sigCategoryDataChanged(int, QVariant, TalkableDataRole)), contact_model_, SLOT(slotCategoryDataChanged(int, QVariant, TalkableDataRole)));
+	connect(roster, SIGNAL(sigNewCategory(const Category *)), contact_model_, SLOT(addCategoryItem(const Category *)));
+	connect(roster, SIGNAL(sigContactDataChanged(QString, QVariant, TalkableDataRole)), contact_model_, SLOT(talkableDataChanged(QString, QVariant, TalkableDataRole)));
+	connect(roster, SIGNAL(sigCategoryDataChanged(int, QVariant, TalkableDataRole)), contact_model_, SLOT(categoryDataChanged(int, QVariant, TalkableDataRole)));
 
-	connect(roster, SIGNAL(sigNewContact(const Contact *)), contact_model_, SLOT(slotNewContactItem(const Contact *)));
+	connect(roster, SIGNAL(sigNewContact(const Contact *)), contact_model_, SLOT(addContactItem(const Contact *)));
 
-	roster->parseContact(contact_info);
+	roster->parseContactList(contact_info);
 
     FriendSearcher *friend_searcher = new FriendSearcher();
 	//may initialize after the friend list had set up
 	friend_searcher->initialize();
 	contact_proxy_model->setFilter(friend_searcher);
-	connect(ui->le_search_, SIGNAL(textChanged(const QString &)), contact_proxy_model, SLOT(onSearch(const QString &)));
+	connect(ui->le_search, SIGNAL(textChanged(const QString &)), contact_proxy_model, SLOT(onSearch(const QString &)));
 
-    ui->tv_friendlist_->setModel(contact_proxy_model);
+    ui->tv_friendlist->setModel(contact_proxy_model);
 
     getGroupList();
 }
@@ -231,7 +231,7 @@ void MainWindow::getSingleLongNick()
 
     if (reader.parse(QString(result).toStdString(), root, false))
     {
-         ui->le_mood_->setText(QString::fromStdString(root["result"][0]["lnick"].asString()));
+         ui->le_mood->setText(QString::fromStdString(root["result"][0]["lnick"].asString()));
     }
 }
 
@@ -260,14 +260,14 @@ void MainWindow::getGroupListDone(bool err)
 	qDebug() << "Group List: \n" << groups_info << endl;
 
 	group_model_ = new RosterModel(this);
-    connect(ui->lv_grouplist_, SIGNAL(doubleClicked(const QModelIndex &)), group_model_, SLOT(slotOnDoubleclicked(const QModelIndex &)));
+    connect(ui->lv_grouplist, SIGNAL(doubleClicked(const QModelIndex &)), group_model_, SLOT(onDoubleClicked(const QModelIndex &)));
 	Roster *roster = Roster::instance();
-	connect(roster, SIGNAL(sigNewGroup(const Group *)), group_model_, SLOT(slotNewGroupItem(const Group *)));
-	connect(roster, SIGNAL(sigGroupDataChanged(QString, QVariant, TalkableDataRole)), group_model_, SLOT(slotTalkableDataChanged(QString, QVariant, TalkableDataRole)));
+	connect(roster, SIGNAL(sigNewGroup(const Group *)), group_model_, SLOT(addGroupItem(const Group *)));
+	connect(roster, SIGNAL(sigGroupDataChanged(QString, QVariant, TalkableDataRole)), group_model_, SLOT(talkableDataChanged(QString, QVariant, TalkableDataRole)));
 
-	roster->parseGroup(groups_info);
+	roster->parseGroupList(groups_info);
 
-	ui->lv_grouplist_->setModel(group_model_);
+	ui->lv_grouplist->setModel(group_model_);
 
 	getRecentList();
 }
@@ -319,6 +319,10 @@ void MainWindow::getPersonalFace()
 void MainWindow::getPersonalInfo()
 {
 	QByteArray result = QQItemInfoHelper::getFriendInfo2(CurrLoginAccount::id());
+
+    qDebug() << "Persion Infomation: \n"
+             << result << endl;
+
 	result = result.mid(result.indexOf("\r\n\r\n")+4);
 	Json::Reader reader;
 	Json::Value root;
@@ -326,7 +330,17 @@ void MainWindow::getPersonalInfo()
 	if (reader.parse(QString(result).toStdString(), root, false))
 	{
 		CurrLoginAccount::setName(QString::fromStdString(root["result"]["nick"].asString()));
-		ui->lbl_name_->setText(CurrLoginAccount::name());
+		ui->lbl_name->setText(CurrLoginAccount::name());
+
+        int vip_level = root["result"]["vip_info"].asInt();
+        if ( vip_level > 0 )
+        {
+            QString vip_label = "Vip " + QString::number(vip_level);
+            ui->vip_label->setText(vip_label);
+        }
+        else
+            ui->vip_label->setText("");
+
 		convertor_.addUinNameMap(CurrLoginAccount::id(), CurrLoginAccount::name());
 	} 
 }
@@ -358,12 +372,12 @@ void MainWindow::getRecentListDone(bool err)
 	QByteArray recent_list = main_http_->readAll();
 	
 	recent_model_ = new RecentModel(this);
-    connect(ui->lv_recentlist_, SIGNAL(doubleClicked(const QModelIndex &)), recent_model_, SLOT(slotOnDoubleclicked(const QModelIndex &)));
+    connect(ui->lv_recentlist, SIGNAL(doubleClicked(const QModelIndex &)), recent_model_, SLOT(onDoubleClicked(const QModelIndex &)));
 
 	connect(MsgProcessor::instance(), SIGNAL(newChatMsg(ShareQQMsgPtr)), recent_model_, SLOT(slotNewChatMsg(ShareQQMsgPtr)));
 
 	recent_model_->parseRecentContact(recent_list);
-	ui->lv_recentlist_->setModel(recent_model_);
+	ui->lv_recentlist->setModel(recent_model_);
 
 	getOnlineBuddy();
 }
@@ -399,7 +413,7 @@ void MainWindow::openFirstChatDlg()
 
 QString MainWindow::getStatusByIndex(int idx) const
 {
-	switch (ui->cb_status_->itemData(idx).value<ContactStatus>())
+	switch (ui->cb_status->itemData(idx).value<ContactStatus>())
 	{
 		case CS_Online:
 			return "online";
@@ -423,24 +437,24 @@ QString MainWindow::getStatusByIndex(int idx) const
 
 void MainWindow::setupLoginStatus()
 {
-	ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_online")), tr("Online"), QVariant::fromValue<ContactStatus>(CS_Online));
-	ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_qme")), tr("CallMe"), QVariant::fromValue<ContactStatus>(CS_CallMe));
-	ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_away")), tr("Away"), QVariant::fromValue<ContactStatus>(CS_Away));
-	ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_busy")), tr("Busy"), QVariant::fromValue<ContactStatus>(CS_Busy));
-	ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_mute")), tr("Silent"), QVariant::fromValue<ContactStatus>(CS_Silent));
-	ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_hidden")), tr("Hidden"), QVariant::fromValue<ContactStatus>(CS_Hidden));
-	ui->cb_status_->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_offline")), tr("Offline"), QVariant::fromValue<ContactStatus>(CS_Offline));
+	ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_online")), tr("Online"), QVariant::fromValue<ContactStatus>(CS_Online));
+	ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_qme")), tr("CallMe"), QVariant::fromValue<ContactStatus>(CS_CallMe));
+	ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_away")), tr("Away"), QVariant::fromValue<ContactStatus>(CS_Away));
+	ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_busy")), tr("Busy"), QVariant::fromValue<ContactStatus>(CS_Busy));
+	ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_mute")), tr("Silent"), QVariant::fromValue<ContactStatus>(CS_Silent));
+	ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_hidden")), tr("Hidden"), QVariant::fromValue<ContactStatus>(CS_Hidden));
+	ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_offline")), tr("Offline"), QVariant::fromValue<ContactStatus>(CS_Offline));
 
 	int status_idx = getStatusIndex(CurrLoginAccount::status());
 
-	ui->cb_status_->setCurrentIndex(status_idx);
+	ui->cb_status->setCurrentIndex(status_idx);
 }
 
 int MainWindow::getStatusIndex(ContactStatus status)
 {
-	for (int i = 0; i < ui->cb_status_->count(); ++i)
+	for (int i = 0; i < ui->cb_status->count(); ++i)
 	{
-		if (ui->cb_status_->itemData(i).value<ContactStatus>() == status)
+		if (ui->cb_status->itemData(i).value<ContactStatus>() == status)
 			return i;
 	}
 	return -1;

@@ -9,7 +9,7 @@
 #include "core/qqmsg.h"
 #include "roster/roster.h"
 #include "strangermanager/stranger_manager.h"
-#include "qq_protocol/qq_protocol.h"
+#include "protocol/qq_protocol.h"
 #include "trayicon/systemtray.h"
 #include "requestwidget/friendrequestdlg.h"
 #include "requestwidget/grouprequestdlg.h"
@@ -135,7 +135,7 @@ void RequestMsgProcessor::createTrayNotify(ShareQQMsgPtr msg, Contact *stranger)
 			if ( stranger )
 			{
 				name = kFriendActionText.arg(stranger->name());
-				QPixmap pix = stranger->icon();
+				QPixmap pix = stranger->avatar();
 				if ( !pix.isNull() )
 					icon.addPixmap(pix);
 			}
@@ -155,7 +155,7 @@ void RequestMsgProcessor::createTrayNotify(ShareQQMsgPtr msg, Contact *stranger)
 			{
 				name = kGroupActionText.arg(stranger->name());
 
-				QPixmap pix = stranger->icon();
+				QPixmap pix = stranger->avatar();
 				if ( !pix.isNull() )
 					icon.addPixmap(pix);
 			}

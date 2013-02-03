@@ -22,14 +22,14 @@ public:
 	void clean();
 
 public slots:
-	void slotNewCategoryItem(const Category *cat);
-	void slotNewContactItem(const Contact *contact);
-	void slotNewGroupItem(const Group *group);
+	void addCategoryItem(const Category *cat);
+	void addContactItem(const Contact *contact);
+	void addGroupItem(const Group *group);
 	
-	void slotTalkableDataChanged(QString id, QVariant data, TalkableDataRole role);
-	void slotCategoryDataChanged(int index, QVariant data, TalkableDataRole role);
+	void talkableDataChanged(QString id, QVariant data, TalkableDataRole role);
+	void categoryDataChanged(int index, QVariant data, TalkableDataRole role);
 
-	void slotOnDoubleclicked(const QModelIndex &index);
+	void onDoubleClicked(const QModelIndex &index);
 
 
 private:

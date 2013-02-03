@@ -27,7 +27,7 @@ public slots:
 	void slotMsgSended(QString id);
 	void slotNewChatMsg(ShareQQMsgPtr msg);
 	void slotTalkableDataChanged(QString id, QVariant data, TalkableDataRole role);
-	void slotOnDoubleclicked(const QModelIndex &index);
+	void onDoubleClicked(const QModelIndex &index);
 
 private:
 	Talkable *talkable(QString id) const;

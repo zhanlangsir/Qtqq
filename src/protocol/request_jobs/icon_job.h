@@ -12,9 +12,7 @@ class IconJob : public __JobBase
 {
 	Q_OBJECT
 public:
-	IconJob(QString requester_id, QString icon_id, int request_type, RequestCallbackBase *callback = NULL, JobType type = JT_Icon);
-
-	static int getRequestType(Talkable *talkable);
+	IconJob(Talkable *_for, JobType type = JT_Icon);
 
 	virtual void run();
 
@@ -22,9 +20,12 @@ private slots:
 	void requestDone(bool error);
 
 private:
-	int request_type_;
-	QString icon_id_;
+	int getRequestType(Talkable *job_for);
+    QString getRequestId(Talkable *job_for);
 
+    void triggerEvent(const QByteArray &data);
+
+private:
 	QHttp http_;
 };
 

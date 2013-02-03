@@ -176,7 +176,7 @@ void FriendChatLog::parse(QByteArray &arr, QVector<ShareQQMsgPtr> &chat_logs)
                 }
             }
 
-            msg->msg_.append(item);
+            msg->msgs_.append(item);
             if (arr.at(chat_item_e_idx + 1) != ',')
             {
                 log_s_idx = chat_item_e_idx + 3;

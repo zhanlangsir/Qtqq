@@ -1,30 +1,28 @@
-#ifndef QTQQ_CHATLOGWIN_H
-#define QTQQ_CHATLOGWIN_H
+#ifndef CHATLOGWIN_H
+#define CHATLOGWIN_H
 
 #include <QWidget>
+#include <QMap>
 
 #include "core/qqmsg.h"
 
 namespace Ui
 {
-class ChatLogWin;
+    class ChatLogWin;
 }
 
 class QQChatLog;
-class NameConvertor;
 
 class ChatLogWin : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ChatLogWin(QWidget *parent = 0);
+    explicit ChatLogWin(QMap<QString, QString> names, QWidget *parent = 0);
     ~ChatLogWin();
 
 public:
     void setChatLog(QQChatLog *chat_log)
     { chat_log_ = chat_log; }
-    void setNameConvertor(const NameConvertor *convertor)
-    { convertor_ = convertor; }
 
 protected:
     void closeEvent(QCloseEvent *);
@@ -44,8 +42,9 @@ private:
     
 private:
     Ui::ChatLogWin *ui_;
-    const NameConvertor *convertor_;
     QQChatLog *chat_log_;
+
+    QMap<QString, QString> names_;
 };
 
-#endif // QTQQ_CHATLOGWIN_H
+#endif //CHATLOGWIN_H

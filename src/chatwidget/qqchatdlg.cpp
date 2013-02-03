@@ -1,36 +1,34 @@
 #include "qqchatdlg.h"
 
-#include <assert.h>
-
+#include <QAction>
+#include <QApplication>
 #include <QFileDialog>
 #include <QKeyEvent>
-#include <QApplication>
-#include <QMenu>
-#include <QAction>
-#include <QPointer>
 #include <QKeySequence>
-#include <QShortcut>
+#include <QMap>
+#include <QMenu>
+#include <QPointer>
 #include <QRegExp>
+#include <QShortcut>
 
-#include "soundplayer/soundplayer.h"
 #include "core/imgloader.h"
-#include "core/imgsender.h"
 #include "core/captchainfo.h"
-#include "chatlogwin.h"
 #include "core/qqchatlog.h"
 #include "core/groupchatlog.h"
 #include "core/qqitem.h"
-#include "msghandle/htmltomsgparser.h"
 #include "core/curr_login_account.h"
+#include "protocol/qq_protocol.h"
+#include "msghandle/htmltomsgparser.h"
+#include "skinengine/qqskinengine.h"
+#include "soundplayer/soundplayer.h"
+#include "event_handle/event_handle.h"
+#include "chatlogwin.h"
 
 QQChatDlg::QQChatDlg(Talkable *talkable, ChatDlgType type, QWidget *parent) :
     QWidget(parent),
-	msg_id_(4462000),
 	talkable_(talkable),
-    img_sender_(NULL),
     img_loader_(NULL),
     qqface_panel_(NULL),
-    msg_sender_(NULL),
 	type_(type),
     sc_close_win_(NULL)
 {
@@ -61,17 +59,12 @@ QQChatDlg::QQChatDlg(Talkable *talkable, ChatDlgType type, QWidget *parent) :
 
     sc_close_win_ = new QShortcut(QKeySequence("Alt+C"),this);
     connect(sc_close_win_, SIGNAL(activated()), this, SLOT(close()));
+
+    EventHandle::instance()->registerObserver(Protocol::ET_OnImgSendDone, this);
 }
 
 QQChatDlg::~QQChatDlg()
 {
-    if (img_sender_)
-    {
-        img_sender_->quit(); 
-        delete img_sender_;
-        img_sender_ = NULL;
-    }
-
     if (img_loader_)
     {
         img_loader_->quit();
@@ -82,14 +75,6 @@ QQChatDlg::~QQChatDlg()
     if (qqface_panel_)
         delete qqface_panel_;
     qqface_panel_ = NULL;
-
-    if (msg_sender_)
-    {
-        msg_sender_->terminate();
-        msg_sender_->wait();
-        msg_sender_->deleteLater();
-    }
-    msg_sender_ = NULL;
 }
 
 void QQChatDlg::setSendByReturn(bool checked)
@@ -123,8 +108,10 @@ void QQChatDlg::setSendByCtrlReturn(bool checked)
     }
 }
 
-void QQChatDlg::closeEvent(QCloseEvent *)
+void QQChatDlg::closeEvent(QCloseEvent *event)
 {
+    Q_UNUSED(event)
+    EventHandle::instance()->removeObserver(Protocol::ET_OnImgSendDone, this);
     emit chatFinish(this);
 }
 
@@ -188,7 +175,8 @@ QString QQChatDlg::converToShow(const QString &converting_html)
                 {
                     QRegExp uuid_req("<img src=\"([^\"]*)\"");
                     uuid_req.indexIn(content);
-                    content.replace(uuid_req.cap(1), id_file_hash_[uuid_req.cap(1)].local_path);
+                    QString img_id = uuid_req.cap(1);
+                    content.replace(img_id, file_path_[img_id]);
                 }
             }
         }
@@ -212,13 +200,6 @@ QString QQChatDlg::escape(QString raw_html) const
     return raw_html.replace('<', "&lt").replace('>', "&gt");
 }
 
-/*
-QQChatLog *QQChatDlg::getChatlog() const
-{
-    return NULL;
-}
-*/
-
 void QQChatDlg::openPathDialog(bool)
 {
     QString file_path = QFileDialog::getOpenFileName(this, tr("select the image to send"), QString(), tr("Image Files(*.png *.jpg *.bmp *.gif)"));
@@ -226,164 +207,23 @@ void QQChatDlg::openPathDialog(bool)
     if (file_path.isEmpty())
         return;
 
-    if (!img_sender_)
-    {
-        img_sender_ = getImgSender();
-        connect(img_sender_, SIGNAL(postResult(QString,FileInfo)), this, SLOT(setFileInfo(QString, FileInfo)));
-    }
+    QFile file(file_path);
+    file.open(QIODevice::ReadOnly);
+    QByteArray file_data = file.readAll();
 
-    QString unique_id = getUniqueId();
-    img_sender_->send(unique_id, file_path);
-
-    FileInfo info;
-    info.local_path = file_path;
-    id_file_hash_.insert(unique_id, info);
+    Protocol::QQProtocol::instance()->sendImg(talkable_, file_path, file_data);
 }
 
-void QQChatDlg::setFileInfo(QString unique_id, FileInfo file_info)
+void QQChatDlg::onNotify(Protocol::Event *event)
 {
-    id_file_hash_[unique_id].name = file_info.name;
-    id_file_hash_[unique_id].size = file_info.size;
-    id_file_hash_[unique_id].network_path = file_info.network_path;
-
-    te_input_.insertImg(unique_id, id_file_hash_[unique_id].local_path);
-}
-
-void QQChatDlg::showMsg(ShareQQMsgPtr msg)
-{
-    const QQChatMsg *chat_msg = static_cast<const QQChatMsg*>(msg.data());
-
-    QString name;
-    QString avatar_path;
-    bool ok;
-    getInfoById(msg->sendUin(), name, avatar_path, ok);
-
-    qint64 time = chat_msg->time();
-    QDateTime date_time;
-    date_time.setMSecsSinceEpoch(time * 1000);
-
-    ShowOptions options;
-    QDir avatar_dir(avatar_path);
-    options.send_avatar_path = avatar_dir.absolutePath();
-    options.is_msg_in = true;
-    options.time = date_time;
-    options.send_uin = msg->sendUin();
-    options.send_name = name;
-    options.type = MsgBrowse::kWord;
-
-    QString appending_content;
-    for (int i = 0; i < chat_msg->msg_.size(); ++i)
+    if ( event->type() == Protocol::ET_OnImgSendDone )
     {
-        switch ( chat_msg->msg_[i].type() )
+        Protocol::ImgSendDoneEvent *img_e = static_cast<Protocol::ImgSendDoneEvent *>(event);
+        if ( img_e->eventFor()->id() == talkable_->id() && img_e->success()  )
         {
-        case QQChatItem::kWord:
-        {
-            if (options.type == MsgBrowse::kImg)
-            {
-                msgbrowse_.appendContent(appending_content + "</span>", options);
-                appending_content.clear();
-            }
-
-            QString escaped_html = escape(chat_msg->msg_[i].content());
-            if (i >= 1 && options.type == MsgBrowse::kWord)
-                appending_content += escaped_html;
-            else
-                appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">" + escaped_html;
-
-            options.type = MsgBrowse::kWord;
+            file_path_.insert(img_e->imgId(), img_e->filePath());
+            te_input_.insertImg(img_e->imgId(), img_e->filePath());
         }
-            break;
-
-        case QQChatItem::kQQFace:
-        {
-            if (options.type == MsgBrowse::kImg)
-            {
-                msgbrowse_.appendContent(appending_content + "</span>", options);
-                appending_content.clear();
-            }
-
-            QString face_path = QQGlobal::resourceDir() + "/qqface/default/" + chat_msg->msg_[i].content() + ".gif";
-
-            if (i >= 1 && options.type == MsgBrowse::kWord)
-               appending_content += "<img src=\""+ face_path +"\" />";
-            else  
-               appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img src=\""+ face_path +"\" />";
-
-            options.type = MsgBrowse::kWord;
-        }
-            break;
-
-        case QQChatItem::kGroupChatImg:
-        {
-            if (!appending_content.isEmpty())
-            {
-                msgbrowse_.appendContent(appending_content + "</span>", options);
-                appending_content.clear();
-            }
-
-            const QQGroupChatMsg *group_msg = static_cast<const QQGroupChatMsg *>(chat_msg);
-            QString url = "http://web.qq.com/cgi-bin/get_group_pic?type=0&gid=" + group_msg->info_seq_ +
-                    "&uin=" + group_msg->sendUin() + "&rip=" + group_msg->msg_[i].server_ip() +
-                    "&rport=" + group_msg->msg_[i].server_port() + "&fid=" + group_msg->msg_[i].file_id() +
-                    "&pic=" + group_msg->msg_[i].content() + "&vfwebqq="+ CaptchaInfo::instance()->vfwebqq() +
-                    "&t="+ QString::number(group_msg->time_);
-
-            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img src=\""+ url +"\" />";
-            options.type = MsgBrowse::kImg;
-        }
-            break;
-        case QQChatItem::kFriendCface:
-        {
-            if (!appending_content.isEmpty())
-            {
-                msgbrowse_.appendContent(appending_content + "</span>", options);
-                appending_content.clear();
-            }
-
-            if (!img_loader_)
-            {
-                img_loader_ = getImgLoader();
-                connect(img_loader_, SIGNAL(loadDone(const QString&, const QString&)), &msgbrowse_, SLOT(replaceRealImg(const QString&, const QString&)));
-            }
-
-            QString uuid = getUniqueId();
-            img_loader_->loadFriendCface(uuid, chat_msg->msg_[i].content(), talkable_->id(), chat_msg->msg_id_);
-            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img id=\""+ uuid + "\" src=\""+  QQGlobal::resourceDir() + "/loading/loading.gif\" />";
-            options.type = MsgBrowse::kImg;
-        }
-            break;
-        case QQChatItem::kFriendOffpic:
-        {
-            if (!appending_content.isEmpty())
-            {
-                msgbrowse_.appendContent(appending_content + "</span>", options);
-                appending_content.clear();
-            }
-
-            if (!img_loader_)
-            {
-                img_loader_ = getImgLoader();
-                connect(img_loader_, SIGNAL(loadDone(const QString&, const QString&)), &msgbrowse_, SLOT(replaceRealImg(const QString&, const QString&)));
-            }
-
-            QString uuid = getUniqueId();
-            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img id=\""+ uuid + "\" src=\""+  QQGlobal::resourceDir() + "/loading/loading.gif\" />";
-            options.type = MsgBrowse::kImg;
-
-            img_loader_->loadFriendOffpic(uuid, chat_msg->msg_[i].content(), talkable_->id());
-
-        }
-            break;
-        }
-
-        if (i == (chat_msg->msg_.size()-1) )
-            msgbrowse_.appendContent(appending_content + "</span>", options);
-    }
-
-    if (this->isMinimized())
-    {
-        SoundPlayer::singleton()->play(SoundPlayer::kMsg);
-		QApplication::alert(this, 1500);
     }
 }
 
@@ -396,40 +236,17 @@ void QQChatDlg::sendMsg()
         return;
     }
 
-    if (img_sender_ && img_sender_->isSendding())
-    {
-        te_input_.setToolTip(tr("image uploading,please wait..."));
-        te_input_.showToolTip();
-        return;
-    }
-
     QString msg = te_input_.toHtml();
-	QVector<QQChatItem> chat_items = HtmlToMsgParser::parse(msg);
-    QString json_msg = chatItemToJson(chat_items);
+	QVector<QQChatItem> chat_items = HtmlToMsgParser::parse(msg, talkable_->type());
 
-    Request req;
-    req.create(kPost, send_url_);
-    req.addHeaderItem("Host", "d.web2.qq.com");
-    req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
-    req.addHeaderItem("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002");
-    req.addHeaderItem("Content-Length", QString::number(json_msg.length()));
-    req.addHeaderItem("Content-Type", "application/x-www-form-urlencoded");
-    req.addRequestContent(json_msg.toAscii());
-
-    if (!msg_sender_)
-    {
-        msg_sender_ = new MsgSender();
-        connect(msg_sender_, SIGNAL(sendDone(bool, QString)), this, SLOT(onMsgSendDone(bool, QString)));
-    }
-    
-    msg_sender_->send(req);
+    Protocol::QQProtocol::instance()->sendMsg(talkable_, chat_items);
 
     ShowOptions options;
     options.is_msg_in = false;
     QDir avatar_dir(CurrLoginAccount::avatarPath());
-    options.send_avatar_path = avatar_dir.absolutePath();
-    options.send_name = CurrLoginAccount::name();
-    options.send_uin = CurrLoginAccount::id();
+    options.sender_avatar_path = avatar_dir.absolutePath();
+    options.sender_name = CurrLoginAccount::name();
+    options.sender_uin = CurrLoginAccount::id();
     options.type = MsgBrowse::kWord;
     options.time = QDateTime::currentDateTime();
 
@@ -462,9 +279,13 @@ void QQChatDlg::openChatLogWin()
 {
     QQChatLog *chatlog = getChatlog();
 
-    QPointer<ChatLogWin> chatlog_win = new ChatLogWin();
+    QMap<QString, QString> names;
+    foreach ( Contact *contact, ((Group *)talkable_)->members() )
+    {
+        names.insert(contact->id(), contact->markname());
+    }
+    QPointer<ChatLogWin> chatlog_win = new ChatLogWin(names);
     chatlog_win->setChatLog(chatlog);
-    chatlog_win->setNameConvertor(&convertor_);
     chatlog_win->getFirstPage();
     chatlog_win->show();
 }
@@ -483,3 +304,141 @@ void QQChatDlg::showOldMsg(QVector<ShareQQMsgPtr> msgs)
     }
 }
 
+void QQChatDlg::showMsg(ShareQQMsgPtr msg)
+{
+    const QQChatMsg *chat_msg = static_cast<const QQChatMsg*>(msg.data());
+
+    qint64 time = chat_msg->time();
+    QDateTime date_time;
+    date_time.setMSecsSinceEpoch(time * 1000);
+
+    ShowOptions options;
+    options.is_msg_in = true;
+    options.time = date_time;
+    options.sender_uin = msg->sendUin();
+    options.type = MsgBrowse::kWord;
+
+    Contact *sender = getSender(msg->sendUin());
+    if ( sender == NULL || sender->avatar().isNull() )
+        options.sender_avatar_path = QQSkinEngine::instance()->skinRes("default_friend_avatar");
+    else
+        options.sender_avatar_path = sender->avatarPath();
+
+    options.sender_name = sender ? sender->markname() : msg->sendUin();
+    
+    QString appending_content;
+    for (int i = 0; i < chat_msg->msgs_.size(); ++i)
+    {
+        switch ( chat_msg->msgs_[i].type() )
+        {
+        case QQChatItem::kWord:
+        {
+            if (options.type == MsgBrowse::kImg)
+            {
+                msgbrowse_.appendContent(appending_content + "</span>", options);
+                appending_content.clear();
+            }
+
+            QString escaped_html = escape(chat_msg->msgs_[i].content());
+            if (i >= 1 && options.type == MsgBrowse::kWord)
+                appending_content += escaped_html;
+            else
+                appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">" + escaped_html;
+
+            options.type = MsgBrowse::kWord;
+        }
+            break;
+
+        case QQChatItem::kQQFace:
+        {
+            if (options.type == MsgBrowse::kImg)
+            {
+                msgbrowse_.appendContent(appending_content + "</span>", options);
+                appending_content.clear();
+            }
+
+            QString face_path = QQGlobal::resourceDir() + "/qqface/default/" + chat_msg->msgs_[i].content() + ".gif";
+
+            if (i >= 1 && options.type == MsgBrowse::kWord)
+               appending_content += "<img src=\""+ face_path +"\" />";
+            else  
+               appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img src=\""+ face_path +"\" />";
+
+            options.type = MsgBrowse::kWord;
+        }
+            break;
+
+        case QQChatItem::kGroupChatImg:
+        {
+            if (!appending_content.isEmpty())
+            {
+                msgbrowse_.appendContent(appending_content + "</span>", options);
+                appending_content.clear();
+            }
+
+            const QQGroupChatMsg *group_msg = static_cast<const QQGroupChatMsg *>(chat_msg);
+            QString url = "http://web.qq.com/cgi-bin/get_group_pic?type=0&gid=" + group_msg->info_seq_ +
+                    "&uin=" + group_msg->sendUin() + "&rip=" + group_msg->msgs_[i].server_ip() +
+                    "&rport=" + group_msg->msgs_[i].server_port() + "&fid=" + group_msg->msgs_[i].file_id() +
+                    "&pic=" + group_msg->msgs_[i].content() + "&vfwebqq="+ CaptchaInfo::instance()->vfwebqq() +
+                    "&t="+ QString::number(group_msg->time_);
+
+            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img src=\""+ url +"\" />";
+            options.type = MsgBrowse::kImg;
+        }
+            break;
+        case QQChatItem::kFriendCface:
+        {
+            if (!appending_content.isEmpty())
+            {
+                msgbrowse_.appendContent(appending_content + "</span>", options);
+                appending_content.clear();
+            }
+
+            if (!img_loader_)
+            {
+                img_loader_ = getImgLoader();
+                connect(img_loader_, SIGNAL(loadDone(const QString&, const QString&)), &msgbrowse_, SLOT(replaceRealImg(const QString&, const QString&)));
+            }
+
+            QString uuid = getUniqueId();
+            img_loader_->loadFriendCface(uuid, chat_msg->msgs_[i].content(), talkable_->id(), chat_msg->msg_id_);
+
+            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img id=\""+ uuid + "\" src=\""+  QQGlobal::resourceDir() + "/loading/loading.gif\" />";
+            options.type = MsgBrowse::kImg;
+        }
+            break;
+        case QQChatItem::kFriendOffpic:
+        {
+            if (!appending_content.isEmpty())
+            {
+                msgbrowse_.appendContent(appending_content + "</span>", options);
+                appending_content.clear();
+            }
+
+            if (!img_loader_)
+            {
+                img_loader_ = getImgLoader();
+                connect(img_loader_, SIGNAL(loadDone(const QString&, const QString&)), &msgbrowse_, SLOT(replaceRealImg(const QString&, const QString&)));
+            }
+
+            QString uuid = getUniqueId();
+            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img id=\""+ uuid + "\" src=\""+  QQGlobal::resourceDir() + "/loading/loading.gif\" />";
+            options.type = MsgBrowse::kImg;
+
+            img_loader_->loadFriendOffpic(uuid, chat_msg->msgs_[i].content(), talkable_->id());
+
+        }
+            break;
+        }
+
+        if (i == (chat_msg->msgs_.size()-1) )
+            msgbrowse_.appendContent(appending_content + "</span>", options);
+    }
+
+    if (this->isMinimized())
+    {
+        SoundPlayer::singleton()->play(SoundPlayer::kMsg);
+		QApplication::alert(this, 1500);
+    }
+}
