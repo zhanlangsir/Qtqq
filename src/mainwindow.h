@@ -23,6 +23,7 @@ class QQChatDlg;
 class QQLoginCore;
 class RecentModel;
 class RosterModel;
+class PluginManageDlg;
 
 class MainWindow : public QWidget
 {
@@ -39,6 +40,9 @@ public:
 	// 更新托盘显示的用户信息
 	void updateLoginUser() const;
 	void clean();
+
+    QMenu *mainMenu() const
+    { return main_menu_; }
 
 protected:
     virtual void closeEvent(QCloseEvent *);

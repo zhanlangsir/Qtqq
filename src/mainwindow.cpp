@@ -25,6 +25,7 @@
 #include "core/types.h"
 #include "event_handle/event_handle.h"
 #include "msgprocessor/msg_processor.h"
+#include "pluginmanager/plugin_managedlg.h"
 #include "protocol/event_center.h"
 #include "protocol/qq_protocol.h"
 #include "requestwidget/requestmsg_processor.h"
@@ -63,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     
     connect(ui->cb_status, SIGNAL(currentIndexChanged(int)), this, SLOT(changeMyStatus(int)));
-    connect(ui->pb_mainmenu, SIGNAL(clicked()), this, SLOT(openMainMenu()));
+    //connect(ui->mainmenu_btn, SIGNAL(clicked()), this, SLOT(openMainMenu()));
     connect(Protocol::EventCenter::instance(), SIGNAL(eventTrigger(Protocol::Event *)), EventHandle::instance(), SLOT(onEventTrigger(Protocol::Event *)));
 
     if (QFile::exists(QQGlobal::configDir() + "/qqgroupdb"))
@@ -76,10 +77,10 @@ MainWindow::MainWindow(QWidget *parent) :
     act_mute_ = new QAction(tr("Mute"), main_menu_);
     act_mute_->setCheckable(true);
     act_mute_->setChecked(setting.value("mute").toBool());
-
     connect(act_mute_, SIGNAL(toggled(bool)), this, SLOT(setMute(bool)));
 
     main_menu_->addAction(act_mute_);
+    ui->mainmenu_btn->setMenu(main_menu_);
 
     if (!open_chat_dlg_sc_)
     {

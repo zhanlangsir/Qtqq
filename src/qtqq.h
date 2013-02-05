@@ -27,6 +27,8 @@ public:
 
 public:
     void start();
+    MainWindow *mainWindow() const
+    { return main_win_; }
 
 private slots:
     void showMainPanel();

@@ -7,6 +7,7 @@
 #define PACKAGE "@package@"
 #define DATA_DIR "@prefix@/share"
 #define PKG_DATA_DIR "@pkgdatadir@"
+#define PLUGIN_DIR "@PLUGIN_DIR@"
 #define VERSION "@version@"
 
 #endif /* __CONFIG_H__ */

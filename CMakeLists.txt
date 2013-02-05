@@ -30,10 +30,13 @@ if ( CMAKE_BUILD_TYPE MATCHES "Debug" )
     set(DEBUG_MODE 1)
     set(prefix ${PROJECT_SOURCE_DIR})
     set(pkgdatadir ${prefix}/data)
+    set(PLUGIN_DIR ${CMAKE_CURRENT_BINARY_DIR}/lib/plugins)
 else ()
     set(prefix	${CMAKE_INSTALL_PREFIX})
     set(pkgdatadir ${prefix}/share/${package})
+    set(PLUGIN_DIR ${libdir}/plugins)
 endif ()
+
 set(bindir ${prefix}/bin)
 set(libdir ${prefix}/lib)
 set(includedir ${prefix}/include)
@@ -41,6 +44,7 @@ set(includedir ${prefix}/include)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set(PLUGIN_LIBRARY_OUTPUT_PATH ${LIBRARY_OUTPUT_PATH}/plugins)
 
 configure_file(${PROJECT_SOURCE_DIR}/config.h.in ${PROJECT_BINARY_DIR}/config.h)
 

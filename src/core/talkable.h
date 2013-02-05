@@ -69,6 +69,10 @@ public:
 	{
 		return name_;
 	}
+    virtual QString markname() const
+    {
+        return name_;
+    }
 
 	TalkableType type() const
 	{

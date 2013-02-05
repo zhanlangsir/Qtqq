@@ -49,6 +49,13 @@ set(CORE_HEADERS
 	#msgprocessor
 	msgprocessor/msg_processor.h
 
+    #notification manager
+    notification_manager/notification_manager.h
+
+    #plugin manager
+    pluginmanager/plugin_manager.h
+    pluginmanager/plugin_managedlg.h
+
 	#qq_protocol
 	protocol/qq_protocol.h
 	protocol/pollthread.h
@@ -93,6 +100,7 @@ set(CORE_HEADERS
 	#utils
 	utils/contact_status.h
 	utils/icon_decorator.h
+    utils/htmltomsgparser.h
 
 	#trayicon
 	trayicon/systemtray.h
@@ -146,6 +154,13 @@ set(CORE_SOURCES
 
 	#msgprocessor
 	msgprocessor/msg_processor.cpp
+
+    #notification manager
+    notification_manager/notification_manager.cpp
+
+    #plugin manager
+    pluginmanager/plugin_manager.cpp
+    pluginmanager/plugin_managedlg.cpp
 
 	#qq_protocol
 	protocol/qq_protocol.cpp
@@ -239,6 +254,7 @@ set(UI_FILES
 	ui/qqfacepanel.ui
 	ui/sesschatdlg.ui
 	ui/tabwindow.ui
+    ui/pluginmanagedlg.ui
 )
 
 QT4_WRAP_UI(UI_FILES_HEADERS ${UI_FILES})
@@ -278,6 +294,8 @@ option(UPDATE_TRANSLATIONS "Update source translation files" OFF)
 #else (UPDATE_TRANSLATIONS)
 #	QT4_ADD_TRANSLATION(QM_FILES ${TRANSLATIONS_FILES})
 #endif (UPDATE_TRANSLATIONS)
+
+add_subdirectory(plugins EXCLUDE_FROM_ALL)
 
 add_executable(qtqq
 	${CORE_SOURCES} ${CORE_HEADERS_MOC}

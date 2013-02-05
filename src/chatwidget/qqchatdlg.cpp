@@ -18,7 +18,7 @@
 #include "core/qqitem.h"
 #include "core/curr_login_account.h"
 #include "protocol/qq_protocol.h"
-#include "msghandle/htmltomsgparser.h"
+#include "utils/htmltomsgparser.h"
 #include "skinengine/qqskinengine.h"
 #include "soundplayer/soundplayer.h"
 #include "event_handle/event_handle.h"

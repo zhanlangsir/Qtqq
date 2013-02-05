@@ -96,6 +96,7 @@ public:
 		{
 			msg_str.append(msg.content());
 		}
+        return msg_str;
 	}
 
     QString msg_id_;
@@ -122,7 +123,7 @@ public:
 	}
 
     virtual QString talkTo() const
-    { return from_uin_; }
+    { return gid_; }
     virtual QString sendUin() const
     { return from_uin_; }
 
@@ -140,9 +141,9 @@ public:
 	{
 	}
 
-    QString talkTo() const
+    virtual QString talkTo() const
     { return from_uin_; }
-    QString sendUin() const
+    virtual QString sendUin() const
     { return send_uin_; }
 
     QString gCode() const {return group_code_; }

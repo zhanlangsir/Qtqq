@@ -42,6 +42,12 @@ public:
         return config_path;
     }
 
+    static QString pluginDir()
+    {
+        static const QString plugin_dir = QString::fromUtf8(PLUGIN_DIR);
+        return plugin_dir;
+    }
+
 	static QString skinsDir() 
 	{ return dataDir() + "/skins"; }
     static QString resourceDir() 
