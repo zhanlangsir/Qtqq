@@ -60,6 +60,7 @@ private slots:
     void onTrayIconClicked(QSystemTrayIcon::ActivationReason reason);
 	void onSearch(const QString &str);
     void aboutQt();
+    void onMainMenuclicked();
 
 private:
     void getFriendList();

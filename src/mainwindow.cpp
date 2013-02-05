@@ -88,8 +88,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QAction *about_qt = new QAction(tr("About Qt"), main_menu_);
     connect(about_qt, SIGNAL(triggered()), this,  SLOT(aboutQt()));
 
+    connect(ui->mainmenu_btn, SIGNAL(clicked()), this, SLOT(onMainMenuclicked()));
 
-    ui->mainmenu_btn->setMenu(main_menu_);
     main_menu_->addAction(act_mute_);
     main_menu_->addPluginSperator();
     main_menu_->addAction(about_qtqq);
@@ -519,4 +519,12 @@ void MainWindow::onSearch(const QString &str)
 
         contact_proxy_model_->setFilter(result);
     }
+}
+
+void MainWindow::onMainMenuclicked()
+{
+    QPoint pos;
+    pos.setX(0);
+    pos.setY(-main_menu_->sizeHint().height());
+    main_menu_->exec(ui->mainmenu_btn->mapToGlobal(pos));
 }
