@@ -1,8 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QWidget>
 #include <QCloseEvent>
-#include <QMenu>
 #include <QSystemTrayIcon>
 
 #include "utils/contact_status.h"
@@ -16,6 +16,7 @@ class QHttp;
 
 class QxtGlobalShortcut;
 
+class Menu;
 class ContactProxyModel;
 class ContactSearcher;
 class FriendSearcher;
@@ -41,7 +42,7 @@ public:
 	void updateLoginUser() const;
 	void clean();
 
-    QMenu *mainMenu() const
+    Menu *mainMenu() const
     { return main_menu_; }
 
 protected:
@@ -58,6 +59,7 @@ private slots:
     void openFirstChatDlg();
     void onTrayIconClicked(QSystemTrayIcon::ActivationReason reason);
 	void onSearch(const QString &str);
+    void aboutQt();
 
 private:
     void getFriendList();
@@ -82,7 +84,7 @@ private:
     ContactSearcher *searcher_;
 	ContactProxyModel *contact_proxy_model_;
 
-    QMenu *main_menu_;
+    Menu *main_menu_;
     QAction *act_mute_;
 
     QxtGlobalShortcut *open_chat_dlg_sc_;

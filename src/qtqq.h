@@ -25,10 +25,13 @@ public:
 	MainWindow *mainWin() const
 	{ return main_win_; }
 
-public:
     void start();
     MainWindow *mainWindow() const
     { return main_win_; }
+
+
+public slots:
+    void aboutQtqq();
 
 private slots:
     void showMainPanel();

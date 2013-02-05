@@ -148,3 +148,11 @@ void Qtqq::onQuit()
 
 	qApp->quit();
 }
+
+void Qtqq::aboutQtqq()
+{
+    QMessageBox::information(NULL, tr("About Qtqq"), 
+            tr("用c++和Qt写的基于webqq3.0协议的Linux qq客户端!\n\n"
+                "主页: http://www.aitilife.com/qtqq\n"
+                "代码托管在: https://github.com/zhanlangsir/Qtqq"));
+}

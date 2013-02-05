@@ -25,11 +25,11 @@ public slots:
     void replaceRealImg(const QString &id, const QString &local_path);
     
 private:
-    bool     ifCombineMsg(const ShowOptions &options) const;
-    void     ecapseForScript(QString &html) const;
-    QString  loadFileData(QString name);
-    void     loadTemplate();
-    void     initUi();
+    bool ifCombineMsg(const ShowOptions &options) const;
+    void ecapseForScript(QString &html) const;
+    QString loadFileData(QString name);
+    void loadTemplate();
+    void initUi();
     QString scriptForAppendContent(bool isCombine);
     void replaceKeyWord(QString &html, const ShowOptions &options);
 
@@ -59,4 +59,5 @@ struct ShowOptions
 
     bool is_msg_in;
 };
+
 #endif // MSGBROWSE_H

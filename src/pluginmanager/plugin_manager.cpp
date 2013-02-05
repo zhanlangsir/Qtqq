@@ -6,6 +6,7 @@
 
 #include "qtqq.h"
 #include "mainwindow.h"
+#include "utils/menu.h"
 #include "pluginmanager/plugin_managedlg.h"
 
 #define PLUGIN_CONFIG_FILE "plugins.xml"
@@ -20,7 +21,6 @@ PluginManager::PluginManager() :
 PluginManager::~PluginManager()
 {
     savePluginConfig();
-    unloadPlugins();
 }
 
 void PluginManager::loadSettings()
@@ -41,10 +41,12 @@ void PluginManager::loadSettings()
 
 void PluginManager::loadPlugins()
 {
+    qDebug() << "Begin load plugins" << endl;
     QDir plugins_dir(QQGlobal::pluginDir());
     removeUnexistPluginInfo(plugins_dir.entryList());
 
-    foreach (QString file_name, plugins_dir.entryList(QDir::Files)) {
+    foreach (QString file_name, plugins_dir.entryList(QDir::Files))
+    {
         QPluginLoader loader(plugins_dir.absoluteFilePath(file_name));
         if ( loader.load() )
         {
@@ -112,7 +114,7 @@ void PluginManager::savePluginInfo(const QString &file_name, IPlugin *plugin)
 	else
 		version_elem.firstChild().toCharacterData().setData(info.version);
 
-    qDebug() << "Plugin infomatior:\n" << plugins_config_.toString() << endl;
+    qDebug() << "Loaded plugin information:\n" << plugins_config_.toString() << endl;
 }
 
 void PluginManager::removeUnexistPluginInfo(const QStringList &plugin_list)
@@ -134,11 +136,6 @@ void PluginManager::removeUnexistPluginInfo(const QStringList &plugin_list)
     }
 }
 
-void PluginManager::unloadPlugins()
-{
-
-}
-
 void PluginManager::createMenuAction()
 {
     MainWindow *main_win = Qtqq::instance()->mainWindow();
@@ -146,7 +143,7 @@ void PluginManager::createMenuAction()
     QAction *act_plugin = new QAction(tr("Plugin"), main_win->mainMenu());
     act_plugin->setCheckable(false);
     connect(act_plugin, SIGNAL(triggered()), this, SLOT(openPluginManageDlg()));
-    main_win->mainMenu()->addAction(act_plugin);
+    main_win->mainMenu()->addPluginAction(act_plugin);
 }
 
 

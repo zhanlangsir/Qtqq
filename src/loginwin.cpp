@@ -119,8 +119,8 @@ void LoginWin::beginLogin()
 
 
     ui->pb_login->setEnabled(false);
-    qDebug()<<"login ing...."<<endl;
 
+    qDebug() << "Begin Login" << endl;
     checkAccoutStatus();
 }
 
@@ -219,16 +219,14 @@ void LoginWin::on_find_password_linkActivated(const QString &link)
 
 void LoginWin::checkAccoutStatus()
 {
-    qDebug()<<"begin checkaccount status"<<endl;
     if (login_core_->checkState( curr_login_account_.id_ ) == QQLoginCore::kExceptionCpaImg)
     {
-        qDebug()<<"need cap img"<<endl;
+        qDebug()<<"Need captcha Image"<<endl;
         QPixmap pix = login_core_->getCapImg();
         showCapImg(pix);
     }
     else
     {
-        qDebug()<<"begin login"<<endl;
         login_core_->login(curr_login_account_.id_, curr_login_account_.pwd_, curr_login_account_.login_status_);
     }
 }

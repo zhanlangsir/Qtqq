@@ -37,7 +37,6 @@ void QQLoginCore::login(QString id, QString pwd, ContactStatus status)
     QString login_url = "/login?u=" + id + "&p=" + getPwMd5(pwd) + "&verifycode="+vc_+
             "&webqq_type=10&remember_uin=0&login2qq=1&aid=1003903&u1=http%3A%2F%2Fweb.qq.com%2Floginproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&h=1&ptredirect=0&ptlang=2052&from_ui=1&pttype=1&dumy=&fp=loginerroralert&action=2-6-22950&mibao_css=m_webqq&t=1&g=1";
 
-    qDebug()<<"login url"<<login_url<<endl;
     Request req;
     req.create(kGet, login_url);
     req.addHeaderItem("Host", "ptlogin2.qq.com");
@@ -54,12 +53,12 @@ void QQLoginCore::login(QString id, QString pwd, ContactStatus status)
     }
 
     fd_->close();
-    qDebug()<<result<<endl;
+
+    qDebug() << "Login Result:\n" << result << '\n' << endl;
 
     QString ptwebqq;
 
     char result_state = getResultState(result);
-    qDebug()<<"login result state"<<result_state<<endl;
 
     switch (result_state)
     {
@@ -135,9 +134,8 @@ QByteArray QQLoginCore::getMd5Uin(const QByteArray &result, int begin_idx)
 
 QQLoginCore::AccountStatus QQLoginCore::checkState(QString id)
 {
-    qDebug()<<"checking state"<<endl;
+    qDebug()<<"Checking Account Status"<<endl;
 	CurrLoginAccount::setId(id);
-    //QQSettings::instance()->currLoginInfo().id = id;
     QString check_url = "/check?uin=%1&appid=1003903&r=0.5354662109559408";
     fd_ = new QTcpSocket();
     fd_->connectToHost("check.ptlogin2.qq.com",80);
@@ -151,7 +149,7 @@ QQLoginCore::AccountStatus QQLoginCore::checkState(QString id)
     fd_->waitForReadyRead();
 
     QByteArray result = fd_->readAll();
-    qDebug()<<"check status result"<<result<<endl;
+    qDebug() << "Acount status:\n" << result << '\n' << endl;
     fd_->disconnectFromHost();
 
     if (result.contains('!'))
@@ -163,8 +161,9 @@ QQLoginCore::AccountStatus QQLoginCore::checkState(QString id)
 
         int cookie_idx = result.indexOf("ptvfsession");
         int idx = result.indexOf(';', cookie_idx)+1;
-        qDebug()<<"cookie"<<result.mid(cookie_idx, idx - cookie_idx)<<endl;
-        CaptchaInfo::instance()->set_cookie(result.mid(cookie_idx, idx - cookie_idx));
+        QString ptvfsession = result.mid(cookie_idx, idx - cookie_idx);
+        qDebug() << "Extract ptvfseesion: " << ptvfsession << endl;
+        CaptchaInfo::instance()->set_cookie(ptvfsession);
 
         return kNormal;
     }
@@ -234,7 +233,6 @@ QString QQLoginCore::getLoginStatus() const
 
 void QQLoginCore::getLoginInfo(QString ptwebqq)
 {
-    qDebug()<<"getting login info"<<endl;
     QString login_info_path = "/channel/login2";
     QByteArray msg = "r={\"status\":\""+ getLoginStatus().toAscii() +"\",\"ptwebqq\":\"" + ptwebqq.toAscii() + "\","
             "\"passwd_sig\":""\"\",\"clientid\":\"5412354841\""
@@ -257,7 +255,8 @@ void QQLoginCore::getLoginInfo(QString ptwebqq)
 void QQLoginCore::getLoginInfoDone()
 {
     QByteArray result = fd_->readAll();
-    qDebug()<<"get login info result"<<result<<endl;
+    qDebug() <<"Got login information:\n" << result << '\n' << endl;
+
     int vfwebqq_f_idx = result.indexOf("vfwebqq") + 10;
     int vfwebqq_s_idx = result.indexOf(',', vfwebqq_f_idx) - 1;
 

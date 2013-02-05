@@ -98,6 +98,7 @@ set(CORE_HEADERS
 	strangermanager/stranger_manager.h
 
 	#utils
+	utils/menu.h
 	utils/contact_status.h
 	utils/icon_decorator.h
     utils/htmltomsgparser.h
@@ -108,7 +109,6 @@ set(CORE_HEADERS
 
 set(UI_HEADERS
 	chatlogwin.h
-	frienditem.h
 	qtqq.h
 	qqtextedit.h
 	moveablehandler.h
@@ -205,6 +205,7 @@ set(CORE_SOURCES
 
 	#utils
 	utils/icon_decorator.cpp
+	utils/menu.cpp
 
 	#chat widget
 	chatwidget/tabwindow.cpp

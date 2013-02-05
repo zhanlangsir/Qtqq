@@ -3,6 +3,7 @@
 
 #include <QDateTime>
 #include <QDesktopWidget>
+#include <QMessageBox>
 #include <QEvent>
 #include <QFile>
 #include <QHttp>
@@ -36,8 +37,10 @@
 #include "skinengine/qqskinengine.h"
 #include "trayicon/systemtray.h"
 #include "rostermodel/contact_searcher.h"
+#include "utils/menu.h"
 #include "qqglobal.h"
 #include "qqiteminfohelper.h"
+#include "qtqq.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
@@ -64,7 +67,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     
     connect(ui->cb_status, SIGNAL(currentIndexChanged(int)), this, SLOT(changeMyStatus(int)));
-    //connect(ui->mainmenu_btn, SIGNAL(clicked()), this, SLOT(openMainMenu()));
     connect(Protocol::EventCenter::instance(), SIGNAL(eventTrigger(Protocol::Event *)), EventHandle::instance(), SLOT(onEventTrigger(Protocol::Event *)));
 
     if (QFile::exists(QQGlobal::configDir() + "/qqgroupdb"))
@@ -73,14 +75,27 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     QSettings setting(QQGlobal::configDir() + "/options.ini", QSettings::IniFormat);
-    main_menu_ = new QMenu(this);
+    main_menu_ = new Menu(this);
     act_mute_ = new QAction(tr("Mute"), main_menu_);
     act_mute_->setCheckable(true);
     act_mute_->setChecked(setting.value("mute").toBool());
     connect(act_mute_, SIGNAL(toggled(bool)), this, SLOT(setMute(bool)));
 
-    main_menu_->addAction(act_mute_);
+    QAction *quit = new QAction(tr("Quit"), main_menu_);
+    connect(quit, SIGNAL(triggered()), Qtqq::instance(), SLOT(onQuit()));
+    QAction *about_qtqq = new QAction(tr("About Qtqq"), main_menu_);
+    connect(about_qtqq, SIGNAL(triggered()), Qtqq::instance(), SLOT(aboutQtqq()));
+    QAction *about_qt = new QAction(tr("About Qt"), main_menu_);
+    connect(about_qt, SIGNAL(triggered()), this,  SLOT(aboutQt()));
+
+
     ui->mainmenu_btn->setMenu(main_menu_);
+    main_menu_->addAction(act_mute_);
+    main_menu_->addPluginSperator();
+    main_menu_->addAction(about_qtqq);
+    main_menu_->addAction(about_qt);
+    main_menu_->addSeparator();
+    main_menu_->addAction(quit);
 
     if (!open_chat_dlg_sc_)
     {
@@ -118,6 +133,11 @@ MainWindow::~MainWindow()
 		delete main_http_;
 		main_http_ = NULL;
 	}
+}
+
+void MainWindow::aboutQt()
+{
+    QMessageBox::aboutQt(NULL);
 }
 
 void MainWindow::onTrayIconClicked(QSystemTrayIcon::ActivationReason reason)
