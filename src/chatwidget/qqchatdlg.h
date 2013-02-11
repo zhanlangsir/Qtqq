@@ -54,6 +54,7 @@ public:
 protected:
     void closeEvent(QCloseEvent *);
     bool eventFilter(QObject * obj, QEvent * e);
+    virtual void showOtherMsg(ShareQQMsgPtr msg);
 
 protected:
     MsgBrowse msgbrowse_;

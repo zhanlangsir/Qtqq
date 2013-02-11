@@ -43,6 +43,14 @@ public:
     {
         return new ImgSendDoneEvent(sender, is_sucess, file_path, img_id);
     }
+    Event *createStrangerInfoDoneEvent(Talkable *_for, QByteArray data)
+    {
+        return new StrangerInfoDoneEvent(_for, data);
+    }
+    Event *createStrangerAvatarUpdateEvent(Talkable *_for, QByteArray data)
+    {
+        return new StrangerAvatarUpdateEvent(_for, data);
+    }
 
     void triggerEvent(Event *event);
 

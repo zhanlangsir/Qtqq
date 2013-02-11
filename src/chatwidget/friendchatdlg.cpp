@@ -1,11 +1,17 @@
 #include "friendchatdlg.h"
 #include "ui_friendchatdlg.h"
 
+#include <assert.h>
+#include <QRegExp>
+#include <QApplication>
+#include <QClipboard>
+
 #include "json/json.h"
 
 #include "core/friendchatlog.h"
 #include "skinengine/qqskinengine.h"
 #include "utils/icon_decorator.h"
+#include "msgprocessor/msg_processor.h"
 #include "qqiteminfohelper.h"
 
 FriendChatDlg::FriendChatDlg(Contact *contact, ChatDlgType type, QWidget *parent) :
@@ -69,6 +75,7 @@ void FriendChatDlg::initConnections()
     connect(ui->btn_qqface, SIGNAL(clicked()), this, SLOT(openQQFacePanel()));
     connect(ui->btn_close, SIGNAL(clicked()), this, SLOT(close()));
     connect(ui->btn_chat_log, SIGNAL(clicked()), this, SLOT(openChatLogWin()));
+    connect(&msgbrowse_, SIGNAL(linkClicked(const QUrl &)), this, SLOT(onLinkClicked(const QUrl &)));
 }
 
 FriendChatDlg::~FriendChatDlg()
@@ -126,4 +133,40 @@ void FriendChatDlg::onTalkableDataChanged(QVariant data, TalkableDataRole role)
 Contact *FriendChatDlg::getSender(const QString &id) const
 {
     return (Contact *)talkable_;
+}
+
+void FriendChatDlg::showOtherMsg(ShareQQMsgPtr msg)
+{
+    onOffFileMsg(msg);
+}
+
+void FriendChatDlg::onOffFileMsg(ShareQQMsgPtr msg)
+{
+    assert(msg->type() == QQMsg::kOffFile); 
+
+    const QQOffFileMsg *offfile_msg = static_cast<const QQOffFileMsg *>(msg.data());
+
+    ShowOptions options; 
+    options.type = MsgBrowse::kStatus;
+
+    QDateTime date;
+    date.setMSecsSinceEpoch(offfile_msg->time * 1000);
+    options.time = date;
+    options.sender_name = talkable_->name();
+
+    QString link = "[offfile_link:http://%1:%2/%3?ver=2173&rkey=%4&range=0]";
+    link = link.arg(offfile_msg->ip).arg(offfile_msg->port).arg(offfile_msg->name).arg(offfile_msg->rkey);
+    QString message = tr("Peer send you a offline file:") + "<a href=\"" + link + "\">[" + tr("Copy download link") + "]</a>";    
+
+    msgbrowse_.appendHtml(message, options);
+}
+
+void FriendChatDlg::onLinkClicked(const QUrl &url)
+{
+    QRegExp offfile_reg("\\[offfile_link:(.*)\\]");
+
+    if ( offfile_reg.indexIn(url.toString()) != -1 )
+    {
+        QApplication::clipboard()->setText(offfile_reg.cap(1));
+    }
 }

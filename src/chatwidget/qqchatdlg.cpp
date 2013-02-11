@@ -11,18 +11,19 @@
 #include <QRegExp>
 #include <QShortcut>
 
-#include "core/imgloader.h"
+#include "chatlogwin.h"
 #include "core/captchainfo.h"
-#include "core/qqchatlog.h"
-#include "core/groupchatlog.h"
-#include "core/qqitem.h"
 #include "core/curr_login_account.h"
+#include "core/curr_login_account.h"
+#include "core/groupchatlog.h"
+#include "core/imgloader.h"
+#include "core/qqchatlog.h"
+#include "core/qqitem.h"
+#include "event_handle/event_handle.h"
 #include "protocol/qq_protocol.h"
-#include "utils/htmltomsgparser.h"
 #include "skinengine/qqskinengine.h"
 #include "soundplayer/soundplayer.h"
-#include "event_handle/event_handle.h"
-#include "chatlogwin.h"
+#include "utils/htmltomsgparser.h"
 
 QQChatDlg::QQChatDlg(Talkable *talkable, ChatDlgType type, QWidget *parent) :
     QWidget(parent),
@@ -280,9 +281,17 @@ void QQChatDlg::openChatLogWin()
     QQChatLog *chatlog = getChatlog();
 
     QMap<QString, QString> names;
-    foreach ( Contact *contact, ((Group *)talkable_)->members() )
+    if ( talkable_->type() == Talkable::kContact )
     {
-        names.insert(contact->id(), contact->markname());
+        names.insert(CurrLoginAccount::id(), CurrLoginAccount::name());
+        names.insert(talkable_->id(), talkable_->name());
+    }
+    else
+    {
+        foreach ( Contact *contact, ((Group *)talkable_)->members() )
+        {
+            names.insert(contact->id(), contact->markname());
+        }
     }
     QPointer<ChatLogWin> chatlog_win = new ChatLogWin(names);
     chatlog_win->setChatLog(chatlog);
@@ -306,6 +315,12 @@ void QQChatDlg::showOldMsg(QVector<ShareQQMsgPtr> msgs)
 
 void QQChatDlg::showMsg(ShareQQMsgPtr msg)
 {
+    if ( msg->type() != QQMsg::kFriend && msg->type() != QQMsg::kGroup )
+    {
+        showOtherMsg(msg);
+        return;
+    }
+
     const QQChatMsg *chat_msg = static_cast<const QQChatMsg*>(msg.data());
 
     qint64 time = chat_msg->time();
@@ -436,9 +451,13 @@ void QQChatDlg::showMsg(ShareQQMsgPtr msg)
             msgbrowse_.appendContent(appending_content + "</span>", options);
     }
 
-    if (this->isMinimized())
+    if ( this->isMinimized() )
     {
         SoundPlayer::singleton()->play(SoundPlayer::kMsg);
 		QApplication::alert(this, 1500);
     }
+}
+
+void QQChatDlg::showOtherMsg(ShareQQMsgPtr msg)
+{
 }

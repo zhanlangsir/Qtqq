@@ -42,7 +42,7 @@ signals:
 	void dataChanged(QVariant data, TalkableDataRole role);
 
 public:
-	enum TalkableType { kContact, kGroup, kCategory };
+	enum TalkableType { kStranger, kContact, kGroup, kCategory };
 
 	Talkable(QString id, QString name, TalkableType type) :
 		id_(id),
@@ -72,6 +72,11 @@ public:
     virtual QString markname() const
     {
         return name_;
+    }
+
+    void setType(TalkableType type)
+    {
+        type_ = type;
     }
 
 	TalkableType type() const
@@ -131,8 +136,8 @@ class Group;
 class Contact : public Talkable
 {
 public:
-	Contact(QString id, QString name) :
-		Talkable(id, name, Talkable::kContact),
+	Contact(QString id, QString name, TalkableType type = Talkable::kContact) :
+		Talkable(id, name, type),
         cat_(NULL),
         group_(NULL)
 	{

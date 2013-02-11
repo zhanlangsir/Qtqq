@@ -26,6 +26,7 @@ ChatMsgProcessor::ChatMsgProcessor()
 
 	connect(MsgProcessor::instance(), SIGNAL(newFriendChatMsg(ShareQQMsgPtr)), this, SLOT(onNewChatMsg(ShareQQMsgPtr)));
 	connect(MsgProcessor::instance(), SIGNAL(newGroupChatMsg(ShareQQMsgPtr)), this, SLOT(onNewChatMsg(ShareQQMsgPtr)));
+	connect(MsgProcessor::instance(), SIGNAL(newOffFileMsg(ShareQQMsgPtr)), this, SLOT(onNewOffFileMsg(ShareQQMsgPtr)));
 	connect(ChatDlgManager::instance(), SIGNAL(activatedChatDlgChanged(QQChatDlg *, QQChatDlg *)), this, SLOT(onActivatedChatDlgChanged(QQChatDlg *, QQChatDlg *)));
 }
 
@@ -55,6 +56,11 @@ void ChatMsgProcessor::onNewChatMsg(ShareQQMsgPtr msg)
 
         SoundPlayer::singleton()->play(SoundPlayer::kMsg);
 	}
+}
+
+void ChatMsgProcessor::onNewOffFileMsg(ShareQQMsgPtr msg)
+{
+    onNewChatMsg(msg);
 }
 
 void ChatMsgProcessor::registerListener(QQMsgListener *listener)
@@ -207,8 +213,11 @@ void ChatMsgProcessor::onActionTriggered()
 		case QQMsg::kSess:
 			ChatDlgManager::instance()->openSessChatDlg(msg->talkTo(), msg->gid());
 			break;
+        case QQMsg::kOffFile:
+			ChatDlgManager::instance()->openFriendChatDlg(msg->talkTo());
+			break;
 		default:
-			qDebug() << "recive wrong triggerd on ChatMsgProcess!" << endl;
+			qDebug() << "Recive wrong action triggerd on ChatMsgProcess!" << endl;
 			return;
 	}
 }

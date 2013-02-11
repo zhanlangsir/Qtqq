@@ -9,6 +9,7 @@
 #include "protocol/request_jobs/strangerinfo2_job.h"
 #include "protocol/request_jobs/sendimg_job.h"
 #include "protocol/request_jobs/sendmsg_job.h"
+#include "protocol/request_jobs/filerecive_job.h"
 #include "protocol/request_jobs/friendinfo2_job.h"
 #include "protocol/request_jobs/group_memberlist_job.h"
 #include "protocol/pollthread.h"
@@ -68,10 +69,13 @@ void Protocol::QQProtocol::requestFriendInfo2(Talkable *job_for)
     runJob(job);
 }
 
-void Protocol::QQProtocol::requestStrangerInfo2(Talkable *job_for)
+void Protocol::QQProtocol::requestStrangerInfo2(Talkable *job_for, QString gid, bool group_request)
 {
-	requesting_.insert(JT_StrangerInfo2, job_for->id());
-	StrangerInfo2Job *job = new StrangerInfo2Job(job_for);
+    QString code = "";
+    if ( group_request )
+        code = "group_request_join-" + gid;
+	//requesting_.insert(JT_StrangerInfo2, job_for->id());
+	StrangerInfo2Job *job = new StrangerInfo2Job(job_for, gid, code);
     runJob(job);
 }
 
@@ -83,7 +87,14 @@ void Protocol::QQProtocol::requestGroupMemberList(Group *job_for)
 
 void Protocol::QQProtocol::slotJobDone(__JobBase* job, bool error)
 {
-    requesting_.values(job->type()).removeOne(job->requesterId());
+    if ( job->type() == JT_FileRecive )
+    {
+        reciving_jobs_.remove(((FileReciveJob *)job)->sessionId());
+    }
+    else
+    {
+        requesting_.values(job->type()).removeOne(job->requesterId());
+    }
 
     job->deleteLater();
 }
@@ -118,4 +129,22 @@ void Protocol::QQProtocol::sendMsg(Talkable *to, const QVector<QQChatItem> &msgs
 void Protocol::QQProtocol::sendGroupMsg(const QVector<QQChatItem> &msgs)
 {
 
+}
+
+void Protocol::QQProtocol::reciveFile(int session_id, QString file_name, QString to)
+{
+    FileReciveJob *job = new FileReciveJob(session_id, file_name, to);
+    connect(job, SIGNAL(fileTransferProgress(int, int, int)), this, SIGNAL(fileTransferProgress(int, int, int)));
+
+    reciving_jobs_.insert(session_id, job);
+
+    runJob(job);
+}
+
+void Protocol::QQProtocol::parseTransferFile(int session_id)
+{
+    if ( reciving_jobs_.contains(session_id) )
+    {
+        reciving_jobs_[session_id]->stop();
+    }
 }

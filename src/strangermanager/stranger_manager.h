@@ -3,13 +3,14 @@
 
 #include <QObject>
 #include <QString>
-#include <QVector>
+#include <QList>
 
+#include "interfaces/iobserver.h"
 #include "core/qqmsg.h"
 
 class Contact;
 
-class StrangerManager : public QObject
+class StrangerManager : public QObject, public IObserver
 {
 	Q_OBJECT
 signals:
@@ -26,25 +27,24 @@ public:
 		return instance_;
 	}
 
-	bool hasStrangerInfo(QString id) const;
-	Contact *strangerInfo(QString id) const;
-	void addStrangerInfo(Contact *info);
-	void parseStranger(const QByteArray &array);
+    Contact *takeStranger(QString id);
 
+	bool hasStrangerInfo(QString id) const;
+    Contact *stranger(const QString &id) const;
 	void clean();
+
+protected:
+    virtual void onNotify(Protocol::Event *event);
 
 private slots:
 	void onNewSessMsg(ShareQQMsgPtr msg);
 	void onNewSystemMsg(ShareQQMsgPtr msg);
 
-	void onInfoRequestDone(QString id, Contact *stranger);
-	void onIconRequestDone(QString id, QByteArray icon_data);
+private:
+	void updateStranger(const QByteArray &array);
 
 private:
-	Contact *find(QString id) const;
-
-private:
-	QVector<Contact *> strangers_;
+	QList<Contact *> strangers_;
 
 private:
 	StrangerManager();

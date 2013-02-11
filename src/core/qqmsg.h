@@ -36,7 +36,17 @@ request_uin : 请求者uin
 class QQMsg
 {
 public:
-    enum MsgType{kGroup, kFriend, kBuddiesStatusChange, kSystem, kSystemG, kSess};
+    enum MsgType { 
+        kFriend, 
+        kGroup, 
+        kSess, 
+        kSystem, 
+        kSystemG, 
+        kBuddiesStatusChange, 
+        kFile, 
+        kOffFile,
+        kFilesrvTransfer
+    };
 
 	QQMsg(MsgType type) : type_(type) {}
     virtual ~QQMsg() {}
@@ -114,25 +124,6 @@ public:
     QVector<QQChatItem> msgs_;
 };
 
-class QQSessChatMsg : public QQChatMsg
-{
-public:
-	QQSessChatMsg(MsgType type = kSess) :
-		QQChatMsg(type)
-	{
-	}
-
-    virtual QString talkTo() const
-    { return gid_; }
-    virtual QString sendUin() const
-    { return from_uin_; }
-
-    virtual QString gid() const 
-    { return gid_; }
-
-    QString gid_;
-};
-
 class QQGroupChatMsg : public QQChatMsg
 {
 public:
@@ -151,6 +142,25 @@ public:
     QString group_code_;
     QString send_uin_;
     QString info_seq_;
+};
+
+class QQSessChatMsg : public QQChatMsg
+{
+public:
+	QQSessChatMsg(MsgType type = kSess) :
+		QQChatMsg(type)
+	{
+	}
+
+    virtual QString talkTo() const
+    { return gid_; }
+    virtual QString sendUin() const
+    { return from_uin_; }
+
+    virtual QString gid() const 
+    { return gid_; }
+
+    QString gid_;
 };
 
 class QQStatusChangeMsg : public QQMsg
@@ -218,6 +228,77 @@ public:
     QString request_uin;
     QString t_request_uin_;
     QString msg_;
+};
+
+class QQFileMsg : public QQMsg
+{
+public:
+    enum FileMsgType { kRecv, kRefuse };
+    QQFileMsg(MsgType type = kFile) :
+        QQMsg(type)
+    {
+    }
+
+    QString sendUin() const
+    { return from_id; }
+
+    QString name;
+    int msg_id;
+    FileMsgType mode;
+    QString from_id;
+    QString to_id;
+    QString msg_id2;
+    QString reply_ip;
+    int msg_type;
+    int type;
+    int session_id;
+    int cancel_type;
+    long time;
+    long inet_ip;
+};
+
+class QQOffFileMsg : public QQMsg
+{
+public:
+    QQOffFileMsg(MsgType type = kOffFile) :
+        QQMsg(type)
+    {
+    }
+
+    QString sendUin() const
+    { return from_id; }
+    QString talkTo() const
+    { return from_id; }
+
+    int msg_id;
+    QString rkey;
+    QString ip;
+    int port;
+    QString from_id;
+    int size;
+    QString name;
+    long expire_time;
+    long time;
+};
+
+class QQFilesrvTransferMsg : public QQMsg
+{
+public:
+    QQFilesrvTransferMsg(MsgType type = kFilesrvTransfer) :
+        QQMsg(type)
+    {
+    }
+
+    int file_count;
+    QString name;
+    int file_status;
+    int pro_id;
+    QString from_id;
+    QString to_id;
+    int lc_id;
+    long now;
+    int operation;
+    int type;
 };
 
 #endif //QQMSG_H

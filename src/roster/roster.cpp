@@ -23,7 +23,6 @@ Roster::Roster()
     EventHandle::instance()->registerObserver(Protocol::ET_OnGroupMemberListUpdate, this);
 }
 
-
 Roster::~Roster()
 {
 	clean();
@@ -33,7 +32,6 @@ Roster::~Roster()
 
 	instance_ = NULL;
 }
-
 
 void Roster::parseContactList(const QByteArray &array)
 {
@@ -111,9 +109,14 @@ void Roster::addContact(Contact *contact, Category *cat)
 	contacts_.insert(contact->id(), contact);	
 	emit sigNewContact(contact);
 
+    if ( contact->status() == CS_Online )
+    {
+        cat->setOnlineCount(cat->onlineCount() + 1);
+		emit sigCategoryDataChanged(cat->index(), cat->onlineCount(), TDR_CategoryOnlineCount);
+    }
 
 	Protocol::QQProtocol *proto = Protocol::QQProtocol::instance();
-	if ( !proto->isRequesting(contact->id(), JT_Icon) )
+	if ( !proto->isRequesting(contact->id(), JT_Icon) && contact->avatar().isNull() )
 	{
 		proto->requestIconFor(contact);
 	}
@@ -288,7 +291,6 @@ void Roster::slotIconRequestDone(QString id, QByteArray icon_data)
 		emit sigGroupDataChanged(talkable->id(), talkable->avatar(), TDR_Avatar);
 }
 
-
 void Roster::slotContactStatusChanged(QString id, ContactStatus status, ContactClientType type)
 {
 	Contact *contact = this->contact(id);
@@ -325,7 +327,6 @@ void Roster::slotContactStatusChanged(QString id, ContactStatus status, ContactC
 	}
 }
 
-
 Talkable *Roster::talkable(const QString  &id) const
 {
 	if ( contacts_.contains(id) )
@@ -337,7 +338,6 @@ Talkable *Roster::talkable(const QString  &id) const
 	return NULL;
 }
 
-
 Contact *Roster::contact(QString id) const
 {
 	if ( contacts_.contains(id) )	
@@ -345,14 +345,12 @@ Contact *Roster::contact(QString id) const
 	return NULL;
 }
 
-
 Group *Roster::group(QString id) const
 {
 	if ( groups_.contains(id) )	
 		return groups_.value(id);
 	return NULL;
 }
-
 
 Category *Roster::category(int cat_idx) const
 {
@@ -363,7 +361,6 @@ Category *Roster::category(int cat_idx) const
 	}
 	return NULL;
 }
-
 
 void Roster::clean()
 {

@@ -8,12 +8,10 @@ RosterModel::RosterModel(QObject *parent) : __RosterModelBase(parent)
 {
 }
 
-
 RosterModel::~RosterModel()
 {
 	clean();
 }
-
 
 void RosterModel::addCategoryItem(const Category *cat)
 {
@@ -24,7 +22,6 @@ void RosterModel::addCategoryItem(const Category *cat)
 	root_->appendChild(index);
 	indexs_.insert(QString::number(cat->index()), index);
 }
-
 
 void RosterModel::addContactItem(const Contact *contact)
 {
@@ -39,14 +36,15 @@ void RosterModel::addContactItem(const Contact *contact)
     if ( !contact->avatar().isNull() )
         index->setData(TDR_Avatar, contact->avatar());
 
-    if ( contact->category() )
+    Category *cat = contact->category();
+    if ( cat )
     {
-        RosterIndex *cat = findCategoryIndex(contact->category()->index());
-        assert(cat);
-        cat->appendChild(index);
+        RosterIndex *cat_idx = findCategoryIndex(contact->category()->index());
+        assert(cat_idx);
 
-        QModelIndex changed_index = modelIndexByRosterIndex(cat);
-        dataChanged(changed_index, changed_index);
+        beginInsertRows(modelIndexByRosterIndex(cat_idx), cat_idx->childCount(), cat_idx->childCount());
+        cat_idx->appendChild(index);
+        endInsertRows();
     }
     else
     {
@@ -68,7 +66,6 @@ void RosterModel::addGroupItem(const Group *group)
 	indexs_.insert(group->id(), index);
 	root_->appendChild(index);
 }
-
 
 RosterIndex *RosterModel::findCategoryIndex(int cat_index)
 {
@@ -93,7 +90,6 @@ RosterIndex *RosterModel::findCategoryIndex(int cat_index)
 	return NULL;
 }
 
-
 void RosterModel::talkableDataChanged(QString id, QVariant data, TalkableDataRole role)
 {
 	RosterIndex *index = findRosterIndexById(id);
@@ -104,7 +100,6 @@ void RosterModel::talkableDataChanged(QString id, QVariant data, TalkableDataRol
 	QModelIndex changed_index = modelIndexByRosterIndex(index);
 	dataChanged(changed_index, changed_index);
 }
-
 
 void RosterModel::categoryDataChanged(int index, QVariant data, TalkableDataRole role)
 {

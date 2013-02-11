@@ -42,13 +42,13 @@ protected:
     virtual void closeEvent(QCloseEvent *event);
 
 private slots:
-    void openSessOrFriendChatDlg(QString id);
     void openChatDlgByDoubleClicked(const QModelIndex &index);
 	void onTalkableDataChanged(QVariant data, TalkableDataRole role);
     void onGroupMemberDataChanged(Contact *member, TalkableDataRole role);
     void onMemberAdded(Contact *contact);
     void onMemberRemoved(Contact *contact);
     void onSearch(const QString &str);
+    void onLinkClicked(const QUrl &url);
 
 private:
     virtual ImgLoader* getImgLoader() const;
@@ -58,6 +58,7 @@ private:
     void initUi();
     void initConnections();
     void setupMemberList();
+    void openSessOrFriendChatDlg(QString id);
 
     Contact *findContactById(QString id) const;
 

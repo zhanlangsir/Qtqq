@@ -12,7 +12,7 @@ signals:
 	void sigJobDone(__JobBase *job, bool error);
 
 public:
-	StrangerInfo2Job(Talkable *job_for, JobType type = JT_StrangerInfo2);
+	StrangerInfo2Job(Talkable *job_for, QString gid, QString code, JobType type = JT_StrangerInfo2);
 
 	virtual void run();
 
@@ -21,6 +21,8 @@ private slots:
 
 private:
 	QHttp http_;
+    QString gid_;
+    QString code_;
 };
 
 #endif //STRANGERINFO2_JOB_H

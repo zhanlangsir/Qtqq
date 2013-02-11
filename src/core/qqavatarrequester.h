@@ -1,5 +1,5 @@
-#ifndef QTQQ_CORE_QQAVATARREQUESTER_H
-#define QTQQ_CORE_QQAVATARREQUESTER_H
+#ifndef QQAVATARREQUESTER_H
+#define QQAVATARREQUESTER_H
 
 #include <QHash>
 #include <QList>
@@ -32,4 +32,4 @@ private:
     bool finish_;
 };
 
-#endif //QTQQ_CORE_QQAVATARREQUESTER_H
+#endif //QQAVATARREQUESTER_H

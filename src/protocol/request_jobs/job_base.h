@@ -12,7 +12,8 @@ enum JobType
 	JT_StrangerInfo2,
     JT_GroupMemberList,
     JT_SendMsg,
-    JT_SendImg
+    JT_SendImg,
+    JT_FileRecive
 };
 
 class __JobBase : public QObject

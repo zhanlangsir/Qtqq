@@ -22,6 +22,9 @@ signals:
 	void newChatMsg(ShareQQMsgPtr msg);
 	void newSystemMsg(ShareQQMsgPtr msg);
 	void newSystemGMsg(ShareQQMsgPtr msg);
+    void newFileMsg(ShareQQMsgPtr msg);
+    void newOffFileMsg(ShareQQMsgPtr msg);
+    void newFilesrvTransferMsg(ShareQQMsgPtr msg);
 
 public:
 	~MsgProcessor();
@@ -42,13 +45,16 @@ public slots:
 private:
 	void dispatchMsg(QVector<QQMsg *> &msgs);
 
-    QQMsg *createMsg(QString type, const Json::Value result);
+    QQMsg *createBuddiesStatusChangeMsg(const Json::Value &result) const;
+    QQMsg *createFileMsg(const Json::Value &result) const;
     QQMsg *createFriendMsg(const Json::Value &result) const;
     QQMsg *createGroupMsg(const Json::Value &result) const;
+    QQMsg *createMsg(QString type, const Json::Value result);
+    QQMsg *createOffFileMsg(const Json::Value &result) const;
     QQMsg *createSessMsg(const Json::Value &result) const;
-    QQMsg *createBuddiesStatusChangeMsg(const Json::Value &result) const;
     QQMsg *createSystemGroupMsg(const Json::Value &result) const;
     QQMsg *createSystemMsg(const Json::Value &result) const;
+    QQMsg *createFilesrvTransferMsg(const Json::Value &result) const;
 
 	bool isChatContentEmpty(const QQChatMsg *msg, const QString &content) const;
 	bool isMsgRepeat(const Json::Value &msg);

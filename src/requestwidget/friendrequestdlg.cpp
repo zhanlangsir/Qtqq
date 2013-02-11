@@ -1,12 +1,13 @@
 #include "friendrequestdlg.h"
 #include "ui_friendrequestdlg.h"
 
+#include <assert.h>
+
 #include <QDir>
 #include <QPixmap>
 #include <QTcpSocket>
 
 #include "core/captchainfo.h"
-#include "core/qqavatarrequester.h"
 #include "core/qqmsg.h"
 #include "core/request.h"
 #include "core/talkable.h"
@@ -14,38 +15,37 @@
 #include "roster/roster.h"
 #include "strangermanager/stranger_manager.h"
 
-FriendRequestDlg::FriendRequestDlg(const ShareQQMsgPtr msg, Contact *contact, QWidget *parent) :
+FriendRequestDlg::FriendRequestDlg(QString requester_id, QString requester_qq_number, QString msg, Contact *contact, QWidget *parent) :
     QDialog(parent),
     ui_(new Ui::FriendRequestDlg),
-	contact_(contact)
+    id_(requester_id),
+    qq_number_(requester_qq_number),
+    msg_(msg)
 {
     ui_->setupUi(this);
 
-	initUi(msg);
+	initUi(contact);
 	initConnections();
-
-	const QQSystemMsg *sys_msg = static_cast<const QQSystemMsg*>(msg.data());
-    id_ = sys_msg->from_;
-    account_ = sys_msg->account_;
 }
 
-void FriendRequestDlg::initUi(ShareQQMsgPtr msg)
+void FriendRequestDlg::initUi(Contact *contact)
 {
-	const QQSystemMsg *sys_msg = static_cast<const QQSystemMsg*>(msg.data());
-
-	if ( contact_ )
+	if ( contact )
 	{
-		QPixmap pix = contact_->avatar();
+		QPixmap pix = contact->avatar();
 		if ( !pix.isNull() )
 			ui_->lbl_avatar_->setPixmap(pix);
 
-		ui_->lbl_account_->setText(contact_->name());
+        if ( contact->name().isEmpty() )
+            ui_->lbl_account_->setText(qq_number_);
+        else
+            ui_->lbl_account_->setText(contact->name());
 	}
 	else
 	{
-		ui_->lbl_account_->setText(sys_msg->account_);
+		ui_->lbl_account_->setText(qq_number_);
 	}
-	ui_->pte_msg_->appendPlainText(sys_msg->msg_);
+	ui_->pte_msg_->appendPlainText(msg_);
 
 	foreach ( Category *cat, Roster::instance()->categorys() )
 	{
@@ -69,7 +69,6 @@ void FriendRequestDlg::updateRequesterInfo(QString id, Contact *contact)
 	if ( id != id_ )
 		return;
 
-	contact_ = contact;
 	QPixmap pix = contact->avatar();
 	if ( !pix.isNull() )
 		ui_->lbl_avatar_->setPixmap(pix);
@@ -89,11 +88,14 @@ void FriendRequestDlg::slotOkClicked()
 {
     if (ui_->rb_allow_and_add_->isChecked())
     {
+        if ( Roster::instance()->contact(id_) )
+            return;
+
 		QString markname = ui_->le_comment_->text();
         QString allow_and_add_url = "/api/allow_and_add2";
 
         int category_idx = ui_->cb_group_->itemData(ui_->cb_group_->currentIndex()).toInt();
-        QByteArray msg = "r={\"account\":" + account_.toAscii() + ",\"gid\":"+ QString::number(category_idx).toAscii() +
+        QByteArray msg = "r={\"account\":" + qq_number_.toAscii() + ",\"gid\":"+ QString::number(category_idx).toAscii() +
                 ",\"mname\":\"" + markname.toAscii() + "\",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq().toAscii() + "\"}";
 
         Request req;
@@ -112,22 +114,30 @@ void FriendRequestDlg::slotOkClicked()
         fd.waitForReadyRead();
         QByteArray result = fd.readAll();
         fd.close();
-		qDebug() << "add friend result: " << result << endl;
 
-        //int stat_idx = result.indexOf("stat")+6;
-        //int stat_end_idx = result.indexOf("}", stat_idx);
-		//Contact *contact = new Contact();
+		qDebug() << "Added friend result:\n" 
+            << result << endl;
+
+        ContactStatus status = extractStatus(result);
+
 		Roster *roster = Roster::instance();
 		Category *cat = roster->category(category_idx);
-		contact_->setMarkname(markname);
-		roster->addContact(contact_, cat);
-        //model_->addItem(id_, ui_->le_comment_->text().toAscii(), category_idx, (ContactStatus)result.mid(stat_idx, stat_end_idx - stat_idx).toInt());
+        Contact *stranger = StrangerManager::instance()->takeStranger(id_);
+        assert(stranger);
+
+        stranger->setType(Talkable::kContact);
+        stranger->setStatus(status);
+		stranger->setMarkname(markname);
+		roster->addContact(stranger, cat);
         accept();
     }
     else if (ui_->rb_allow_->isChecked())
     {
+        if ( Roster::instance()->contact(id_) )
+            return;
+
         QString allow_add_request_url = "/api/allow_added_request2";
-        QByteArray msg = "r={\"account\":" + account_.toAscii() + ",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq().toAscii() + "\"}";
+        QByteArray msg = "r={\"account\":" + qq_number_.toAscii() + ",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq().toAscii() + "\"}";
 
         Request req;
         req.create(kPost, allow_add_request_url);
@@ -151,7 +161,7 @@ void FriendRequestDlg::slotOkClicked()
     {
         QString deny_add_request = "/api/deny_added_request2";
 
-        QByteArray msg = "r={\"account\":" + account_.toAscii() + ",\"msg\":\""+ ui_->le_deny_reason_->text().toAscii() +
+        QByteArray msg = "r={\"account\":" + qq_number_.toAscii() + ",\"msg\":\""+ ui_->le_deny_reason_->text().toAscii() +
                 "\",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq().toAscii() + "\"}";
 
         Request req;
@@ -173,11 +183,25 @@ void FriendRequestDlg::slotOkClicked()
         fd.close();
         reject();
     }
+
+    deleteLater();
+}
+
+ContactStatus FriendRequestDlg::extractStatus(const QByteArray &result)
+{
+    int status_s_idx = result.indexOf("stat")+6; 
+    int status_e_idx = result.indexOf('}', status_s_idx);
+
+    int stat = result.mid(status_s_idx, status_e_idx - status_s_idx).toInt();
+    qDebug() << "stat" << stat << endl;
+
+    return (ContactStatus)stat;
 }
 
 void FriendRequestDlg::slotIgnoreClicked()
 {
     this->reject();
+    deleteLater();
 }
 
 void FriendRequestDlg::slotToggleDenyReason(bool check)

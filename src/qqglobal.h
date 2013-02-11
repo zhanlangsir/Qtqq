@@ -25,7 +25,7 @@ public:
         return app_name_;
     }
 
-    static QString dataDir()
+    static QString dataDir() 
     {
         static const QString data_path = QString::fromUtf8(PKG_DATA_DIR);
         return  data_path;
@@ -48,6 +48,12 @@ public:
         return plugin_dir;
     }
 
+    static QString version() 
+    {
+        static const QString qtqq_version = VERSION;
+        return qtqq_version;
+    }
+
 	static QString skinsDir() 
 	{ return dataDir() + "/skins"; }
     static QString resourceDir() 
@@ -66,7 +72,6 @@ public:
 
         return temp_path;
     }
-
 
 	QString appIconPath() const
 	{

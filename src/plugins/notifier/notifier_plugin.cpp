@@ -32,6 +32,9 @@ void NotifierPlugin::onNewChatMsg(ShareQQMsgPtr msg)
     Notification notification;
     QString sender_id = msg->talkTo();
     Talkable *talkable =Roster::instance()->talkable(sender_id);
+    if ( !talkable )
+        return;
+
     notification.title = talkable->markname() + tr(" has new message");  
     notification.icon = talkable->avatar();
     notification.content = msg->msg();

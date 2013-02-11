@@ -23,11 +23,18 @@
 #define APPEND_MESSAGE_NO_SCROLL            "appendMessageNoScroll(\"%1\");"
 #define APPEND_NEXT_MESSAGE_NO_SCROLL       "appendNextMessageNoScroll(\"%1\");"
 #define REPLACE_LAST_MESSAGE                "replaceLastMessage(\"%1\");"
+
 static const QString  kReplaceIdToName =    "replaceIdToName(\"%1\", \"%2\");";
 static const QString  kReplaceRealImg  =    "replaceRealImg(\"%1\", \"%2\");";
 
 #define TOPIC_MAIN_DIV	                    "<div id=\"topic\"></div>"
 #define TOPIC_INDIVIDUAL_WRAPPER            "<span id=\"topicEdit\" ondblclick=\"this.setAttribute('contentEditable', true); this.focus();\">%1</span>"
+
+QString MsgBrowse::in_content_html_ = "";
+QString MsgBrowse::out_content_html_ = "";
+QString MsgBrowse::in_next_content_html_ = "";
+QString MsgBrowse::out_next_content_html_ = "";
+QString MsgBrowse::status_html_ = "";
 
 MsgBrowse::MsgBrowse(QWidget *parent) :
     QWebView(parent),
@@ -43,6 +50,7 @@ MsgBrowse::MsgBrowse(QWidget *parent) :
 
     this->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
     connect(page(), SIGNAL(linkClicked(const QUrl &)), this, SLOT(onLinkClicked(const QUrl &)));
+    connect(page(), SIGNAL(linkClicked(const QUrl &)), this, SIGNAL(linkClicked(const QUrl &)));
 }
 
 void MsgBrowse::onLinkClicked(const QUrl &url)
@@ -50,7 +58,8 @@ void MsgBrowse::onLinkClicked(const QUrl &url)
     QRegExp sender_reg("\\[(.*)\\]");
     if ( sender_reg.indexIn(url.toString()) != -1 )
     {
-        emit senderLinkClicked(sender_reg.cap(1));
+        emit linkClicked(url);
+        return;
     }
     else
         QDesktopServices::openUrl(url);
@@ -84,25 +93,35 @@ void MsgBrowse::appendContent(QString content, const ShowOptions &options)
 
     if ( options.type != kImg )
     {
-        QRegExp link_reg("((http|https)://|www\\.)[0-9A-Za-z:/\\.?=\\-_&{}#]*");
-        QString a_templace = "<a href=\"";
-
-        int pos = 0;
-        while ( (pos = link_reg.indexIn(content, pos)) != -1 )
-        {
-            if ( link_reg.cap(2).isEmpty() )
-                a_templace += "http://";
-
-            QString after = a_templace  + link_reg.cap(0) + "\">" + link_reg.cap(0)+ "</a>";
-            content.replace(link_reg.cap(0), after);
-
-            pos += after.length();
-        }
+        converLink(content);
     }
 
+    appendHtml(content, options);
+}
+
+void MsgBrowse::converLink(QString &content)
+{
+    QRegExp link_reg("((http|https)://|www\\.)[0-9A-Za-z:/\\.?=\\-_&{}#]*");
+    QString a_templace = "<a href=\"";
+
+    int pos = 0;
+    while ( (pos = link_reg.indexIn(content, pos)) != -1 )
+    {
+        if ( link_reg.cap(2).isEmpty() )
+            a_templace += "http://";
+
+        QString after = a_templace  + link_reg.cap(0) + "\">" + link_reg.cap(0)+ "</a>";
+        content.replace(link_reg.cap(0), after);
+
+        pos += after.length();
+    }
+}
+
+void MsgBrowse::appendHtml(const QString &content, const ShowOptions &options)
+{
     bool is_combine = ifCombineMsg(options);
     QString html;
-    if ( options.type == kDateSeprate )
+    if ( options.type == kStatus )
     {
         html = status_html_;
     }
@@ -234,6 +253,20 @@ void MsgBrowse::ecapseForScript(QString &html) const
     html.replace("\r","<br>");
 }
 
+void MsgBrowse::loadTemplate()
+{
+    if ( in_content_html_.isEmpty() )
+        in_content_html_ = loadFileData(MsgStyleManager::instance()->styleRes("incomming_content"));
+    if ( in_next_content_html_.isEmpty() )
+        in_next_content_html_ = loadFileData(MsgStyleManager::instance()->styleRes("incomming_nextcontent"));
+    if ( out_content_html_.isEmpty() )
+        out_content_html_ = loadFileData(MsgStyleManager::instance()->styleRes("outgoing_content"));
+    if ( out_next_content_html_.isEmpty() )
+        out_next_content_html_ = loadFileData(MsgStyleManager::instance()->styleRes("outgoing_nextcontent"));
+    if ( status_html_.isEmpty() )
+        status_html_ = loadFileData(MsgStyleManager::instance()->styleRes("status"));
+}
+
 QString MsgBrowse::loadFileData(QString name)
 {
     QFile fd(name);
@@ -241,14 +274,4 @@ QString MsgBrowse::loadFileData(QString name)
     QByteArray file_content_arr = fd.readAll();
 
     return QString::fromUtf8(file_content_arr.data(), file_content_arr.size());
-}
-
-void MsgBrowse::loadTemplate()
-{
-    in_content_html_ = loadFileData(MsgStyleManager::instance()->styleRes("incomming_content"));
-    in_next_content_html_ = loadFileData(MsgStyleManager::instance()->styleRes("incomming_nextcontent"));
-
-    out_content_html_ = loadFileData(MsgStyleManager::instance()->styleRes("outgoing_content"));
-    out_next_content_html_ = loadFileData(MsgStyleManager::instance()->styleRes("outgoing_nextcontent"));
-    status_html_ = loadFileData(MsgStyleManager::instance()->styleRes("status"));
 }

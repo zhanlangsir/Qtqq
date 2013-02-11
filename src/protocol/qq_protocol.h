@@ -19,12 +19,15 @@ class QQProtocol;
 };
 
 class Talkable;
+class FileReciveJob;
 
 class Protocol::QQProtocol : public QObject
 {
 	Q_OBJECT
 signals:
 	void newQQMsg(QByteArray msg);
+
+    void fileTransferProgress(int session_id, int recived_byte, int totol_byte);
 
 public:
 	~QQProtocol();
@@ -44,9 +47,12 @@ public:
 	void requestSingleLongNick(QString id);
 	void requestContactInfo(QString id);
 	void requestFriendInfo2(Talkable *job_for);
-	void requestStrangerInfo2(Talkable *job_for);
+	void requestStrangerInfo2(Talkable *job_for, QString gid, bool group_request);
     void requestGroupMemberList(Group *job_for);
     void requestGroupSig();
+
+    void reciveFile(int session_id, QString file_name, QString to);
+    void parseTransferFile(int session_id);
 
     void sendImg(Talkable *sender, QString file_name, QByteArray data);
     void sendGroupImg();
@@ -69,6 +75,7 @@ private:
 
 private:
 	QMap<JobType, QString> requesting_;
+    QMap<int, FileReciveJob *> reciving_jobs_;
 	Protocol::PollThread *poll_thread_;
 
     ImgSender *imgsender_;

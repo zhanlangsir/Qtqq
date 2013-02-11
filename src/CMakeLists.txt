@@ -5,7 +5,7 @@ set(CORE_HEADERS
 	core/friendchatlog.h
 	core/request.h
 	core/types.h
-	core/qqavatarrequester.h
+    core/qqavatarrequester.h
 	core/groupimgloader.h
 	core/qqmsg.h
 	core/groupimgsender.h
@@ -36,6 +36,10 @@ set(CORE_HEADERS
 
     #event handle
     event_handle/event_handle.h
+
+    #file transfer
+    file_transfer/file_transfer_manager.h
+    file_transfer/file_transfer_dlg.h
 
     #interfaces/
     interfaces/iobserver.h
@@ -70,6 +74,7 @@ set(CORE_HEADERS
 	protocol/request_jobs/job_base.h
 	protocol/request_jobs/sendmsg_job.h
     protocol/request_jobs/sendimg_job.h
+    protocol/request_jobs/filerecive_job.h
 	protocol/request_jobs/strangerinfo2_job.h
 
 	#roster
@@ -102,6 +107,7 @@ set(CORE_HEADERS
 	utils/contact_status.h
 	utils/icon_decorator.h
     utils/htmltomsgparser.h
+    utils/file_ask_dlg.h
 
 	#trayicon
 	trayicon/systemtray.h
@@ -130,8 +136,8 @@ set(CORE_SOURCES
 	core/qqlogincore.cpp
 	core/friendimgsender.cpp
 	core/qqchatitem.cpp
+    core/qqavatarrequester.cpp
 	core/groupchatlog.cpp
-	core/qqavatarrequester.cpp
 	core/imgloader.cpp
 	core/types.cpp
 	core/groupimgsender.cpp
@@ -151,6 +157,10 @@ set(CORE_SOURCES
 
     #event handle
     event_handle/event_handle.cpp
+
+    #file transfer
+    file_transfer/file_transfer_manager.cpp
+    file_transfer/file_transfer_dlg.cpp
 
 	#msgprocessor
 	msgprocessor/msg_processor.cpp
@@ -176,6 +186,7 @@ set(CORE_SOURCES
 	protocol/request_jobs/job_base.cpp
 	protocol/request_jobs/sendmsg_job.cpp
     protocol/request_jobs/sendimg_job.cpp
+    protocol/request_jobs/filerecive_job.cpp
 	protocol/request_jobs/strangerinfo2_job.cpp
 
 	#roster
@@ -206,6 +217,7 @@ set(CORE_SOURCES
 	#utils
 	utils/icon_decorator.cpp
 	utils/menu.cpp
+    utils/file_ask_dlg.cpp
 
 	#chat widget
 	chatwidget/tabwindow.cpp
@@ -256,6 +268,8 @@ set(UI_FILES
 	ui/sesschatdlg.ui
 	ui/tabwindow.ui
     ui/pluginmanagedlg.ui
+    ui/fileaskdlg.ui
+    ui/filetransferdlg.ui
 )
 
 QT4_WRAP_UI(UI_FILES_HEADERS ${UI_FILES})

@@ -4,6 +4,16 @@
 
 #include "core/qqutility.h"
 
+#define FRIEND_MSG_TYPE "message"
+#define GROUP_MSG_TYPE "group_message"
+#define SESS_MSG_TYPE "sess_message"
+#define STATUS_CHANGE_TYPE "buddies_status_change"
+#define SYS_G_MSG_TYPE "sys_g_msg"
+#define SYS_MSG_TYPE "system_message"
+#define FILE_TYPE "file_message"
+#define OFFFILE_TYPE "push_offfile"
+#define FILESRV_TRANSFER_TYPE "filesrv_transfer"
+
 MsgProcessor *MsgProcessor::instance_ = NULL;
 
 MsgProcessor::MsgProcessor()
@@ -53,7 +63,8 @@ void MsgProcessor::run()
 			continue;
 		}    
 
-		qDebug()<<"recive msg"<<QString::fromStdString(root.toStyledString())<<endl;
+		qDebug() << "Recive msg:\n" 
+            << QString::fromStdString(root.toStyledString()) << endl;
 
 		if (root["retcode"].asInt() == 121)
 		{
@@ -115,29 +126,41 @@ void MsgProcessor::sortByTime(QVector<QQMsg*> &be_sorting_msg) const
 
 QQMsg* MsgProcessor::createMsg(QString type, const Json::Value result)
 {
-	if (type == "message")
-	{
-		return createFriendMsg(result);
-	}
-    else if (type ==  "group_message")
+	if ( type == FRIEND_MSG_TYPE )
+    {
+        return createFriendMsg(result); 
+    }
+    else if ( type == GROUP_MSG_TYPE ) 
     {
         return createGroupMsg(result);
     }
-    else if ( type == "sess_message" )
+    else if ( type == SESS_MSG_TYPE )
     {
-        return createSessMsg(result);
+        return createSessMsg(result); 
     }
-    else if (type == "buddies_status_change")
+    else if ( type == STATUS_CHANGE_TYPE ) 
     {
-        return createBuddiesStatusChangeMsg(result);
+        return createBuddiesStatusChangeMsg(result); 
     }
-    else if (type == "sys_g_msg")
+    else if ( type == SYS_G_MSG_TYPE ) 
     {
-        return createSystemGroupMsg(result);
+        return createSystemGroupMsg(result); 
     }
-    else if (type == "system_message")
+    else if ( type == SYS_MSG_TYPE ) 
     {
-        return createSystemMsg(result);
+        return createSystemMsg(result); 
+    }
+    else if ( type == FILE_TYPE ) 
+    {
+        return createFileMsg(result);
+    }
+    else if ( type == OFFFILE_TYPE )
+    {
+        return createOffFileMsg(result);
+    }
+    else if ( type == FILESRV_TRANSFER_TYPE )
+    {
+        return createFilesrvTransferMsg(result);
     }
     else
     {
@@ -146,10 +169,75 @@ QQMsg* MsgProcessor::createMsg(QString type, const Json::Value result)
     }
 }
 
+QQMsg *MsgProcessor::createFileMsg(const Json::Value &result) const
+{
+    Json::Value value = result["value"];
+
+    QQFileMsg *file_msg = new QQFileMsg();
+    file_msg->msg_id = value["msg_id"].asLargestInt();
+    QString mode = QString::fromStdString(value["mode"].asString());
+    if ( mode == "refuse" )
+        file_msg->mode = QQFileMsg::kRefuse;
+    else if ( mode == "recv" )
+        file_msg->mode = QQFileMsg::kRecv;
+    else
+        qDebug() << "Recive unknow file message! Message mode: " << mode << endl;
+
+    file_msg->from_id = QString::number(value["from_uin"].asLargestInt());
+    file_msg->to_id = QString::number(value["to_uin"].asLargestInt());
+    file_msg->msg_id2 = QString::number(value["msg_id2"].asLargestInt());
+    file_msg->msg_type = value["msg_type"].asInt();
+    file_msg->reply_ip = QString::number(value["reply_ip"].asLargestInt());
+    file_msg->type = value["type"].asInt();
+    file_msg->name = QString::fromStdString(value["name"].asString());
+    file_msg->time = value["time"].asLargestInt();
+    file_msg->session_id = value["session_id"].asLargestInt();
+    file_msg->inet_ip = value["inet_ip"].asLargestInt();
+
+    return file_msg;
+}
+
+QQMsg *MsgProcessor::createOffFileMsg(const Json::Value &result) const
+{
+    Json::Value value = result["value"];
+
+    QQOffFileMsg *offfile_msg = new QQOffFileMsg();
+    offfile_msg->msg_id = value["msg_id"].asLargestInt();
+    offfile_msg->rkey = QString::fromStdString(value["rkey"].asString());
+    offfile_msg->ip = QString::fromStdString(value["ip"].asString());
+    offfile_msg->port = value["port"].asInt();
+    offfile_msg->from_id = QString::number(value["from_uin"].asLargestInt());
+    offfile_msg->size = value["size"].asInt();
+    offfile_msg->name = QString::fromStdString(value["name"].asString());
+    offfile_msg->expire_time = value["expire_time"].asLargestInt();
+    offfile_msg->time = value["time"].asLargestInt();
+
+    return offfile_msg;
+}
+
+QQMsg *MsgProcessor::createFilesrvTransferMsg(const Json::Value &result) const
+{
+    Json::Value value = result["value"];
+
+    QQFilesrvTransferMsg *filesrv_msg = new QQFilesrvTransferMsg();
+    filesrv_msg->file_count = value["file_count"].asInt();
+    filesrv_msg->name = QString::fromStdString(value["file_infos"][0]["file_name"].asString());
+    filesrv_msg->file_status = value["file_infos"][0]["file_status"].asInt();
+    filesrv_msg->pro_id = value["file_infos"][0]["pro_id"].asInt();
+
+    filesrv_msg->from_id = QString::number(value["from_uin"].asLargestInt());
+    filesrv_msg->to_id = QString::number(value["to_uin"].asLargestInt());
+    filesrv_msg->now = value["now"].asLargestInt();
+    filesrv_msg->operation = value["operation"].asInt();
+    filesrv_msg->type = value["type"].asInt();
+    filesrv_msg->lc_id = value["lc_id"].asInt();
+
+    return filesrv_msg;
+}
+
 QQMsg *MsgProcessor::createFriendMsg(const Json::Value &result) const
 {
     QQChatMsg *chat_msg = new QQChatMsg();
-    chat_msg->set_type(QQMsg::kFriend);
     chat_msg->from_uin_ = QString::number(result["value"]["from_uin"].asLargestInt());
     chat_msg->msg_id_ = QString::number(result["value"]["msg_id"].asInt());
     chat_msg->to_uin_ = QString::number(result["value"]["to_uin"].asLargestInt());
@@ -357,7 +445,6 @@ bool MsgProcessor::isChatContentEmpty(const QQChatMsg *msg, const QString &conte
         return  (content.size() == 2 &&  content[0] == '\n');
     else  //如果是群图片,会在图片后加" "(一个空格),这里也过滤掉
         return (content.size() == 1 &&  content[0] == ' ');
-
 }
 
 void MsgProcessor::dispatchMsg(QVector<QQMsg *> &msgs) 
@@ -387,6 +474,15 @@ void MsgProcessor::dispatchMsg(QVector<QQMsg *> &msgs)
                 break;
             case QQMsg::kSystemG:
                 emit newSystemGMsg(msg);
+                break;
+            case QQMsg::kFile:
+                emit newFileMsg(msg);
+                break;
+            case QQMsg::kOffFile:
+                emit newOffFileMsg(msg);
+                break;
+            case QQMsg::kFilesrvTransfer:
+                emit newFilesrvTransferMsg(msg);
                 break;
             default:
                 qDebug() << "recived unknown message!" << endl;

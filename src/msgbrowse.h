@@ -13,12 +13,13 @@ class MsgBrowse : public QWebView
 {
     Q_OBJECT
 signals:
-    void senderLinkClicked(QString id);
+    void linkClicked(const QUrl &url);
 
 public:
-    enum MsgKind {kWord, kImg, kDateSeprate, kWorn, kError};
+    enum MsgKind {kWord, kImg, kDateSeprate, kStatus, kError};
     explicit MsgBrowse(QWidget *parent = 0);
     void appendContent(QString content,const ShowOptions &options);
+    void appendHtml(const QString &content, const ShowOptions &options);
     void replaceIdToName(const QString &id, const QString &name);
 
 public slots:
@@ -32,21 +33,20 @@ private:
     void initUi();
     QString scriptForAppendContent(bool isCombine);
     void replaceKeyWord(QString &html, const ShowOptions &options);
+    void converLink(QString &content);
 
 private slots:
     void onLinkClicked(const QUrl &url);
     
 private:
     QString last_send_id_;
-    long last_time_;
     MsgKind last_kind_;
 
-    QString style_path_;
-    QString in_content_html_;
-    QString out_content_html_;
-    QString in_next_content_html_;
-    QString out_next_content_html_;
-    QString status_html_;
+    static QString in_content_html_;
+    static QString out_content_html_;
+    static QString in_next_content_html_;
+    static QString out_next_content_html_;
+    static QString status_html_;
 };
 
 struct ShowOptions

@@ -33,6 +33,7 @@ public:
 
 private slots:
 	void onNewChatMsg(ShareQQMsgPtr msg);
+    void onNewOffFileMsg(ShareQQMsgPtr msg);
 	void onActivatedChatDlgChanged(QQChatDlg *before, QQChatDlg *after);
 	void onActionTriggered();
 

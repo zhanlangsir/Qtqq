@@ -20,7 +20,7 @@ class FriendRequestDlg:public QDialog
 {
     Q_OBJECT
 public:
-    FriendRequestDlg(const ShareQQMsgPtr msg, Contact *contact, QWidget *parent = 0);
+    FriendRequestDlg(QString requester_id, QString requester_qq_number, QString msg, Contact *contact, QWidget *parent = NULL);
 
 private slots:
     void slotOkClicked();
@@ -31,14 +31,15 @@ private slots:
 	void updateRequesterIcon(QString id, QPixmap pix);
 
 private:
-    void initUi(ShareQQMsgPtr msg);
+    void initUi(Contact *contact);
     void initConnections();
+    ContactStatus extractStatus(const QByteArray &result);
 
 private:
     Ui::FriendRequestDlg *ui_;
-	Contact *contact_;
 	QString id_;
-	QString account_;
+	QString qq_number_;
+    QString msg_;
 };
 
 #endif //FRIENDREQUESTDLG_H

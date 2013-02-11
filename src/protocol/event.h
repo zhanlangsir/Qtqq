@@ -11,10 +11,12 @@ namespace Protocol
     enum EventType
     {
         ET_OnAvatarUpdate,
+        ET_OnStrangerAvatarUpdate,
         ET_OnSlnUpdate,
         ET_OnGroupMemberListUpdate,
         ET_OnMsgSendDone,
-        ET_OnImgSendDone
+        ET_OnImgSendDone,
+        ET_OnStrangerInfoDone
     };
 
     class Event;
@@ -23,6 +25,8 @@ namespace Protocol
     class GroupMemberListUpdateEvent;
     class MsgSendDoneEvent;
     class ImgSendDoneEvent;
+    class StrangerAvatarUpdateEvent;
+    class StrangerInfoDoneEvent;
 };
 
 class Protocol::Event
@@ -52,6 +56,15 @@ class Protocol::AvatarUpdateEvent : public Protocol::Event
 {
 public:
     AvatarUpdateEvent(Talkable *updateing, QByteArray data, EventType type = Protocol::ET_OnAvatarUpdate) :
+        Event(type, updateing, data)
+    {
+    }
+};
+
+class Protocol::StrangerAvatarUpdateEvent : public Protocol::Event
+{
+public:
+    StrangerAvatarUpdateEvent(Talkable *updateing, QByteArray data, EventType type = Protocol::ET_OnStrangerAvatarUpdate) :
         Event(type, updateing, data)
     {
     }
@@ -101,4 +114,14 @@ private:
     QString file_path_;
     QString img_id_;
 };
+
+class Protocol::StrangerInfoDoneEvent : public Event
+{
+public:
+    StrangerInfoDoneEvent(Talkable *_for, QByteArray data, Protocol::EventType type = Protocol::ET_OnStrangerInfoDone) :
+        Event(type, _for, data)
+    {
+    }
+};
+
 #endif //EVENT_H

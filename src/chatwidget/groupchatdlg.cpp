@@ -134,7 +134,7 @@ void GroupChatDlg::initConnections()
     connect(ui->btn_chat_log, SIGNAL(clicked()), this, SLOT(openChatLogWin()));
     connect(ui->member_view, SIGNAL(doubleClicked(const QModelIndex &)), model_, SLOT(onDoubleClicked(const QModelIndex &)));
 
-    connect(&msgbrowse_, SIGNAL(senderLinkClicked(QString)), this, SLOT(openSessOrFriendChatDlg(QString)));
+    connect(&msgbrowse_, SIGNAL(linkClicked(const QUrl &)), this, SLOT(onLinkClicked(const QUrl &)));
 
 	connect(ui->member_searcher, SIGNAL(textChanged(const QString &)), this, SLOT(onSearch(const QString &)));
 }
@@ -142,6 +142,15 @@ void GroupChatDlg::initConnections()
 void GroupChatDlg::updateSkin()
 {
 
+}
+
+void GroupChatDlg::onLinkClicked(const QUrl &url)
+{
+    QRegExp sender_reg("\\[(.*)\\]");
+    if ( sender_reg.indexIn(url.toString()) != -1 )
+    {
+        openSessOrFriendChatDlg(sender_reg.cap(1));
+    }
 }
 
 void GroupChatDlg::closeEvent(QCloseEvent *event)

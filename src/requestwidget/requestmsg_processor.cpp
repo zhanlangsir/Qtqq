@@ -20,7 +20,7 @@
 RequestMsgProcessor *RequestMsgProcessor::instance_ = NULL;
 
 static QString kFriendActionText = QObject::tr("Friend request: %1");
-static QString kGroupActionText = QObject::tr("%1 request to enter group");
+static QString kGroupActionText = QObject::tr("%1 request to enter group [%2]");
 
 RequestMsgProcessor::RequestMsgProcessor()
 {
@@ -28,12 +28,10 @@ RequestMsgProcessor::RequestMsgProcessor()
 	connect(MsgProcessor::instance(), SIGNAL(newSystemGMsg(ShareQQMsgPtr)), this, SLOT(onNewSystemMsg(ShareQQMsgPtr)));
 }
 
-
 RequestMsgProcessor::~RequestMsgProcessor()
 {
 	stop();
 }
-
 
 void RequestMsgProcessor::onNewSystemMsg(ShareQQMsgPtr msg)
 {
@@ -52,10 +50,10 @@ void RequestMsgProcessor::onNewSystemMsg(ShareQQMsgPtr msg)
 	if ( !contact )
 	{
 		StrangerManager *mgr = StrangerManager::instance();
-		contact = mgr->strangerInfo(msg->sendUin());
+		contact = mgr->stranger(msg->sendUin());
 	}
 
-	if ( !contact )
+	if ( !contact || contact->avatar().isNull() )
 	{
 		connect(StrangerManager::instance(), SIGNAL(newStrangerInfo(QString, Contact *)), this, SLOT(onNewStrangerInfo(QString, Contact *)));
 		connect(StrangerManager::instance(), SIGNAL(newStrangerIcon(QString, QPixmap)), this, SLOT(onNewStrangerIcon(QString, QPixmap)));
@@ -75,11 +73,12 @@ void RequestMsgProcessor::onActionTriggered()
 	{
 		case QQMsg::kSystem:
 			{
-				Contact *contact = StrangerManager::instance()->strangerInfo(msg->sendUin());
+				Contact *contact = StrangerManager::instance()->stranger(msg->sendUin());
 				StrangerManager::instance()->disconnect(this);
 
-				FriendRequestDlg dlg(msg, contact);
-				dlg.exec();
+                const QQSystemMsg *sys_msg = static_cast<const QQSystemMsg*>(msg.data());
+				FriendRequestDlg *dlg = new FriendRequestDlg(sys_msg->sendUin(), sys_msg->account_, sys_msg->msg_, contact);
+				dlg->show();
 			}
 			break;
 
@@ -87,18 +86,18 @@ void RequestMsgProcessor::onActionTriggered()
 			{
 				Contact *contact = Roster::instance()->contact(msg->sendUin());
 				if ( !contact )
-					contact = StrangerManager::instance()->strangerInfo(msg->sendUin());
+					contact = StrangerManager::instance()->stranger(msg->sendUin());
 				Group *group = Roster::instance()->group(msg->talkTo());
 				assert(group);
 
 				StrangerManager::instance()->disconnect(this);
 
-				GroupRequestDlg dlg(msg, contact, group);
-				dlg.exec();
+				GroupRequestDlg *dlg = new GroupRequestDlg(msg, contact, group);
+				dlg->show();
 			}
 			break;
 		default:
-			qDebug() << "recive wrong triggerd on RequestMsgProcess!" << endl;
+			qDebug() << "Recive wrong Action triggerd on RequestMsgProcess!" << endl;
 			return;
 	}
 
@@ -121,7 +120,7 @@ void RequestMsgProcessor::createTrayNotify(ShareQQMsgPtr msg, Contact *stranger)
 	}
 	else
 	{
-		qDebug() << "unknow msg type at RequestMsgProcessor::createTrayNotify!" << endl;
+		qDebug() << "Unexpection msg type at RequestMsgProcessor::createTrayNotify!" << endl;
 		return;
 	}
 
@@ -132,16 +131,16 @@ void RequestMsgProcessor::createTrayNotify(ShareQQMsgPtr msg, Contact *stranger)
 		
 		if ( msg->type() == QQMsg::kSystem )
 		{
+            QQSystemMsg *sys_msg = (QQSystemMsg*)msg.data();
 			if ( stranger )
 			{
-				name = kFriendActionText.arg(stranger->name());
+				name = kFriendActionText.arg(stranger->name().isEmpty() ? sys_msg->account_ : stranger->name());
 				QPixmap pix = stranger->avatar();
 				if ( !pix.isNull() )
 					icon.addPixmap(pix);
 			}
 			else
 			{
-				QQSystemMsg *sys_msg = (QQSystemMsg*)msg.data();
 				name = kFriendActionText.arg(sys_msg->account_);
 			}
 			if ( icon.isNull() )
@@ -153,7 +152,9 @@ void RequestMsgProcessor::createTrayNotify(ShareQQMsgPtr msg, Contact *stranger)
 		{
 			if ( stranger )
 			{
-				name = kGroupActionText.arg(stranger->name());
+                Group *group = Roster::instance()->group(msg->talkTo());
+                assert(group);
+				name = kGroupActionText.arg(stranger->name()).arg(group->name());
 
 				QPixmap pix = stranger->avatar();
 				if ( !pix.isNull() )
@@ -222,7 +223,6 @@ void RequestMsgProcessor::onNewStrangerInfo(QString id, Contact *stranger)
 	}
 }
 
-
 void RequestMsgProcessor::onNewStrangerIcon(QString id, QPixmap pix)
 {
 
@@ -241,7 +241,6 @@ void RequestMsgProcessor::onNewStrangerIcon(QString id, QPixmap pix)
 		groupreq_act->setIcon(icon);
 	}
 }
-
 
 void RequestMsgProcessor::stop()
 {

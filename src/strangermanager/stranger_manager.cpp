@@ -6,9 +6,11 @@
 
 #include "core/talkable.h"
 #include "core/qqmsg.h"
+#include "roster/roster.h"
 #include "msgprocessor/msg_processor.h"
 #include "protocol/qq_protocol.h"
 #include "protocol/request_jobs/job_base.h"
+#include "event_handle/event_handle.h"
 
 StrangerManager *StrangerManager::instance_ = NULL;
 
@@ -16,11 +18,16 @@ StrangerManager::StrangerManager()
 {
 	connect(MsgProcessor::instance(), SIGNAL(newSystemMsg(ShareQQMsgPtr)), this, SLOT(onNewSystemMsg(ShareQQMsgPtr)));
 	connect(MsgProcessor::instance(), SIGNAL(newSystemGMsg(ShareQQMsgPtr)), this, SLOT(onNewSystemMsg(ShareQQMsgPtr)));
+    EventHandle::instance()->registerObserver(Protocol::ET_OnStrangerInfoDone, this);
+    EventHandle::instance()->registerObserver(Protocol::ET_OnStrangerAvatarUpdate, this);
 }
 
 
 StrangerManager::~StrangerManager()
 {
+    EventHandle::instance()->removeObserver(Protocol::ET_OnStrangerInfoDone, this);
+    EventHandle::instance()->removeObserver(Protocol::ET_OnStrangerAvatarUpdate, this);
+
 	clean();
 	instance_ = NULL;
 }
@@ -28,14 +35,14 @@ StrangerManager::~StrangerManager()
 
 bool StrangerManager::hasStrangerInfo(QString id) const
 {
-	if ( strangerInfo(id) )
+	if ( stranger(id) )
 		return true;
 
 	return false;
 }
 
 
-void StrangerManager::parseStranger(const QByteArray &array)
+void StrangerManager::updateStranger(const QByteArray &array)
 {
 	/*
 	 * argument array example:
@@ -58,14 +65,13 @@ void StrangerManager::parseStranger(const QByteArray &array)
 	ContactStatus status = (ContactStatus)root["result"]["stat"].asInt();
 	ContactClientType type = (ContactClientType)root["result"]["client_type"].asInt();
 
-	Contact *stranger = new Contact(id, name);
+	Contact *stranger = this->stranger(id);
+    stranger->setName(name);
 	stranger->setStatus(status);	
 	stranger->setClientType(type);	
-	
-	strangers_.append(stranger);
 }
 
-Contact *StrangerManager::strangerInfo(QString id) const
+Contact *StrangerManager::stranger(const QString &id) const
 {
 	foreach ( Contact *info, strangers_ )
 	{
@@ -73,11 +79,6 @@ Contact *StrangerManager::strangerInfo(QString id) const
 			return info;
 	}
 	return NULL;
-}
-
-void StrangerManager::addStrangerInfo(Contact *info)
-{
-	strangers_.append(info);
 }
 
 void StrangerManager::onNewSessMsg(ShareQQMsgPtr msg)
@@ -102,48 +103,49 @@ void StrangerManager::onNewSessMsg(ShareQQMsgPtr msg)
 
 void StrangerManager::onNewSystemMsg(ShareQQMsgPtr msg)
 {
-	Contact *stranger = strangerInfo(msg->sendUin());
+    if ( Roster::instance()->talkable(msg->sendUin()) )
+        return;
+
+	Contact *stranger = this->stranger(msg->sendUin());
 	if ( stranger )
 		return;
 
+    stranger = new Contact(msg->sendUin(), "", Talkable::kStranger);
 	QString gid = 0;
+    bool group_request = false;
 	if ( msg->type() == QQMsg::kSystemG )
 	{
 		QQSystemGMsg *sysg_msg = (QQSystemGMsg *)msg.data();	
 		gid = sysg_msg->from_uin;
+        group_request = true;
 		if ( sysg_msg->sys_g_type == "group_leave" || sysg_msg->sys_g_type == "group_join" )
 		{
-			qDebug() << sysg_msg->sendUin() << "had leave group" << endl;
 			return;
 		}
 	}
 
-	if ( !Protocol::QQProtocol::instance()->isRequesting(msg->sendUin(), JT_StrangerInfo2) )
-	{
-		/*StrangerInfo2RequestCallback *callback = new StrangerInfo2RequestCallback(msg->sendUin());
-		connect(callback, SIGNAL(sigRequestDone(QString, Contact *)), this, SLOT(onInfoRequestDone(QString, Contact *)));
-
-		Protocol::QQProtocol::instance()->requestStrangerInfo2(msg->sendUin(), gid, callback);
-
-		Protocol::QQProtocol::instance()->requestIconForStranger(msg->sendUin());*/
-	}
+    strangers_.append(stranger);
+    Protocol::QQProtocol::instance()->requestStrangerInfo2(stranger, gid, group_request);
+    Protocol::QQProtocol::instance()->requestIconFor(stranger);
 }
 
-void StrangerManager::onInfoRequestDone(QString id, Contact *stranger)
+void StrangerManager::onNotify(Protocol::Event *event)
 {
-	strangers_.append(stranger);
-	emit newStrangerInfo(id, stranger);
-}
-
-void StrangerManager::onIconRequestDone(QString id, QByteArray icon_data)
-{
-	Contact *stranger = strangerInfo(id);
-	stranger->setAvatar(icon_data);
-
-	QPixmap pix;
-	pix.loadFromData(icon_data);
-
-	emit newStrangerIcon(id, pix);
+    switch ( event->type() )
+    {
+        case Protocol::ET_OnStrangerAvatarUpdate:
+            {
+                Contact *stranger = (Contact *)event->eventFor();
+                stranger->setAvatar(event->data());
+                emit newStrangerIcon(stranger->id(), stranger->avatar());
+            }
+            break;
+        case Protocol::ET_OnStrangerInfoDone:
+                updateStranger(event->data());
+                QString id = event->eventFor()->id();
+                emit newStrangerInfo(event->eventFor()->id(), this->stranger(id));
+            break;
+    }
 }
 
 void StrangerManager::clean()
@@ -154,4 +156,14 @@ void StrangerManager::clean()
 		stranger = NULL;
 	}
 	strangers_.clear();
+}
+
+Contact *StrangerManager::takeStranger(QString id)
+{
+    Contact *stranger = this->stranger(id); 
+    if ( stranger )
+    {
+        strangers_.removeOne(stranger);
+    }
+    return stranger;
 }
