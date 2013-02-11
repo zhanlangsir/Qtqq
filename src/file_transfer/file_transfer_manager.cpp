@@ -45,8 +45,11 @@ void FileTransferManager::onFilesrvTransferMsg(ShareQQMsgPtr msg)
 {
     const QQFilesrvTransferMsg *srv_msg = static_cast<const QQFilesrvTransferMsg *>(msg.data());
     
-    transfer_dlg_.cancelItem(srv_msg->lc_id);
-    transfer_dlg_.show();
+    if ( srv_msg->file_status == 52 )
+    {
+        transfer_dlg_.cancelItem(srv_msg->lc_id);
+        transfer_dlg_.show();
+    }
 }
 
 void FileTransferManager::onFileMsg(ShareQQMsgPtr msg)

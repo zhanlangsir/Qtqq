@@ -99,9 +99,9 @@ void FileReciveJob::requestFileDone(bool err)
 {
     if ( !err )
     {
-//        save_to_->flush();
-//       save_to_->close();
-        //delete save_to_;
+        save_to_->flush();
+        save_to_->close();
+        delete save_to_;
 
         qDebug() << http_.readAll() << endl;
     }
