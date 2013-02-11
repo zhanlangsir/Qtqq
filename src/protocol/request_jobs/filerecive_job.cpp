@@ -2,6 +2,7 @@
 
 #include <QDateTime>
 #include <QFile>
+#include <QUrl>
 #include <QFileInfo>
 #include <QDir>
 #include <QHttpResponseHeader>
@@ -25,7 +26,7 @@ void FileReciveJob::run()
     /*GET /channel/get_file2?lcid=23703&guid=新建文本文档.zip&to=3058254526&psessionid=8368046764001d636f6e6e7365727665725f77656271714031302e3133392e372e313630000029f000001f44026e0400949222916d0000000a40477a65444f31336f746d00000028ae6b342d2dc71f208a03f8cb07364d75dd334fc5643deff4f5443eece81ba0c58057b3170635b0ff&count=1&time=1360053787228&clientid=56345388 HTTP/1.1*/
 
 	QHttpRequestHeader header;
-	QString request_path = "/channel/get_file2?lcid=" + QString::number(session_id_) + "&guid=" + file_ + "&to=" + to_ + "&psessionid=" + CaptchaInfo::instance()->psessionid() + "&count=1&time=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch()) + "&clientid=5412354841";
+	QString request_path = "/channel/get_file2?lcid=" + QString::number(session_id_) + "&guid=" + QUrl::toPercentEncoding(file_) + "&to=" + to_ + "&psessionid=" + CaptchaInfo::instance()->psessionid() + "&count=1&time=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch()) + "&clientid=5412354841";
 
 	header.setRequest("GET", request_path);
 	header.addValue("Host", "d.web2.qq.com");
@@ -48,7 +49,6 @@ void FileReciveJob::requestLocationDone(bool err)
     qDebug() << http_.readAll() << endl;
 
     QString location = response.value("Location");
-//    int file_size = response.value("Content-Length").toInt();
 
 	disconnect(&http_, SIGNAL(done(bool)), this, SLOT(requestLocationDone(bool)));
 
@@ -61,14 +61,13 @@ void FileReciveJob::requestLocationDone(bool err)
     QString query = location.mid(host_end_idx);
     qDebug() << "Query: " << query << endl;
 
-	header.setRequest("GET", query);
+	header.setRequest("GET", QUrl::toPercentEncoding(query, "/?"));
 	header.addValue("Host", host);
 	header.addValue("Referer", "http://web.qq.com");
 	header.addValue("Cookie", CaptchaInfo::instance()->cookie());
 
     qDebug() << header.toString() << endl;
 	
-    /*
     QDir save_dir(save_dir_);
     if ( !save_dir.exists() )
         save_dir.mkdir(save_dir_);
@@ -88,12 +87,12 @@ void FileReciveJob::requestLocationDone(bool err)
         ++i;
     }
 
-    save_to_ = new QFile(final_save_path); */
+    save_to_ = new QFile(final_save_path); 
 	http_.setHost(host);
 
 	connect(&http_, SIGNAL(done(bool)), this, SLOT(requestFileDone(bool)));
     connect(&http_, SIGNAL(dataReadProgress(int, int)), this, SLOT(onDataReadProgress(int, int)));
-	http_.request(header);
+	http_.request(header, NULL, save_to_);
 }
 
 void FileReciveJob::requestFileDone(bool err)
