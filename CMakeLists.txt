@@ -34,7 +34,7 @@ if ( CMAKE_BUILD_TYPE MATCHES "Debug" )
 else ()
     set(prefix	${CMAKE_INSTALL_PREFIX})
     set(pkgdatadir ${prefix}/share/${package})
-    set(PLUGIN_DIR ${libdir}/plugins)
+    set(PLUGIN_DIR ${prefix}/lib/${PROJECT_NAME}/plugins)
 endif ()
 
 set(bindir ${prefix}/bin)

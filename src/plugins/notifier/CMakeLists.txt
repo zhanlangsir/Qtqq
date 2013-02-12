@@ -16,7 +16,7 @@ set(UIS
     notifywidget.ui
     )
 
-include_directories(".")
+include_directories(${CMAKE_CURRENT_BINARY_DIR} ".")
 QT4_WRAP_CPP(MOCA_SOURCES ${HEADERS})
 qt4_wrap_ui(NOTIFIER_UI_HEADERS ${UIS})
 

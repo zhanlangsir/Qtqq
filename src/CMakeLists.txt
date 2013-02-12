@@ -311,7 +311,7 @@ option(UPDATE_TRANSLATIONS "Update source translation files" OFF)
 #	QT4_ADD_TRANSLATION(QM_FILES ${TRANSLATIONS_FILES})
 #endif (UPDATE_TRANSLATIONS)
 
-add_subdirectory(plugins EXCLUDE_FROM_ALL)
+add_subdirectory(plugins)
 
 add_executable(qtqq
 	${CORE_SOURCES} ${CORE_HEADERS_MOC}

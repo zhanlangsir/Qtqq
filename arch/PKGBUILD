@@ -1,0 +1,39 @@
+# Maintainer: zhanlang <zhanlangsir@gmail.com>
+pkgname=qtqq-dev
+pkgver=0.8.1-alpha
+pkgrel=1
+pkgdesc="Qtqq on dev branch"
+arch=('i686' 'x86_64')
+url="https://github.com/zhanlangsir/Qtqq"
+license=('GPL')
+depends=('qt' 'mpg123' 'qtwebkit')
+makedepends=('git' 'cmake' 'json-glib')
+ 
+_gitname="qtqq"
+_gitroot="git://github.com/zhanlangsir/Qtqq.git"
+_gitbranch="qtqq-dev"
+ 
+build() {
+  cd $srcdir
+  msg $srcdir
+  msg "Connecting to GIT server...."
+ 
+  if [ -d $_gitname ] ; then
+        cd $_gitname && git pull origin && cd ..
+        msg "The local files are updated."
+  else
+        git clone $_gitroot $_gitname -b $_gitbranch
+  fi
+ 
+  msg "Clone done, starting make..."
+ 
+  rm -rf "$_gitname-build"
+  cp -a "$_gitname" "${_gitname}-build"
+ 
+  mkdir -p ${pkgdir}/usr/bin
+  cd "${_gitname}-build"
+ 
+  cmake . -DCMAKE_INSTALL_PREFIX="/usr"
+  make
+  make install DESTDIR="${pkgdir}"
+}
