@@ -138,6 +138,7 @@ class Contact : public Talkable
 public:
 	Contact(QString id, QString name, TalkableType type = Talkable::kContact) :
 		Talkable(id, name, type),
+        status_(CS_Offline),
         cat_(NULL),
         group_(NULL)
 	{

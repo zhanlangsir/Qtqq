@@ -61,6 +61,7 @@ set(CORE_HEADERS
     pluginmanager/plugin_managedlg.h
 
 	#qq_protocol
+    protocol/event.h
 	protocol/qq_protocol.h
 	protocol/pollthread.h
     protocol/event_center.h
