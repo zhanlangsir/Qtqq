@@ -150,10 +150,10 @@ void RequestMsgProcessor::createTrayNotify(ShareQQMsgPtr msg, Contact *stranger)
 		}
 		else if ( msg->type() == QQMsg::kSystemG )
 		{
+            Group *group = Roster::instance()->group(msg->talkTo());
+            assert(group);
 			if ( stranger )
 			{
-                Group *group = Roster::instance()->group(msg->talkTo());
-                assert(group);
 				name = kGroupActionText.arg(stranger->name()).arg(group->name());
 
 				QPixmap pix = stranger->avatar();
@@ -163,7 +163,7 @@ void RequestMsgProcessor::createTrayNotify(ShareQQMsgPtr msg, Contact *stranger)
 			else
 			{
 				QQSystemGMsg *sysg_msg = (QQSystemGMsg*)msg.data();
-				name = kGroupActionText.arg(sysg_msg->t_request_uin_);
+				name = kGroupActionText.arg(sysg_msg->t_request_uin_).arg(group->name());
 			}
 			if ( icon.isNull() )
 			{
