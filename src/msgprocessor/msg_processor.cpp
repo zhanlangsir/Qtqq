@@ -164,7 +164,7 @@ QQMsg* MsgProcessor::createMsg(QString type, const Json::Value result)
     }
     else
     {
-        qDebug()<<"unknow type"<<endl;
+        qDebug() << "Recive unknow type on MsgProcessor" << endl;
         return NULL;
     }
 }
@@ -442,7 +442,7 @@ bool MsgProcessor::isChatContentEmpty(const QQChatMsg *msg, const QString &conte
         return false;
     //如果上一个消息为好友图片类型,则判断"\n "后是否没有其他文字
     if ( msg->msgs_[msg->msgs_.size()-1].type() == QQChatItem::kFriendOffpic  )
-        return  (content.size() == 2 &&  content[0] == '\n');
+        return  (content.size() == 1 &&  content[0] == ' ');
     else  //如果是群图片,会在图片后加" "(一个空格),这里也过滤掉
         return (content.size() == 1 &&  content[0] == ' ');
 }

@@ -4,6 +4,7 @@
 #include <QString>
 #include <QByteArray>
 
+#include "protocol/request_jobs/img_type.h"
 #include "core/talkable.h"
 
 namespace Protocol
@@ -16,6 +17,7 @@ namespace Protocol
         ET_OnGroupMemberListUpdate,
         ET_OnMsgSendDone,
         ET_OnImgSendDone,
+        ET_OnImgLoadDone ,
         ET_OnStrangerInfoDone
     };
 
@@ -25,6 +27,7 @@ namespace Protocol
     class GroupMemberListUpdateEvent;
     class MsgSendDoneEvent;
     class ImgSendDoneEvent;
+    class ImgLoadDoneEvent;
     class StrangerAvatarUpdateEvent;
     class StrangerInfoDoneEvent;
 };
@@ -45,6 +48,8 @@ public:
     { return  data_; }
     Talkable *eventFor() const
     { return for_; }
+    virtual QString forId() const
+    { return for_->id(); }
 
 private:
     EventType type_;
@@ -115,13 +120,42 @@ private:
     QString img_id_;
 };
 
-class Protocol::StrangerInfoDoneEvent : public Event
+class Protocol::StrangerInfoDoneEvent : 
+    public Event
 {
 public:
     StrangerInfoDoneEvent(Talkable *_for, QByteArray data, Protocol::EventType type = Protocol::ET_OnStrangerInfoDone) :
         Event(type, _for, data)
     {
     }
+};
+
+class Protocol::ImgLoadDoneEvent : 
+    public Event
+{
+public:
+    ImgLoadDoneEvent(QString file_name, QString for_id, ImgType img_type, QByteArray data, Protocol::EventType type = Protocol::ET_OnImgLoadDone) :
+        Event(type, NULL, data),
+        file_(file_name),
+        for_id_(for_id),
+        img_type_(img_type)
+    {
+    }
+
+    virtual QString forId() const
+    {
+        return for_id_;
+    }
+
+    ImgType type() const
+    { return img_type_; }
+    QString file() const
+    { return file_; }
+
+private:
+    QString file_;
+    QString for_id_;
+    ImgType img_type_;
 };
 
 #endif //EVENT_H

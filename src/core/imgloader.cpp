@@ -103,9 +103,9 @@ QByteArray ImgLoader::getImgUrl(const LoadInfo &info) const
     req.create(kGet, info.url);
     req.addHeaderItem("Host", info.host);
     req.addHeaderItem("Referer", "http://web.qq.com");
-    QString c = CaptchaInfo::instance()->cookie().mid(0, CaptchaInfo::instance()->cookie().length()-2);
-    qDebug()<<c<<endl;
-    req.addHeaderItem("Cookie", c);
+    //QString c = CaptchaInfo::instance()->cookie().mid(0, CaptchaInfo::instance()->cookie().length()-2);
+    //qDebug()<<c<<endl;
+    req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
 
     QTcpSocket fd;
     fd.connectToHost(info.host, 80);

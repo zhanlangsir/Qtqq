@@ -43,10 +43,8 @@ void FileReciveJob::run()
 
 void FileReciveJob::requestLocationDone(bool err)
 {
-    qDebug() << http_.readAll() << endl;
     QHttpResponseHeader response = http_.lastResponse();
     qDebug() << "Response: " <<  response.toString() << endl;
-    qDebug() << http_.readAll() << endl;
 
     QString location = response.value("Location");
 

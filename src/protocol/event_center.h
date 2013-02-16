@@ -5,6 +5,7 @@
 #include <QByteArray>
 #include <QString>
 
+#include "protocol/request_jobs/img_type.h"
 #include "protocol/event.h"
 
 namespace Protocol
@@ -50,6 +51,10 @@ public:
     Event *createStrangerAvatarUpdateEvent(Talkable *_for, QByteArray data)
     {
         return new StrangerAvatarUpdateEvent(_for, data);
+    }
+    Event *createImgLoadDoneEvent(QString file_name, QString for_id, ImgType type, QByteArray data)
+    {
+        return new ImgLoadDoneEvent(file_name, for_id, type, data);
     }
 
     void triggerEvent(Event *event);

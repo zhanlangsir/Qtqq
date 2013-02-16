@@ -19,4 +19,6 @@ systray_quit="tray/quit.png"
 systray_logout="tray/logout.png"
 systray_restore="tray/maximize.png"
 systray_minimize="tray/minimize.png"
+
+loading_img="misc/loading.gif"
 />

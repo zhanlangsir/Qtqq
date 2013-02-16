@@ -9,6 +9,7 @@
 #include "protocol/request_jobs/strangerinfo2_job.h"
 #include "protocol/request_jobs/sendimg_job.h"
 #include "protocol/request_jobs/sendmsg_job.h"
+#include "protocol/request_jobs/loadimg_job.h"
 #include "protocol/request_jobs/filerecive_job.h"
 #include "protocol/request_jobs/friendinfo2_job.h"
 #include "protocol/request_jobs/group_memberlist_job.h"
@@ -93,7 +94,7 @@ void Protocol::QQProtocol::slotJobDone(__JobBase* job, bool error)
     }
     else
     {
-        requesting_.values(job->type()).removeOne(job->requesterId());
+        //requesting_.values(job->type()).removeOne(job->requesterId());
     }
 
     job->deleteLater();
@@ -147,4 +148,22 @@ void Protocol::QQProtocol::parseTransferFile(int session_id)
     {
         reciving_jobs_[session_id]->stop();
     }
+}
+
+void Protocol::QQProtocol::loadFriendOffpic(QString file, QString to_id)
+{
+    __JobBase *job = new LoadOffpicJob(file, to_id);
+    runJob(job);
+}
+
+void Protocol::QQProtocol::loadFriendCface(const QString &file, const QString &to_id, const QString &msg_id)
+{
+    __JobBase *job = new  LoadCfaceJob(file, to_id, msg_id);
+    runJob(job);
+}
+
+void Protocol::QQProtocol::loadGroupImg(QString gid, const QString &file, QString id, const QString &gcode, QString fid, QString ip, QString port, const QString &time)
+{
+	__JobBase *job = new LoadGroupImgJob(gid, file, id, gcode, fid, ip, port, time);
+    runJob(job);
 }

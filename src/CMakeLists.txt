@@ -6,7 +6,7 @@ set(CORE_HEADERS
 	core/request.h
 	core/types.h
     core/qqavatarrequester.h
-	core/groupimgloader.h
+    core/groupimgloader.h
 	core/qqmsg.h
 	core/groupimgsender.h
 	core/qqskinable.h
@@ -17,7 +17,7 @@ set(CORE_HEADERS
 	core/friendimgsender.h
 	core/sockethelper.h
 	core/qqchatitem.h
-	core/imgloader.h
+    core/imgloader.h
 	core/captchainfo.h
 	core/qqutility.h
     core/singleton.h
@@ -77,6 +77,7 @@ set(CORE_HEADERS
     protocol/request_jobs/sendimg_job.h
     protocol/request_jobs/filerecive_job.h
 	protocol/request_jobs/strangerinfo2_job.h
+	protocol/request_jobs/loadimg_job.h
 
 	#roster
 	roster/roster.h
@@ -139,12 +140,12 @@ set(CORE_SOURCES
 	core/qqchatitem.cpp
     core/qqavatarrequester.cpp
 	core/groupchatlog.cpp
-	core/imgloader.cpp
+    core/imgloader.cpp
 	core/types.cpp
 	core/groupimgsender.cpp
 	core/sockethelper.cpp
 	core/captchainfo.cpp
-	core/groupimgloader.cpp
+    core/groupimgloader.cpp
 	core/qqitem.cpp
 	core/friendchatlog.cpp
 	core/qqchatlog.cpp
@@ -189,6 +190,7 @@ set(CORE_SOURCES
     protocol/request_jobs/sendimg_job.cpp
     protocol/request_jobs/filerecive_job.cpp
 	protocol/request_jobs/strangerinfo2_job.cpp
+	protocol/request_jobs/loadimg_job.cpp
 
 	#roster
 	roster/roster.cpp

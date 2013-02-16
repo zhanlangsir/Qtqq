@@ -22,9 +22,15 @@ public:
     void appendHtml(const QString &content, const ShowOptions &options);
     void replaceIdToName(const QString &id, const QString &name);
 
+    int getStyleWindowWidth();
+    int getStyleWindowHeight();
+
 public slots:
     void replaceRealImg(const QString &id, const QString &local_path);
     
+private slots:
+    void onLinkClicked(const QUrl &url);
+
 private:
     bool ifCombineMsg(const ShowOptions &options) const;
     void ecapseForScript(QString &html) const;
@@ -34,9 +40,6 @@ private:
     QString scriptForAppendContent(bool isCombine);
     void replaceKeyWord(QString &html, const ShowOptions &options);
     void converLink(QString &content);
-
-private slots:
-    void onLinkClicked(const QUrl &url);
     
 private:
     QString last_send_id_;

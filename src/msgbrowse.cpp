@@ -16,6 +16,8 @@
 #include "core/captchainfo.h"
 #include "skinengine/msgstyle_manager.h"
 
+#define GET_DOCUMENT_WIDTH "document.documentElement.clientWidth"
+#define GET_DOCUMENT_HEIGHT "document.documentElement.clientHeight"
 #define APPEND_MESSAGE_WITH_SCROLL          "checkIfScrollToBottomIsNeeded(); appendMessage(\"%1\"); scrollToBottomIfNeeded();"
 #define APPEND_NEXT_MESSAGE_WITH_SCROLL     "checkIfScrollToBottomIsNeeded(); appendNextMessage(\"%1\"); scrollToBottomIfNeeded();"
 #define APPEND_MESSAGE                      "appendMessage(\"%1\");"
@@ -274,4 +276,14 @@ QString MsgBrowse::loadFileData(QString name)
     QByteArray file_content_arr = fd.readAll();
 
     return QString::fromUtf8(file_content_arr.data(), file_content_arr.size());
+}
+
+int MsgBrowse::getStyleWindowWidth()
+{
+    return page()->mainFrame()->evaluateJavaScript(GET_DOCUMENT_WIDTH).toInt();
+}
+
+int MsgBrowse::getStyleWindowHeight()
+{
+    return page()->mainFrame()->evaluateJavaScript(GET_DOCUMENT_HEIGHT).toInt();
 }

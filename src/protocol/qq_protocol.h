@@ -59,6 +59,10 @@ public:
     void sendMsg(Talkable *to, const QVector<QQChatItem> &msgs); 
     void sendGroupMsg(const QVector<QQChatItem> &msgs); 
 
+    void loadFriendOffpic(QString file, QString to_id);
+    void loadFriendCface(const QString &file, const QString &to_id, const QString &msg_id);
+    void loadGroupImg(QString gid, const QString &file, QString id, const QString &gcode, QString fid, QString ip, QString port, const QString &time);
+
 	bool isRequesting(QString id, RequestType type)
 	{
 		return requesting_.values(type).contains(id);

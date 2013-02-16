@@ -80,7 +80,7 @@ void GroupPresister::getGroupMember(Group *group)
 
 void GroupPresister::presistGroup(Group *group)
 {
-    qDebug() << "presisting group: " << group->id() << " " << group->name() << endl;
+    qDebug() << "Presisting group, Gid: " << group->id() << ", Group name: " << group->name() << endl;
     {
         QStringList connection_names = QSqlDatabase::connectionNames();
         QSqlDatabase db;
