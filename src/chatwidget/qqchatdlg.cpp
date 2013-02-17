@@ -476,10 +476,11 @@ void QQChatDlg::showMsg(ShareQQMsgPtr msg)
                     QString::number(group_msg->time_)
                     );
 
-            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img id=\"" + file + "\" src=\""+ QQSkinEngine::instance()->skinRes("loading_img") +"\" ondblclick=\"imageDoubleClick()\" />";
+            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img class=\"" + file + "\" src=\""+ QQSkinEngine::instance()->skinRes("loading_img") +"\" ondblclick=\"imageDoubleClick()\" />";
             options.type = MsgBrowse::kImg;
         }
             break;
+
         case QQChatItem::kFriendCface:
         {
             if (!appending_content.isEmpty())
@@ -494,7 +495,7 @@ void QQChatDlg::showMsg(ShareQQMsgPtr msg)
                     talkable_->id(), 
                     chat_msg->msg_id_);
 
-            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img id=\""+ file + "\" src=\""+  QQSkinEngine::instance()->skinRes("loading_img") + "\" ondblclick=\"imageDoubleClick()\" />";
+            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img class=\""+ file + "\" src=\""+  QQSkinEngine::instance()->skinRes("loading_img") + "\" ondblclick=\"imageDoubleClick()\" />";
             options.type = MsgBrowse::kImg;
         }
             break;
@@ -512,7 +513,7 @@ void QQChatDlg::showMsg(ShareQQMsgPtr msg)
                     chat_msg->sendUin()
                     );
 
-            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img id=\""+ file + "\" src=\"" + QQSkinEngine::instance()->skinRes("loading_img") + "\" ondblclick=\"imageDoubleClick()\" />";
+            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img class=\""+ file + "\" src=\"" + QQSkinEngine::instance()->skinRes("loading_img") + "\" ondblclick=\"imageDoubleClick()\" />";
             options.type = MsgBrowse::kImg;
         }
             break;

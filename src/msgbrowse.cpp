@@ -141,7 +141,7 @@ void MsgBrowse::appendHtml(const QString &content, const ShowOptions &options)
     ecapseForScript(html);
     QString script = scriptForAppendContent(is_combine).arg(html);
 
-    this->page()->mainFrame()->evaluateJavaScript(script);
+    page()->mainFrame()->evaluateJavaScript(script);
 
     last_send_id_ = options.sender_uin;
     last_kind_ = options.type;

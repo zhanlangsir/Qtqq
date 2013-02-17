@@ -8,11 +8,44 @@
 	<script type="text/javascript">
 	//<![CDATA[
 	
+       var img_map = {}; 
+
 	   isDebug = false;        
         
        // Fade interval in milliseconds
        // Make this larger if you experience performance issues
        Fadomatic.INTERVAL_MILLIS = 50;
+
+       var resize_timer = null;
+
+       window.onresize = function(){
+           if ( resize_timer == null ){
+                resize_timer = setTimeout("doResize()", 700);
+           }
+       }
+
+       function doResize()
+       {
+           clearTimeout(resize_timer);
+           resize_timer = null;
+
+           imgs = document.getElementsByTagName('img');
+           for ( i = 0; i < imgs.length; ++i )
+           {
+               img = imgs[i];
+               orig_img = img_map[img.className];
+               if ( orig_img == null )
+                   continue;
+
+               width_d = orig_img.width - (document.documentElement.clientWidth  - 80);
+               if ( width_d > 0 )
+               {
+                   img.width = document.documentElement.clientWidth - 80;
+               }
+           }
+
+           alignChat(nearBottom());
+       }
 
        function imageDoubleClick()
        {
@@ -34,9 +67,9 @@
             element.innerHTML = name;
         }
 
-        function getElementsByClassName(n) { 
+        function getElementsByClassName(tag, n) { 
             var el = [],
-                _el = document.getElementsByTagName('span');
+                _el = document.getElementsByTagName(tag);
             for (var i=0; i<_el.length; i++ ) {
                 if (_el[i].className == n ) {
                     el[el.length] = _el[i];
@@ -47,9 +80,23 @@
 
         function replaceRealImg(id, local_path)
         {
-            var element = document.getElementById(id);
-            element.src=local_path;
-            element.removeAttribute("id"); 
+            var elements = document.getElementsByClassName(id);
+            elements[0].src=local_path;
+
+            elements[0].onload = function() {
+
+                ev  =  window.event; 
+                var img = ev.srcElement; 
+
+                img_map[img.className] = {width:img.width, height:img.height};
+
+                width_d = img.width - (document.documentElement.clientWidth  - 80);
+                if ( width_d > 0 )
+                {
+                    height_scale = (img.width - width_d) / img.width;
+                    img.width = document.documentElement.clientWidth - 80;
+                }
+            }
         }
 
         // Creates a fader
@@ -379,12 +426,6 @@
 			
 			if(shouldScroll) scrollToBottom();
 		}
-		
-		function windowDidResize() {
-			alignChat(nearBottom());
-		}
-		
-		window.onresize = windowDidResize;
 		//]]>
 	</script>
 
