@@ -9,6 +9,7 @@
 #include <QMenu>
 #include <QPointer>
 #include <QRegExp>
+#include <QDesktopServices>
 #include <QShortcut>
 
 #include "chatlogwin.h"
@@ -61,6 +62,8 @@ QQChatDlg::QQChatDlg(Talkable *talkable, ChatDlgType type, QWidget *parent) :
 
     sc_close_win_ = new QShortcut(QKeySequence("Alt+C"),this);
     connect(sc_close_win_, SIGNAL(activated()), this, SLOT(close()));
+
+    connect(&msgbrowse_, SIGNAL(imageDoubleClicked(QString)), this, SLOT(onImageDoubleClicked(QString)));
 
     EventHandle::instance()->registerObserver(Protocol::ET_OnImgSendDone, this);
     EventHandle::instance()->registerObserver(Protocol::ET_OnImgLoadDone, this);
@@ -250,19 +253,50 @@ void QQChatDlg::onNotify(Protocol::Event *event)
             return;
         }
 
+        QString save_path = saveImage(img_e->file(), img_e->data());
+        msgbrowse_.replaceRealImg(img_e->file(), save_path);
+    }
+}
+
+QString QQChatDlg::saveImage(const QString &file, const QByteArray &data)
+{
         QString save_fold_dir = QQGlobal::configDir() + "/chat_img";
-        QString save_path = save_fold_dir + '/' + img_e->file();
+        QFileInfo info(file);
+        QString file_name = info.baseName();
+
+        QString save_path = save_fold_dir + '/' + file_name + '.' + getImageFormat(data);
+
         QDir save_dir(save_fold_dir);
         if ( !save_dir.exists() )
             save_dir.mkdir(save_fold_dir);
 
-        QFile file(save_path);
-        file.open(QIODevice::WriteOnly);
-        file.write(img_e->data());
-        file.close();
+        if ( !save_dir.exists(save_path) )
+        {
+            QFile qfile(save_path);
+            qfile.open(QIODevice::WriteOnly);
+            qfile.write(data);
+            qfile.close();
+        }
 
-        msgbrowse_.replaceRealImg(img_e->file(), save_path);
-    }
+        return save_path;
+}
+
+QString QQChatDlg::getImageFormat(const QByteArray &data)
+{
+    if ( (unsigned char)data[0] == 0xff && (unsigned char)data[1] == 0xd8 )
+        return "jpg";
+    else if ( (unsigned char)data[0] == 0x89 && (unsigned char)data[1] == 0x50 )
+        return "png";
+    else if ( (unsigned char)data[0] == 0x47 && (unsigned char)data[1] == 0x49 )
+        return "gif";
+    else if ( (unsigned char)data[0] == 0x42 && (unsigned char)data[1] == 0x4D )
+        return "bmp";
+    else if ( (unsigned char)data[0] == 0x00 && (unsigned char)data[2] == 0x01 )
+        return "ico";
+    else
+        qDebug() << "Unknown image format on QQChatDlg::getImageFormat()" << endl;
+
+    return "unknown";
 }
 
 void QQChatDlg::sendMsg()
@@ -442,7 +476,7 @@ void QQChatDlg::showMsg(ShareQQMsgPtr msg)
                     QString::number(group_msg->time_)
                     );
 
-            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img id=\"" + file + "\" src=\""+ QQSkinEngine::instance()->skinRes("loading_img") +"\" />";
+            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img id=\"" + file + "\" src=\""+ QQSkinEngine::instance()->skinRes("loading_img") +"\" ondblclick=\"imageDoubleClick()\" />";
             options.type = MsgBrowse::kImg;
         }
             break;
@@ -460,7 +494,7 @@ void QQChatDlg::showMsg(ShareQQMsgPtr msg)
                     talkable_->id(), 
                     chat_msg->msg_id_);
 
-            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img id=\""+ file + "\" src=\""+  QQGlobal::resourceDir() + "/loading/loading.gif\" />";
+            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img id=\""+ file + "\" src=\""+  QQSkinEngine::instance()->skinRes("loading_img") + "\" ondblclick=\"imageDoubleClick()\" />";
             options.type = MsgBrowse::kImg;
         }
             break;
@@ -478,7 +512,7 @@ void QQChatDlg::showMsg(ShareQQMsgPtr msg)
                     chat_msg->sendUin()
                     );
 
-            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img id=\""+ file + "\" src=\""+  QQGlobal::resourceDir() + "/loading/loading.gif\" />";
+            appending_content += "<span style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><img id=\""+ file + "\" src=\"" + QQSkinEngine::instance()->skinRes("loading_img") + "\" ondblclick=\"imageDoubleClick()\" />";
             options.type = MsgBrowse::kImg;
         }
             break;
@@ -497,4 +531,9 @@ void QQChatDlg::showMsg(ShareQQMsgPtr msg)
 
 void QQChatDlg::showOtherMsg(ShareQQMsgPtr msg)
 {
+}
+
+void QQChatDlg::onImageDoubleClicked(QString src)
+{
+    QDesktopServices::openUrl(src);
 }

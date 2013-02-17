@@ -14,6 +14,7 @@ class MsgBrowse : public QWebView
     Q_OBJECT
 signals:
     void linkClicked(const QUrl &url);
+    void imageDoubleClicked(QString img_src);
 
 public:
     enum MsgKind {kWord, kImg, kDateSeprate, kStatus, kError};
@@ -27,6 +28,9 @@ public:
 
 public slots:
     void replaceRealImg(const QString &id, const QString &local_path);
+
+protected slots:
+    void onImageDoubleClicked(QString img_src);
     
 private slots:
     void onLinkClicked(const QUrl &url);

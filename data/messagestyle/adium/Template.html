@@ -10,9 +10,18 @@
 	
 	   isDebug = false;        
         
-        // Fade interval in milliseconds
-        // Make this larger if you experience performance issues
-        Fadomatic.INTERVAL_MILLIS = 50;
+       // Fade interval in milliseconds
+       // Make this larger if you experience performance issues
+       Fadomatic.INTERVAL_MILLIS = 50;
+
+       function imageDoubleClick()
+       {
+           ev  =  window.event; 
+           var target = ev.srcElement; 
+
+           var img_src = target.src;
+           browse.onImageDoubleClicked(img_src);
+       }
 
         function replaceIdToName(id, name)
         {

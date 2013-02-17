@@ -436,15 +436,21 @@ QQMsg *MsgProcessor::createSystemMsg(const Json::Value &result) const
 
 bool MsgProcessor::isChatContentEmpty(const QQChatMsg *msg, const QString &content) const
 {
-    //对方用webqq发送好友图片的时候,会在图片后加上"\n "文本,这里判断"\n "后还有没有其他输入文字,
-    //没有把"\n "过滤掉,否则到显示的时候会显示一行\n,就是一个空行
+    /*
+     * 对方用webqq发送好友图片的时候,会在图片后加上" "文本,
+     * 这里判断" "后还有没有其他输入文字,如果是群图片,则会在
+     * 后面加上"\n "或者" ",如果"\n "或者" "后面没有其他文字
+     * 则过滤掉不显示
+     */
     if ( msg->msgs_.size() == 0 )
         return false;
-    //如果上一个消息为好友图片类型,则判断"\n "后是否没有其他文字
+    //如果上一个消息为好友图片类型,则把" "过滤掉
     if ( msg->msgs_[msg->msgs_.size()-1].type() == QQChatItem::kFriendOffpic  )
         return  (content.size() == 1 &&  content[0] == ' ');
-    else  //如果是群图片,会在图片后加" "(一个空格),这里也过滤掉
-        return (content.size() == 1 &&  content[0] == ' ');
+    else  //如果是群图片,会在图片后加"\n "或者" ",这里也过滤掉
+    {
+       return  ( (content.size() == 1 && content[0] == ' ') || (content.size() == 2 &&  content[0] == '\n') );
+    }
 }
 
 void MsgProcessor::dispatchMsg(QVector<QQMsg *> &msgs) 

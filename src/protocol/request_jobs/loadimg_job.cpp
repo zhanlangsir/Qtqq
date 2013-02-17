@@ -16,6 +16,21 @@ LoadImgJob::LoadImgJob(QString file, ImgType img_type, JobType type) :
 {
 }
 
+void LoadImgJob::reciveFile(QString file_url)
+{
+    QString host = getHost(file_url);
+
+    QHttpRequestHeader header;
+    header.setRequest("GET", getRequestUrl(file_url));
+    header.addValue("Host", host);
+    header.addValue("Referer", "http://web.qq.com");
+    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
+
+    http_.setHost(host);
+    connect(&http_, SIGNAL(done(bool)), this, SLOT(onRequestImgDone(bool)));
+    http_.request(header);
+}
+
 void LoadImgJob::onRequestImgDone(bool err)
 {
 	if ( !err )
@@ -33,21 +48,6 @@ void LoadImgJob::onRequestImgDone(bool err)
 
 	http_.disconnect(this);
 	emit sigJobDone(this, err);
-}
-
-void LoadImgJob::reciveFile(QString file_url)
-{
-    QString host = getHost(file_url);
-
-    QHttpRequestHeader header;
-    header.setRequest("GET", getRequestUrl(file_url));
-    header.addValue("Host", host);
-    header.addValue("Referer", "http://web.qq.com");
-    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
-
-    http_.setHost(host);
-    connect(&http_, SIGNAL(done(bool)), this, SLOT(onRequestImgDone(bool)));
-    http_.request(header);
 }
 
 void LoadImgJob::getImgUrl()

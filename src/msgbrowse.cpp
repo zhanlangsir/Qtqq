@@ -12,12 +12,13 @@
 #include <QWebPage>
 #include <QRegExp>
 #include <QDesktopServices>
+#include <QDebug>
 
 #include "core/captchainfo.h"
 #include "skinengine/msgstyle_manager.h"
 
-#define GET_DOCUMENT_WIDTH "document.documentElement.clientWidth"
-#define GET_DOCUMENT_HEIGHT "document.documentElement.clientHeight"
+#define GET_DOCUMENT_WIDTH                  "document.documentElement.clientWidth"
+#define GET_DOCUMENT_HEIGHT                 "document.documentElement.clientHeight"
 #define APPEND_MESSAGE_WITH_SCROLL          "checkIfScrollToBottomIsNeeded(); appendMessage(\"%1\"); scrollToBottomIfNeeded();"
 #define APPEND_NEXT_MESSAGE_WITH_SCROLL     "checkIfScrollToBottomIsNeeded(); appendNextMessage(\"%1\"); scrollToBottomIfNeeded();"
 #define APPEND_MESSAGE                      "appendMessage(\"%1\");"
@@ -50,7 +51,9 @@ MsgBrowse::MsgBrowse(QWidget *parent) :
     setContextMenuPolicy(Qt::CustomContextMenu);
     setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
-    this->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+    page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+    page()->mainFrame()->addToJavaScriptWindowObject("browse", this);
+
     connect(page(), SIGNAL(linkClicked(const QUrl &)), this, SLOT(onLinkClicked(const QUrl &)));
     connect(page(), SIGNAL(linkClicked(const QUrl &)), this, SIGNAL(linkClicked(const QUrl &)));
 }
@@ -286,4 +289,9 @@ int MsgBrowse::getStyleWindowWidth()
 int MsgBrowse::getStyleWindowHeight()
 {
     return page()->mainFrame()->evaluateJavaScript(GET_DOCUMENT_HEIGHT).toInt();
+}
+
+void MsgBrowse::onImageDoubleClicked(QString img_src)
+{
+    emit imageDoubleClicked(img_src);
 }

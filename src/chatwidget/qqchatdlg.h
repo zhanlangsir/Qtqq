@@ -73,6 +73,7 @@ private slots:
     virtual void onMsgSendDone(bool ok, QString msg);
     void setSendByReturn(bool checked);
     void setSendByCtrlReturn(bool checked);
+    void onImageDoubleClicked(QString src);
 
 private:
     virtual QQChatLog *getChatlog() const = 0;
@@ -86,6 +87,9 @@ private:
     {
         return QUuid::createUuid().toString();
     }
+
+    QString saveImage(const QString &file, const QByteArray &data);
+    QString getImageFormat(const QByteArray &data);
 
 private:    
     ImgLoader *img_loader_;
