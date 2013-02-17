@@ -81,20 +81,25 @@
         function replaceRealImg(id, local_path)
         {
             var elements = document.getElementsByClassName(id);
-            elements[0].src=local_path;
+            for ( i = 0; i < elements.length; ++i )
+            {
+                if ( elements[i].src != local_path )
+                    elements[i].src=local_path;
 
-            elements[0].onload = function() {
-
-                ev  =  window.event; 
-                var img = ev.srcElement; 
-
-                img_map[img.className] = {width:img.width, height:img.height};
-
-                width_d = img.width - (document.documentElement.clientWidth  - 80);
-                if ( width_d > 0 )
+                elements[i].onload = function() 
                 {
-                    height_scale = (img.width - width_d) / img.width;
-                    img.width = document.documentElement.clientWidth - 80;
+                    ev  =  window.event; 
+                    var img = ev.srcElement; 
+
+                    if ( img_map[img.className] == null )
+                        img_map[img.className] = {width:img.width, height:img.height};
+
+                    width_d = img.width - (document.documentElement.clientWidth  - 80);
+                    if ( width_d > 0 )
+                    {
+                        height_scale = (img.width - width_d) / img.width;
+                        img.width = document.documentElement.clientWidth - 80;
+                    }
                 }
             }
         }
