@@ -7,6 +7,7 @@
 #include <QVariant>
 #include <QFile>
 #include <QMap>
+#include <QDir>
 
 #include "utils/contact_status.h"
 #include "roster/group_presister.h"
@@ -102,9 +103,14 @@ public:
 		pix.loadFromData(data);
 		pix_ = pix;
 
+        QString avatar_dir = QQGlobal::tempDir() + "/avatar/";
 
-        avatar_path_ = QQGlobal::tempDir() + "/avatar/" + id_ + ".jpg"; 
-        pix.save(avatar_path_);
+        QDir avatar_qdir(avatar_dir);
+        if ( !avatar_qdir.exists() )
+            avatar_qdir.mkdir(avatar_dir);
+
+        avatar_path_ = avatar_dir + id_ + ".jpg";
+        pix.save(avatar_path_); 
 
 		emit dataChanged(pix, TDR_Avatar);
 	}
