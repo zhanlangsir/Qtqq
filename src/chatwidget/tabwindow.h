@@ -12,7 +12,7 @@
 
 namespace Ui
 {
-	class TabWindow;
+    class TabWindow;
 };
 
 class Talkable;
@@ -20,40 +20,45 @@ class QQChatDlg;
 
 class TabWindow : public QMainWindow
 {
-	Q_OBJECT
+    Q_OBJECT
 signals:
-	void activatedPageChanged(QQChatDlg *before, QQChatDlg *after);
+    void activatedPageChanged(QQChatDlg *before, QQChatDlg *after);
 
 public:
-	TabWindow();
-	~TabWindow();
+    TabWindow();
+    ~TabWindow();
 
 public:
-	void addTab(QQChatDlg *page, const QString &label);
-	void removeTab(QWidget *page);
+    void addTab(QQChatDlg *page, const QString &label);
+    void removeTab(QWidget *page);
 
-	int indexOf(QWidget *page) const;
-	QWidget *widget(int index) const;
-	int pageCount() const;
-	void activatedTab(QString id);
+    int indexOf(QWidget *page) const;
+    QWidget *widget(int index) const;
+    int pageCount() const;
+    void activatedTab(QString id);
 
-	void blink(QQChatDlg *dlg);
-	void stopBlink(QQChatDlg *dlg);
+    void blink(QQChatDlg *dlg);
+    void stopBlink(QQChatDlg *dlg);
 
 private slots:
-	void closeTab(int index);
-	void onPageClosting(QQChatDlg *page);
-	void onTalkableDataChanged(QVariant data, TalkableDataRole role);
-	void onCurrentTabChanged(int index);
-	void onBlinkTimeout();
+    void closeTab(int index);
+    void onPageClosting(QQChatDlg *page);
+    void onTalkableDataChanged(QVariant data, TalkableDataRole role);
+    void onCurrentTabChanged(int index);
+    void onBlinkTimeout();
 
 private:
-	Ui::TabWindow *ui;
-	QTimer blink_timer_;
-	QList<QQChatDlg *> blinking_dlg_;
+    Ui::TabWindow *ui;
 
-	int current_index_;
-	QMap<QString, QQChatDlg *> pages_;
+    QTimer blink_timer_;
+    QList<QQChatDlg *> blinking_dlg_;
+
+    int current_index_;
+    QMap<QString, QQChatDlg *> pages_;
 };
 
 #endif //TABWINDOW_H
+
+
+
+

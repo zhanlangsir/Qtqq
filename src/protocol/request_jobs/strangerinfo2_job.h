@@ -21,6 +21,7 @@ private slots:
 
 private:
 	QHttp http_;
+
     QString gid_;
     QString code_;
 };
