@@ -4,6 +4,7 @@
 #include <assert.h>
 
 #include <QWidget>
+#include <QKeyEvent>
 #include <QDebug>
 
 #include "chatwidget/qqchatdlg.h"
@@ -219,4 +220,24 @@ void TabWindow::stopBlink(QQChatDlg *dlg)
 	{
 		blink_timer_.stop();
 	}
+}
+
+
+QQChatDlg *TabWindow::currentChatdlg() const
+{
+     return (QQChatDlg *)widget(current_index_);
+}
+
+void TabWindow::keyPressEvent(QKeyEvent * event)
+{
+    if ( event->modifiers() & Qt::AltModifier )
+    {
+        bool ok;
+        int tab_idx = event->text().toInt(&ok);
+        if ( !ok || tab_idx == 0 )
+            return;
+
+        if ( ui->tab_widget->count() != 0 && tab_idx <= ui->tab_widget->count() )
+            ui->tab_widget->setCurrentIndex(tab_idx-1);
+    }
 }

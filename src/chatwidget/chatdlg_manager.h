@@ -32,6 +32,7 @@ public:
     QQChatDlg* chatDlgById(QString id) const;
 
 	void setMainWin(MainWindow *main_win);
+    QQChatDlg *currentChatdlg() const;
 
 public slots:
 	void openFriendChatDlg(const QString &id);

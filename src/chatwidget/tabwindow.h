@@ -40,6 +40,11 @@ public:
     void blink(QQChatDlg *dlg);
     void stopBlink(QQChatDlg *dlg);
 
+    QQChatDlg *currentChatdlg() const;
+
+protected:
+    void keyPressEvent(QKeyEvent * event);
+
 private slots:
     void closeTab(int index);
     void onPageClosting(QQChatDlg *page);

@@ -198,3 +198,8 @@ void ChatDlgManager::clean()
 
     opening_chatdlg_.clear();
 }
+
+QQChatDlg *ChatDlgManager::currentChatdlg() const
+{
+    return tab_win_->currentChatdlg();
+}

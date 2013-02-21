@@ -38,6 +38,7 @@
 #include "trayicon/systemtray.h"
 #include "rostermodel/contact_searcher.h"
 #include "utils/menu.h"
+#include "snapshot/ksnapshot.h"
 #include "qqglobal.h"
 #include "qqiteminfohelper.h"
 #include "qtqq.h"
@@ -103,6 +104,12 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(open_chat_dlg_sc_, SIGNAL(activated()), this, SLOT(openFirstChatDlg()));
     }
 
+    if (!snapshot_)
+    {
+        snapshot_ = new QxtGlobalShortcut(QKeySequence("Ctrl+Alt+S"), this);
+        connect(snapshot_, SIGNAL(activated()), this, SLOT(snapshot()));
+    }
+
     SystemTrayIcon *tray = SystemTrayIcon::instance();
     connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(onTrayIconClicked(QSystemTrayIcon::ActivationReason)));
 }
@@ -133,6 +140,12 @@ MainWindow::~MainWindow()
 		delete main_http_;
 		main_http_ = NULL;
 	}
+}
+
+void MainWindow::snapshot()
+{
+    KSnapshot *snap = new KSnapshot();
+    snap->show();
 }
 
 void MainWindow::aboutQt()

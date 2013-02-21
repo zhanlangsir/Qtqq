@@ -61,6 +61,7 @@ private slots:
 	void onSearch(const QString &str);
     void aboutQt();
     void onMainMenuclicked();
+    void snapshot();
 
 private:
     void getFriendList();
@@ -89,6 +90,7 @@ private:
     QAction *act_mute_;
 
     QxtGlobalShortcut *open_chat_dlg_sc_;
+    QxtGlobalShortcut *snapshot_;
 };
 
 #endif //MAINWINDOW_H

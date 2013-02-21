@@ -38,7 +38,6 @@ public:
     QQChatDlg(Talkable *talkable, ChatDlgType type, QWidget *parent = 0);
     virtual ~QQChatDlg();
 
-public:
     void showMsg(ShareQQMsgPtr msg);
     virtual void showOldMsg(QVector<ShareQQMsgPtr> msgs);
 
@@ -50,6 +49,8 @@ public:
     ChatDlgType type() const
     { return type_; }
     virtual void updateSkin() = 0;
+
+    void sendImage(const QString &file_path, const QByteArray &data);
 
 protected:
     void closeEvent(QCloseEvent *);

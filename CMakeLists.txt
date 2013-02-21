@@ -3,7 +3,11 @@ cmake_minimum_required(VERSION 2.6)
 project(Qtqq)
 set(version 0.8.1-alpha)
 
+INCLUDE(FindX11)
 find_package(Qt4 REQUIRED)
+
+set(HAVE_X11_EXTENSIONS_SHAPE_H ${X11_Xshape_FOUND})
+set(HAVE_X11_EXTENSIONS_XFIXES_H ${X11_Xfixes_FOUND})
 
 # uninstall target
 configure_file(
@@ -47,6 +51,7 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(PLUGIN_LIBRARY_OUTPUT_PATH ${LIBRARY_OUTPUT_PATH}/plugins)
 
 configure_file(${PROJECT_SOURCE_DIR}/config.h.in ${PROJECT_BINARY_DIR}/config.h)
+configure_file(${PROJECT_SOURCE_DIR}/config-ksnapshot.h.cmake ${PROJECT_BINARY_DIR}/config-ksnapshot.h)
 
 include_directories(${PROJECT_BINARY_DIR})
 

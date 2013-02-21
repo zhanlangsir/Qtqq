@@ -65,7 +65,7 @@ public:
 
 	bool isRequesting(QString id, RequestType type)
 	{
-		return requesting_.values(type).contains(id);
+		return requesting_[type].contains(id);
 	}
 
     ImgSender *imgSender() const
@@ -78,12 +78,12 @@ private:
     void runJob(__JobBase *job);
 
 private:
-	QMap<JobType, QString> requesting_;
+    QMap<JobType, QList<QString> > requesting_;
+	//QMap<JobType, QString> requesting_;
     QMap<int, FileReciveJob *> reciving_jobs_;
 	Protocol::PollThread *poll_thread_;
 
     ImgSender *imgsender_;
-    //MsgSender *msgsender_;
 
 private:
 	QQProtocol(); 

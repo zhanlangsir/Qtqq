@@ -44,6 +44,7 @@ void Protocol::QQProtocol::stop()
 void Protocol::QQProtocol::requestIconFor(Talkable *req_for)
 {
 	__JobBase *job = new IconJob(req_for);
+    requesting_[job->type()].push_back(job->requesterId());
     runJob(job);
 }
 
@@ -75,7 +76,7 @@ void Protocol::QQProtocol::requestStrangerInfo2(Talkable *job_for, QString gid, 
     QString code = "";
     if ( group_request )
         code = "group_request_join-" + gid;
-	//requesting_.insert(JT_StrangerInfo2, job_for->id());
+
 	StrangerInfo2Job *job = new StrangerInfo2Job(job_for, gid, code);
     runJob(job);
 }
@@ -86,32 +87,12 @@ void Protocol::QQProtocol::requestGroupMemberList(Group *job_for)
     runJob(job);
 }
 
-void Protocol::QQProtocol::slotJobDone(__JobBase* job, bool error)
-{
-    if ( job->type() == JT_FileRecive )
-    {
-        reciving_jobs_.remove(((FileReciveJob *)job)->sessionId());
-    }
-    else
-    {
-        //requesting_.values(job->type()).removeOne(job->requesterId());
-    }
-
-    job->deleteLater();
-}
-
 void Protocol::QQProtocol::sendImg(Talkable *sender, QString file_path, QByteArray data)
 {
    QByteArray sended_data = imgsender_->prepareSendingData(sender, file_path, data);
-   qDebug() << "img data\n" << sended_data << endl;
    SendImgJob *job = new SendImgJob(sender, file_path, sended_data);
 
    runJob(job);
-}
-
-void Protocol::QQProtocol::sendGroupImg()
-{
-
 }
 
 void Protocol::QQProtocol::sendMsg(Talkable *to, const QVector<QQChatItem> &msgs)
@@ -125,11 +106,6 @@ void Protocol::QQProtocol::sendMsg(Talkable *to, const QVector<QQChatItem> &msgs
     SendMsgJob *job = new SendMsgJob(to, sended_data);
 
     runJob(job);
-}
-
-void Protocol::QQProtocol::sendGroupMsg(const QVector<QQChatItem> &msgs)
-{
-
 }
 
 void Protocol::QQProtocol::reciveFile(int session_id, QString file_name, QString to)
@@ -167,3 +143,21 @@ void Protocol::QQProtocol::loadGroupImg(QString gid, const QString &file, QStrin
 	__JobBase *job = new LoadGroupImgJob(gid, file, id, gcode, fid, ip, port, time);
     runJob(job);
 }
+
+void Protocol::QQProtocol::slotJobDone(__JobBase* job, bool error)
+{
+    if ( job->type() == JT_FileRecive )
+    {
+        reciving_jobs_.remove(((FileReciveJob *)job)->sessionId());
+    }
+    else
+    {
+        if ( job->jobFor() )
+            requesting_[job->type()].removeOne(job->requesterId());
+        else
+            qDebug() << "Wraning: lost one job" << endl;
+    }
+
+    job->deleteLater();
+}
+

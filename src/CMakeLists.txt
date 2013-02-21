@@ -95,6 +95,17 @@ set(CORE_HEADERS
 	skinengine/qqskinengine.h
 	skinengine/msgstyle_manager.h
 
+    #snapshot
+    snapshot/freeregiongrabber.h
+    snapshot/freeregiongrabber.h
+    snapshot/ksnapshot.h
+    snapshot/ksnapshotobject.h
+    snapshot/ksnapshotpreview.h
+    snapshot/regiongrabber.h
+    snapshot/snapshottimer.h
+    snapshot/windowgrabber.h
+
+
 	#sound player
 	soundplayer/soundplayer.h
 
@@ -208,6 +219,17 @@ set(CORE_SOURCES
 	skinengine/qqskinengine.cpp
 	skinengine/msgstyle_manager.cpp
 
+    #snapshot
+    snapshot/expblur.cpp
+    snapshot/freeregiongrabber.cpp
+    snapshot/freeregiongrabber.cpp
+    snapshot/ksnapshot.cpp
+    snapshot/ksnapshotobject.cpp
+    snapshot/ksnapshotpreview.cpp
+    snapshot/regiongrabber.cpp
+    snapshot/snapshottimer.cpp
+    snapshot/windowgrabber.cpp
+
 	#sound player
 	soundplayer/soundplayer.cpp
 
@@ -273,6 +295,7 @@ set(UI_FILES
     ui/pluginmanagedlg.ui
     ui/fileaskdlg.ui
     ui/filetransferdlg.ui
+    ui/ksnapshotwidget.ui
 )
 
 QT4_WRAP_UI(UI_FILES_HEADERS ${UI_FILES})
@@ -321,6 +344,10 @@ add_executable(qtqq
 	${UI_FILES_HEADERS}
 	${QM_FILES}
 )
+
+if (X11_Xfixes_FOUND)
+    target_link_libraries(qtqq ${X11_Xfixes_LIB})
+endif (X11_Xfixes_FOUND)
 
 target_link_libraries(qtqq
 	log4qt
