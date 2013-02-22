@@ -18,6 +18,7 @@
 #include "pluginmanager/plugin_manager.h"
 #include "trayicon/systemtray.h"
 #include "file_transfer/file_transfer_manager.h"
+#include "hotkeymanager/hotkey_manager.h"
 
 Qtqq *Qtqq::instance_ = NULL;
 
@@ -78,6 +79,7 @@ void Qtqq::showMainPanel()
 	
 	main_win_ = new MainWindow();
 
+    HotkeyManager::instance();
     FileTransferManager::instance();
 
 	main_win_->initialize();
@@ -133,6 +135,8 @@ void Qtqq::onQuit()
 	delete ChatDlgManager::instance();
 	delete Roster::instance();
     delete PluginManager::instance();
+    delete HotkeyManager::instance();
+    delete FileTransferManager::instance();
 
 	if ( main_win_ )
 		delete main_win_;

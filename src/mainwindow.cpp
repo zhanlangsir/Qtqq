@@ -38,6 +38,7 @@
 #include "trayicon/systemtray.h"
 #include "rostermodel/contact_searcher.h"
 #include "utils/menu.h"
+#include "hotkeymanager/hotkey_manager.h"
 #include "snapshot/ksnapshot.h"
 #include "qqglobal.h"
 #include "qqiteminfohelper.h"
@@ -50,8 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	contact_model_(NULL),
 	group_model_(NULL),
 	recent_model_(NULL),
-	open_chat_dlg_sc_(NULL),
-	snapshot_(NULL)
+	open_chat_dlg_sc_(NULL)
 {
     ui->setupUi(this);
 
@@ -105,11 +105,6 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(open_chat_dlg_sc_, SIGNAL(activated()), this, SLOT(openFirstChatDlg()));
     }
 
-    if (!snapshot_)
-    {
-        snapshot_ = new QxtGlobalShortcut(QKeySequence("Ctrl+Alt+S"), this);
-        connect(snapshot_, SIGNAL(activated()), this, SLOT(snapshot()));
-    }
 
     SystemTrayIcon *tray = SystemTrayIcon::instance();
     connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(onTrayIconClicked(QSystemTrayIcon::ActivationReason)));
@@ -427,6 +422,8 @@ void MainWindow::getRecentListDone(bool err)
 
 void MainWindow::initialize()
 {
+    initHotkey();
+
     getPersonalInfo();
     getPersonalFace();
     getSingleLongNick();
@@ -542,4 +539,11 @@ void MainWindow::onMainMenuclicked()
     pos.setX(0);
     pos.setY(-main_menu_->sizeHint().height());
     main_menu_->exec(ui->mainmenu_btn->mapToGlobal(pos));
+}
+
+void MainWindow::initHotkey()
+{
+    QxtGlobalShortcut *snapshot = HotkeyManager::instance()->hotkey(HK_SNAPSHOT);
+
+    connect(snapshot, SIGNAL(activated()), this, SLOT(snapshot()));
 }

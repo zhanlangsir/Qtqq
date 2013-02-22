@@ -41,6 +41,10 @@ set(CORE_HEADERS
     file_transfer/file_transfer_manager.h
     file_transfer/file_transfer_dlg.h
 
+    #hotkey manager
+    hotkeymanager/hotkey_manager.h
+    hotkeymanager/hotkeys.h
+
     #interfaces/
     interfaces/iobserver.h
     interfaces/isubject.h
@@ -175,6 +179,9 @@ set(CORE_SOURCES
     file_transfer/file_transfer_manager.cpp
     file_transfer/file_transfer_dlg.cpp
 
+    #hotkey manager
+    hotkeymanager/hotkey_manager.cpp
+
 	#msgprocessor
 	msgprocessor/msg_processor.cpp
 
@@ -296,6 +303,7 @@ set(UI_FILES
     ui/fileaskdlg.ui
     ui/filetransferdlg.ui
     ui/ksnapshotwidget.ui
+    ui/hotkeydlg.ui
 )
 
 QT4_WRAP_UI(UI_FILES_HEADERS ${UI_FILES})

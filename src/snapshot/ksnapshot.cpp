@@ -36,6 +36,7 @@
 #include <QDesktopWidget>
 #include <QVarLengthArray>
 #include <QCloseEvent>
+#include <QBuffer>
 #include <QDrag>
 #include <QMouseEvent>
 #include <QPainter>
@@ -196,12 +197,7 @@ KSnapshot::KSnapshot(QWidget *parent,  KSnapshotObject::CaptureMode mode )
     }
 
     setDelay(0);
-    QString snap_dir = QQGlobal::configDir() +"/snapshot";
-    QDir snap_qdir(snap_dir);
-    if ( !snap_qdir.exists() )
-        snap_qdir.mkdir(snap_dir);
-
-    filename = snap_dir + "/snapshot.png";
+    filename = QQGlobal::tempDir() + "/snapshot/snapshot.png";
 
     connect( &grabTimer, SIGNAL(timeout()), this, SLOT(grabTimerDone()) );
     connect( &updateTimer, SIGNAL(timeout()), this, SLOT(updatePreview()) );
@@ -224,16 +220,19 @@ KSnapshot::~KSnapshot()
 
 void KSnapshot::onSendBtnClicked()
 {
-    QFile file(filename);
-    file.open(QIODevice::ReadOnly);
-    QByteArray data = file.readAll();
-    file.close();
-
     QQChatDlg *current_chatdlg = ChatDlgManager::instance()->currentChatdlg();
-    if ( current_chatdlg )
-    {
-        current_chatdlg->sendImage(filename, data);
-    }
+    if ( !current_chatdlg )
+        return;
+
+    filename = getUnexistsFilePath(filename);
+    snapshot.save(filename);
+
+    QByteArray bytes;
+    QBuffer buffer(&bytes);
+    buffer.open(QIODevice::WriteOnly);
+    snapshot.save(&buffer, "PNG"); 
+
+    current_chatdlg->sendImage(filename, bytes);
 
     deleteLater();
 }
@@ -319,23 +318,18 @@ void KSnapshot::startUndelayedGrab()
     }
 }
 
-void KSnapshot::slotRegionGrabbed( const QPixmap &pix )
+QString KSnapshot::getUnexistsFilePath(const QString &base)
 {
-  if ( !pix.isNull() )
-  {
-    snapshot = pix;
-    updatePreview();
-    modified = true;
-    updateCaption();
-
-
-    QFileInfo save_info(filename);
+    QFileInfo save_info(base);
     QString basename = save_info.baseName();
     QString suffix = save_info.suffix();
     if ( !suffix.isEmpty() )
         suffix = '.' + suffix;
 
-    QString save_dir = QQGlobal::configDir() +"/snapshot";
+    QString save_dir = QQGlobal::tempDir() +"/snapshot";
+    QDir snap_qdir(save_dir);
+    if ( !snap_qdir.exists() )
+        snap_qdir.mkdir(save_dir);
 
     int i = 1;
     QString base_path = save_dir + '/' + basename;
@@ -348,8 +342,17 @@ void KSnapshot::slotRegionGrabbed( const QPixmap &pix )
         ++i;
     }
 
-    filename = final_save_path;
-    pix.save(filename);
+    return final_save_path;
+}
+
+void KSnapshot::slotRegionGrabbed( const QPixmap &pix )
+{
+  if ( !pix.isNull() )
+  {
+    snapshot = pix;
+    updatePreview();
+    modified = true;
+    updateCaption();
   }
 
   if( mode() == KSnapshotObject::Region )
@@ -566,8 +569,9 @@ void KSnapshot::refreshCaption()
 
 void KSnapshot::updateCaption()
 {
-    setWindowTitle( QFileInfo(filename).fileName()+"[*]" );
-    setWindowModified(modified);
+    setWindowTitle( "Snapshot" );
+    //setWindowTitle( QFileInfo(filename).fileName()+"[*]" );
+    //setWindowModified(modified);
 }
 
 void KSnapshot::slotMovePointer(int x, int y)

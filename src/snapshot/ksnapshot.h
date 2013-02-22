@@ -98,6 +98,7 @@ private:
     void grabPointerImage(int offsetx, int offsety);
     void grabRegion();
     void grabFreeRegion();
+    QString  getUnexistsFilePath(const QString &base);
 
     SnapshotTimer grabTimer;
     QTimer updateTimer;

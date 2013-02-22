@@ -74,6 +74,7 @@ private:
     int getStatusIndex(ContactStatus status);
     void setupLoginStatus();
     QString getStatusByIndex(int idx) const;
+    void initHotkey();
 
 private:
     Ui::MainWindow *ui;
@@ -90,7 +91,6 @@ private:
     QAction *act_mute_;
 
     QxtGlobalShortcut *open_chat_dlg_sc_;
-    QxtGlobalShortcut *snapshot_;
 };
 
 #endif //MAINWINDOW_H
