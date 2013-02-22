@@ -45,6 +45,8 @@ void ChatDlgManager::openFriendChatDlg(const QString &id)
     if ( isOpening(id) )
     {
         tab_win_->activatedTab(id);
+        tab_win_->activateWindow();
+        tab_win_->raise();
         return;
     }
 
@@ -76,6 +78,8 @@ void ChatDlgManager::openGroupChatDlg(QString id, QString gcode)
     if ( isOpening(id) )
     {
         tab_win_->activatedTab(id);
+        tab_win_->activateWindow();
+        tab_win_->raise();
         return;
     }
 
@@ -108,7 +112,12 @@ void ChatDlgManager::openSessChatDlg(QString id, QString group_id)
 {
     return;
     if ( isOpening(id) )
+    {
+        tab_win_->activatedTab(id);
+        tab_win_->activateWindow();
+        tab_win_->raise();
         return; 
+    }
 
     /*
       QQChatDlg *dlg = NULL;

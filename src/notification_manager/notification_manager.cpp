@@ -2,6 +2,7 @@
 
 #include "chatwidget/chatdlg_manager.h"
 #include "msgprocessor/msg_processor.h"
+#include  "chatwidget/tabwindow.h"
 
 NotificationManager *NotificationManager::instance_ = NULL;
 
@@ -12,7 +13,7 @@ NotificationManager::NotificationManager()
 
 void NotificationManager::onNewChatMsg(ShareQQMsgPtr msg)
 {
-    if ( !ChatDlgManager::instance()->isOpening(msg->talkTo()) )
+    if ( !ChatDlgManager::instance()->isOpening(msg->talkTo())  || ChatDlgManager::instance()->tabWin()->isMinimized() )
     {
         emit newChatMsg(msg);
     }
