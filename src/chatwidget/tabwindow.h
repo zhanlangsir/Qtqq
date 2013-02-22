@@ -2,6 +2,7 @@
 #define TABWINDOW_H
 
 #include <QWidget>
+#include <QCloseEvent>
 #include <QMainWindow>
 #include <QString>
 #include <QMap>
@@ -30,7 +31,6 @@ public:
 
 public:
     void addTab(QQChatDlg *page, const QString &label);
-    void removeTab(QWidget *page);
 
     int indexOf(QWidget *page) const;
     QWidget *widget(int index) const;
@@ -44,6 +44,8 @@ public:
 
 protected:
     void keyPressEvent(QKeyEvent * event);
+    bool eventFilter(QObject *watched, QEvent *event);
+    void closeEvent(QCloseEvent *event);
 
 private slots:
     void closeTab(int index);
@@ -51,6 +53,9 @@ private slots:
     void onTalkableDataChanged(QVariant data, TalkableDataRole role);
     void onCurrentTabChanged(int index);
     void onBlinkTimeout();
+
+private:
+    bool handleKeyPressEvent(QKeyEvent *event);
 
 private:
     Ui::TabWindow *ui;
@@ -63,7 +68,3 @@ private:
 };
 
 #endif //TABWINDOW_H
-
-
-
-

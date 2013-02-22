@@ -132,7 +132,7 @@ bool QQChatDlg::eventFilter(QObject *obj, QEvent *e)
     switch (key_event->key())
     {
         case Qt::Key_Return:
-            if (key_event->modifiers()& Qt::ControlModifier)
+            if ( key_event->modifiers() & Qt::ControlModifier )
             {
                 if (send_by_return_)
                 {
@@ -545,4 +545,14 @@ void QQChatDlg::showOtherMsg(ShareQQMsgPtr msg)
 void QQChatDlg::onImageDoubleClicked(QString src)
 {
     QDesktopServices::openUrl(src);
+}
+
+void QQChatDlg::installEditorEventFilter(QObject *filter_obj)
+{
+    te_input_.installEventFilter(filter_obj);
+}
+
+void QQChatDlg::removeEditorEventFilter(QObject *filter_obj)
+{
+    te_input_.removeEventFilter(filter_obj);
 }

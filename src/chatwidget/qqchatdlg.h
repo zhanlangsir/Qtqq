@@ -51,6 +51,8 @@ public:
     virtual void updateSkin() = 0;
 
     void sendImage(const QString &file_path, const QByteArray &data);
+    void installEditorEventFilter(QObject *filter_obj);
+    void removeEditorEventFilter(QObject *filter_obj);
 
 protected:
     void closeEvent(QCloseEvent *);

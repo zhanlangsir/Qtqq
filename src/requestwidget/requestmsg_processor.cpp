@@ -151,7 +151,18 @@ void RequestMsgProcessor::createTrayNotify(ShareQQMsgPtr msg, Contact *stranger)
 		else if ( msg->type() == QQMsg::kSystemG )
 		{
             Group *group = Roster::instance()->group(msg->talkTo());
-            assert(group);
+
+            /*
+             * 因为每次的gid,uin等都是在变化的,所以如果有其他人申请入群,然后你的这个时候下线,
+             * 再上线,你的gid已经更新了,但是收到的申请消息里的gid还是上一次的,所以找不到对应
+             * 的群,这里直接输出错误消息,然后不做处理
+             */
+            if ( !group )
+            {
+                qDebug() << "Recive wrong group requester" << endl;
+                return;
+            }
+
 			if ( stranger )
 			{
 				name = kGroupActionText.arg(stranger->name()).arg(group->name());
