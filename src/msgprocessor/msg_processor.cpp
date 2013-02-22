@@ -408,16 +408,28 @@ QQMsg *MsgProcessor::createSystemGroupMsg(const Json::Value &result) const
 {
     QQSystemGMsg *system_g_msg = new QQSystemGMsg();
     system_g_msg->set_type(QQMsg::kSystemG);
-    system_g_msg->msg_id_ = QString::number(result["value"]["msg_id"].asInt());
-    system_g_msg->from_uin = QString::number(result["value"]["from_uin"].asLargestInt());
-    system_g_msg->to_uin = QString::number(result["value"]["from_uin"].asLargestInt());
-    system_g_msg->msg_id2_ = QString::number(result["value"]["msg_id2"].asInt());
-    system_g_msg->sys_g_type =QString::fromStdString(result["value"]["type"].asString());
-    system_g_msg->gcode_ = QString::number(result["value"]["gcode"].asLargestInt());
-    system_g_msg->t_gcode_ = QString::number(result["value"]["t_gcode"].asLargestInt());
-    system_g_msg->request_uin = QString::number(result["value"]["request_uin"].asLargestInt());
-    system_g_msg->t_request_uin_ = QString::fromStdString(result["value"]["t_request_uin"].asString());
-    system_g_msg->msg_ = QString::fromStdString(result["value"]["msg"].asString());
+
+    Json::Value msg_value = result["value"];
+    system_g_msg->msg_id_ = QString::number(msg_value["msg_id"].asInt());
+    system_g_msg->from_uin = QString::number(msg_value["from_uin"].asLargestInt());
+    system_g_msg->to_uin = QString::number(msg_value["from_uin"].asLargestInt());
+    system_g_msg->msg_id2_ = QString::number(msg_value["msg_id2"].asInt());
+    system_g_msg->sys_g_type =QString::fromStdString(msg_value["type"].asString());
+    system_g_msg->gcode_ = QString::number(msg_value["gcode"].asLargestInt());
+    system_g_msg->t_gcode_ = QString::number(msg_value["t_gcode"].asLargestInt());
+    system_g_msg->request_uin = QString::number(msg_value["request_uin"].asLargestInt());
+    system_g_msg->t_request_uin_ = QString::fromStdString(msg_value["t_request_uin"].asString());
+    system_g_msg->msg_ = QString::fromStdString(msg_value["msg"].asString());
+
+    if ( !msg_value["op_type"].empty() )
+        system_g_msg->op_type = msg_value["op_type"].asInt();
+    if ( !msg_value["admin_uin"].empty() )
+        system_g_msg->admin_uin = QString::number(msg_value["admin_uin"].asLargestInt());
+    if ( !msg_value["new_member"].empty() )
+        system_g_msg->new_member = QString::number(msg_value["new_member"].asLargestInt());
+    if ( !msg_value["old_member"].empty() )
+        system_g_msg->old_member = QString::number(msg_value["old_member"].asLargestInt());
+
     return system_g_msg;
 }
 

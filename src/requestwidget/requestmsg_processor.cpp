@@ -4,6 +4,12 @@
 
 #include <QIcon>
 #include <QAction>
+#include <QLabel>
+#include <QDesktopServices>
+#include <QDesktopWidget>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QDebug>
 
 #include "core/qqmsg.h"
@@ -25,7 +31,7 @@ static QString kGroupActionText = QObject::tr("%1 request to enter group [%2]");
 RequestMsgProcessor::RequestMsgProcessor()
 {
 	connect(MsgProcessor::instance(), SIGNAL(newSystemMsg(ShareQQMsgPtr)), this, SLOT(onNewSystemMsg(ShareQQMsgPtr)));
-	connect(MsgProcessor::instance(), SIGNAL(newSystemGMsg(ShareQQMsgPtr)), this, SLOT(onNewSystemMsg(ShareQQMsgPtr)));
+	connect(MsgProcessor::instance(), SIGNAL(newSystemGMsg(ShareQQMsgPtr)), this, SLOT(onNewSystemGMsg(ShareQQMsgPtr)));
 }
 
 RequestMsgProcessor::~RequestMsgProcessor()
@@ -33,24 +39,120 @@ RequestMsgProcessor::~RequestMsgProcessor()
 	stop();
 }
 
+void RequestMsgProcessor::onNewSystemGMsg(ShareQQMsgPtr msg)
+{
+    QQSystemGMsg *sysg_msg = (QQSystemGMsg *)msg.data();	
+    Group *group = Roster::instance()->group(msg->talkTo());
+
+    /*
+     * 因为每次的gid,uin等都是在变化的,所以如果有其他人申请入群,然后你的这个时候下线,
+     * 再上线,你的gid已经更新了,但是收到的申请消息里的gid还是上一次的,所以找不到对应
+     * 的群,这里直接输出错误消息,然后不做处理
+     */
+    if ( !group )
+    {
+        qDebug() << "Recive wrong group requester" << endl;
+        return;
+    }
+
+    if ( sysg_msg->sys_g_type == "group_request_join" )
+    {
+        createTrayNotify(msg, getContactFromSystemMsg(msg->sendUin()));
+    }
+    else
+    {
+
+        QPixmap group_avatar = group->avatar().isNull() ?  QPixmap(QQSkinEngine::instance()->skinRes("default_group_avatar")) : group->avatar();
+        QString msg = "";
+        switch ( sysg_msg->op_type )
+        {
+            //你的管理员身份被删除
+            case 0:
+                if ( sysg_msg->sys_g_type == "group_admin_op" )
+                {
+                    msg = tr("You administrator privileges in the group %1 is deleted").arg(group->markname());
+                }
+                break;
+                //你被设置为管理员
+            case 1:
+                {
+                    msg = tr("You are set to the administrator of the group %1.").arg(group->markname());
+                }
+                break;
+                //其他管理员允许入群
+            case 2:
+                {
+                    if ( sysg_msg->sys_g_type == "group_leave" )
+                    {
+                        Contact *leave_member = group->member(sysg_msg->old_member);
+                        QString leave_name = leave_member ? leave_member->markname() : sysg_msg->old_member;
+                        msg = tr("Member %1 has leave group %2").arg(leave_name).arg(group->markname());
+                    }
+                    else if ( sysg_msg->sys_g_type == "group_join" )
+                    {
+                        Contact *admin = group->member(sysg_msg->admin_uin);
+                        QString admin_name = admin ? admin->markname() : sysg_msg->admin_uin;
+                        msg = tr("Administrator %1 allow %2 to join group %3").arg(admin_name).arg(sysg_msg->new_member).arg(group->markname());
+                    }
+                }
+                break;
+                //其他管理员删除群成员
+            case 3:
+                {
+                    Contact *admin = group->member(sysg_msg->admin_uin);
+                    QString admin_name = admin ? admin->markname() : sysg_msg->admin_uin;
+                    msg = tr("Administrator %1 deleted member %2 from group %3").arg(admin_name).arg(sysg_msg->old_member).arg(group->markname());
+                }
+                break;
+            default:
+                {
+                    qDebug() << "Recive unknow group msg" << endl;
+                    return;
+                }
+        }
+
+        showMessageBox(group_avatar, msg);
+    }
+}
+
+void RequestMsgProcessor::showMessageBox(const QPixmap &pix, const QString &msg)
+{
+    QDialog *dlg = new QDialog();
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+
+    QLabel *avatar_label = new QLabel("");
+    avatar_label->setPixmap(pix);
+
+    QLabel *msg_label = new QLabel(msg);
+
+    QHBoxLayout *h_layout = new QHBoxLayout();
+    h_layout->addWidget(avatar_label);
+    h_layout->addWidget(msg_label);
+
+    QPushButton *ok_btn = new QPushButton(tr("Ok"));
+    connect(ok_btn, SIGNAL(clicked()), dlg, SLOT(close()));
+
+    QVBoxLayout *main_layout = new QVBoxLayout(dlg);
+    main_layout->addLayout(h_layout); 
+    main_layout->addWidget(ok_btn); 
+    dlg->setLayout(main_layout);
+
+    dlg->move((QApplication::desktop()->width() - dlg->width()) /2, (QApplication::desktop()->height() - dlg->height()) /2);
+    dlg->show();
+}
+
 void RequestMsgProcessor::onNewSystemMsg(ShareQQMsgPtr msg)
 {
-	QString gid = 0;
-	if ( msg->type() == QQMsg::kSystemG )
-	{
-		QQSystemGMsg *sysg_msg = (QQSystemGMsg *)msg.data();	
-		gid = sysg_msg->from_uin;
-		if ( sysg_msg->sys_g_type == "group_leave" )
-		{
-			qDebug() << sysg_msg->sendUin() << "had leave group" << endl;
-			return;
-		}
-	}
-	Contact *contact = Roster::instance()->contact(msg->sendUin());
+	createTrayNotify(msg, getContactFromSystemMsg(msg->sendUin()));
+}
+
+Contact *RequestMsgProcessor::getContactFromSystemMsg(const QString &id)
+{
+	Contact *contact = Roster::instance()->contact(id);
 	if ( !contact )
 	{
 		StrangerManager *mgr = StrangerManager::instance();
-		contact = mgr->stranger(msg->sendUin());
+		contact = mgr->stranger(id);
 	}
 
 	if ( !contact || contact->avatar().isNull() )
@@ -59,7 +161,7 @@ void RequestMsgProcessor::onNewSystemMsg(ShareQQMsgPtr msg)
 		connect(StrangerManager::instance(), SIGNAL(newStrangerIcon(QString, QPixmap)), this, SLOT(onNewStrangerIcon(QString, QPixmap)));
 	}
 
-	createTrayNotify(msg, contact);
+    return contact;
 }
 
 void RequestMsgProcessor::onActionTriggered()
@@ -73,7 +175,9 @@ void RequestMsgProcessor::onActionTriggered()
 	{
 		case QQMsg::kSystem:
 			{
-				Contact *contact = StrangerManager::instance()->stranger(msg->sendUin());
+                Contact *contact = Roster::instance()->contact(msg->sendUin());
+                if ( !contact )
+                    contact = StrangerManager::instance()->stranger(msg->sendUin());
 				StrangerManager::instance()->disconnect(this);
 
                 const QQSystemMsg *sys_msg = static_cast<const QQSystemMsg*>(msg.data());

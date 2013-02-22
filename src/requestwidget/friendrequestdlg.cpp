@@ -89,7 +89,10 @@ void FriendRequestDlg::slotOkClicked()
     if (ui_->rb_allow_and_add_->isChecked())
     {
         if ( Roster::instance()->contact(id_) )
+        {
+            accept();
             return;
+        }
 
 		QString markname = ui_->le_comment_->text();
         QString allow_and_add_url = "/api/allow_and_add2";

@@ -227,6 +227,10 @@ public:
     QString t_gcode_;
     QString request_uin;
     QString t_request_uin_;
+    int op_type;
+    QString admin_uin;
+    QString new_member;
+    QString old_member;
     QString msg_;
 };
 

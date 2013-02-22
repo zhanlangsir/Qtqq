@@ -26,6 +26,8 @@ public:
 
 private slots:
 	void onNewSystemMsg(ShareQQMsgPtr msg);
+    void onNewSystemGMsg(ShareQQMsgPtr msg);
+
 	void onActionTriggered();
 
 	void onNewStrangerInfo(QString id, Contact *stranger);
@@ -35,6 +37,9 @@ private:
 	void createTrayNotify(ShareQQMsgPtr msg, Contact *stranger);
 	QAction *friendActionById(const QString &id) const;
 	QAction *groupActionById(const QString &id) const;
+
+    void showMessageBox(const QPixmap &pix, const QString &msg);
+    Contact *getContactFromSystemMsg(const QString &id);
 
 private:
 	QList<QAction *> actions_;
