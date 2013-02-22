@@ -48,10 +48,7 @@ public:
 
 public slots:
     void slotGrab();
-    void slotSave();
-    void slotSaveAs();
     void slotCopy();
-    void slotOpen(const QString& application);
     void slotMovePointer( int x, int y );
     void setTime( int newTime );
     void setURL( const QString &newURL );
@@ -66,7 +63,6 @@ protected:
     virtual void refreshCaption();
 
 private slots:
-    void slotOpen(QAction*);
     void grabTimerDone();
     void slotDragSnapshot();
     void updateCaption();
@@ -90,6 +86,8 @@ private slots:
     void slotScreenshotReceived(qulonglong handle);
     void onSendBtnClicked();
     void onCancelBtnClicked();
+    void onHelpBtnClicked();
+    void onSaveBtnClicked();
 
 public:
     int grabMode() const;

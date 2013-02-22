@@ -41,9 +41,6 @@ public:
      KSnapshotObject();
      virtual ~KSnapshotObject();
 
-     //bool save( const QString &filename, QWidget* widget = 0);
-     bool save(/* const KUrl& url, QWidget *widget */);
-     //bool saveEqual( const KUrl& url,QWidget *widget );
      bool saveImage( QIODevice *device, const QByteArray &format );
 
 protected:

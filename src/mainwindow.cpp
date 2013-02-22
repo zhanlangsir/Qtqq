@@ -50,7 +50,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	contact_model_(NULL),
 	group_model_(NULL),
 	recent_model_(NULL),
-	open_chat_dlg_sc_(NULL)
+	open_chat_dlg_sc_(NULL),
+	snapshot_(NULL)
 {
     ui->setupUi(this);
 

@@ -29,6 +29,7 @@
 
 #include <QClipboard>
 #include <QShortcut>
+#include <QFileDialog>
 #include <QDir>
 #include <QMenu>
 #include <QIcon>
@@ -38,8 +39,8 @@
 #include <QDrag>
 #include <QMouseEvent>
 #include <QPainter>
-#include <QtCore/QXmlStreamReader>
 #include <QDebug>
+#include <QMessageBox>
 #include <QVBoxLayout>
 
 #include "regiongrabber.h"
@@ -75,13 +76,6 @@ KSnapshot::KSnapshot(QWidget *parent,  KSnapshotObject::CaptureMode mode )
     const QString untitled = QString(tr("untitled"));
     
     setWindowTitle(""); 
-    /*
-    setButtons(Help | Apply | User1 | User2);
-    setButtonGuiItem(Apply, KStandardGuiItem::saveAs());
-    setButtonGuiItem(User1, KGuiItem(i18n("Copy"), "edit-copy"));
-    setButtonGuiItem(User2, KGuiItem(i18n("Send To..."), "document-open"));
-    setDefaultButton(Apply);
-    */
     grabber = new QWidget( 0,  Qt::X11BypassWindowManagerHint );
     
     // TODO X11 (Xinerama and Twinview, actually) and Windows use different coordinates for the two monitors case
@@ -116,6 +110,8 @@ KSnapshot::KSnapshot(QWidget *parent,  KSnapshotObject::CaptureMode mode )
 
     connect(mainWidget->send_btn, SIGNAL(clicked()), SLOT(onSendBtnClicked()));
     connect(mainWidget->cancel_btn, SIGNAL(clicked()), SLOT(onCancelBtnClicked()));
+    connect(mainWidget->save_btn, SIGNAL(clicked()), SLOT(onSaveBtnClicked()));
+    connect(mainWidget->help_btn, SIGNAL(clicked()), SLOT(onHelpBtnClicked()));
     connect(mainWidget->lblImage, SIGNAL(startDrag()), SLOT(slotDragSnapshot()));
     connect(mainWidget->btnNew, SIGNAL(clicked()), SLOT(slotGrab()));
     connect(mainWidget->comboMode, SIGNAL(activated(int)), SLOT(slotModeChanged(int)));
@@ -253,58 +249,29 @@ void KSnapshot::resizeEvent( QResizeEvent * )
     updateTimer.start( 200 );
 }
 
-void KSnapshot::slotSave()
+void KSnapshot::onHelpBtnClicked()
 {
-    /*
-    // Make sure the name is not already being used
-    while(KIO::NetAccess::exists( filename, KIO::NetAccess::DestinationSide, this )) {
-        autoincFilename();
-    }
-
-    if ( save(filename, this) ) {
-        modified = false;
-        autoincFilename();
-        updateCaption();
-    }
-    */
+    QMessageBox::information(NULL, tr("Help"), 
+            tr(" * 点击发送可把图片发送到当前激活的聊天窗口，否则保存到默认位置，不做其他处理\n"
+                " * 保存功能只能保存png,和jpg后缀，如果不加后缀，默认为png"));
 }
 
-void KSnapshot::slotSaveAs()
+void KSnapshot::onSaveBtnClicked()
 {
-    /*
-    QStringList mimetypes = KImageIO::mimeTypes( KImageIO::Writing );
+    QString save_path = QFileDialog::getSaveFileName(this, tr("select the image to save"), QString(), tr("Image Files(*.png *.jpg)"));
+    QFileInfo info(save_path);
+    QString save_dir = info.absolutePath();
+    qDebug() << save_dir << endl;
 
-    // Make sure the name is not already being used
-    while(KIO::NetAccess::exists( filename, KIO::NetAccess::DestinationSide, this )) {
-        autoincFilename();
+    QString suffix;
+    if ( info.suffix().isEmpty() )
+        suffix = "png";
+    else if ( info.suffix() != "png" || info.suffix() != "jpg" )
+    {
+        suffix = "png";
     }
 
-    QPointer<KFileDialog> dlg = new KFileDialog( filename.url(), mimetypes.join(" "), this);
-
-    dlg->setOperationMode( KFileDialog::Saving );
-    dlg->setCaption( i18n("Save As") );
-    dlg->setSelection( filename.url() );
-
-    if ( !dlg->exec() ) {
-        delete dlg;
-        return;
-    }
-
-    KUrl url = dlg->selectedUrl();
-    if ( !url.isValid() ){
-	delete dlg;
-        return;
-    }
-
-    if ( save(url,this) ) {
-        filename = url;
-        modified = false;
-        autoincFilename();
-        updateCaption();
-    }
-
-    delete dlg;
-    */
+    snapshot.save(save_dir + '/' + info.baseName() + '.' + suffix);
 }
 
 void KSnapshot::slotCopy()
@@ -350,97 +317,6 @@ void KSnapshot::startUndelayedGrab()
         grabber->show();
         grabber->grabMouse(Qt::CrossCursor);
     }
-}
-
-/*
-KUrl KSnapshot::urlToOpen(bool *isTempfile)
-{
-    if (isTempfile) {
-        *isTempfile = false;
-    }
-
-    if (!modified && filename.isValid())
-    {
-        return filename;
-    }
-
-    const QString fileopen = KStandardDirs::locateLocal("tmp", filename.fileName());
-
-    if (saveEqual(fileopen, this))
-    {
-        if (isTempfile) {
-            *isTempfile = true;
-        }
-
-        return fileopen;
-    }
-
-    return KUrl();
-}
-*/
-
-void KSnapshot::slotOpen(const QString& application)
-{
-    Q_UNUSED(application)
-    /*
-    KUrl url = urlToOpen();
-    if (!url.isValid())
-    {
-        return;
-    }
-
-    KUrl::List list;
-    list.append(url);
-    KRun::run(application, list, this);
-    */
-}
-
-void KSnapshot::slotOpen(QAction* action)
-{
-    Q_UNUSED(action)
-    /*
-    KSnapshotServiceAction* serviceAction =
-                                  qobject_cast<KSnapshotServiceAction*>(action);
-
-    if (!serviceAction)
-    {
-        return;
-    }
-
-    bool isTempfile = false;
-    KUrl url = urlToOpen(&isTempfile);
-    if (!url.isValid())
-    {
-        return;
-    }
-
-    KUrl::List list;
-    list.append(url);
-
-    KService::Ptr service = serviceAction->service;
-    if (!service)
-    {
-        QPointer<KOpenWithDialog> dlg = new KOpenWithDialog(list, this);
-        if (!dlg->exec())
-        {
-            delete dlg;
-            return;
-        }
-
-        service = dlg->service();
-
-        if (!service && !dlg->text().isEmpty())
-        {
-             KRun::run(dlg->text(), list, this);
-             delete dlg;
-             return;
-        }
-	delete dlg;
-    }
-
-    // we have an action with a service, run it!
-    KRun::run(*service, list, this, isTempfile);
-    */
 }
 
 void KSnapshot::slotRegionGrabbed( const QPixmap &pix )
@@ -512,23 +388,7 @@ void KSnapshot::slotScreenshotReceived( qulonglong handle )
 void KSnapshot::closeEvent( QCloseEvent * e )
 {
     Q_UNUSED(e)
-    /*
-    KConfigGroup conf(KGlobal::config(), "GENERAL");
-    conf.writeEntry("delay", delay());
-    conf.writeEntry("mode", mode());
-    conf.writeEntry("includeDecorations", includeDecorations());
-    conf.writeEntry("includePointer", includePointer());
 
-    KConfigGroup cg(KGlobal::config(), "MainWindow");
-    saveDialogSize(cg);
-
-    KUrl url = filename;
-    url.setPass(QString::null); //krazy:exclude=nullstrassign for old broken gcc
-    conf.writePathEntry("filename", url.url());
-
-    conf.sync();
-    e->accept();
-    */
     deleteLater();
 }
 
