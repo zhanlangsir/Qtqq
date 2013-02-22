@@ -34,12 +34,10 @@ void Protocol::QQProtocol::run()
 	poll_thread_->start();
 }
 
-
 void Protocol::QQProtocol::stop()
 {
 	poll_thread_->stop();
 }
-
 
 void Protocol::QQProtocol::requestIconFor(Talkable *req_for)
 {
@@ -47,7 +45,6 @@ void Protocol::QQProtocol::requestIconFor(Talkable *req_for)
     requesting_[job->type()].push_back(job->requesterId());
     runJob(job);
 }
-
 
 void Protocol::QQProtocol::runJob(__JobBase *job)
 {
@@ -155,7 +152,7 @@ void Protocol::QQProtocol::slotJobDone(__JobBase* job, bool error)
         if ( job->jobFor() )
             requesting_[job->type()].removeOne(job->requesterId());
         else
-            qDebug() << "Wraning: lost one job" << endl;
+            qDebug() << "Wraning: lost one job, job type: " << job->type() << endl;
     }
 
     job->deleteLater();

@@ -219,8 +219,6 @@ KSnapshot::KSnapshot(QWidget *parent,  KSnapshotObject::CaptureMode mode )
     resize(QSize(400, 500));
 
     move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
-    //KConfigGroup cg(KGlobal::config(), "MainWindow");
-    //restoreDialogSize(cg);
 }
 
 KSnapshot::~KSnapshot()

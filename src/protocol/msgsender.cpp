@@ -57,9 +57,10 @@ QString MsgSender::groupMsgToJson(Group *to, const QVector<QQChatItem> &items)
                 break;
             case QQChatItem::kGroupChatImg:
                 {
-                    Protocol::ImgSender *imgsender = Protocol::QQProtocol::instance()->imgSender();
-                    FileInfo info = imgsender->getUploadedImgInfo(item.content());
                     has_gface = true;
+                    Protocol::ImgSender *imgsender = Protocol::QQProtocol::instance()->imgSender();
+
+                    FileInfo info = imgsender->getUploadedImgInfo(item.content());
                     json_msg.append("[\\\"cface\\\",\\\"group\\\",\\\"" + info.name + "\\\"],");
 
                 }
