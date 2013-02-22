@@ -11,8 +11,9 @@ enum JobType
 	JT_FriendInfo2,
 	JT_StrangerInfo2,
     JT_GroupMemberList,
-    JT_SendMsg,
+    JT_LoadImg,
     JT_SendImg,
+    JT_SendMsg,
     JT_FileRecive
 };
 

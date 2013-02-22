@@ -437,20 +437,15 @@ QQMsg *MsgProcessor::createSystemMsg(const Json::Value &result) const
 bool MsgProcessor::isChatContentEmpty(const QQChatMsg *msg, const QString &content) const
 {
     /*
-     * 对方用webqq发送好友图片的时候,会在图片后加上" "文本,
-     * 这里判断" "后还有没有其他输入文字,如果是群图片,则会在
-     * 后面加上"\n "或者" ",如果"\n "或者" "后面没有其他文字
-     * 则过滤掉不显示
+     * 对方用webqq发送图片的时候,会在图片后自动上" "或者"\n "文本,
+     * 这里判断这种情况,并将额外的" "或者"\n "去掉,不予显示.
      */
     if ( msg->msgs_.size() == 0 )
         return false;
-    //如果上一个消息为好友图片类型,则把" "过滤掉
-    if ( msg->msgs_[msg->msgs_.size()-1].type() == QQChatItem::kFriendOffpic  )
-        return  (content.size() == 1 &&  content[0] == ' ');
-    else  //如果是群图片,会在图片后加"\n "或者" ",这里也过滤掉
-    {
-       return  ( (content.size() == 1 && content[0] == ' ') || (content.size() == 2 &&  content[0] == '\n') );
-    }
+
+    QQChatItem::ChatItemType type = msg->msgs_[msg->msgs_.size()-1].type();
+    if ( type == QQChatItem::kFriendOffpic || type == QQChatItem::kGroupChatImg )
+        return  ( (content.size() == 1 &&  content[0] == ' ') || (content.size() == 2 && content[0] == '\n') );
 }
 
 void MsgProcessor::dispatchMsg(QVector<QQMsg *> &msgs) 

@@ -13,7 +13,7 @@ class LoadImgJob : public __JobBase
 {
 	Q_OBJECT
 public:
-	LoadImgJob(QString file, ImgType img_type, JobType type = JT_Icon);
+	LoadImgJob(QString file, ImgType img_type, JobType type = JT_LoadImg);
 
 	virtual void run();
     virtual void getImgUrl();
