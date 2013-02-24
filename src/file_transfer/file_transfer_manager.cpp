@@ -147,13 +147,7 @@ void FileTransferManager::sendFile(const QString &to_id, const QString &to_name,
 
     Protocol::QQProtocol::instance()->sendFile(file_path, to_id, file_data);
 
-    SendFileItem item;
-    item.to_id = to_id;
-    item.to_name = to_name;
-    item.file_path = file_path;
-    item.begin_time = QDateTime::currentMSecsSinceEpoch();
-
-    transfer_dlg_.appendSendItem(item);
+    transfer_dlg_.appendSendItem(to_id, to_name, file_path);
     transfer_dlg_.showSendWidget();
 }
 
@@ -166,11 +160,6 @@ void FileTransferManager::sendOffFile(const QString &to_id, const QString &to_na
 
     Protocol::QQProtocol::instance()->sendOffFile(file_path, to_id, file_data);
 
-    SendFileItem item;
-    item.to_id = to_id;
-    item.to_name = to_name;
-    item.file_path = file_path;
-
-    transfer_dlg_.appendSendItem(item);
+    transfer_dlg_.appendSendItem(to_id, to_name, file_path);
     transfer_dlg_.showSendWidget();
 }

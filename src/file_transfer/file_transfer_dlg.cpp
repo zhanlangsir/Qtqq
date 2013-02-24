@@ -49,8 +49,14 @@ void FileTransferDlg::pauseRecving(int session_id)
     recv_widget_.pause(session_id);     
 }
 
-void FileTransferDlg::appendSendItem(SendFileItem item)
+void FileTransferDlg::appendSendItem(const QString &to_id, const QString &to_name, const QString &file_path)
 {
+    SendFileItem item;
+    item.to_id = to_id;
+    item.to_name = to_name;
+    item.file_path = file_path;
+    item.begin_time = QDateTime::currentMSecsSinceEpoch();
+
     send_widget_.append(item);
 }
 

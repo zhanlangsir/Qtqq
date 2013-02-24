@@ -34,7 +34,7 @@ public:
     void appendRecvItem(RecvFileItem item);
     void pauseRecving(int session_id);
 
-    void appendSendItem(SendFileItem item);
+    void appendSendItem(const QString &to_id, const QString &to_name, const QString &file_path);
     void pauseSending(int session_id);
 
 private slots:
