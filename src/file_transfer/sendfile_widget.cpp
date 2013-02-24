@@ -116,7 +116,7 @@ void SendFileWidget::on_pause_btn_clicked()
 
     foreach ( const SendFileItem &item, transfer_items_.values() )
     {
-        if ( item.row == ui.tw_tasks->currentRow() )
+        if ( item.row == ui.tw_tasks->currentRow() && !item.done )
         {
             QLabel *download_status_label = (QLabel *)ui.tw_tasks->cellWidget(item.row, SEND_STATUS_ROW);
             download_status_label->setText(tr("Upload pause!"));
