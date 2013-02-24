@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 project(Qtqq)
-set(version 0.8.1-alpha)
+set(version 0.8.2-alpha)
 
 INCLUDE(FindX11)
 find_package(Qt4 REQUIRED)

@@ -29,7 +29,12 @@ int main(int argc, char *argv[])
 
     QTranslator translator;
     QString transla_file_path = QQGlobal::dataDir() + "/translations";
+
+#if QT_VERSION >= 0x040800
     translator.load(QLocale::system(), "qtqq", "_", transla_file_path, ".qm");
+#else
+    translator.load(transla_file_path + '/' + "qtqq_zh");
+#endif
     a.installTranslator(&translator);
 
     Log4Qt::LogManager::setHandleQtMessages(true);
