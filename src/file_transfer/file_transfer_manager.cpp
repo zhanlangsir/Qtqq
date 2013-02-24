@@ -50,13 +50,13 @@ void FileTransferManager::onFilesrvTransferMsg(ShareQQMsgPtr msg)
     else if ( srv_msg->operation == 1 && srv_msg->file_status == 50 )
     {
         transfer_dlg_.pauseSending(srv_msg->lc_id);
-        transfer_dlg_.showSendTab();
+        transfer_dlg_.showSendWidget();
     }
     else if ( srv_msg->file_status == 52 )
     {
         //对方停止发送文件
         transfer_dlg_.pauseRecving(srv_msg->lc_id);
-        transfer_dlg_.showRecvTab();
+        transfer_dlg_.showRecvWidget();
     }
     else if ( srv_msg->file_status == 0 )
     {
@@ -125,7 +125,7 @@ void FileTransferManager::onFileRecAccept()
     Protocol::QQProtocol::instance()->reciveFile(file_msg->session_id, file_msg->name, file_msg->from_id);
 
     transfer_dlg_.appendRecvItem(item);
-    transfer_dlg_.showRecvTab();
+    transfer_dlg_.showRecvWidget();
 }
 
 void FileTransferManager::onFileRecReject()
@@ -154,7 +154,7 @@ void FileTransferManager::sendFile(const QString &to_id, const QString &to_name,
     item.begin_time = QDateTime::currentMSecsSinceEpoch();
 
     transfer_dlg_.appendSendItem(item);
-    transfer_dlg_.showSendTab();
+    transfer_dlg_.showSendWidget();
 }
 
 
@@ -172,5 +172,5 @@ void FileTransferManager::sendOffFile(const QString &to_id, const QString &to_na
     item.file_path = file_path;
 
     transfer_dlg_.appendSendItem(item);
-    transfer_dlg_.showSendTab();
+    transfer_dlg_.showSendWidget();
 }

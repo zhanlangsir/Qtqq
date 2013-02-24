@@ -119,7 +119,7 @@ void SendFileWidget::on_pause_btn_clicked()
         if ( item.row == ui.tw_tasks->currentRow() )
         {
             QLabel *download_status_label = (QLabel *)ui.tw_tasks->cellWidget(item.row, SEND_STATUS_ROW);
-            download_status_label->setText(tr("Download been Cancel!"));
+            download_status_label->setText(tr("Upload pause!"));
 
             transfer_items_.remove(item.file_path);
 

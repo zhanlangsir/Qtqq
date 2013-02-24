@@ -4,6 +4,7 @@
 #include <assert.h>
 
 #include <QDateTime>
+#include <QDesktopWidget>
 
 #include "json/json.h"
 
@@ -47,6 +48,9 @@ GroupRequestDlg::GroupRequestDlg(const ShareQQMsgPtr msg, Contact *contact, Grou
     connect(ui_->pb_ok_ , SIGNAL(clicked()), this, SLOT(slotOkClicked()));
     connect(ui_->pb_ignore_ , SIGNAL(clicked()), this, SLOT(slotIgnoreClicked()));
     connect(ui_->rb_deny_, SIGNAL(toggled(bool)), this, SLOT(slotToggleDenyReason(bool)));
+
+
+    move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
 }
 
 void GroupRequestDlg::slotOkClicked()

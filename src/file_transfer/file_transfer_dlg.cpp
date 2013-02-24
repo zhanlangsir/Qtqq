@@ -64,14 +64,14 @@ void FileTransferDlg::on_close_btn_clicked()
     hide();
 }
 
-void FileTransferDlg::showRecvTab()
+void FileTransferDlg::showRecvWidget()
 {
     ui.main_tab->setCurrentIndex(ui.main_tab->indexOf(&recv_widget_));
     show();
     raise();
 }
 
-void FileTransferDlg::showSendTab()
+void FileTransferDlg::showSendWidget()
 {
     ui.main_tab->setCurrentIndex(ui.main_tab->indexOf(&send_widget_));
     show();

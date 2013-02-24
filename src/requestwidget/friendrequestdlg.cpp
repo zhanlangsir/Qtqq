@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QPixmap>
 #include <QTcpSocket>
+#include <QDesktopWidget>
 
 #include "core/captchainfo.h"
 #include "core/qqmsg.h"
@@ -51,6 +52,8 @@ void FriendRequestDlg::initUi(Contact *contact)
 	{
 		ui_->cb_group_->addItem(cat->name(), cat->index());
 	}
+
+    move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
 }
 
 void FriendRequestDlg::initConnections()

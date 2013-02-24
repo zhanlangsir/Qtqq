@@ -28,8 +28,8 @@ public:
 
     void setUploadDone(const QString &file_name, int session_id);
 
-    void showRecvTab();
-    void showSendTab();
+    void showRecvWidget();
+    void showSendWidget();
 
     void appendRecvItem(RecvFileItem item);
     void pauseRecving(int session_id);
