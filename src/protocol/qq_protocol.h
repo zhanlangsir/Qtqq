@@ -6,7 +6,6 @@
 #include <QMap>
 
 #include "protocol/request_jobs/job_base.h"
-#include "protocol/imgsender.h"
 #include "protocol/msgsender.h"
 
 class __JobBase;
@@ -14,12 +13,15 @@ typedef JobType RequestType;
 
 namespace Protocol
 {
-class QQProtocol;
+    class QQProtocol;
 	class PollThread;
+    class ImgSender;
+    class FileSender;
 };
 
 class Talkable;
 class FileReciveJob;
+class SendFileJob;
 
 class Protocol::QQProtocol : public QObject
 {
@@ -28,6 +30,7 @@ signals:
 	void newQQMsg(QByteArray msg);
 
     void fileTransferProgress(int session_id, int recived_byte, int totol_byte);
+    void sendFileProgress(QString file, int send_byte, int totol_byte);
 
 public:
 	~QQProtocol();
@@ -52,12 +55,18 @@ public:
     void requestGroupSig();
 
     void reciveFile(int session_id, QString file_name, QString to);
-    void parseTransferFile(int session_id);
+    void refuseRecvFile(QString to_id, int session_id);
+
+    void pauseRecvFile(int session_id);
+    void pauseSendFile(QString file_path);
 
     void sendImg(Talkable *sender, QString file_name, QByteArray data);
     void sendGroupImg();
     void sendMsg(Talkable *to, const QVector<QQChatItem> &msgs); 
     void sendGroupMsg(const QVector<QQChatItem> &msgs); 
+
+    void sendFile(const QString &file_path, const QString &to_id, const QByteArray &data);
+    void sendOffFile(const QString &file_paht, const QString &to_id, const QByteArray &data);
 
     void loadFriendOffpic(QString file, QString to_id);
     void loadFriendCface(const QString &file, const QString &to_id, const QString &msg_id);
@@ -68,8 +77,10 @@ public:
 		return requesting_[type].contains(id);
 	}
 
-    ImgSender *imgSender() const
+    Protocol::ImgSender *imgSender() const
     { return imgsender_; }
+    Protocol::FileSender *fileSender() const
+    { return filesender_; }
 
 private slots:
 	void slotJobDone(__JobBase* job, bool error);
@@ -81,9 +92,12 @@ private:
     QMap<JobType, QList<QString> > requesting_;
 	//QMap<JobType, QString> requesting_;
     QMap<int, FileReciveJob *> reciving_jobs_;
+    QMap<QString, SendFileJob *> sending_jobs_;
+
 	Protocol::PollThread *poll_thread_;
 
     ImgSender *imgsender_;
+    FileSender *filesender_;
 
 private:
 	QQProtocol(); 

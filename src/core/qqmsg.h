@@ -190,9 +190,9 @@ public:
 	{
 	}
 
-    QString talkTo() const
+    virtual QString talkTo() const
     { return from_; }
-	QString sendUin() const
+	virtual QString sendUin() const
 	{ return from_; }
 
     QString from_;
@@ -211,9 +211,9 @@ public:
 	{
 	}
 
-    QString sendUin() const
+    virtual QString sendUin() const
     { return request_uin; }
-    QString talkTo() const
+    virtual QString talkTo() const
     { return from_uin; }
     QString msg() const
     { return msg_; }
@@ -237,13 +237,15 @@ public:
 class QQFileMsg : public QQMsg
 {
 public:
-    enum FileMsgType { kRecv, kRefuse };
+    enum FileMsgType { kRecv, kRefuse, kSendAck };
     QQFileMsg(MsgType type = kFile) :
         QQMsg(type)
     {
     }
 
-    QString sendUin() const
+    virtual QString sendUin() const
+    { return from_id; }
+    virtual QString talkTo() const
     { return from_id; }
 
     QString name;
@@ -269,9 +271,9 @@ public:
     {
     }
 
-    QString sendUin() const
+    virtual QString sendUin() const
     { return from_id; }
-    QString talkTo() const
+    virtual QString talkTo() const
     { return from_id; }
 
     int msg_id;

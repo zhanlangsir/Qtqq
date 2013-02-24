@@ -22,12 +22,14 @@ public:
         return instance_;
     }
 
+    void sendFile(const QString &to_id, const QString &to_name, const QString &file_path);
+    void sendOffFile(const QString &to_id, const QString &to_name, const QString &file_path);
+
 private slots:
     void onFileMsg(ShareQQMsgPtr msg);
     void onFilesrvTransferMsg(ShareQQMsgPtr msg);
     void onFileRecAccept();
     void onFileRecReject();
-    void onParseItem(int session_id);
     void openFileTransferDlg();
 
 private:

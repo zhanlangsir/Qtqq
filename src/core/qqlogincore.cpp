@@ -11,6 +11,8 @@
 #include <QSettings>
 #include <QFile>
 
+#include "json/json.h"
+
 #include "sockethelper.h"
 #include "captchainfo.h"
 #include "request.h"
@@ -96,9 +98,9 @@ void QQLoginCore::login(QString id, QString pwd, ContactStatus status)
             ptwebqq = value;
 
         if (key == "skey")
-            CaptchaInfo::instance()->set_skey(value);
+            CaptchaInfo::instance()->setSkey(value);
 
-        CaptchaInfo::instance()->set_cookie(CaptchaInfo::instance()->cookie() + key + "=" + value + ";");
+        CaptchaInfo::instance()->setCookie(CaptchaInfo::instance()->cookie() + key + "=" + value + ";");
     }
 
     getLoginInfo(ptwebqq);
@@ -163,7 +165,7 @@ QQLoginCore::AccountStatus QQLoginCore::checkState(QString id)
         int idx = result.indexOf(';', cookie_idx)+1;
         QString ptvfsession = result.mid(cookie_idx, idx - cookie_idx);
         qDebug() << "Extract ptvfseesion: " << ptvfsession << endl;
-        CaptchaInfo::instance()->set_cookie(ptvfsession);
+        CaptchaInfo::instance()->setCookie(ptvfsession);
 
         return kNormal;
     }
@@ -199,7 +201,7 @@ QPixmap QQLoginCore::getCapImg()
     
     int cookie_idx = result.indexOf("Set-Cookie") + 12;
     int idx = result.indexOf(';', cookie_idx)+1;
-    CaptchaInfo::instance()->set_cookie(result.mid(cookie_idx, idx - cookie_idx));
+    CaptchaInfo::instance()->setCookie(result.mid(cookie_idx, idx - cookie_idx));
 
     QPixmap pix;
     pix.loadFromData(result.mid(result.indexOf("\r\n\r\n") + 4));
@@ -257,17 +259,38 @@ void QQLoginCore::getLoginInfoDone()
     QByteArray result = fd_->readAll();
     qDebug() <<"Got login information:\n" << result << '\n' << endl;
 
+    QByteArray body = result.mid(result.indexOf("\r\n\r\n")+4);
+
+
+    Json::Reader reader;
+    Json::Value root;
+
+    if (!reader.parse(QString(body).toStdString(), root, false))
+    {
+        emit sig_loginDone(kUnknowErr);
+        return;
+    }    
+
+    Json::Value json_result = root["result"];
+    QString vfwebqq = QString::fromStdString(json_result["vfwebqq"].asString());
+    QString psessionid = QString::fromStdString(json_result["psessionid"].asString());
+    int index = json_result["index"].asInt();
+    int port = json_result["port"].asInt();
+    /*
     int vfwebqq_f_idx = result.indexOf("vfwebqq") + 10;
     int vfwebqq_s_idx = result.indexOf(',', vfwebqq_f_idx) - 1;
 
-    CaptchaInfo::instance()->set_vfwebqq(result.mid(vfwebqq_f_idx, vfwebqq_s_idx - vfwebqq_f_idx));
 
     int psessionid_f_idx = result.indexOf("psessionid") + 13;
     int  psessionid_s_idx = result.indexOf(',',  psessionid_f_idx) - 1;
-    CaptchaInfo::instance()->set_psessionid(result.mid( psessionid_f_idx,  psessionid_s_idx -  psessionid_f_idx));
+    */
+    CaptchaInfo::instance()->setVfwebqq(vfwebqq);
+    CaptchaInfo::instance()->setPsessionid(psessionid);
+    CaptchaInfo::instance()->setIndex(index);
+    CaptchaInfo::instance()->setPort(port);
 
-	CurrLoginAccount::setId(id_);
-	CurrLoginAccount::setStatus(status_);
+    CurrLoginAccount::setId(id_);
+    CurrLoginAccount::setStatus(status_);
 
     emit sig_loginDone(kSucess);
 }

@@ -164,6 +164,19 @@
           </widget>
          </item>
          <item>
+          <widget class="QToolButton" name="send_file_btn">
+           <property name="toolTip">
+            <string>send file to him!</string>
+           </property>
+           <property name="text">
+            <string>sendfile</string>
+           </property>
+           <property name="popupMode">
+            <enum>QToolButton::InstantPopup</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="horizontalSpacer_2">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -178,6 +191,9 @@
          </item>
          <item>
           <widget class="QToolButton" name="btn_chat_log">
+           <property name="toolTip">
+            <string>Message log!</string>
+           </property>
            <property name="text">
             <string>message log</string>
            </property>

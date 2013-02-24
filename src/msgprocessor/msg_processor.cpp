@@ -180,6 +180,8 @@ QQMsg *MsgProcessor::createFileMsg(const Json::Value &result) const
         file_msg->mode = QQFileMsg::kRefuse;
     else if ( mode == "recv" )
         file_msg->mode = QQFileMsg::kRecv;
+    else if ( mode == "send_ack" )
+        file_msg->mode = QQFileMsg::kSendAck;
     else
         qDebug() << "Recive unknow file message! Message mode: " << mode << endl;
 
@@ -193,6 +195,9 @@ QQMsg *MsgProcessor::createFileMsg(const Json::Value &result) const
     file_msg->time = value["time"].asLargestInt();
     file_msg->session_id = value["session_id"].asLargestInt();
     file_msg->inet_ip = value["inet_ip"].asLargestInt();
+
+    if ( !value["cancel_type"].empty() )
+        file_msg->cancel_type = value["cancel_type"].asInt();
 
     return file_msg;
 }

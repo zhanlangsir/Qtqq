@@ -5,7 +5,7 @@
 #include <QUrl>
 #include <QDebug>
 
-#include "job_base.h"
+#include "protocol/request_jobs/job_base.h"
 #include "protocol/request_jobs/img_type.h"
 #include "core/captchainfo.h"
 

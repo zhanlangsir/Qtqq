@@ -13,8 +13,10 @@ enum JobType
     JT_GroupMemberList,
     JT_LoadImg,
     JT_SendImg,
+    JT_SendFile,
     JT_SendMsg,
-    JT_FileRecive
+    JT_FileRecive,
+    JT_RefuseFile
 };
 
 class __JobBase : public QObject

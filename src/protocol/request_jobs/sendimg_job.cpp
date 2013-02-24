@@ -55,13 +55,13 @@ void SendImgJob::run()
     QString host;
     if ( for_->type() == Talkable::kContact )
     {
-        send_url = "/ftn_access/upload_offline_pic?time=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
+        send_url = "/ftn_access/upload_offline_pic?time=" + QString::number(QDateTime::currentMSecsSinceEpoch());
 ;
         host = "weboffline.ftn.qq.com";
     }
     else if ( for_->type() == Talkable::kGroup )
     {
-        send_url = "/cgi-bin/cface_upload?time=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
+        send_url = "/cgi-bin/cface_upload?time=" + QString::number(QDateTime::currentMSecsSinceEpoch());
 ;
         host = "up.web2.qq.com";
     }

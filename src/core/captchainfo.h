@@ -16,23 +16,33 @@ public:
 public:
     QString vfwebqq() const
     { return vfwebqq_; }
-    void set_vfwebqq(QString vfwebqq)
+    void setVfwebqq(QString vfwebqq)
     { vfwebqq_ = vfwebqq; }
 
     QString psessionid() const
     { return psessionid_; }
-    void set_psessionid(QString psessionid)
+    void setPsessionid(QString psessionid)
     { psessionid_ = psessionid; }
 
     QString skey() const
     { return skey_; }
-    void set_skey(QString skey)
+    void setSkey(QString skey)
     { skey_ = skey; }
 
     QString cookie() const
     { return cookie_; }
-    void set_cookie(QString cookie)
+    void setCookie(QString cookie)
     { cookie_= cookie; }
+
+    int index() const
+    { return index_; }
+    void setIndex(int index) 
+    { index_ = index; }
+
+    int port() const
+    { return port_; }
+    void setPort(int port)
+    { port_ = port; } 
 
 protected:
     CaptchaInfo() {}
@@ -44,6 +54,8 @@ private:
     QString psessionid_;
     QString skey_;
     QString cookie_;
+    int index_;
+    int port_;
 };
 
 #endif // CAPTCHAINFO_H

@@ -40,6 +40,8 @@ set(CORE_HEADERS
     #file transfer
     file_transfer/file_transfer_manager.h
     file_transfer/file_transfer_dlg.h
+    file_transfer/sendfile_widget.h
+    file_transfer/recvfile_widget.h
 
     #hotkey manager
     hotkeymanager/hotkey_manager.h
@@ -70,6 +72,7 @@ set(CORE_HEADERS
 	protocol/pollthread.h
     protocol/event_center.h
 	protocol/imgsender.h
+	protocol/filesender.h
     protocol/msgsender.h
 
 	#request_jobs
@@ -79,9 +82,11 @@ set(CORE_HEADERS
 	protocol/request_jobs/job_base.h
 	protocol/request_jobs/sendmsg_job.h
     protocol/request_jobs/sendimg_job.h
+    protocol/request_jobs/sendfile_job.h
     protocol/request_jobs/filerecive_job.h
 	protocol/request_jobs/strangerinfo2_job.h
 	protocol/request_jobs/loadimg_job.h
+	protocol/request_jobs/refusefile_job.h
 
 	#roster
 	roster/roster.h
@@ -178,6 +183,8 @@ set(CORE_SOURCES
     #file transfer
     file_transfer/file_transfer_manager.cpp
     file_transfer/file_transfer_dlg.cpp
+    file_transfer/sendfile_widget.cpp
+    file_transfer/recvfile_widget.cpp
 
     #hotkey manager
     hotkeymanager/hotkey_manager.cpp
@@ -197,6 +204,7 @@ set(CORE_SOURCES
 	protocol/pollthread.cpp
     protocol/event_center.cpp
 	protocol/imgsender.cpp
+	protocol/filesender.cpp
     protocol/msgsender.cpp
 
     #request_jobs
@@ -206,9 +214,11 @@ set(CORE_SOURCES
 	protocol/request_jobs/job_base.cpp
 	protocol/request_jobs/sendmsg_job.cpp
     protocol/request_jobs/sendimg_job.cpp
+    protocol/request_jobs/sendfile_job.cpp
     protocol/request_jobs/filerecive_job.cpp
 	protocol/request_jobs/strangerinfo2_job.cpp
 	protocol/request_jobs/loadimg_job.cpp
+	protocol/request_jobs/refusefile_job.cpp
 
 	#roster
 	roster/roster.cpp
@@ -304,6 +314,8 @@ set(UI_FILES
     ui/filetransferdlg.ui
     ui/ksnapshotwidget.ui
     ui/hotkeydlg.ui
+    ui/sendfilewidget.ui
+    ui/recvfilewidget.ui
 )
 
 QT4_WRAP_UI(UI_FILES_HEADERS ${UI_FILES})

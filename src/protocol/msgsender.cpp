@@ -5,6 +5,7 @@
 #include "core/talkable.h"
 #include "protocol/qq_protocol.h"
 #include "core/captchainfo.h"
+#include "protocol/imgsender.h"
 
 int MsgSender::msg_id_ = 4462000;  //arbitrary
 

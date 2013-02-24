@@ -86,32 +86,32 @@ QQChatDlg::~QQChatDlg()
 void QQChatDlg::setSendByReturn(bool checked)
 {
     Q_UNUSED(checked)
-        if (!send_by_return_)
-        {
-            QSettings setting(QQGlobal::configDir() + "/options.ini", QSettings::IniFormat);
-            setting.setValue("send_by_return", true);
-            send_by_return_ = true;
+    if (!send_by_return_)
+    {
+        QSettings setting(QQGlobal::configDir() + "/options.ini", QSettings::IniFormat);
+        setting.setValue("send_by_return", true);
+        send_by_return_ = true;
 
-            act_ctrl_return_->setChecked(false);
-        }
+        act_ctrl_return_->setChecked(false);
+    }
 }
 
 void QQChatDlg::onMsgSendDone(bool ok, QString msg)
 {
     Q_UNUSED(msg)
-        emit sigMsgSended(talkable_->id());
+    emit sigMsgSended(talkable_->id());
 }
 
 void QQChatDlg::setSendByCtrlReturn(bool checked)
 {
     Q_UNUSED(checked)
-        if (send_by_return_)
-        {
-            QSettings setting(QQGlobal::configDir() + "/options.ini", QSettings::IniFormat);
-            setting.setValue("send_by_return", false);
-            send_by_return_ = false;
-            act_return_->setChecked(false);
-        }
+    if (send_by_return_)
+    {
+        QSettings setting(QQGlobal::configDir() + "/options.ini", QSettings::IniFormat);
+        setting.setValue("send_by_return", false);
+        send_by_return_ = false;
+        act_return_->setChecked(false);
+    }
 }
 
 void QQChatDlg::closeEvent(QCloseEvent *event)

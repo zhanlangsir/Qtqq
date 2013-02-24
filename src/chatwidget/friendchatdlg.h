@@ -32,6 +32,9 @@ private slots:
     void onOffFileMsg(ShareQQMsgPtr msg);
     void onLinkClicked(const QUrl &url);
 
+    void onOfffileSend();
+    void onFileSend();
+
 private:
     virtual QQChatLog *getChatlog() const;
     virtual Contact *getSender(const QString &id) const;

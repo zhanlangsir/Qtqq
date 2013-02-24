@@ -5,21 +5,26 @@
 #include "roster/roster.h"
 #include "core/talkable.h"
 #include "storage/storage.h"
+#include "protocol/imgsender.h"
+#include "protocol/filesender.h"
 #include "protocol/request_jobs/icon_job.h"
 #include "protocol/request_jobs/strangerinfo2_job.h"
 #include "protocol/request_jobs/sendimg_job.h"
+#include "protocol/request_jobs/sendfile_job.h"
 #include "protocol/request_jobs/sendmsg_job.h"
 #include "protocol/request_jobs/loadimg_job.h"
 #include "protocol/request_jobs/filerecive_job.h"
 #include "protocol/request_jobs/friendinfo2_job.h"
 #include "protocol/request_jobs/group_memberlist_job.h"
+#include "protocol/request_jobs/refusefile_job.h"
 #include "protocol/pollthread.h"
 
 Protocol::QQProtocol* Protocol::QQProtocol::instance_ = NULL;
 
 Protocol::QQProtocol::QQProtocol() :
 	poll_thread_(new Protocol::PollThread(this)),
-    imgsender_(new ImgSender())
+    imgsender_(new ImgSender()),
+    filesender_(new FileSender())
 {
 	connect(poll_thread_, SIGNAL(newMsgArrive(QByteArray)), this, SIGNAL(newQQMsg(QByteArray)));
 }
@@ -105,6 +110,28 @@ void Protocol::QQProtocol::sendMsg(Talkable *to, const QVector<QQChatItem> &msgs
     runJob(job);
 }
 
+void Protocol::QQProtocol::sendFile(const QString &file_path, const QString &to_id, const QByteArray &data)
+{
+    QByteArray body = filesender_->createFileData(file_path, data);
+    SendFileJob *job = new SendFileJob(to_id, file_path, body, SendFileJob::kFile);
+    connect(job, SIGNAL(sendFileProgress(QString, int, int)), this, SIGNAL(sendFileProgress(QString, int, int)));
+
+    sending_jobs_.insert(file_path, job);
+
+    runJob(job);
+}
+
+void Protocol::QQProtocol::sendOffFile(const QString &file_path, const QString &to_id, const QByteArray &data)
+{
+    QByteArray body = filesender_->createOffFileData(file_path, to_id, data);
+    SendFileJob *job = new SendFileJob(to_id, file_path, body, SendFileJob::kOffFile);
+    connect(job, SIGNAL(sendFileProgress(QString, int, int)), this, SIGNAL(sendFileProgress(QString, int, int)));
+
+    sending_jobs_.insert(file_path, job);
+
+    runJob(job);
+}
+
 void Protocol::QQProtocol::reciveFile(int session_id, QString file_name, QString to)
 {
     FileReciveJob *job = new FileReciveJob(session_id, file_name, to);
@@ -115,11 +142,19 @@ void Protocol::QQProtocol::reciveFile(int session_id, QString file_name, QString
     runJob(job);
 }
 
-void Protocol::QQProtocol::parseTransferFile(int session_id)
+void Protocol::QQProtocol::pauseRecvFile(int session_id)
 {
     if ( reciving_jobs_.contains(session_id) )
     {
         reciving_jobs_[session_id]->stop();
+    }
+}
+
+void Protocol::QQProtocol::pauseSendFile(QString file_path)
+{
+    if ( sending_jobs_.contains(file_path) )
+    {
+        sending_jobs_[file_path]->stop();
     }
 }
 
@@ -141,20 +176,32 @@ void Protocol::QQProtocol::loadGroupImg(QString gid, const QString &file, QStrin
     runJob(job);
 }
 
+void Protocol::QQProtocol::refuseRecvFile(QString to_id, int session_id)
+{
+    __JobBase *job = new RefuseFileJob(to_id, session_id); 
+
+    runJob(job);
+}
+
 void Protocol::QQProtocol::slotJobDone(__JobBase* job, bool error)
 {
-    if ( job->type() == JT_FileRecive )
+    switch ( job->type() )
     {
-        reciving_jobs_.remove(((FileReciveJob *)job)->sessionId());
-    }
-    else
-    {
-        if ( job->jobFor() )
-            requesting_[job->type()].removeOne(job->requesterId());
-        else
-            qDebug() << "Wraning: lost one job, job type: " << job->type() << endl;
+        case JT_FileRecive:
+            reciving_jobs_.remove(((FileReciveJob *)job)->sessionId());
+            break;
+        case JT_SendFile:
+            sending_jobs_.remove(((SendFileJob *)job)->filePath());
+            break;
+        case JT_Icon:
+            if ( job->jobFor() )
+                requesting_[job->type()].removeOne(job->requesterId());
+            else
+                qDebug() << "Wraning: lost one job, job type: " << job->type() << endl;
+            break;
+        default:
+            break;
     }
 
     job->deleteLater();
 }
-

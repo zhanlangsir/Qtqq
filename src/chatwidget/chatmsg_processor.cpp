@@ -217,7 +217,7 @@ void ChatMsgProcessor::onActionTriggered()
 			ChatDlgManager::instance()->openFriendChatDlg(msg->talkTo());
 			break;
 		default:
-			qDebug() << "Recive wrong action triggerd on ChatMsgProcess!" << endl;
+			qDebug() << "Recive wrong action triggered on ChatMsgProcess!" << endl;
 			return;
 	}
 }

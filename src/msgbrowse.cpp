@@ -244,7 +244,8 @@ inline
 bool MsgBrowse::ifCombineMsg(const ShowOptions &options) const
 {
     bool is_combine = false;
-    if ( options.sender_uin == last_send_id_ && options.type == last_kind_)
+
+    if ( options.type != MsgBrowse::kStatus && options.sender_uin == last_send_id_ && options.type == last_kind_)
         is_combine = true;
 
     return is_combine;

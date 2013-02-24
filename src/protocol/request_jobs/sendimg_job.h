@@ -1,10 +1,9 @@
 #ifndef SENDIMG_JOB_H
 #define SENDIMG_JOB_H
 
-
 #include <QHttp>
 
-#include "job_base.h"
+#include "protocol/request_jobs/job_base.h"
 
 class Talkable;
 

@@ -329,7 +329,7 @@ void MainWindow::getOnlineBuddy()
 void MainWindow::getOnlineBuddyDone(bool err)
 {
     Q_UNUSED(err)
-            disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getOnlineBuddyDone(bool)));
+    disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getOnlineBuddyDone(bool)));
     QByteArray online_buddies = main_http_->readAll();
     Roster::instance()->parseContactStatus(online_buddies);
 

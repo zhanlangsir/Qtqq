@@ -34,19 +34,33 @@ QByteArray Protocol::ImgSender::createMsgData(const QString &file_path, const QB
 {
     QByteArray boundary_convenience ="--" + boundary.toAscii() + "\r\n";
 
-    QByteArray msg = boundary_convenience + "Content-Disposition: form-data; name=\"callback\"\r\n\r\n"
-        "parent.EQQ.Model.ChatMsg.callbackSendPic\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"locallangid\"\r\n\r\n"
-        "2052\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"clientversion\"\r\n\r\n"
-        "1409\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"uin\"\r\n\r\n" + CurrLoginAccount::id().toAscii() + "\r\n"
-        +boundary_convenience+"Content-Disposition: form-data; name=\"skey\"\r\n\r\n" + CaptchaInfo::instance()->skey().toAscii() + "\r\n"
-        +boundary_convenience+"Content-Disposition: form-data; name=\"appid\"\r\n\r\n"
-        "1002101\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"peeruin\"\r\n\r\n"
-        "593023668\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"file\"; filename=\"" + QFileInfo(file_path).fileName().toAscii() + "\"\r\n"
-        "Content-Type: image/jpeg\r\n\r\n" + file_data +"\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"fileid\"\r\n\r\n"
-        "1\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"vfwebqq\"\r\n\r\n" + CaptchaInfo::instance()->vfwebqq().toAscii() + "\r\n"
-        +boundary_convenience+"Content-Disposition: form-data; name=\"senderviplevel\"\r\n\r\n"
-        "0\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"reciverviplevel\"\r\n\r\n"
-        "0\r\n--"+boundary.toAscii() +"--\r\n\r\n";
+    QByteArray msg = boundary_convenience + 
+        "Content-Disposition: form-data; name=\"callback\"\r\n\r\n"
+        "parent.EQQ.Model.ChatMsg.callbackSendPic\r\n"+
+        boundary_convenience+
+        "Content-Disposition: form-data; name=\"locallangid\"\r\n\r\n2052\r\n"+
+        boundary_convenience+
+        "Content-Disposition: form-data; name=\"clientversion\"\r\n\r\n1409\r\n"+
+        boundary_convenience+
+        "Content-Disposition: form-data; name=\"uin\"\r\n\r\n" + CurrLoginAccount::id().toAscii() + "\r\n"+
+        boundary_convenience+
+        "Content-Disposition: form-data; name=\"skey\"\r\n\r\n" + CaptchaInfo::instance()->skey().toAscii() + "\r\n"+
+        boundary_convenience+
+        "Content-Disposition: form-data; name=\"appid\"\r\n\r\n1002101\r\n"+
+        boundary_convenience+
+        "Content-Disposition: form-data; name=\"peeruin\"\r\n\r\n593023668\r\n"+
+        boundary_convenience+
+        "Content-Disposition: form-data; name=\"file\"; filename=\"" + QFileInfo(file_path).fileName().toAscii() + "\"\r\n"
+        "Content-Type: image/jpeg\r\n\r\n" + file_data +"\r\n"+
+        boundary_convenience+
+        "Content-Disposition: form-data; name=\"fileid\"\r\n\r\n1\r\n"+
+        boundary_convenience+
+        "Content-Disposition: form-data; name=\"vfwebqq\"\r\n\r\n" + CaptchaInfo::instance()->vfwebqq().toAscii() + "\r\n"+
+        boundary_convenience+
+        "Content-Disposition: form-data; name=\"senderviplevel\"\r\n\r\n0\r\n"+
+        boundary_convenience+
+        "Content-Disposition: form-data; name=\"reciverviplevel\"\r\n\r\n0\r\n" + 
+        "--" + boundary.toAscii() +"--\r\n\r\n";
 
     return msg;
 }
@@ -55,12 +69,18 @@ QByteArray Protocol::ImgSender::createGroupMsgData(const QString &file_path, con
 {
     QByteArray boundary_convenience ="--" + boundary.toAscii() + "\r\n";
 
-    QByteArray msg = boundary_convenience + "Content-Disposition: form-data; name=\"from\"\r\n\r\n"
-    "control\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"f\"\r\n\r\n"
-    "EQQ.Model.ChatMsg.callbackSendPicGroup\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"vfwebqq\"\r\n\r\n" +
-    CaptchaInfo::instance()->vfwebqq().toAscii()+ "\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"custom_face\"; filename=\""+ QFileInfo(file_path).fileName().toAscii() + "\"\r\n"
-    "Content-Type: image/jpeg\r\n\r\n" + file_data +"\r\n"+boundary_convenience+"Content-Disposition: form-data; name=\"fileid\"\r\n\r\n"
-    "1\r\n--"+boundary.toAscii() +"--\r\n\r\n";
+    QByteArray msg = boundary_convenience + 
+        "Content-Disposition: form-data; name=\"from\"\r\n\r\ncontrol\r\n"+
+        boundary_convenience+
+        "Content-Disposition: form-data; name=\"f\"\r\n\r\nEQQ.Model.ChatMsg.callbackSendPicGroup\r\n"+
+        boundary_convenience+
+        "Content-Disposition: form-data; name=\"vfwebqq\"\r\n\r\n" + CaptchaInfo::instance()->vfwebqq().toAscii()+ "\r\n"+
+        boundary_convenience+
+        "Content-Disposition: form-data; name=\"custom_face\"; filename=\""+ QFileInfo(file_path).fileName().toAscii() + "\"\r\n"
+        "Content-Type: image/jpeg\r\n\r\n" + file_data +"\r\n"+
+        boundary_convenience+
+        "Content-Disposition: form-data; name=\"fileid\"\r\n\r\n1\r\n" + 
+        "--"+boundary.toAscii() +"--\r\n\r\n";
 
     return msg;
 }

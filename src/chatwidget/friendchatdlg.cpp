@@ -2,8 +2,12 @@
 #include "ui_friendchatdlg.h"
 
 #include <assert.h>
+
 #include <QRegExp>
+#include <QMenu>
+#include <QAction>
 #include <QApplication>
+#include <QFileDialog>
 #include <QClipboard>
 
 #include "json/json.h"
@@ -12,6 +16,8 @@
 #include "skinengine/qqskinengine.h"
 #include "utils/icon_decorator.h"
 #include "msgprocessor/msg_processor.h"
+#include "protocol/qq_protocol.h"
+#include "file_transfer/file_transfer_manager.h"
 #include "qqiteminfohelper.h"
 
 FriendChatDlg::FriendChatDlg(Contact *contact, ChatDlgType type, QWidget *parent) :
@@ -60,6 +66,16 @@ void FriendChatDlg::initUi()
 
 	IconDecorator::decorateIcon(talkable_->status(), pix);
 	ui->lbl_avatar_->setPixmap(pix);
+
+    QMenu *send_file_menu = new QMenu(this);
+    QAction *offfile_act = new QAction(tr("Send Offline File"), send_file_menu);
+    QAction *file_act = new QAction(tr("Send File"), send_file_menu);
+    connect(offfile_act, SIGNAL(triggered(bool)), this, SLOT(onOfffileSend()));
+    connect(file_act, SIGNAL(triggered(bool)), this, SLOT(onFileSend()));
+    send_file_menu->addAction(offfile_act);
+    send_file_menu->addAction(file_act);
+
+    ui->send_file_btn->setMenu(send_file_menu);
 
     getSingleLongNick(talkable_->id());
 
@@ -156,7 +172,7 @@ void FriendChatDlg::onOffFileMsg(ShareQQMsgPtr msg)
 
     QString link = "[offfile_link:http://%1:%2/%3?ver=2173&rkey=%4&range=0]";
     link = link.arg(offfile_msg->ip).arg(offfile_msg->port).arg(offfile_msg->name).arg(offfile_msg->rkey);
-    QString message = tr("Peer send you a offline file:") + "<a href=\"" + link + "\">[" + tr("Copy download link") + "]</a>";    
+    QString message = tr("Peer send you a offline file: %1 ").arg(offfile_msg->name) + "<a href=\"" + link + "\">[" + tr("Copy download link") + "]</a>";    
 
     msgbrowse_.appendHtml(message, options);
 }
@@ -169,4 +185,26 @@ void FriendChatDlg::onLinkClicked(const QUrl &url)
     {
         QApplication::clipboard()->setText(offfile_reg.cap(1));
     }
+}
+
+void FriendChatDlg::onOfffileSend()
+{
+    QString file_path = QFileDialog::getOpenFileName(this, tr("select the file to send"), QDir::homePath(), QString());
+    if ( file_path.isEmpty() )
+        return;
+
+    qDebug() << "Send Offline file: " << file_path << endl;
+
+    FileTransferManager::instance()->sendOffFile(talkable_->id(), talkable_->markname(), file_path);
+}
+
+void FriendChatDlg::onFileSend()
+{
+    QString file_path = QFileDialog::getOpenFileName(this, tr("select the file to send"), QDir::homePath(), QString());
+    if ( file_path.isEmpty() )
+        return;
+
+    qDebug() << "Send file: " << file_path << endl;
+
+    FileTransferManager::instance()->sendFile(talkable_->id(), talkable_->markname(), file_path);
 }

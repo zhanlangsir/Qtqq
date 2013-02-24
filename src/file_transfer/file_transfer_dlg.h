@@ -9,17 +9,8 @@
 
 #include "ui_filetransferdlg.h"
 
-struct TransferItem
-{
-    int id;
-    QString sender_name;
-    QString file_name;
-    int file_size;
-    int dl_byte;
-    long begin_time;
-
-    int row;
-};
+#include "file_transfer/sendfile_widget.h"
+#include "file_transfer/recvfile_widget.h"
 
 class FileTransferDlg : public QDialog
 {
@@ -30,26 +21,30 @@ signals:
 public:
     FileTransferDlg(QWidget *parent = NULL);
 
-    void appendItem(TransferItem item);
-    void cancelItem(int session_id);
+    SendFileWidget *sendWidget()
+    { return &send_widget_; }
+    RecvFileWidget *recvWidget() 
+    { return &recv_widget_; }
+
+    void setUploadDone(const QString &file_name, int session_id);
+
+    void showRecvTab();
+    void showSendTab();
+
+    void appendRecvItem(RecvFileItem item);
+    void pauseRecving(int session_id);
+
+    void appendSendItem(SendFileItem item);
+    void pauseSending(int session_id);
 
 private slots:
-    void onFileTransferProgress(int session_id, int done_byte, int total_byte);
-    void onCurrentCellChanged(int current_row, int current_column, int previous_row, int previous_column);
-    void on_pause_btn_clicked();
-    void on_open_directory_btn_clicked();
     void on_close_btn_clicked();
-    void onTick();
-
-private:
-    void createUiItem(TransferItem &item);
-    int unitTranslation(int byte, QString &unit);
 
 private:
     Ui::FileTransferDlg ui;
-    QTimer tick_;
 
-    QMap<int, TransferItem> transfer_items_;
+    SendFileWidget send_widget_;
+    RecvFileWidget recv_widget_;
 };
 
 #endif //FILE_TRANSFER_DLG_H
