@@ -173,6 +173,19 @@ QString QQChatDlg::converToShow(const QString &converting_html)
         QString content = p_reg.cap(1);
         if ( content != "<br />" )
         {
+            int img_idx = 0;
+            while ( (img_idx = content.indexOf("<img", img_idx)) != -1 ) 
+            {
+                int src_s_idx = content.indexOf("src=", img_idx);
+                //qqface,不需要缩放
+                if ( !(content.mid(src_s_idx+5, kQQFacePre.length()) == kQQFacePre) )
+                {
+                    //添加onload js函数进行缩放和用外部工具打开功能
+                    content.insert(img_idx + 4, " onload=\"onImageLoadDone()\" ondblclick=\"imageDoubleClick()\" ");
+                }
+                ++img_idx;
+            }
+
             converted_html = converted_html + content;
         }
 
@@ -528,7 +541,7 @@ void QQChatDlg::showOtherMsg(ShareQQMsgPtr msg)
 
 void QQChatDlg::onImageDoubleClicked(QString src)
 {
-    QDesktopServices::openUrl(src);
+    QDesktopServices::openUrl(QUrl::fromPercentEncoding(src.toAscii()));
 }
 
 void QQChatDlg::installEditorEventFilter(QObject *filter_obj)

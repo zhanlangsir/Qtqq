@@ -79,9 +79,10 @@ void QQTextEdit::insertQQFace(const QString &face_id)
 
     QString path = QQGlobal::resourceDir() + "/qqface/default/" + face_id + ".gif";
     QImage img(path);
-    QUrl url(kQQFacePre+face_id);
+    QString src = kQQFacePre+face_id;
+    QUrl url(src);
     doc->addResource(QTextDocument::ImageResource, url, img);
-    cursor.insertImage(kQQFacePre+face_id);
+    cursor.insertImage(src);
 }
 
 void QQTextEdit::replaceIdToName(QString id, QString name)
