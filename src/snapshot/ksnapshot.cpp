@@ -197,7 +197,7 @@ KSnapshot::KSnapshot(QWidget *parent,  KSnapshotObject::CaptureMode mode )
     }
 
     setDelay(0);
-    filename = QQGlobal::tempDir() + "/snapshot/snapshot.png";
+    file_path_ = QQGlobal::tempDir() + "/snapshot/snapshot.png";
 
     connect( &grabTimer, SIGNAL(timeout()), this, SLOT(grabTimerDone()) );
     connect( &updateTimer, SIGNAL(timeout()), this, SLOT(updatePreview()) );
@@ -224,15 +224,10 @@ void KSnapshot::onSendBtnClicked()
     if ( !current_chatdlg )
         return;
 
-    filename = getUnexistsFilePath(filename);
-    snapshot.save(filename);
+    file_path_ = getUnexistsFilePath(file_path_);
+    snapshot.save(file_path_);
 
-    QByteArray bytes;
-    QBuffer buffer(&bytes);
-    buffer.open(QIODevice::WriteOnly);
-    snapshot.save(&buffer, "PNG"); 
-
-    current_chatdlg->sendImage(filename, bytes);
+    current_chatdlg->insertImage(file_path_);
 
     deleteLater();
 }
@@ -285,7 +280,7 @@ void KSnapshot::slotDragSnapshot()
 
     drag->setMimeData(new QMimeData);
     drag->mimeData()->setImageData(snapshot);
-    drag->mimeData()->setData("application/x-kde-suggestedfilename", QFileInfo(filename).fileName().toUtf8());
+    drag->mimeData()->setData("application/x-kde-suggestedfilename", QFileInfo(file_path_).fileName().toUtf8());
     drag->setPixmap(preview());
     drag->start();
 }

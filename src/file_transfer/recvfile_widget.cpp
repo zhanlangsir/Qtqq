@@ -11,6 +11,7 @@
 #include <QTableWidgetSelectionRange>
 #include <QDebug>
 
+#include "file_transfer/transfer_util.h"
 #include "protocol/qq_protocol.h"
 
 #define SENDER_NAME_ROW 0
@@ -87,7 +88,7 @@ void RecvFileWidget::onFileTransferProgress(int session_id, int done_byte, int t
         item.file_size = total_byte;
 
         QString unit;
-        int size = unitTranslation(total_byte, unit);
+        int size = TransferUtil::unitTranslation(total_byte, unit);
         QLabel *file_size_label = (QLabel *)ui.tw_tasks->cellWidget(item.row, FILE_SIZE_ROW);
         file_size_label->setText(QString::number(size) + ' ' + unit);
 
@@ -146,26 +147,7 @@ void RecvFileWidget::onTick()
         QLabel *speed_label = (QLabel *)ui.tw_tasks->cellWidget(item.row, DOWNLOADED_SPEED_ROW);
 
         QString unit;
-        speed = unitTranslation(speed, unit);
+        speed = TransferUtil::unitTranslation(speed, unit);
         speed_label->setText(QString::number(speed) + ' ' + unit + "/s");
-    }
-}
-
-int RecvFileWidget::unitTranslation(int byte, QString &unit)
-{
-    if ( byte < KB )
-    {
-        unit = "b";
-        return byte;
-    }
-    else if ( KB < byte && byte < M )
-    {
-        unit = "kb";
-        return B2KB(byte);
-    }
-    else
-    {
-        unit = "m"; 
-        return B2M(byte);
     }
 }

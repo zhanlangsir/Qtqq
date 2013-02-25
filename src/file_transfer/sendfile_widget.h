@@ -45,7 +45,6 @@ private slots:
 
 private:
     void createUiItem(SendFileItem &item);
-    int unitTranslation(int byte, QString &unit);
 
 private:
     Ui::SendFileWidget ui;

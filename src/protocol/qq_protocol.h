@@ -60,8 +60,8 @@ public:
     void pauseRecvFile(int session_id);
     void pauseSendFile(QString file_path);
 
-    void sendImg(Talkable *sender, QString file_name, QByteArray data);
-    void sendGroupImg();
+    //void sendImg(Talkable *sender, QString file_name, QByteArray data);
+    //void sendGroupImg();
     void sendMsg(Talkable *to, const QVector<QQChatItem> &msgs); 
     void sendGroupMsg(const QVector<QQChatItem> &msgs); 
 

@@ -16,13 +16,27 @@ public:
 		QVector<QQChatItem> result;
 
 		//提取<p>....</p>内容
-		QRegExp p_reg("(<p.*</p>)");
+		QRegExp p_reg("<p.*>(.*)</p>");
 		p_reg.setMinimal(true);
 
 		int pos = 0;
 		while ( (pos = p_reg.indexIn(raw_msg, pos)) != -1 )
 		{
-			QString content = p_reg.cap(0);
+            if ( !result.empty() )
+            {
+                if ( result[result.count()-1].type() == QQChatItem::kWord )
+                {
+                    QQChatItem &pre_word = result[result.count()-1];
+                    pre_word.appendContent("\\\\n");
+                }
+                else
+                {
+                    QQChatItem word_item(QQChatItem::kWord, "\\\\n");
+                    result.push_back(word_item);
+                }
+            }
+
+			QString content = p_reg.cap(1);
 			while (!content.isEmpty())
 			{
 				if (content[0] == '<')
@@ -65,8 +79,16 @@ public:
 					QString word = content.mid(0,idx);
 					jsonEncoding(word);
 
-					QQChatItem word_item(QQChatItem::kWord, word);
-					result.push_back(word_item);
+                    if ( result.empty() || result[result.count()-1].type() != QQChatItem::kWord )
+                    {
+                        QQChatItem word_item(QQChatItem::kWord, word);
+                        result.push_back(word_item);
+                    }
+                    else 
+                    {
+                        QQChatItem &pre_word = result[result.count()-1];
+                        pre_word.appendContent(word);
+                    }
 
 					if (idx == -1)
 						content = "";
@@ -83,7 +105,7 @@ public:
 
 	static void jsonEncoding(QString &escasing) 
 	{
-		escasing.replace("&lt;", "%3C").replace("&gt;", "%3E").replace("&amp;", "%26").replace('+', "%2B").replace(';', "%3B");
+		escasing.replace(' ', "%20").replace("&lt;", "%3C").replace("&gt;", "%3E").replace("&amp;", "%26").replace('+', "%2B").replace(';', "%3B");
 	}
 };
 

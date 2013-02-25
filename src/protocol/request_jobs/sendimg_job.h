@@ -11,7 +11,11 @@ class SendImgJob : public __JobBase
 {
     Q_OBJECT
 public:
-    SendImgJob(Talkable *_for, const QString &file_path, const QByteArray &data, JobType type = JT_SendImg);
+    enum SendImgType { kOffpic, kGroupImg };
+    SendImgJob(const QString &file_path, const QByteArray &data, SendImgType sendimg_type, JobType type = JT_SendImg);
+
+    QString filePath() const
+    { return file_path_; }
 
     virtual void run();
 
@@ -20,6 +24,8 @@ private slots:
 
 private:
     QHttp http_;
+
+    SendImgType sendimg_type_;
     QString file_path_;
     QByteArray data_;
 };

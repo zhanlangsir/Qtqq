@@ -38,7 +38,6 @@ private slots:
 
 private:
     void createUiItem(RecvFileItem &item);
-    int unitTranslation(int byte, QString &unit);
 
 private:
     Ui::RecvFileWidget ui;

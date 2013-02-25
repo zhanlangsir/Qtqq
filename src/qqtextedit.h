@@ -20,7 +20,7 @@ public:
     QQTextEdit(QWidget *parent = 0);
 
 public:
-    void insertImg(const QString &unique_id, const QString &path);
+    void insertImg(const QString &url, const QString &path);
     void insertNameLine(const QString &text, QColor color);
     void insertWord(const QString &text, QFont font, QColor color, int size);
     void replaceIdToName(QString id, QString name);

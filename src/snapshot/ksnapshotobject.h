@@ -49,7 +49,7 @@ protected:
 
      void changeUrl(const QString &newUrl);
 
-     QString filename;
+     QString file_path_;
      RegionGrabber *rgnGrab;
      FreeRegionGrabber *freeRgnGrab;
      QWidget* grabber;

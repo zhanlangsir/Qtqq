@@ -41,6 +41,8 @@ public:
     void showMsg(ShareQQMsgPtr msg);
     virtual void showOldMsg(QVector<ShareQQMsgPtr> msgs);
 
+    void insertImage(const QString &file_path);
+
     QString id() const
     { return talkable_->id(); }
 	Talkable *talkable() const
@@ -50,7 +52,6 @@ public:
     { return type_; }
     virtual void updateSkin() = 0;
 
-    void sendImage(const QString &file_path, const QByteArray &data);
     void installEditorEventFilter(QObject *filter_obj);
     void removeEditorEventFilter(QObject *filter_obj);
 

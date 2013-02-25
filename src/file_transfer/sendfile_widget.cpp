@@ -11,6 +11,7 @@
 #include <QTableWidgetSelectionRange>
 #include <QDebug>
 
+#include "file_transfer/transfer_util.h"
 #include "protocol/qq_protocol.h"
 
 #define RECV_NAME_ROW 0
@@ -19,12 +20,6 @@
 #define PROGRESS_BAR_ROW 3
 #define UPLOAD_SPEED_ROW 4
 #define SEND_STATUS_ROW 5
-
-#define KB 1024
-#define M 1048576
-
-#define B2KB(x) (x >> 10)
-#define B2M(x) (x >> 20)
 
 SendFileWidget::SendFileWidget(QWidget *parent) :
     QDialog(parent)
@@ -89,7 +84,7 @@ void SendFileWidget::onSendFileProgress(QString file, int done_byte, int total_b
         item.file_size = total_byte;
 
         QString unit;
-        int size = unitTranslation(total_byte, unit);
+        int size = TransferUtil::unitTranslation(total_byte, unit);
         QLabel *file_size_label = (QLabel *)ui.tw_tasks->cellWidget(item.row, FILE_SIZE_ROW);
         file_size_label->setText(QString::number(size) + ' ' + unit);
 
@@ -144,27 +139,8 @@ void SendFileWidget::onTick()
         QLabel *speed_label = (QLabel *)ui.tw_tasks->cellWidget(item.row, UPLOAD_SPEED_ROW);
 
         QString unit;
-        speed = unitTranslation(speed, unit);
+        speed = TransferUtil::unitTranslation(speed, unit);
         speed_label->setText(QString::number(speed) + ' ' + unit + "/s");
-    }
-}
-
-int SendFileWidget::unitTranslation(int byte, QString &unit)
-{
-    if ( byte < KB )
-    {
-        unit = "b";
-        return byte;
-    }
-    else if ( KB < byte && byte < M )
-    {
-        unit = "kb";
-        return B2KB(byte);
-    }
-    else
-    {
-        unit = "m"; 
-        return B2M(byte);
     }
 }
 

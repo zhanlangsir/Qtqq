@@ -12,8 +12,10 @@
 Protocol::ImgSender::ImgSender()
 {
     boundary_ = "----WebKitFormBoundaryk5nH7APtIbShxvqE";// + QString(QByteArray::number(QDateTime::currentDateTime().toMSecsSinceEpoch()).toHex()).toAscii();
+    getKeyAndSig();
 }
 
+/*
 QByteArray Protocol::ImgSender::prepareSendingData(Talkable *talkable, QString file_name, QByteArray data)
 {
     QByteArray msg;
@@ -29,10 +31,11 @@ QByteArray Protocol::ImgSender::prepareSendingData(Talkable *talkable, QString f
 
     return msg;
 }
+*/
 
-QByteArray Protocol::ImgSender::createMsgData(const QString &file_path, const QByteArray &file_data, const QString &boundary)
+QByteArray Protocol::ImgSender::createOffpicBody(const QString &file_path, const QByteArray &file_data)
 {
-    QByteArray boundary_convenience ="--" + boundary.toAscii() + "\r\n";
+    QByteArray boundary_convenience ="--" + boundary_.toAscii() + "\r\n";
 
     QByteArray msg = boundary_convenience + 
         "Content-Disposition: form-data; name=\"callback\"\r\n\r\n"
@@ -60,14 +63,14 @@ QByteArray Protocol::ImgSender::createMsgData(const QString &file_path, const QB
         "Content-Disposition: form-data; name=\"senderviplevel\"\r\n\r\n0\r\n"+
         boundary_convenience+
         "Content-Disposition: form-data; name=\"reciverviplevel\"\r\n\r\n0\r\n" + 
-        "--" + boundary.toAscii() +"--\r\n\r\n";
+        "--" + boundary_.toAscii() +"--\r\n\r\n";
 
     return msg;
 }
 
-QByteArray Protocol::ImgSender::createGroupMsgData(const QString &file_path, const QByteArray &file_data, const QString &boundary)
+QByteArray Protocol::ImgSender::createGroupImgBody(const QString &file_path, const QByteArray &file_data)
 {
-    QByteArray boundary_convenience ="--" + boundary.toAscii() + "\r\n";
+    QByteArray boundary_convenience ="--" + boundary_.toAscii() + "\r\n";
 
     QByteArray msg = boundary_convenience + 
         "Content-Disposition: form-data; name=\"from\"\r\n\r\ncontrol\r\n"+
@@ -80,12 +83,12 @@ QByteArray Protocol::ImgSender::createGroupMsgData(const QString &file_path, con
         "Content-Type: image/jpeg\r\n\r\n" + file_data +"\r\n"+
         boundary_convenience+
         "Content-Disposition: form-data; name=\"fileid\"\r\n\r\n1\r\n" + 
-        "--"+boundary.toAscii() +"--\r\n\r\n";
+        "--"+boundary_.toAscii() +"--\r\n\r\n";
 
     return msg;
 }
 
-bool Protocol::ImgSender::parseMsgResult(const QByteArray &array, QString &img_id)
+bool Protocol::ImgSender::parseMsgResult(QString file_path, const QByteArray &array)
 {
     int file_size_idx = array.indexOf("filesize")+10;
     int file_size_end_idx = array.indexOf(",", file_size_idx);
@@ -121,14 +124,13 @@ bool Protocol::ImgSender::parseMsgResult(const QByteArray &array, QString &img_i
     file_info.name = file_name;
     file_info.network_path = network_path;
 
-    img_id = getUniqueId();
-    sended_imgs_.insert(img_id, file_info);
+    sended_imgs_.insert(file_path, file_info);
 
     return true;
 }
 
 
-bool Protocol::ImgSender::parseGroupMsgResult(const QByteArray &array, QString &img_id)
+bool Protocol::ImgSender::parseGroupMsgResult(QString file_path, const QByteArray &array)
 {
     int ret_idx = array.indexOf("'ret':")+6;
     int ret_end_idx = array.indexOf(",", ret_idx);
@@ -146,8 +148,7 @@ bool Protocol::ImgSender::parseGroupMsgResult(const QByteArray &array, QString &
 
     FileInfo file_info = {0, file_name , ""};
 
-    img_id = getUniqueId();
-    sended_imgs_.insert(img_id, file_info);
+    sended_imgs_.insert(file_path, file_info);
 
     return true;
 }

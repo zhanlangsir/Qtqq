@@ -10,7 +10,6 @@
 #include "chatwidget/qqchatdlg.h"
 #include "chatwidget/sesschatdlg.h"
 #include "chatwidget/chatmsg_processor.h"
-#include "core/qqitem.h"
 #include "rostermodel/recent_model.h"
 #include "roster/roster.h"
 #include "chatwidget/tabwindow.h"

@@ -89,23 +89,27 @@ void Protocol::QQProtocol::requestGroupMemberList(Group *job_for)
     runJob(job);
 }
 
+/*
 void Protocol::QQProtocol::sendImg(Talkable *sender, QString file_path, QByteArray data)
 {
    QByteArray sended_data = imgsender_->prepareSendingData(sender, file_path, data);
-   SendImgJob *job = new SendImgJob(sender, file_path, sended_data);
+   SendImgJob *job = new SendImgJob(sender->id(), file_path, sended_data);
 
    runJob(job);
 }
+*/
 
 void Protocol::QQProtocol::sendMsg(Talkable *to, const QVector<QQChatItem> &msgs)
 {
-    QString sended_data;
+    __JobBase *job = NULL;
     if ( to->type() == Talkable::kContact )
-        sended_data = MsgSender::msgToJson((Contact *)to, msgs);
-    else
-        sended_data = MsgSender::groupMsgToJson((Group *)to, msgs);
-
-    SendMsgJob *job = new SendMsgJob(to, sended_data);
+    {
+        job = new SendFriendMsgJob(to, msgs);
+    }
+    else if ( to->type() == Talkable::kGroup )
+    {
+        job = new SendGroupMsgJob(to, msgs);
+    }
 
     runJob(job);
 }

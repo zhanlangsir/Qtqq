@@ -16,16 +16,16 @@ QQTextEdit::QQTextEdit(QWidget *parent) : QTextEdit(parent)
 
 }
 
-void QQTextEdit::insertImg(const QString &unique_id, const QString &path)
+void QQTextEdit::insertImg(const QString &url, const QString &path)
 {
     QTextDocument *doc = document();
     QTextCursor cursor(doc);
     cursor.movePosition(QTextCursor::End);
 
     QImage img(path);
-    QUrl url(unique_id);
-    doc->addResource(QTextDocument::ImageResource, url, img);
-    cursor.insertImage(unique_id);
+    QUrl qurl(url);
+    doc->addResource(QTextDocument::ImageResource, qurl, img);
+    cursor.insertImage(url);
 }
 
 void QQTextEdit::insertNameLine(const QString &name, QColor color)

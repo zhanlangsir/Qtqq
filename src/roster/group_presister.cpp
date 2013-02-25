@@ -84,6 +84,7 @@ void GroupPresister::presistGroup(Group *group)
     {
         QStringList connection_names = QSqlDatabase::connectionNames();
         QSqlDatabase db;
+        qDebug() << connection_names << endl;
         if (connection_names.isEmpty())
         {
             db = QSqlDatabase::addDatabase("QSQLITE");

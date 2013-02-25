@@ -11,9 +11,10 @@
 #include "protocol/event_center.h"
 #include "protocol/imgsender.h"
 
-SendImgJob::SendImgJob(Talkable *_for, const QString &file_path, const QByteArray &data, JobType type) : 
-	__JobBase(_for, type),
+SendImgJob::SendImgJob(const QString &file_path, const QByteArray &data, SendImgType sendimg_type, JobType type) : 
+	__JobBase(NULL, type),
 	http_(this),
+    sendimg_type_(sendimg_type),
     file_path_(file_path),
     data_(data)
 {
@@ -23,25 +24,30 @@ SendImgJob::SendImgJob(Talkable *_for, const QString &file_path, const QByteArra
 void SendImgJob::requestDone(bool error)
 {
 	if ( !error )
-	{
-		QByteArray data = http_.readAll();
-		http_.close();
+    {
+        QByteArray data = http_.readAll();
+        http_.close();
 
-        qDebug() << "img request done, data:\n" << data << endl;
+        qDebug() << "Image request done, data:\n" << data << endl;
         Protocol::ImgSender *sender = Protocol::QQProtocol::instance()->imgSender();
         bool success = false;
         QString img_id;
-        if ( for_->type() == Talkable::kContact )
-            success = sender->parseMsgResult(data, img_id);
-        else
-            success = sender->parseGroupMsgResult(data, img_id);
 
-        Protocol::Event *event = Protocol::EventCenter::instance()->createImgSendDoneEvent(for_, success, file_path_, img_id);
-        Protocol::EventCenter::instance()->triggerEvent(event);
-	}
+
+        if ( sendimg_type_ == kOffpic )
+        {
+            success = sender->parseMsgResult(file_path_, data);
+        }
+        else if ( sendimg_type_ == kGroupImg )
+        {
+            success = sender->parseGroupMsgResult(file_path_, data);
+        }
+        //Protocol::Event *event = Protocol::EventCenter::instance()->createImgSendDoneEvent(for_, success, file_path_, img_id);
+        //Protocol::EventCenter::instance()->triggerEvent(event);
+    }
 	else
 	{
-		qDebug() << "send msg for " << for_->id() << " " << for_->name() << " failed! " << endl;
+		qDebug() << "Send image " << file_path_ << " " << " failed! " << endl;
 		qDebug() << "error: " << http_.errorString() << endl;
 	}
 
@@ -53,13 +59,13 @@ void SendImgJob::run()
 {
     QString send_url;
     QString host;
-    if ( for_->type() == Talkable::kContact )
+    if (  sendimg_type_ == kOffpic )
     {
         send_url = "/ftn_access/upload_offline_pic?time=" + QString::number(QDateTime::currentMSecsSinceEpoch());
 ;
         host = "weboffline.ftn.qq.com";
     }
-    else if ( for_->type() == Talkable::kGroup )
+    else if ( sendimg_type_ == kGroupImg )
     {
         send_url = "/cgi-bin/cface_upload?time=" + QString::number(QDateTime::currentMSecsSinceEpoch());
 ;

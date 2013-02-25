@@ -52,7 +52,7 @@ KSnapshotObject::~KSnapshotObject()
 void KSnapshotObject::autoincFilename()
 {
     // Extract the filename from the path
-    QFileInfo info(filename);
+    QFileInfo info(file_path_);
 
     QString name= info.fileName();
 
@@ -90,10 +90,10 @@ void KSnapshotObject::autoincFilename()
 
 void KSnapshotObject::changeUrl( const QString &url )
 {
-    if ( url == filename )
+    if ( url == file_path_ )
         return;
 
-    filename = url;
+    file_path_ = url;
     refreshCaption();
 }
 

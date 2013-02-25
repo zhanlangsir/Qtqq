@@ -84,6 +84,5 @@ QString MsgSender::groupMsgToJson(Group *to, const QVector<QQChatItem> &items)
     else
         json_msg = "r={\"group_uin\":" + to->id() + ",\"content\":\"[" + json_msg;
 
-
     return json_msg;
 }

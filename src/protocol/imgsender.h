@@ -25,21 +25,21 @@ class Protocol::ImgSender : public QObject
 public:
     ImgSender();
 
-    QByteArray prepareSendingData(Talkable *talkable, QString file_name, QByteArray data);
+    //QByteArray prepareSendingData(Talkable *talkable, QString file_name, QByteArray data);
 
-    QByteArray createMsgData(const QString &file_path, const QByteArray &file_data, const QString &boundary);
-    QByteArray createGroupMsgData(const QString &file_path, const QByteArray &file_data, const QString &boundary);
+    QByteArray createOffpicBody(const QString &file_path, const QByteArray &file_data);
+    QByteArray createGroupImgBody(const QString &file_path, const QByteArray &file_data);
 
-    bool parseMsgResult(const QByteArray &array, QString &img_id);
-    bool parseGroupMsgResult(const QByteArray &array, QString &img_id);
+    bool parseMsgResult(QString file_path, const QByteArray &array);
+    bool parseGroupMsgResult(QString file_path, const QByteArray &array);
 
     QString boundary() const
     { return boundary_; }
 
-    FileInfo getUploadedImgInfo(QString img_id)
+    FileInfo getUploadedImgInfo(const QString &file_path)
     {
-        assert(sended_imgs_.contains(img_id));
-        return sended_imgs_.value(img_id);
+        assert(sended_imgs_.contains(file_path));
+        return sended_imgs_.value(file_path);
     }
 
     QString key() const

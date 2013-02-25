@@ -16,6 +16,10 @@ public:
 
     QString content() const;
     void set_content(QString content);
+    void appendContent(const QString &content)
+    {
+        content_.append(content);
+    }
 
     QString file_id() const;
     void set_file_id(QString file_id);

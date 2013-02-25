@@ -19,7 +19,6 @@
 #include "core/groupchatlog.h"
 #include "core/imgloader.h"
 #include "core/qqchatlog.h"
-#include "core/qqitem.h"
 #include "skinengine/qqskinengine.h"
 #include "event_handle/event_handle.h"
 #include "protocol/qq_protocol.h"
@@ -172,22 +171,11 @@ QString QQChatDlg::converToShow(const QString &converting_html)
     while ( pos != -1 )
     {
         QString content = p_reg.cap(1);
-
-        QRegExp img_req("<img src=\"[^\"]*\"");
-        if ( img_req.indexIn(content) != -1 )
+        if ( content != "<br />" )
         {
-            foreach (QString img_str, img_req.capturedTexts())
-            {
-                if ( img_str.indexOf(kQQFacePre) == -1 )
-                {
-                    QRegExp uuid_req("<img src=\"([^\"]*)\"");
-                    uuid_req.indexIn(content);
-                    QString img_id = uuid_req.cap(1);
-                    content.replace(img_id, file_path_[img_id]);
-                }
-            }
+            converted_html = converted_html + content;
         }
-        converted_html = converted_html + content;
+
         pos += p_reg.cap(0).length();
         pos = p_reg.indexIn(converting_html, pos);
 
@@ -204,7 +192,7 @@ QString QQChatDlg::converToShow(const QString &converting_html)
 
 QString QQChatDlg::escape(QString raw_html) const
 {
-    return raw_html.replace('<', "&lt").replace('>', "&gt");
+    return raw_html.replace(' ', "&nbsp;").replace('<', "&lt").replace('>', "&gt");
 }
 
 void QQChatDlg::openPathDialog(bool)
@@ -214,16 +202,12 @@ void QQChatDlg::openPathDialog(bool)
     if (file_path.isEmpty())
         return;
 
-    QFile file(file_path);
-    file.open(QIODevice::ReadOnly);
-    QByteArray file_data = file.readAll();
-
-    sendImage(file_path, file_data);
+    insertImage(file_path);
 }
 
-void QQChatDlg::sendImage(const QString &file_path, const QByteArray &data)
+void QQChatDlg::insertImage(const QString &file_path)
 {
-    Protocol::QQProtocol::instance()->sendImg(talkable_, file_path, data);
+    te_input_.insertImg(file_path, file_path);
 }
 
 void QQChatDlg::onNotify(Protocol::Event *event)
