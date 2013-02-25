@@ -19,6 +19,7 @@
 #include "trayicon/systemtray.h"
 #include "file_transfer/file_transfer_manager.h"
 #include "hotkeymanager/hotkey_manager.h"
+#include "setting/setting.h"
 
 Qtqq *Qtqq::instance_ = NULL;
 
@@ -33,8 +34,8 @@ Qtqq::Qtqq() : login_dlg_(NULL),
 	restore_ = new QAction(QIcon(QQSkinEngine::instance()->skinRes("systray_restore")), tr("Restore"), NULL);
 	connect(restore_, SIGNAL(triggered()), this, SLOT(onRestore()));
 
-	logout_ = new QAction(QIcon(QQSkinEngine::instance()->skinRes("systray_logout")), tr("Logout"), NULL);
-	connect(logout_, SIGNAL(triggered()), this, SLOT(onLogout()));
+	//logout_ = new QAction(QIcon(QQSkinEngine::instance()->skinRes("systray_logout")), tr("Logout"), NULL);
+	//connect(logout_, SIGNAL(triggered()), this, SLOT(onLogout()));
 
 	quit_ = new QAction(QIcon(QQSkinEngine::instance()->skinRes("systray_quit")), tr("Quit"), NULL);
 	connect(quit_, SIGNAL(triggered()), this, SLOT(onQuit()));
@@ -42,7 +43,7 @@ Qtqq::Qtqq() : login_dlg_(NULL),
 	tray->addMenuAction(minimize_);
 	tray->addMenuAction(minimize_);
 	tray->addMenuAction(restore_);
-	tray->addMenuAction(logout_);
+	//tray->addMenuAction(logout_);
 	tray->addMenuAction(quit_);
 	tray->addSeparator();
 }
@@ -76,6 +77,7 @@ void Qtqq::showMainPanel()
     NotificationManager::instance();
 	RequestMsgProcessor::instance();
 	StrangerManager::instance();
+    Setting::instance();
 	
 	main_win_ = new MainWindow();
 
@@ -118,6 +120,8 @@ void Qtqq::onLogout()
 	delete ChatDlgManager::instance();
 	delete Roster::instance();
     delete main_win_;
+    HotkeyManager::instance()->reset();
+    Setting::instance()->reset();
 
 	SystemTrayIcon *trayicon = SystemTrayIcon::instance();
 	trayicon->hide();
@@ -137,6 +141,7 @@ void Qtqq::onQuit()
     delete PluginManager::instance();
     delete HotkeyManager::instance();
     delete FileTransferManager::instance();
+    delete Setting::instance();
 
 	if ( main_win_ )
 		delete main_win_;
@@ -148,8 +153,8 @@ void Qtqq::onQuit()
 	delete restore_;
 	restore_ = NULL;
 
-	delete logout_;
-	logout_ = NULL;
+	//delete logout_;
+	//logout_ = NULL;
 
 	delete quit_;
 	quit_ = NULL;

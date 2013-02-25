@@ -26,7 +26,8 @@ public:
 };
 
 
-HotkeyManager::HotkeyManager()
+HotkeyManager::HotkeyManager() :
+    hotkey_dlg_(NULL)
 {
     hotkey_dlg_ = new HotkeyDlg();
     hotkey_dlg_->msg_label->setVisible(false);
@@ -43,6 +44,15 @@ HotkeyManager::HotkeyManager()
     act_open_hotkey_dlg_->setCheckable(false);
     connect(act_open_hotkey_dlg_, SIGNAL(triggered()), this, SLOT(openHotkeyDlg()));
     main_win->mainMenu()->addPluginAction(act_open_hotkey_dlg_);
+}
+
+HotkeyManager::~HotkeyManager()
+{
+    if ( hotkey_dlg_ )
+    {
+        delete hotkey_dlg_;
+        hotkey_dlg_ = NULL;
+    }
 }
 
 void HotkeyManager::initHotkeys()
@@ -105,4 +115,13 @@ void HotkeyManager::openHotkeyDlg()
     }
 
     hotkey_dlg_->show();
+}
+
+void HotkeyManager::reset()
+{
+    if ( instance_ )
+    {
+        delete instance_;
+        instance_ = NULL;
+    }
 }

@@ -20,6 +20,9 @@ public:
 
         return instance_;
     }
+    ~HotkeyManager();
+
+    void reset();
 
     QxtGlobalShortcut *hotkey(HotkeyType type)
     {

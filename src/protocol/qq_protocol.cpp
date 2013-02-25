@@ -32,6 +32,9 @@ Protocol::QQProtocol::QQProtocol() :
 Protocol::QQProtocol::~QQProtocol()
 {
 	stop();
+    reciving_jobs_.clear();
+    sending_jobs_.clear();
+    requesting_.clear();
 }
 
 void Protocol::QQProtocol::run()

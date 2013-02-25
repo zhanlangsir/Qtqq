@@ -47,7 +47,7 @@ private:
 
 	QAction *minimize_;
 	QAction *restore_;
-	QAction *logout_;
+	//QAction *logout_;
 	QAction *quit_;
 
 private:

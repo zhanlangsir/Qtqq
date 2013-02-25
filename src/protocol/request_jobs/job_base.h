@@ -29,7 +29,8 @@ public:
 	__JobBase(Talkable *_for, JobType type) : 
 		type_(type),
         for_(_for)
-	{}
+	{
+    }
 
 	virtual ~__JobBase()
     {

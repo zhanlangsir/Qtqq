@@ -42,6 +42,7 @@
 #include "snapshot/ksnapshot.h"
 #include "qqglobal.h"
 #include "qqiteminfohelper.h"
+#include "setting/setting.h"
 #include "qtqq.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -76,11 +77,10 @@ MainWindow::MainWindow(QWidget *parent) :
         QFile::remove(QQGlobal::configDir() + "/qqgroupdb");
     }
 
-    QSettings setting(QQGlobal::configDir() + "/options.ini", QSettings::IniFormat);
     main_menu_ = new Menu(this);
     act_mute_ = new QAction(tr("Mute"), main_menu_);
     act_mute_->setCheckable(true);
-    act_mute_->setChecked(setting.value("mute").toBool());
+    act_mute_->setChecked(Setting::instance()->value("mute").toBool());
     connect(act_mute_, SIGNAL(toggled(bool)), this, SLOT(setMute(bool)));
 
     QAction *quit = new QAction(tr("Quit"), main_menu_);
@@ -175,8 +175,7 @@ void MainWindow::clean()
 
 void MainWindow::setMute(bool mute)
 {
-    QSettings setting(QQGlobal::configDir() + "/options.ini", QSettings::IniFormat);
-    setting.setValue("mute", mute);
+    Setting::instance()->setValue("mute", mute);
 }
 
 void MainWindow::openMainMenu()

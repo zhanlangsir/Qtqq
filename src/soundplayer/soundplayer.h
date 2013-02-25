@@ -13,6 +13,7 @@
     #endif
 #endif
 
+#include "setting/setting.h"
 #include "qqglobal.h"
 
 class SoundPlayer
@@ -33,8 +34,7 @@ protected:
 public:
     void play(SoundType type, QString file_name = "")
     {
-        QSettings setting(QQGlobal::configDir() + "/options.ini", QSettings::IniFormat);
-        bool mute = setting.value("mute").toBool();
+        bool mute = Setting::instance()->value("mute").toBool();
         if (mute)
             return;
 
