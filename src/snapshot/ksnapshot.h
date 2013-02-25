@@ -43,7 +43,7 @@ class KSnapshot : public QDialog, public KSnapshotObject
   Q_OBJECT
 
 public:
-    explicit KSnapshot(QWidget *parent= 0, KSnapshotObject::CaptureMode mode = FullScreen);
+    explicit KSnapshot(QWidget *parent= 0, KSnapshotObject::CaptureMode mode = Region);
     ~KSnapshot();
 
 public slots:
@@ -84,7 +84,7 @@ private slots:
     int previewHeight() const;
     void startUndelayedGrab();
     void slotScreenshotReceived(qulonglong handle);
-    void onSendBtnClicked();
+    void onOkBtnClicked();
     void onCancelBtnClicked();
     void onHelpBtnClicked();
     void onSaveBtnClicked();

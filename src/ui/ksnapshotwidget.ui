@@ -285,9 +285,9 @@ If &lt;i&gt;no delay&lt;/i&gt; is set, the program will wait for a mouse click b
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="send_btn">
+      <widget class="QToolButton" name="ok_btn">
        <property name="text">
-        <string>Send</string>
+        <string>OK</string>
        </property>
       </widget>
      </item>

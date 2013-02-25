@@ -109,7 +109,7 @@ KSnapshot::KSnapshot(QWidget *parent,  KSnapshotObject::CaptureMode mode )
     mainWidget = new KSnapshotWidget();
     vbox->addWidget(mainWidget);
 
-    connect(mainWidget->send_btn, SIGNAL(clicked()), SLOT(onSendBtnClicked()));
+    connect(mainWidget->ok_btn, SIGNAL(clicked()), SLOT(onOkBtnClicked()));
     connect(mainWidget->cancel_btn, SIGNAL(clicked()), SLOT(onCancelBtnClicked()));
     connect(mainWidget->save_btn, SIGNAL(clicked()), SLOT(onSaveBtnClicked()));
     connect(mainWidget->help_btn, SIGNAL(clicked()), SLOT(onHelpBtnClicked()));
@@ -140,7 +140,7 @@ KSnapshot::KSnapshot(QWidget *parent,  KSnapshotObject::CaptureMode mode )
     mainWidget->cbIncludePointer->hide();
     mainWidget->lblIncludePointer->hide();
 #endif
-    setMode(0);
+    setMode(KSnapshotObject::Region);
 
     qDebug() << "Mode = " << mode;
     if ( mode == KSnapshotObject::FullScreen ) {
@@ -203,7 +203,7 @@ KSnapshot::KSnapshot(QWidget *parent,  KSnapshotObject::CaptureMode mode )
     connect( &updateTimer, SIGNAL(timeout()), this, SLOT(updatePreview()) );
     QTimer::singleShot( 0, this, SLOT(updateCaption()) );
 
-    new QShortcut( Qt::Key_S, mainWidget->send_btn, SLOT(animateClick()));
+    new QShortcut( Qt::Key_S, mainWidget->ok_btn, SLOT(animateClick()));
     new QShortcut( Qt::Key_N, mainWidget->btnNew, SLOT(animateClick()) );
     new QShortcut( Qt::Key_Space, mainWidget->btnNew, SLOT(animateClick()) );
 
@@ -218,7 +218,7 @@ KSnapshot::~KSnapshot()
     delete mainWidget;
 }
 
-void KSnapshot::onSendBtnClicked()
+void KSnapshot::onOkBtnClicked()
 {
     QQChatDlg *current_chatdlg = ChatDlgManager::instance()->currentChatdlg();
     if ( !current_chatdlg )
@@ -342,24 +342,35 @@ QString KSnapshot::getUnexistsFilePath(const QString &base)
 
 void KSnapshot::slotRegionGrabbed( const QPixmap &pix )
 {
-  if ( !pix.isNull() )
-  {
-    snapshot = pix;
-    updatePreview();
-    modified = true;
-    updateCaption();
-  }
+    if ( !pix.isNull() )
+    {
+        snapshot = pix;
+        updatePreview();
+        modified = true;
+        updateCaption();
+    }
 
-  if( mode() == KSnapshotObject::Region )
-  {
-    rgnGrab->deleteLater();
-  }
-  else if( mode() == KSnapshotObject::FreeRegion ) {
-    freeRgnGrab->deleteLater();
-  }
+    if ( snapshot.isNull() )
+    {
+        mainWidget->ok_btn->setEnabled(false);
+        mainWidget->save_btn->setEnabled(false);
+    }
+    else
+    {
+        mainWidget->ok_btn->setEnabled(true);
+        mainWidget->save_btn->setEnabled(true);
+    }
 
-  QApplication::restoreOverrideCursor();
-  show();
+    if( mode() == KSnapshotObject::Region )
+    {
+        rgnGrab->deleteLater();
+    }
+    else if( mode() == KSnapshotObject::FreeRegion ) {
+        freeRgnGrab->deleteLater();
+    }
+
+    QApplication::restoreOverrideCursor();
+    show();
 }
 
 void KSnapshot::slotWindowGrabbed( const QPixmap &pix )
@@ -370,6 +381,18 @@ void KSnapshot::slotWindowGrabbed( const QPixmap &pix )
         updatePreview();
         modified = true;
         updateCaption();
+
+    }
+
+    if ( snapshot.isNull() )
+    {
+        mainWidget->ok_btn->setEnabled(false);
+        mainWidget->save_btn->setEnabled(false);
+    }
+    else
+    {
+        mainWidget->ok_btn->setEnabled(true);
+        mainWidget->save_btn->setEnabled(true);
     }
 
     QApplication::restoreOverrideCursor();

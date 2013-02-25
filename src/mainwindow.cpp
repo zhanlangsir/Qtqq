@@ -141,7 +141,6 @@ MainWindow::~MainWindow()
 void MainWindow::snapshot()
 {
     KSnapshot *snap = new KSnapshot();
-    snap->show();
 }
 
 void MainWindow::aboutQt()
