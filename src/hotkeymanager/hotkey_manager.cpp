@@ -3,12 +3,14 @@
 
 #include <QWidget>
 #include <QKeySequence>
+#include <QVariant>
 #include <QDebug>
 
 #include "qxtglobalshortcut.h"
 
 #include "utils/menu.h"
 #include "mainwindow.h"
+#include "setting/setting.h"
 #include "qtqq.h"
 
 HotkeyManager *HotkeyManager::instance_ = NULL;
@@ -45,7 +47,9 @@ HotkeyManager::HotkeyManager()
 
 void HotkeyManager::initHotkeys()
 {
-    QxtGlobalShortcut *snapshot = new QxtGlobalShortcut(QKeySequence("Ctrl+Alt+S"), this);
+    QKeySequence snapshot_ks = Setting::instance()->value("hotkeymanager/snapshot", QKeySequence("Ctrl+Alt+S")).value<QKeySequence>();
+    QxtGlobalShortcut *snapshot = new QxtGlobalShortcut(snapshot_ks, this);
+
     hotkeys_.append(snapshot);
 }
 
@@ -83,6 +87,7 @@ void HotkeyManager::onHotKeyApply()
         else
         {
             hotkey_dlg_->msg_label->setVisible(false);
+            Setting::instance()->setValue("hotkeymanager/snapshot", QVariant::fromValue<QKeySequence>(new_ks));
         }
     }
 }

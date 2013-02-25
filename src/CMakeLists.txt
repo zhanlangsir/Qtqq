@@ -100,6 +100,9 @@ set(CORE_HEADERS
 	rostermodel/contact_proxy_model.h
     rostermodel/contact_searcher.h
 
+    #setting
+    setting/setting.h
+
 	#skinengine
 	skinengine/qqskinengine.h
 	skinengine/msgstyle_manager.h
@@ -231,6 +234,9 @@ set(CORE_SOURCES
 	rostermodel/roster_model.cpp
 	rostermodel/contact_proxy_model.cpp
     rostermodel/contact_searcher.cpp
+
+    #setting
+    setting/setting.cpp
 
 	#skinengine
 	skinengine/qqskinengine.cpp
