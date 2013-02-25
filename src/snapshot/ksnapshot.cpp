@@ -207,7 +207,7 @@ KSnapshot::KSnapshot(QWidget *parent,  KSnapshotObject::CaptureMode mode )
     new QShortcut( Qt::Key_N, mainWidget->btnNew, SLOT(animateClick()) );
     new QShortcut( Qt::Key_Space, mainWidget->btnNew, SLOT(animateClick()) );
 
-    mainWidget->btnNew->setFocus();
+    mainWidget->ok_btn->setFocus();
     resize(QSize(400, 500));
 
     move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
@@ -221,13 +221,13 @@ KSnapshot::~KSnapshot()
 void KSnapshot::onOkBtnClicked()
 {
     QQChatDlg *current_chatdlg = ChatDlgManager::instance()->currentChatdlg();
-    if ( !current_chatdlg )
-        return;
+    if ( current_chatdlg )
+    {
+        file_path_ = getUnexistsFilePath(file_path_);
+        snapshot.save(file_path_);
 
-    file_path_ = getUnexistsFilePath(file_path_);
-    snapshot.save(file_path_);
-
-    current_chatdlg->insertImage(file_path_);
+        current_chatdlg->insertImage(file_path_);
+    }
 
     deleteLater();
 }

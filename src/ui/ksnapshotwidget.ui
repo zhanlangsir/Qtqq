@@ -285,9 +285,15 @@ If &lt;i&gt;no delay&lt;/i&gt; is set, the program will wait for a mouse click b
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="ok_btn">
+      <widget class="QPushButton" name="ok_btn">
        <property name="text">
         <string>OK</string>
+       </property>
+       <property name="autoDefault">
+        <bool>true</bool>
+       </property>
+       <property name="default">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
