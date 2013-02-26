@@ -27,7 +27,8 @@ public:
 		return instance_;
 	}
 
-    Contact *takeStranger(QString id);
+    Contact *takeStranger(const QString &id);
+    Contact *addStranger(const QString &id, const QString &gid = QString(), Talkable::TalkableType type = Talkable::kSessStranger );
 
 	bool hasStrangerInfo(QString id) const;
     Contact *stranger(const QString &id) const;
@@ -37,7 +38,7 @@ protected:
     virtual void onNotify(Protocol::Event *event);
 
 private slots:
-	void onNewSessMsg(ShareQQMsgPtr msg);
+    void onNewSessChatMsg(ShareQQMsgPtr msg);
 	void onNewSystemMsg(ShareQQMsgPtr msg);
 
 private:

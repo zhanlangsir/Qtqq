@@ -1,5 +1,7 @@
 #include "chatdlg_manager.h"
 
+#include <cassert>
+
 #include <QDesktopWidget>
 #include <QApplication>
 
@@ -13,6 +15,7 @@
 #include "rostermodel/recent_model.h"
 #include "roster/roster.h"
 #include "chatwidget/tabwindow.h"
+#include "strangermanager/stranger_manager.h"
 #include "mainwindow.h"
 
 ChatDlgManager* ChatDlgManager::instance_ = NULL;
@@ -23,7 +26,6 @@ ChatDlgManager::ChatDlgManager()
     connect(tab_win_, SIGNAL(activatedPageChanged(QQChatDlg *, QQChatDlg *)), this, SIGNAL(activatedChatDlgChanged(QQChatDlg *, QQChatDlg *)));
     tab_win_->move((QApplication::desktop()->width() - tab_win_->width()) /2, (QApplication::desktop()->height() - tab_win_->height()) /2);
 }
-
 
 ChatDlgManager::~ChatDlgManager()
 {
@@ -51,6 +53,8 @@ void ChatDlgManager::openFriendChatDlg(const QString &id)
 
     Roster *roster = Roster::instance();
     Contact *contact = roster->contact(id);
+    if ( !contact )
+        contact = StrangerManager::instance()->stranger(id);
 
     QQChatDlg *dlg = NULL;
     dlg= new FriendChatDlg(contact);
@@ -107,9 +111,8 @@ void ChatDlgManager::openGroupChatDlg(QString id, QString gcode)
     tab_win_->raise();
 }
 
-void ChatDlgManager::openSessChatDlg(QString id, QString group_id) 
+void ChatDlgManager::openSessChatDlg(const QString &id, const QString &gid) 
 {
-    return;
     if ( isOpening(id) )
     {
         tab_win_->activatedTab(id);
@@ -118,42 +121,36 @@ void ChatDlgManager::openSessChatDlg(QString id, QString group_id)
         return; 
     }
 
-    /*
-      QQChatDlg *dlg = NULL;
+    Group *group = Roster::instance()->group(gid);
+    Contact *contact = NULL;
+    assert(group);
+    if ( group->memberCount() == 0 )
+    {
+        Roster *roster = Roster::instance();
+        contact = StrangerManager::instance()->stranger(id);
+    }
+    else
+    {
+        contact = group->member(id)->clone();;
+    }
 
-      QByteArray info = QQItemInfoHelper::getStrangetInfo2(id, group_id);
-      info = info.mid(info.indexOf("\r\n\r\n") + 4);
+    QQChatDlg *dlg = NULL;
+    dlg = new SessChatDlg(contact, group);
+    connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
+    if ( main_win_->recentModel() )
+        connect(dlg, SIGNAL(sigMsgSended(QString)), main_win_->recentModel(), SLOT(slotMsgSended(QString)));
 
-      Json::Reader reader;
-      Json::Value root;
+    ChatMsgProcessor::instance()->registerListener(dlg);
+    opening_chatdlg_.append(dlg);
 
-      if (!reader.parse(QString(info).toStdString(), root, false))
-      {
-      return;
-      }
+    QString dlg_name = contact->name().left(4);
+    if ( contact->name().size() > 4 )
+        dlg_name += "..";
 
-      QString name = QString::fromStdString(root["result"]["nick"].asString());
-      //暂时不明白token的作用
-      //QString token = QString::fromStdString(root["result"]["token"].asString());
-
-      Roster *roster = Roster::instance();
-      Group *group = roster->group(group_id);
-
-      dlg = new SessChatDlg(group, group->name());
-      MsgEncoder *encoder = new SessMsgEncoder(dlg, ginfo->gCode(), GroupChatDlg::getMsgSig(group_id, id));
-      dlg->setMsgEncoder(encoder);
-
-      connect(dlg, SIGNAL(chatFinish(QQChatDlg*)), this, SLOT(closeChatDlg(QQChatDlg*)));
-      connect(dlg, SIGNAL(msgSended(QString,bool)), main_win_->recentModel(), SLOT(improveItem(QString)));
-
-      main_win_->msgCenter()->registerListener(dlg);
-
-      opening_chatdlg_.append(dlg);
-      dlg->move((QApplication::desktop()->width() - dlg->width()) /2, (QApplication::desktop()->height() - dlg->height()) /2);
-      dlg->show();
-
-      main_win_->msgTip()->removeItem(id);
-    */
+    tab_win_->addTab(dlg, dlg_name);
+    tab_win_->show();
+    tab_win_->activateWindow();
+    tab_win_->raise();
 }
 
 bool ChatDlgManager::isOpening(const QString &id) const

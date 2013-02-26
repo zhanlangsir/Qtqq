@@ -15,6 +15,7 @@ enum RosterIndexType
 	RIT_Category,
 	RIT_Contact,
 	RIT_Group,
+    RIT_Stranger,
 	RIT_Sess
 };
 

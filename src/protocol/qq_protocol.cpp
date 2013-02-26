@@ -24,7 +24,8 @@ Protocol::QQProtocol* Protocol::QQProtocol::instance_ = NULL;
 Protocol::QQProtocol::QQProtocol() :
 	poll_thread_(new Protocol::PollThread(this)),
     imgsender_(new ImgSender()),
-    filesender_(new FileSender())
+    filesender_(new FileSender()),
+    msgsender_(new MsgSender())
 {
 	connect(poll_thread_, SIGNAL(newMsgArrive(QByteArray)), this, SIGNAL(newQQMsg(QByteArray)));
 }
@@ -102,12 +103,16 @@ void Protocol::QQProtocol::sendImg(Talkable *sender, QString file_path, QByteArr
 }
 */
 
-void Protocol::QQProtocol::sendMsg(Talkable *to, const QVector<QQChatItem> &msgs)
+void Protocol::QQProtocol::sendMsg(Talkable *to, Group *group, const QVector<QQChatItem> &msgs)
 {
     __JobBase *job = NULL;
-    if ( to->type() == Talkable::kContact )
+    if ( to->type() == Talkable::kContact || to->type() == Talkable::kStranger )
     {
         job = new SendFriendMsgJob(to, msgs);
+    }
+    else if ( to->type() == Talkable::kSessStranger )
+    {
+        job = new SendSessMsgJob(to, group, msgs);
     }
     else if ( to->type() == Talkable::kGroup )
     {

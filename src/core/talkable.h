@@ -25,6 +25,7 @@ enum TalkableDataRole
 	TDR_Category,
 	TDR_Status,
 	TDR_ClientType,
+    TDR_Group,
 
     //Group
 	TDR_Gcode,
@@ -35,7 +36,6 @@ enum TalkableDataRole
 	TDR_CategoryOnlineCount,
 };
 
-
 class Talkable : public QObject
 {
 	Q_OBJECT
@@ -43,7 +43,9 @@ signals:
 	void dataChanged(QVariant data, TalkableDataRole role);
 
 public:
-	enum TalkableType { kStranger, kContact, kGroup, kCategory };
+    //kStranger是指你删除了他好友，但是他还保留你为好友的情况
+    //kSessStranger是指双方都不是好友的情况
+	enum TalkableType { kStranger, kSessStranger, kContact, kGroup, kCategory };
 
 	Talkable(QString id, QString name, TalkableType type) :
 		id_(id),
@@ -128,7 +130,7 @@ public:
 	virtual ContactStatus status() const
 	{ return CS_Online; }
 
-private:
+protected:
 	QString id_;
 	QString name_;
 	QString avatar_path_;
@@ -145,8 +147,7 @@ public:
 	Contact(QString id, QString name, TalkableType type = Talkable::kContact) :
 		Talkable(id, name, type),
         status_(CS_Offline),
-        cat_(NULL),
-        group_(NULL)
+        cat_(NULL)
 	{
 	}
 
@@ -157,13 +158,26 @@ public:
 	Category* category() const
 	{ return cat_; }
 
-    Group *group() const
+    const QVector<Group *> &groups() const
     { 
-        return group_; 
+        return groups_; 
     }
-    void setGroup(Group *group)
+    void addGroup(Group *group)
     {
-        group_ = group;
+        groups_.append(group);
+    }
+
+    Contact *clone()
+    {
+        Contact *new_cont = new Contact(id_, name_, type_);
+        new_cont->avatar_path_ = avatar_path_;
+        new_cont->pix_ = pix_;
+        new_cont->markname_ = markname_;
+        new_cont->status_ = status_;
+        new_cont->client_type_ = client_type_;
+        if ( !groups_.isEmpty() )
+            new_cont->groups_ = groups_;
+        return new_cont;
     }
 
 	void setMarkname(QString markname)
@@ -211,7 +225,7 @@ private:
 	ContactClientType client_type_;
 
 	Category *cat_;
-    Group *group_;
+    QVector<Group *> groups_;
 };
 
 class Group : public Talkable
@@ -277,6 +291,10 @@ public:
 
     Contact *member(QString id) const
     {
+        if ( members_.count() == 0 && n_member_ != 0 )
+        {
+            const_cast<Group *>(this)->depresist();
+        }
         return members_.value(id, NULL);
     }
 

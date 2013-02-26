@@ -16,6 +16,7 @@
 #include "msgprocessor/msg_processor.h"
 #include "skinengine/qqskinengine.h"
 #include "soundplayer/soundplayer.h"
+#include "strangermanager/stranger_manager.h"
 #include "trayicon/systemtray.h"
 
 ChatMsgProcessor *ChatMsgProcessor::instance_ = NULL;
@@ -26,13 +27,37 @@ ChatMsgProcessor::ChatMsgProcessor()
 
 	connect(MsgProcessor::instance(), SIGNAL(newFriendChatMsg(ShareQQMsgPtr)), this, SLOT(onNewChatMsg(ShareQQMsgPtr)));
 	connect(MsgProcessor::instance(), SIGNAL(newGroupChatMsg(ShareQQMsgPtr)), this, SLOT(onNewChatMsg(ShareQQMsgPtr)));
+	connect(MsgProcessor::instance(), SIGNAL(newSessChatMsg(ShareQQMsgPtr)), this, SLOT(onNewChatMsg(ShareQQMsgPtr)));
 	connect(MsgProcessor::instance(), SIGNAL(newOffFileMsg(ShareQQMsgPtr)), this, SLOT(onNewOffFileMsg(ShareQQMsgPtr)));
 	connect(ChatDlgManager::instance(), SIGNAL(activatedChatDlgChanged(QQChatDlg *, QQChatDlg *)), this, SLOT(onActivatedChatDlgChanged(QQChatDlg *, QQChatDlg *)));
+    connect(StrangerManager::instance(), SIGNAL(newStrangerInfo(QString, Contact *)), this, SLOT(onNewStrangerInfo(QString, Contact *)));
+    connect(StrangerManager::instance(), SIGNAL(newStrangerIcon(QString, QPixmap)), this, SLOT(onNewStrangerIcon(QString, QPixmap)));
 }
 
 ChatMsgProcessor::~ChatMsgProcessor()
 {
 	stop();
+}
+
+void ChatMsgProcessor::onNewStrangerInfo(QString id, Contact *stranger)
+{
+    QAction *action = actionById(id);
+    if ( !action )
+        return;
+
+    action->setText(stranger->name());
+}
+
+void ChatMsgProcessor::onNewStrangerIcon(QString id, QPixmap pix)
+{
+	QIcon icon;
+	icon.addPixmap(pix);
+
+	QAction *action = actionById(id);		
+	if ( action )
+	{
+		action->setIcon(icon);
+	}
 }
 
 void ChatMsgProcessor::onNewChatMsg(ShareQQMsgPtr msg)
@@ -85,7 +110,7 @@ void ChatMsgProcessor::getOldMsgs(const QString &id, QVector<ShareQQMsgPtr> &msg
 
 	foreach( ShareQQMsgPtr msg, msgs_copy )
 	{
-		if (msg->talkTo() == id)
+		if ( msg->talkTo() == id )
 		{
 			msgs.append(msg);
 			old_msgs_.removeOne(msg);
@@ -146,22 +171,32 @@ void ChatMsgProcessor::createTrayNotify(ShareQQMsgPtr msg)
 	else
 	{
 		Roster *roster = Roster::instance();
-		Talkable *talkable = roster->talkable(msg->talkTo());
+        Talkable *talkable = NULL;
+        if ( msg->type() == QQMsg::kSess )
+        {
+            Group *group = Roster::instance()->group(msg->gid());
+            talkable = group->member(msg->sendUin());
+        }
+        else
+            talkable = roster->talkable(msg->talkTo());
 
-		/*
-		 * I don't know why i can receive some group message which send from 
-		 * the group that i had not join in. So, just skip it. 
-		 */
-		if ( !talkable )
-			return;
+        if ( !talkable && msg->type() == QQMsg::kGroup )
+            return;
+        else if ( !talkable )
+        {
+            if ( msg->type() == QQMsg::kFriend )
+                talkable = StrangerManager::instance()->addStranger(msg->sendUin(), QString(), Talkable::kStranger);
+            else
+                talkable = StrangerManager::instance()->addStranger(msg->sendUin(), msg->gid(), Talkable::kSessStranger);
+        }
 
-		QPixmap pix = talkable->avatar();
+		QPixmap pix = talkable ? talkable->avatar() : QPixmap(QQSkinEngine::instance()->skinRes("default_friend_avatar"));
 		QIcon icon;
 		if ( !pix.isNull() )
 			icon.addPixmap(pix);
 		else
 		{
-			if ( talkable->type() == Talkable::kContact )
+			if ( talkable->type() == Talkable::kContact || talkable->type() == Talkable::kStranger || talkable->type() == Talkable::kSessStranger )
 			{
 				icon.addPixmap(QPixmap(QQSkinEngine::instance()->skinRes("default_friend_avatar")));
 			}
@@ -171,9 +206,13 @@ void ChatMsgProcessor::createTrayNotify(ShareQQMsgPtr msg)
 			}
 		}
 
-		action = new QAction(icon, talkable->name(), NULL);
+        QString name = talkable ? talkable->markname() : msg->talkTo();
+		action = new QAction(icon, name, NULL);
 
-		action->setData(msg->talkTo());
+        if ( msg->type() == QQMsg::kSess )
+            action->setData(msg->sendUin());
+        else
+            action->setData(msg->talkTo());
 
 		actions_.append(action);
 		SystemTrayIcon::instance()->addNotifyAction(action);	
@@ -211,7 +250,7 @@ void ChatMsgProcessor::onActionTriggered()
 			ChatDlgManager::instance()->openGroupChatDlg(msg->talkTo(), msg->gCode());
 			break;
 		case QQMsg::kSess:
-			ChatDlgManager::instance()->openSessChatDlg(msg->talkTo(), msg->gid());
+			ChatDlgManager::instance()->openSessChatDlg(msg->sendUin(), msg->gid());
 			break;
         case QQMsg::kOffFile:
 			ChatDlgManager::instance()->openFriendChatDlg(msg->talkTo());

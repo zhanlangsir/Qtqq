@@ -20,6 +20,8 @@ public:
 
 protected:
     void sendMsg();
+    virtual QString getPath() const = 0;
+    virtual QByteArray getData() const = 0;
 
 protected:
     QVector<QQChatItem> msgs_;
@@ -42,6 +44,8 @@ public:
     }
 
     virtual void run();
+    virtual QString getPath() const;
+    virtual QByteArray getData() const;
 
 private slots:
     void onImgSendDone(__JobBase *job, bool error);
@@ -62,6 +66,8 @@ public:
     }
 
     virtual void run();
+    virtual QString getPath() const;
+    virtual QByteArray getData() const;
 
 private slots:
     void onImgSendDone(__JobBase *job, bool error);
@@ -69,6 +75,22 @@ private slots:
 private:
     QVector<QString> jobs_;
     int finish_imgjobs_;
+};
+
+class SendSessMsgJob : public SendMsgJob
+{
+public:
+    SendSessMsgJob(Talkable *_for, Group *group, const QVector<QQChatItem> &msgs) :
+        SendMsgJob(_for, msgs),
+        group_(group)
+    {
+    }
+
+    virtual QString getPath() const;
+    virtual QByteArray getData() const;
+
+private:
+    Group *group_;
 };
 
 #endif //SENDMSG_JOB_H

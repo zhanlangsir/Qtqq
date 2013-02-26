@@ -62,7 +62,7 @@ public:
 
     //void sendImg(Talkable *sender, QString file_name, QByteArray data);
     //void sendGroupImg();
-    void sendMsg(Talkable *to, const QVector<QQChatItem> &msgs); 
+    void sendMsg(Talkable *to, Group *gruop, const QVector<QQChatItem> &msgs); 
     void sendGroupMsg(const QVector<QQChatItem> &msgs); 
 
     void sendFile(const QString &file_path, const QString &to_id, const QByteArray &data);
@@ -81,6 +81,8 @@ public:
     { return imgsender_; }
     Protocol::FileSender *fileSender() const
     { return filesender_; }
+    Protocol::MsgSender *msgSender() const
+    { return msgsender_; }
 
 private slots:
 	void slotJobDone(__JobBase* job, bool error);
@@ -98,6 +100,7 @@ private:
 
     ImgSender *imgsender_;
     FileSender *filesender_;
+    MsgSender *msgsender_;
 
 private:
 	QQProtocol(); 

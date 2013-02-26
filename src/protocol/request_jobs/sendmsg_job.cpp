@@ -47,18 +47,8 @@ void SendMsgJob::run()
 
 void SendMsgJob::sendMsg()
 {
-    QString data;
-    QString send_url;
-    if ( for_->type() == Talkable::kContact )
-    {
-        send_url = "/channel/send_buddy_msg2";
-        data = MsgSender::msgToJson((Contact *)for_, msgs_);
-    }
-    else if ( for_->type() == Talkable::kGroup )
-    {
-        send_url =  "/channel/send_qun_msg2";
-        data = MsgSender::groupMsgToJson((Group *)for_, msgs_);
-    }
+    QString send_url = getPath();
+    QByteArray data = getData();
 
     QHttpRequestHeader header;
     header.setRequest("POST", send_url);
@@ -69,7 +59,7 @@ void SendMsgJob::sendMsg()
     header.addValue("Content-Type", "application/x-www-form-urlencoded");
 
     http_.setHost("d.web2.qq.com");
-    http_.request(header, data.toAscii());
+    http_.request(header, data);
 }
 
 void SendFriendMsgJob::onImgSendDone(__JobBase *job, bool error)
@@ -117,6 +107,17 @@ void SendFriendMsgJob::run()
         sendMsg();
 }
 
+QString SendFriendMsgJob::getPath() const
+{
+    return "/channel/send_buddy_msg2";
+}
+
+QByteArray SendFriendMsgJob::getData() const
+{
+    return Protocol::QQProtocol::instance()->msgSender()->msgToJson((Contact *)for_, msgs_).toAscii();
+}
+
+
 void SendGroupMsgJob::run()
 {
     bool has_img = false;
@@ -159,4 +160,26 @@ void SendGroupMsgJob::onImgSendDone(__JobBase *job, bool error)
         }
     }
     job->deleteLater();
+}
+
+QString SendGroupMsgJob::getPath() const
+{
+    return "/channel/send_qun_msg2";
+}
+
+QByteArray SendGroupMsgJob::getData() const
+{
+    return Protocol::QQProtocol::instance()->msgSender()->groupMsgToJson((Group *)for_, msgs_).toAscii();
+}
+
+
+
+QString SendSessMsgJob::getPath() const
+{
+    return "/channel/send_sess_msg2";
+}
+
+QByteArray SendSessMsgJob::getData() const
+{
+    return Protocol::QQProtocol::instance()->msgSender()->sessMsgToJson((Contact *)for_, group_, msgs_).toAscii();
 }

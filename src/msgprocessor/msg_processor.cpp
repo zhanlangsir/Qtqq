@@ -380,6 +380,12 @@ QQMsg *MsgProcessor::createSessMsg(const Json::Value &result) const
                 item.set_type(QQChatItem::kQQFace);
                 item.set_content(QString::number(content[1].asInt()));
             }
+            else
+            {
+                //临时会话不支持图片发送
+                continue;
+            }
+            /*
             else if (face_type == "offpic")
             {
                 item.set_type(QQChatItem::kFriendOffpic);
@@ -390,6 +396,7 @@ QQMsg *MsgProcessor::createSessMsg(const Json::Value &result) const
                 item.set_type(QQChatItem::kFriendCface);
                 item.set_content(QString::fromStdString(content[1].asString()));
             }
+            */
         }
         chat_msg->msgs_.append(item);
     }

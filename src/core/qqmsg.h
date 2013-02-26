@@ -153,10 +153,9 @@ public:
 	}
 
     virtual QString talkTo() const
-    { return gid_; }
+    { return from_uin_; }
     virtual QString sendUin() const
     { return from_uin_; }
-
     virtual QString gid() const 
     { return gid_; }
 

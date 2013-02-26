@@ -17,6 +17,7 @@
 #include "roster/group_presister.h"
 #include "rostermodel/contact_proxy_model.h"
 #include "rostermodel/contact_searcher.h"
+#include "rostermodel/roster_index.h"
 #include "rostermodel/roster_model.h"
 #include "roster/roster.h"
 #include "skinengine/qqskinengine.h"
@@ -133,6 +134,7 @@ void GroupChatDlg::initConnections()
     connect(ui->btn_close, SIGNAL(clicked()), this, SLOT(close()));
     connect(ui->btn_chat_log, SIGNAL(clicked()), this, SLOT(openChatLogWin()));
     connect(ui->member_view, SIGNAL(doubleClicked(const QModelIndex &)), model_, SLOT(onDoubleClicked(const QModelIndex &)));
+    connect(model_, SIGNAL(sigDoubleClicked(const RosterIndex *)), this, SLOT(onDoubleClicked(const RosterIndex *)));
 
     connect(&msgbrowse_, SIGNAL(linkClicked(const QUrl &)), this, SLOT(onLinkClicked(const QUrl &)));
 
@@ -142,6 +144,12 @@ void GroupChatDlg::initConnections()
 void GroupChatDlg::updateSkin()
 {
 
+}
+
+void GroupChatDlg::onDoubleClicked(const RosterIndex *index)
+{
+    QString id = index->data(TDR_Id).toString();
+    openSessOrFriendChatDlg(id);
 }
 
 void GroupChatDlg::onLinkClicked(const QUrl &url)
@@ -159,54 +167,6 @@ void GroupChatDlg::closeEvent(QCloseEvent *event)
     QQChatDlg::closeEvent(event);
 
     GroupPresister::instance()->setActivateFlag(talkable_->id());
-}
-
-void GroupChatDlg::openChatDlgByDoubleClicked(const QModelIndex &index)
-{
-    /*
-    QString member_id =  static_cast<RosterIndex *>(index.internalPointer());
-    openSessOrFriendChatDlg(contact->id());
-    */
-}
-
-void GroupChatDlg::openSessOrFriendChatDlg(QString id)
-{
-    Roster *roster = Roster::instance();
-    Contact *contact = roster->contact(id);
-    if ( contact )
-        ChatDlgManager::instance()->openFriendChatDlg(id);
-    else
-    {
-        msg_sig_ = getMsgSig(talkable_->id(), id);
-        ChatDlgManager::instance()->openSessChatDlg(id, talkable_->id());
-    }
-}
-
-QString GroupChatDlg::getMsgSig(QString gid,  QString to_id)
-{
-    QString msg_sig_url = "/channel/get_c2cmsg_sig2?id="+ gid +"&to_uin=" + to_id +
-        "&service_type=0&clientid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid() +"&t=" + QString::number(QDateTime::currentMSecsSinceEpoch());
-
-    Request req;
-    req.create(kGet, msg_sig_url);
-    req.addHeaderItem("Host", "d.web2.qq.com");
-    req.addHeaderItem("Content-Type", "utf-8");
-    req.addHeaderItem("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002");
-    req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
-
-    QTcpSocket fd;
-    fd.connectToHost("d.web2.qq.com", 80);
-    fd.write(req.toByteArray());
-
-    QByteArray result;
-    socketReceive(&fd, result);
-    fd.close();
-
-    int sig_s_idx = result.indexOf("value")+8;
-    int sig_e_idx = result.indexOf('"', sig_s_idx);
-    QString sig = result.mid(sig_s_idx, sig_e_idx - sig_s_idx);
-
-    return sig;
 }
 
 ImgLoader *GroupChatDlg::getImgLoader() const
@@ -280,5 +240,17 @@ void GroupChatDlg::onSearch(const QString &str)
 		searcher_->search(str, result);
 
         proxy_model_->setFilter(result);
+    }
+}
+
+void GroupChatDlg::openSessOrFriendChatDlg(QString id)
+{
+    Roster *roster = Roster::instance();
+    Contact *contact = roster->contact(id);
+    if ( contact )
+        ChatDlgManager::instance()->openFriendChatDlg(id);
+    else
+    {
+        ChatDlgManager::instance()->openSessChatDlg(id, talkable_->id());
     }
 }

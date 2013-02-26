@@ -59,11 +59,11 @@ void TabWindow::addTab(QQChatDlg *page, const QString &label)
         icon.addPixmap(pix);
     else
     {
-        if ( page->type() == QQChatDlg::kFriend )
+        if ( page->type() == QQChatDlg::kFriend || page->type() == QQChatDlg::kSess )
         {
             icon.addPixmap(QPixmap(QQSkinEngine::instance()->skinRes("default_friend_avatar")));
         }
-        else if ( page->type() == QQChatDlg::kFriend )
+        else if ( page->type() == QQChatDlg::kGroup )
         {
             icon.addPixmap(QPixmap(QQSkinEngine::instance()->skinRes("default_group_avatar")));
         }

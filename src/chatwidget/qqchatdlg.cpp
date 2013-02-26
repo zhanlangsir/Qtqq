@@ -304,6 +304,11 @@ QString QQChatDlg::getImageFormat(const QByteArray &data)
     return "unknown";
 }
 
+void QQChatDlg::send(const QVector<QQChatItem> &msgs)
+{
+    Protocol::QQProtocol::instance()->sendMsg(talkable_, NULL, msgs);
+}
+
 void QQChatDlg::sendMsg()
 {
     if (te_input_.document()->isEmpty())
@@ -316,7 +321,7 @@ void QQChatDlg::sendMsg()
     QString msg = te_input_.toHtml();
     QVector<QQChatItem> chat_items = HtmlToMsgParser::parse(msg, talkable_->type());
 
-    Protocol::QQProtocol::instance()->sendMsg(talkable_, chat_items);
+    send(chat_items);
 
     ShowOptions options;
     options.is_msg_in = false;
@@ -391,7 +396,7 @@ void QQChatDlg::showOldMsg(QVector<ShareQQMsgPtr> msgs)
 
 void QQChatDlg::showMsg(ShareQQMsgPtr msg)
 {
-    if ( msg->type() != QQMsg::kFriend && msg->type() != QQMsg::kGroup )
+    if ( msg->type() == QQMsg::kOffFile )
     {
         showOtherMsg(msg);
         return;

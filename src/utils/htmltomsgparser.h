@@ -58,7 +58,7 @@ public:
 						}
 						else
 						{
-                            if ( type == Talkable::kContact )
+                            if ( type == Talkable::kContact || type == Talkable::kStranger )
                             {
                                 QQChatItem offpic_item(QQChatItem::kFriendOffpic,img_src);
                                 result.push_back(offpic_item);

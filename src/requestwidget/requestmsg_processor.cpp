@@ -195,6 +195,7 @@ void RequestMsgProcessor::onActionTriggered()
 				assert(group);
 
 				StrangerManager::instance()->disconnect(this);
+                requesting_groups_.remove(msg->sendUin());
 
 				GroupRequestDlg *dlg = new GroupRequestDlg(msg, contact, group);
 				dlg->show();
@@ -255,7 +256,6 @@ void RequestMsgProcessor::createTrayNotify(ShareQQMsgPtr msg, Contact *stranger)
 		else if ( msg->type() == QQMsg::kSystemG )
 		{
             Group *group = Roster::instance()->group(msg->talkTo());
-
             /*
              * 因为每次的gid,uin等都是在变化的,所以如果有其他人申请入群,然后你的这个时候下线,
              * 再上线,你的gid已经更新了,但是收到的申请消息里的gid还是上一次的,所以找不到对应
@@ -269,7 +269,11 @@ void RequestMsgProcessor::createTrayNotify(ShareQQMsgPtr msg, Contact *stranger)
 
 			if ( stranger )
 			{
-				name = kGroupActionText.arg(stranger->name()).arg(group->name());
+				name = kGroupActionText.arg(stranger->name()).arg(group->markname());
+                if ( stranger->name().isEmpty() )
+                {
+                    requesting_groups_[msg->sendUin()] = group->markname();
+                }
 
 				QPixmap pix = stranger->avatar();
 				if ( !pix.isNull() )
@@ -278,7 +282,8 @@ void RequestMsgProcessor::createTrayNotify(ShareQQMsgPtr msg, Contact *stranger)
 			else
 			{
 				QQSystemGMsg *sysg_msg = (QQSystemGMsg*)msg.data();
-				name = kGroupActionText.arg(sysg_msg->t_request_uin_).arg(group->name());
+				name = kGroupActionText.arg(sysg_msg->t_request_uin_).arg(group->markname());
+                requesting_groups_[msg->sendUin()] = group->markname();
 			}
 			if ( icon.isNull() )
 			{
@@ -334,13 +339,12 @@ void RequestMsgProcessor::onNewStrangerInfo(QString id, Contact *stranger)
 	QAction *groupreq_act = groupActionById(id);
 	if ( groupreq_act )
 	{
-		groupreq_act->setText(kGroupActionText.arg(stranger->name()));
+		groupreq_act->setText(kGroupActionText.arg(stranger->name()).arg(requesting_groups_[id]));
 	}
 }
 
 void RequestMsgProcessor::onNewStrangerIcon(QString id, QPixmap pix)
 {
-
 	QIcon icon;
 	icon.addPixmap(pix);
 

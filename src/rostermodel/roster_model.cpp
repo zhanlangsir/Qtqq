@@ -25,7 +25,24 @@ void RosterModel::addCategoryItem(const Category *cat)
 
 void RosterModel::addContactItem(const Contact *contact)
 {
-	RosterIndex *index = new RosterIndex(RIT_Contact);
+    RosterIndexType type;
+    switch ( contact->type() )
+    {
+        case Talkable::kContact:
+            type = RIT_Contact;
+            break;
+        case Talkable::kStranger:
+            type = RIT_Stranger;
+            break;
+        case Talkable::kSessStranger:
+            type = RIT_Sess;
+            break;
+        default:
+            qDebug() << "Wrong type on RosterModel: " << contact->type() << endl;
+            return;
+    }
+
+	RosterIndex *index = new RosterIndex(type);
 	index->setData(TDR_Name, contact->name());
 	index->setData(TDR_Id, contact->id());
 	index->setData(TDR_Status, QVariant::fromValue<ContactStatus>(contact->status()));
@@ -136,9 +153,11 @@ void RosterModel::onDoubleClicked(const QModelIndex &index)
 		QString id = roster_index->data(TDR_Id).toString();
         if ( Roster::instance()->contact(id) )
             chat_mgr->openFriendChatDlg(id);
-        //else
-        //chat_mgr->openSessChatDlg(id);
 	}
+    else if ( type == RIT_Sess )
+    {
+        sigDoubleClicked(roster_index);
+    }
 	else if ( type == RIT_Group )
 	{
 		QString id = roster_index->data(TDR_Id).toString();

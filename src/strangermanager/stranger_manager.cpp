@@ -1,5 +1,6 @@
 #include "stranger_manager.h"
 
+#include <cassert>
 #include <QDebug>
 
 #include "json/json.h"
@@ -18,10 +19,10 @@ StrangerManager::StrangerManager()
 {
 	connect(MsgProcessor::instance(), SIGNAL(newSystemMsg(ShareQQMsgPtr)), this, SLOT(onNewSystemMsg(ShareQQMsgPtr)));
 	connect(MsgProcessor::instance(), SIGNAL(newSystemGMsg(ShareQQMsgPtr)), this, SLOT(onNewSystemMsg(ShareQQMsgPtr)));
+	connect(MsgProcessor::instance(), SIGNAL(newSessChatMsg(ShareQQMsgPtr)), this, SLOT(onNewSessChatMsg(ShareQQMsgPtr)));
     EventHandle::instance()->registerObserver(Protocol::ET_OnStrangerInfoDone, this);
     EventHandle::instance()->registerObserver(Protocol::ET_OnStrangerAvatarUpdate, this);
 }
-
 
 StrangerManager::~StrangerManager()
 {
@@ -32,7 +33,6 @@ StrangerManager::~StrangerManager()
 	instance_ = NULL;
 }
 
-
 bool StrangerManager::hasStrangerInfo(QString id) const
 {
 	if ( stranger(id) )
@@ -40,7 +40,6 @@ bool StrangerManager::hasStrangerInfo(QString id) const
 
 	return false;
 }
-
 
 void StrangerManager::updateStranger(const QByteArray &array)
 {
@@ -81,37 +80,12 @@ Contact *StrangerManager::stranger(const QString &id) const
 	return NULL;
 }
 
-void StrangerManager::onNewSessMsg(ShareQQMsgPtr msg)
-{
-/* 	Contact *stranger = strangerInfo(msg->talkTo()); */
-/*     if ( stranger ) */
-/*         return; */
-/*  */
-/*     if ( !contact && !Protocol::QQProtocol::instance()->isRequesting(msg->sendUin(), JT_StrangerInfo2) ) */
-/*     { */
-/*         StrangerInfo2RequestCallback *callback = new StrangerInfo2RequestCallback(msg->sendUin()); */
-/*         connect(callback, SIGNAL(sigRequestDone(QString, Contact *)), this, SLOT(contactInfoRequestDone(QString, Contact *))); */
-/*  */
-/*         Protocol::QQProtocol::instance()->requestStrangerInfo2(msg->sendUin(), gid, callback); */
-/*  */
-/*         IconRequestCallback *icon_callback = new IconRequestCallback(msg->sendUin()); */
-/*         connect(icon_callback, SIGNAL(sigRequestDone(QString, QByteArray)), this, SLOT(contactIconRequestDone(QString, QByteArray))); */
-/*  */
-/*         Protocol::QQProtocol::instance()->requestIconFor(msg->sendUin(),  icon_callback); */
-/*     } */
-}
-
 void StrangerManager::onNewSystemMsg(ShareQQMsgPtr msg)
 {
     if ( Roster::instance()->talkable(msg->sendUin()) )
         return;
 
-	Contact *stranger = this->stranger(msg->sendUin());
-	if ( stranger )
-		return;
-
-    stranger = new Contact(msg->sendUin(), "", Talkable::kStranger);
-	QString gid = 0;
+	QString gid = "";
     bool group_request = false;
 	if ( msg->type() == QQMsg::kSystemG )
 	{
@@ -124,9 +98,12 @@ void StrangerManager::onNewSystemMsg(ShareQQMsgPtr msg)
 		}
 	}
 
-    strangers_.append(stranger);
-    Protocol::QQProtocol::instance()->requestStrangerInfo2(stranger, gid, group_request);
-    Protocol::QQProtocol::instance()->requestIconFor(stranger);
+    addStranger(msg->sendUin(), gid, Talkable::kSessStranger );
+}
+
+void StrangerManager::onNewSessChatMsg(ShareQQMsgPtr msg)
+{
+    addStranger(msg->sendUin(), msg->gid(), Talkable::kSessStranger );
 }
 
 void StrangerManager::onNotify(Protocol::Event *event)
@@ -158,12 +135,39 @@ void StrangerManager::clean()
 	strangers_.clear();
 }
 
-Contact *StrangerManager::takeStranger(QString id)
+Contact *StrangerManager::takeStranger(const QString &id)
 {
     Contact *stranger = this->stranger(id); 
     if ( stranger )
     {
         strangers_.removeOne(stranger);
     }
+    return stranger;
+}
+
+Contact *StrangerManager::addStranger(const QString &id, const QString &gid, Talkable::TalkableType type)
+{
+	Contact *stranger = this->stranger(id);
+	if ( stranger )
+		return stranger;
+
+    QString request_gid = gid;
+    stranger = new Contact(id, "", type);
+
+    bool group_request = false;
+    if ( !request_gid.isEmpty() )
+    {
+        Group *group = Roster::instance()->group(gid);
+        assert(group);
+        stranger->addGroup(group);
+        group_request = true;
+    }
+    else
+        request_gid= "0";
+
+    strangers_.append(stranger);
+    Protocol::QQProtocol::instance()->requestStrangerInfo2(stranger, request_gid, group_request);
+    Protocol::QQProtocol::instance()->requestIconFor(stranger);
+
     return stranger;
 }

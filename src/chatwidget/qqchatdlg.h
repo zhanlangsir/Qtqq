@@ -41,7 +41,7 @@ public:
     void showMsg(ShareQQMsgPtr msg);
     virtual void showOldMsg(QVector<ShareQQMsgPtr> msgs);
 
-    void insertImage(const QString &file_path);
+    virtual void insertImage(const QString &file_path);
 
     QString id() const
     { return talkable_->id(); }
@@ -59,6 +59,7 @@ protected:
     void closeEvent(QCloseEvent *);
     bool eventFilter(QObject * obj, QEvent * e);
     virtual void showOtherMsg(ShareQQMsgPtr msg);
+    virtual void send(const QVector<QQChatItem> &msgs);
 
 protected:
     MsgBrowse msgbrowse_;

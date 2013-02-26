@@ -16,6 +16,7 @@ class QModelIndex;
 
 class Contact;
 class RosterModel;
+class RosterIndex;
 class ContactSearcher;
 class ContactProxyModel;
 
@@ -31,24 +32,21 @@ public:
 
     QString code() const
     { return talkable_->gcode(); }
-    QString msgSig() const
-    { return msg_sig_; }
     const RosterModel* model() const
     { return model_; }
 
-	static QString getMsgSig(QString gid,  QString to_id);
 
 protected:
     virtual void closeEvent(QCloseEvent *event);
 
 private slots:
-    void openChatDlgByDoubleClicked(const QModelIndex &index);
 	void onTalkableDataChanged(QVariant data, TalkableDataRole role);
     void onGroupMemberDataChanged(Contact *member, TalkableDataRole role);
     void onMemberAdded(Contact *contact);
     void onMemberRemoved(Contact *contact);
     void onSearch(const QString &str);
     void onLinkClicked(const QUrl &url);
+    void onDoubleClicked(const RosterIndex *index);
 
 private:
     virtual ImgLoader* getImgLoader() const;
@@ -58,6 +56,7 @@ private:
     void initUi();
     void initConnections();
     void setupMemberList();
+
     void openSessOrFriendChatDlg(QString id);
 
     Contact *findContactById(QString id) const;
@@ -66,7 +65,6 @@ private:
 
 private:
     Ui::GroupChatDlg *ui;
-    QString msg_sig_;
     QString connection_name_;
 
     ContactSearcher *searcher_;

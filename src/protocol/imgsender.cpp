@@ -15,24 +15,6 @@ Protocol::ImgSender::ImgSender()
     getKeyAndSig();
 }
 
-/*
-QByteArray Protocol::ImgSender::prepareSendingData(Talkable *talkable, QString file_name, QByteArray data)
-{
-    QByteArray msg;
-    if ( talkable->type() == Talkable::kContact )
-        msg = createMsgData(file_name, data, boundary_);
-    else
-        msg = createGroupMsgData(file_name, data, boundary_);
-
-    if ( key_.isEmpty() || sig_.isEmpty() )
-    {
-        getKeyAndSig();
-    }
-
-    return msg;
-}
-*/
-
 QByteArray Protocol::ImgSender::createOffpicBody(const QString &file_path, const QByteArray &file_data)
 {
     QByteArray boundary_convenience ="--" + boundary_.toAscii() + "\r\n";

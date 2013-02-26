@@ -43,6 +43,7 @@ private:
 
 private:
 	QList<QAction *> actions_;
+    QMap<QString, QString> requesting_groups_;
 
 private:
 	RequestMsgProcessor();

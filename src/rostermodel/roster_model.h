@@ -15,6 +15,9 @@ class RosterIndex;
 class RosterModel : public __RosterModelBase
 {
 	Q_OBJECT
+signals:
+    void sigDoubleClicked(const RosterIndex *index);
+
 public:
 	RosterModel(QObject *parent = NULL);
 	~RosterModel();

@@ -17,7 +17,7 @@ IconJob::IconJob(Talkable *_for, JobType type) :
 
 int IconJob::getRequestType(Talkable *job_for)
 {
-    if ( job_for->type() == Talkable::kContact || job_for->type() == Talkable::kStranger )
+    if ( job_for->type() == Talkable::kContact || job_for->type() == Talkable::kStranger || job_for->type() == Talkable::kSessStranger )
 		return 1;
 	else if ( job_for->type() == Talkable::kGroup )
 		return 4;
@@ -28,7 +28,7 @@ int IconJob::getRequestType(Talkable *job_for)
 void IconJob::triggerEvent(const QByteArray &data)
 {
     Protocol::Event *event = NULL;
-    if ( for_->type() == Talkable::kStranger )
+    if ( for_->type() == Talkable::kStranger || for_->type() == Talkable::kSessStranger )
     {
         event = Protocol::EventCenter::instance()->createStrangerAvatarUpdateEvent(for_, data);
     }
@@ -64,7 +64,7 @@ QString IconJob::getRequestId(Talkable *job_for)
     {
         return static_cast<Group *>(job_for)->gcode(); 
     }
-    else if ( job_for->type() == Talkable::kContact || job_for->type() == Talkable::kStranger )
+    else if ( job_for->type() == Talkable::kContact || job_for->type() == Talkable::kStranger || job_for->type() == Talkable::kSessStranger )
     {
         return job_for->id(); 
     }

@@ -3,6 +3,7 @@
 #include "plugins/notifier/notifywidget.h"
 #include "notification_manager/notification_manager.h"
 #include "roster/roster.h"
+#include "strangermanager/stranger_manager.h"
 #include "core/talkable.h"
 
 void NotifierPlugin::pluginInfo(PluginInfo *plugin_info)
@@ -30,13 +31,24 @@ void NotifierPlugin::unload()
 void NotifierPlugin::onNewChatMsg(ShareQQMsgPtr msg)
 {
     Notification notification;
-    QString sender_id = msg->talkTo();
-    Talkable *talkable =Roster::instance()->talkable(sender_id);
-    if ( !talkable )
-        return;
+    Talkable *talkable = NULL;
+    QString sender_id;
+    if ( msg->type() == QQMsg::kSess )
+    {
+        sender_id = msg->sendUin();
+        talkable = StrangerManager::instance()->stranger(sender_id);
+    }
+    else
+    {
+        sender_id = msg->talkTo();
+        talkable = Roster::instance()->talkable(sender_id);
+        if ( !talkable )
+            talkable = StrangerManager::instance()->stranger(sender_id);
+    }
 
-    notification.title = talkable->markname() + tr(" has new message");  
-    notification.icon = talkable->avatar();
+    QString sender_name = talkable ?  talkable->markname() : sender_id;
+    notification.title = sender_name + tr(" has new message");  
+    notification.icon = talkable ? talkable->avatar() : QPixmap();
     notification.content = msg->msg();
     notification.ms_timeout = 5000;
 

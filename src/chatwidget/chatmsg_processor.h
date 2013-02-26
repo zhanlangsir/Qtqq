@@ -36,6 +36,8 @@ private slots:
     void onNewOffFileMsg(ShareQQMsgPtr msg);
 	void onActivatedChatDlgChanged(QQChatDlg *before, QQChatDlg *after);
 	void onActionTriggered();
+    void onNewStrangerInfo(QString id, Contact *stranger);
+    void onNewStrangerIcon(QString id, QPixmap pix);
 
 private:
 	void createTrayNotify(ShareQQMsgPtr msg);

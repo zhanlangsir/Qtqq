@@ -25,8 +25,6 @@ class Protocol::ImgSender : public QObject
 public:
     ImgSender();
 
-    //QByteArray prepareSendingData(Talkable *talkable, QString file_name, QByteArray data);
-
     QByteArray createOffpicBody(const QString &file_path, const QByteArray &file_data);
     QByteArray createGroupImgBody(const QString &file_path, const QByteArray &file_data);
 

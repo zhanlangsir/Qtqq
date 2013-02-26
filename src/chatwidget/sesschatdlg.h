@@ -17,12 +17,15 @@ public:
     explicit SessChatDlg(Contact *contact, Group *group, ChatDlgType type = kSess, QWidget *parent = 0);
     ~SessChatDlg();
 
+    virtual void insertImage(const QString &file_path);
+
 public:
     void updateSkin();
 
 private:
     virtual QQChatLog *getChatlog() const;
-    //virtual QString chatItemToJson(const QVector<QQChatItem> &items);
+    virtual Contact *getSender(const QString &id) const;
+    virtual void send(const QVector<QQChatItem> &msgs);
     
     void initUi();
     void initConnections();

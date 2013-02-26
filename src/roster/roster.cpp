@@ -21,6 +21,7 @@ Roster::Roster()
 
     EventHandle::instance()->registerObserver(Protocol::ET_OnAvatarUpdate, this);
     EventHandle::instance()->registerObserver(Protocol::ET_OnGroupMemberListUpdate, this);
+    EventHandle::instance()->registerObserver(Protocol::ET_OnStrangerAvatarUpdate, this);
 }
 
 Roster::~Roster()
@@ -29,6 +30,7 @@ Roster::~Roster()
 
     EventHandle::instance()->removeObserver(Protocol::ET_OnAvatarUpdate, this);
     EventHandle::instance()->removeObserver(Protocol::ET_OnGroupMemberListUpdate, this);
+    EventHandle::instance()->removeObserver(Protocol::ET_OnStrangerAvatarUpdate, this);
 
 	instance_ = NULL;
 }
@@ -177,15 +179,25 @@ void Roster::parseGroupMemberList(const QString &gid, const QByteArray &data)
         QString nick = QString::fromStdString(members[i]["nick"].asString());
         QString uin = QString::number(members[i]["uin"].asLargestInt());
 
-        Contact *contact = new Contact(uin, nick);
-        contact->setGroup((Group *)group);
+        Contact *contact = Roster::instance()->contact(uin);
+        if ( contact )
+        {
+            contact->addGroup(group);
+            contact = contact->clone();
+        }
+        else
+        {
+            contact = new Contact(uin, nick, Talkable::kSessStranger);
+            contact->addGroup(group);
+        }
+
         contact->setMarkname(uin_marknames.value(uin, ""));
         contact->setStatus(CS_Offline);
 
         group->addMember(contact); 
 
         Protocol::QQProtocol *proto = Protocol::QQProtocol::instance();
-        if ( !proto->isRequesting(contact->id(), JT_Icon) )
+        if ( contact->avatar().isNull() && !proto->isRequesting(contact->id(), JT_Icon) )
         {
             proto->requestIconFor(contact);
         }
@@ -239,22 +251,24 @@ void Roster::parseContactStatus(const QByteArray &array)
 
 void Roster::updateTalkableIcon(Talkable *talkable, QByteArray data)
 {
-    if ( talkable->type() == Talkable::kContact )
+    if ( !talkable->avatar().isNull() )
+        return;
+
+    if ( talkable->type() == Talkable::kContact || talkable->type() == Talkable::kSessStranger )
     {
         Contact *contact = static_cast<Contact *>(talkable);
         contact->setAvatar(data);
 
-        if ( contact->group() != NULL )
+        if ( !contact->groups().isEmpty() )
         {
-            Group *group = contact->group();
-            group->notifyMemberDataChanged(contact, TDR_Avatar);
-            GroupPresister::instance()->setModifiedFlag(group->id());
-            GroupPresister::instance()->setActivateFlag(group->id());
+            foreach ( Group *group, contact->groups() )
+            {
+                group->notifyMemberDataChanged(contact, TDR_Avatar);
+                GroupPresister::instance()->setModifiedFlag(group->id());
+                GroupPresister::instance()->setActivateFlag(group->id());
+            }
         }
-        else
-        {
-            emit sigContactDataChanged(contact->id(), contact->avatar(), TDR_Avatar);
-        }
+        emit sigContactDataChanged(contact->id(), contact->avatar(), TDR_Avatar);
     }
     else if ( talkable->type() == Talkable::kGroup )
     {
@@ -269,6 +283,9 @@ void Roster::onNotify(Protocol::Event *e)
     switch ( e->type() )
     {
         case Protocol::ET_OnAvatarUpdate:
+            updateTalkableIcon(e->eventFor(), e->data());
+            break;
+        case Protocol::ET_OnStrangerAvatarUpdate:
             updateTalkableIcon(e->eventFor(), e->data());
             break;
         case Protocol::ET_OnGroupMemberListUpdate:

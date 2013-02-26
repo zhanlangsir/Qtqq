@@ -8,10 +8,12 @@
 #include "core/friendchatlog.h"
 #include "core/talkable.h"
 #include "chatwidget/groupchatdlg.h"
+#include "protocol/qq_protocol.h"
 
 SessChatDlg::SessChatDlg(Contact *contact, Group *group, ChatDlgType type, QWidget *parent) :
     QQChatDlg(contact, type, parent),
-    ui_(new Ui::SessChatDlg())
+    ui_(new Ui::SessChatDlg()),
+    group_(group)
 {
     ui_->setupUi(this);
 
@@ -21,7 +23,6 @@ SessChatDlg::SessChatDlg(Contact *contact, Group *group, ChatDlgType type, QWidg
 
     te_input_.setFocus();
 }
-
 
 void SessChatDlg::initUi()
 {
@@ -60,6 +61,8 @@ void SessChatDlg::initConnections()
 
 SessChatDlg::~SessChatDlg()
 {
+    delete talkable_;
+    talkable_=NULL;
     delete ui_;
 }
 
@@ -68,38 +71,23 @@ void SessChatDlg::updateSkin()
 
 }
 
+Contact *SessChatDlg::getSender(const QString &id) const
+{
+    return (Contact *)talkable_;
+}
 
 QQChatLog *SessChatDlg::getChatlog() const
 {
     return new FriendChatLog(id());
 }
 
-/*
-QString SessChatDlg::chatItemToJson(const QVector<QQChatItem> &items) 
+void SessChatDlg::insertImage(const QString &file_path)
 {
-    QString json_msg = "r={\"to\":" + id() + ",\"group_sig\":\"" + GroupChatDlg::getMsgSig(group_->id(), id()) + "\",\"face\":291,\"content\":\"[";
-
-	foreach ( const QQChatItem &item, items )
-	{
-		switch ( item.type() )
-		{
-			case QQChatItem::kWord:
-				json_msg.append("\\\"" + item.content() + "\\\",");
-				break;
-			case QQChatItem::kQQFace:
-				json_msg.append("[\\\"face\\\"," + item.content() + "],");
-				break;
-			case QQChatItem::kFriendOffpic:
-				json_msg.append("[\\\"offpic\\\",\\\"" + getUploadedFileInfo(item.content()).network_path + "\\\",\\\"" + getUploadedFileInfo(item.content()).name + "\\\"," + QString::number(getUploadedFileInfo(item.content()).size) + "],");
-				break;
-		}
-	}
-	json_msg = json_msg +
-        "[\\\"font\\\",{\\\"name\\\":\\\"%E5%AE%8B%E4%BD%93\\\",\\\"size\\\":\\\"10\\\",\\\"style\\\":[0,0,0],\\\"color\\\":\\\"000000\\\"}]]\","
-        "\"msg_id\":" + QString::number(msg_id_++) + ",\"service_type\":0,\"clientid\":\"5412354841\","
-        "\"psessionid\":\""+ CaptchaInfo::instance()->psessionid() +"\"}"
-        "&clientid=5412354841&psessionid="+CaptchaInfo::instance()->psessionid();
-
-	return json_msg;
+    te_input_.setToolTip(tr("Temporary session can't send image!"));
+    te_input_.showToolTip();
 }
-*/
+
+void SessChatDlg::send(const QVector<QQChatItem> &msgs)
+{
+    Protocol::QQProtocol::instance()->sendMsg(talkable_, group_, msgs);
+}

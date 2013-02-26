@@ -41,7 +41,7 @@ QVariant __RosterModelBase::data(const QModelIndex &index, int role) const
 	QVariant data = roster_index->data(role);
 	if ( role == Qt::DecorationRole ) 
 	{
-		if ( roster_index->type() == RIT_Contact )
+		if ( roster_index->type() == RIT_Contact || roster_index->type() == RIT_Sess )
 		{
 			if ( data.isValid() )
 			{

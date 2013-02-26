@@ -39,7 +39,7 @@ public:
 public slots:
 	void openFriendChatDlg(const QString &id);
     void openGroupChatDlg(QString id, QString gcode);
-    void openSessChatDlg(QString id, QString group_id);
+    void openSessChatDlg(const QString &id, const QString &gid);
 
 	void clean();
 
