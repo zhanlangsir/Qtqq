@@ -362,7 +362,7 @@ void QQChatDlg::openChatLogWin()
     QQChatLog *chatlog = getChatlog();
 
     QMap<QString, QString> names;
-    if ( talkable_->type() == Talkable::kContact )
+    if ( talkable_->type() == Talkable::kContact || talkable_->type() == Talkable::kStranger )
     {
         names.insert(CurrLoginAccount::id(), CurrLoginAccount::name());
         names.insert(talkable_->id(), talkable_->name());

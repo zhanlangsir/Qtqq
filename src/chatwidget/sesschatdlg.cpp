@@ -56,7 +56,6 @@ void SessChatDlg::initConnections()
     connect(ui_->btn_send_msg, SIGNAL(clicked()), this, SLOT(sendMsg()));
     connect(ui_->btn_qqface, SIGNAL(clicked()), this, SLOT(openQQFacePanel()));
     connect(ui_->btn_close, SIGNAL(clicked()), this, SLOT(close()));
-    connect(ui_->btn_chat_log, SIGNAL(clicked()), this, SLOT(openChatLogWin()));
 }
 
 SessChatDlg::~SessChatDlg()
