@@ -62,29 +62,12 @@ void RecentModel::parseRecentContact(QByteArray &array)
 
 RosterIndex *RecentModel::createIndexFromContact(Contact *contact) const
 {
-	RosterIndex *newIndex = new RosterIndex(RIT_Contact);
-	newIndex->setData(TDR_Id, contact->id());
-	newIndex->setData(TDR_Name, contact->name());
-	newIndex->setData(TDR_Status, QVariant::fromValue<ContactStatus>(contact->status()));
-
-	if ( !(contact->markname().isEmpty()) )
-		newIndex->setData(TDR_Markname, contact->markname());
-	if ( !(contact->avatar().isNull()) )
-		newIndex->setData(TDR_Avatar, contact->avatar());
-
-	return newIndex;
+	return new TalkableIndex(contact, RIT_Contact);
 }
 
 RosterIndex *RecentModel::createIndexFromGroup(Group *group) const
 {
-	RosterIndex *newIndex = new RosterIndex(RIT_Group);
-	newIndex->setData(TDR_Id, group->id());
-	newIndex->setData(TDR_Name, group->name());
-
-	if ( !(group->avatar().isNull()) )
-		newIndex->setData(TDR_Avatar, group->avatar());
-
-	return newIndex;
+	return new TalkableIndex(group, RIT_Group);
 }
 
 void RecentModel::slotNewChatMsg(ShareQQMsgPtr msg)
@@ -123,29 +106,14 @@ void RecentModel::improveIndex(QString id)
 	{
 		Contact *contact = roster->contact(id);
 
-		RosterIndex *newIndex = new RosterIndex(RIT_Contact);
-		newIndex->setData(TDR_Name, contact->name());
-		newIndex->setData(TDR_Id, contact->id());
-		newIndex->setData(TDR_Status, contact->status());
-
-		if ( !(contact->markname().isEmpty()) )
-			newIndex->setData(TDR_Markname, contact->markname());
-		if ( !(contact->avatar().isNull()) )
-			newIndex->setData(TDR_Avatar, contact->avatar());
-
+		RosterIndex *newIndex = new TalkableIndex(contact, RIT_Contact);
 		root_->childs().push_front(newIndex);
 	}
 	else if ( talkable->type() == Talkable::kGroup )
 	{
 		Group *group = roster->group(id);
 
-		RosterIndex *newIndex = new RosterIndex(RIT_Group);
-		newIndex->setData(TDR_Id, group->id());
-		newIndex->setData(TDR_Name, group->name());
-
-		if ( !(group->avatar().isNull()) )
-			newIndex->setData(TDR_Avatar, group->avatar());
-
+		RosterIndex *newIndex = new TalkableIndex(group, RIT_Group);
 		root_->childs().push_front(newIndex);
 	}
 }
@@ -154,7 +122,7 @@ RosterIndex *RecentModel::findIndexById(QString id) const
 {
 	foreach( RosterIndex *index, root_->childs())
 	{
-		if ( index->data(TDR_Id).toString() == id )
+		if ( index->id() == id )
 			return index;
 	}
 	return NULL;
@@ -165,8 +133,6 @@ void RecentModel::slotTalkableDataChanged(QString id, QVariant data, TalkableDat
 	RosterIndex *index = findIndexById(id);
 	if ( index )
 	{
-		index->setData(role, data);
-
 		QModelIndex model_index = modelIndexByRosterIndex(index);
 		emit dataChanged(model_index, model_index);
 	}
@@ -189,13 +155,13 @@ void RecentModel::onDoubleClicked(const QModelIndex &index)
 	RosterIndexType type = roster_index->type();
 	if ( type == RIT_Contact )
 	{
-		QString id = roster_index->data(TDR_Id).toString();
+		QString id = roster_index->id();
 		chat_mgr->openFriendChatDlg(id);
 	}
 	else if ( type == RIT_Group )
 	{
-		QString id = roster_index->data(TDR_Id).toString();
-		QString gcode = roster_index->data(TDR_Gcode).toString();
+		QString id = roster_index->id();
+		QString gcode = roster_index->gcode();
 		chat_mgr->openGroupChatDlg(id, gcode);
 	}
 }

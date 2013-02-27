@@ -243,11 +243,11 @@ void MainWindow::getFriendListDone(bool err)
 
     connect(ui->tv_friendlist, SIGNAL(doubleClicked(const QModelIndex &)), contact_model_, SLOT(onDoubleClicked(const QModelIndex &)));
     Roster *roster = Roster::instance();
-    connect(roster, SIGNAL(sigNewCategory(const Category *)), contact_model_, SLOT(addCategoryItem(const Category *)));
+    connect(roster, SIGNAL(sigNewCategory(Category *)), contact_model_, SLOT(addCategoryItem(Category *)));
     connect(roster, SIGNAL(sigContactDataChanged(QString, QVariant, TalkableDataRole)), contact_model_, SLOT(talkableDataChanged(QString, QVariant, TalkableDataRole)));
     connect(roster, SIGNAL(sigCategoryDataChanged(int, QVariant, TalkableDataRole)), contact_model_, SLOT(categoryDataChanged(int, QVariant, TalkableDataRole)));
 
-    connect(roster, SIGNAL(sigNewContact(const Contact *)), contact_model_, SLOT(addContactItem(const Contact *)));
+    connect(roster, SIGNAL(sigNewContact(Contact *)), contact_model_, SLOT(addContactItem(Contact *)));
 
     roster->parseContactList(contact_info);
 
@@ -300,7 +300,7 @@ void MainWindow::getGroupListDone(bool err)
     group_model_ = new RosterModel(this);
     connect(ui->lv_grouplist, SIGNAL(doubleClicked(const QModelIndex &)), group_model_, SLOT(onDoubleClicked(const QModelIndex &)));
     Roster *roster = Roster::instance();
-    connect(roster, SIGNAL(sigNewGroup(const Group *)), group_model_, SLOT(addGroupItem(const Group *)));
+    connect(roster, SIGNAL(sigNewGroup(Group *)), group_model_, SLOT(addGroupItem(Group *)));
     connect(roster, SIGNAL(sigGroupDataChanged(QString, QVariant, TalkableDataRole)), group_model_, SLOT(talkableDataChanged(QString, QVariant, TalkableDataRole)));
 
     roster->parseGroupList(groups_info);

@@ -128,7 +128,7 @@ public:
 	virtual QString gcode() const
 	{ return QString(); }
 	virtual ContactStatus status() const
-	{ return CS_Online; }
+	{ return CS_Offline; }
 
 protected:
 	QString id_;

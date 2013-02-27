@@ -25,9 +25,9 @@ public:
 	void clean();
 
 public slots:
-	void addCategoryItem(const Category *cat);
-	void addContactItem(const Contact *contact);
-	void addGroupItem(const Group *group);
+	void addCategoryItem(Category *cat);
+	void addContactItem(Contact *contact);
+	void addGroupItem(Group *group);
 	
 	void talkableDataChanged(QString id, QVariant data, TalkableDataRole role);
 	void categoryDataChanged(int index, QVariant data, TalkableDataRole role);

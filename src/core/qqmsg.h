@@ -72,7 +72,7 @@ public:
 
     virtual long time() const { return 0; }
 
-    virtual ContactStatus status() { return CS_Online; }
+    virtual ContactStatus status() { return CS_Offline; }
     virtual ContactClientType client_type() { return CCT_Pc; }
 
 protected:

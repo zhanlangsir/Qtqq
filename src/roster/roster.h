@@ -16,9 +16,9 @@ class Roster : public QObject, public IObserver
 {
 	Q_OBJECT
 signals:
-	void sigNewCategory(const Category *cat);
-	void sigNewContact(const Contact *contact);
-	void sigNewGroup(const Group *group);
+	void sigNewCategory(Category *cat);
+	void sigNewContact(Contact *contact);
+	void sigNewGroup(Group *group);
 	void sigContactDataChanged(QString id, QVariant data, TalkableDataRole role);
 	void sigGroupDataChanged(QString id, QVariant data, TalkableDataRole role);
 	void sigCategoryDataChanged(int index, QVariant data, TalkableDataRole role);

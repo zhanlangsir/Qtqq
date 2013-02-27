@@ -22,11 +22,13 @@ bool ContactProxyModel::lessThan(const QModelIndex & left, const QModelIndex & r
 
 	if ( lindex->type() == RIT_Category )
 	{
-		return !(lindex->data(TDR_CategoryIndex).toInt() < rindex->data(TDR_CategoryIndex).toInt());
+        CategoryIndex *cl = (CategoryIndex *)lindex;
+        CategoryIndex *cr = (CategoryIndex *)rindex;
+		return !(cl->index() < cr->index());
 	}
 
-	ContactStatus lstatus = lindex->data(TDR_Status).value<ContactStatus>();
-	ContactStatus rstatus = rindex->data(TDR_Status).value<ContactStatus>();
+	ContactStatus lstatus = lindex->status();
+	ContactStatus rstatus = rindex->status();
 
 	return !(lstatus < rstatus);
 }
@@ -44,7 +46,8 @@ bool ContactProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) con
 
 	if ( roster_child->type() == RIT_Category )
 	{
-		QString index = QString::number(roster_child->data(TDR_CategoryIndex).toInt());
+        CategoryIndex *cat_idx = (CategoryIndex *)roster_child;
+		QString index = QString::number(cat_idx->index());
 		if ( filter_.contains(index) )
 		{
 			return true;
@@ -52,7 +55,7 @@ bool ContactProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) con
 	}
 	else
 	{
-		if ( filter_.contains(roster_child->data(TDR_Id).toString()) )
+		if ( filter_.contains(roster_child->id()) )
 			return true;
 	}
 

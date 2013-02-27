@@ -148,7 +148,7 @@ void GroupChatDlg::updateSkin()
 
 void GroupChatDlg::onDoubleClicked(const RosterIndex *index)
 {
-    QString id = index->data(TDR_Id).toString();
+    QString id = index->id();
     openSessOrFriendChatDlg(id);
 }
 

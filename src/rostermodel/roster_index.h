@@ -22,33 +22,11 @@ enum RosterIndexType
 class RosterIndex : QObject
 {
 	Q_OBJECT
-signals:
-	void sigDataChanged(QString id, QVariant data, TalkableDataRole role);
-	void sigCategoryRenamed(int index, QString after_name);
-
-public slots:
-	void slotDataChanged(QString id, QVariant data, TalkableDataRole role)
-	{	
-		qDebug() << "data changed" << endl;
-		setData(role, data);
-	}
-
-
 public:
 	RosterIndex(RosterIndexType type) :
 		type_(type),
-		parent_(NULL),
-        pix("/home/zhanlang/proj/qtqq/data/res/webqq.ico")
+		parent_(NULL)
 	{
-	}
-	~RosterIndex()
-	{
-		QMap<int, QVariant>::iterator itor = datas_.begin();
-		while ( itor != datas_.end() )
-		{
-			itor->clear();
-			++itor;
-		}
 	}
 
 	int row() const
@@ -75,64 +53,27 @@ public:
 	{
 		if ( child && !childs_.contains(child) )
 		{
-			//emit childAboutToBeInserted(child);
 			childs_.append(child);
 			child->setParent(this);
-			//emit childInserted(child);
 		}
 	}
+
+    virtual QString gcode() const
+    { return QString(); }
+    virtual QString id() const
+    {
+        return QString();
+    }
 
 	RosterIndexType type() const
 	{
 		return type_;
 	}
 
-	QVariant data(int role) const
+	virtual QVariant data(int role) const
 	{
-		switch ( role )
-		{
-		case Qt::DisplayRole:
-			{
-				QString name; 
-				if ( datas_.contains(TDR_Markname) )
-					name = datas_[TDR_Markname].toString();
-				else
-					name = datas_[TDR_Name].toString();
-
-				if ( type() == RIT_Category )
-					name = name + "\t( " + 
-						QString::number(datas_[TDR_CategoryOnlineCount].toInt()) + " / " + 
-						QString::number(childCount()) + " )";
-
-				return name;
-			}
-			break;
-		case Qt::DecorationRole:
-			if ( datas_.contains(TDR_Avatar) )
-			{
-				return datas_[TDR_Avatar];
-			}
-			return QVariant();
-			break;
-		default:
-			if ( datas_.contains(role) )
-				return datas_[role];
-			else
-				return QVariant();
-			break;
-		}	
-
 		return QVariant();
 	}
-
-	void setData(TalkableDataRole role, QVariant data)
-	{
-		if ( datas_[role] != data )
-		{
-			datas_[role] = data;
-			//emit sigDataChanged(datas_[TDR_Id].toString(), data, role);
-		}
-    }
 
     void setParent(RosterIndex *parent)
     {
@@ -144,6 +85,11 @@ public:
         return parent_;
     }
 
+    virtual ContactStatus status() const
+    {
+        return CS_Offline;
+    }
+
     QList<RosterIndex *>& childs() 
     {
         return childs_;
@@ -151,11 +97,99 @@ public:
 
 private:
     RosterIndexType type_;
-    QMap<int, QVariant> datas_;
 
-    QPixmap pix;
     RosterIndex *parent_;
     QList<RosterIndex *> childs_;
+};
+
+class TalkableIndex : public RosterIndex
+{
+public:
+    TalkableIndex(Talkable *talkable, RosterIndexType type) :
+        RosterIndex(type),
+        talkable_(talkable)
+    {
+    }
+
+	QVariant data(int role) const
+	{
+		switch ( role )
+		{
+		case Qt::DisplayRole:
+			{
+				return talkable_->markname(); 
+			}
+			break;
+		case Qt::DecorationRole:
+			if ( !talkable_->avatar().isNull() )
+				return talkable_->avatar();
+
+			return QVariant();
+			break;
+		default:
+            return QVariant();
+			break;
+		}	
+
+		return QVariant();
+	}
+
+    virtual QString gcode() const
+    { return talkable_->gcode(); }
+
+    virtual QString id() const
+    {
+        return talkable_->id();
+    }
+
+    virtual ContactStatus status() const
+    {
+        return talkable_->status();
+    }
+
+private:
+    Talkable *talkable_;
+};
+
+class CategoryIndex : public RosterIndex
+{
+public:
+    CategoryIndex(Category *cat, RosterIndexType type = RIT_Category) :
+        RosterIndex(type),
+        cat_(cat)
+    {
+    }
+
+	virtual QVariant data(int role) const
+	{
+		switch ( role )
+		{
+		case Qt::DisplayRole:
+			{
+				QString name = cat_->name(); 
+                name = name + "\t( " + 
+                    QString::number(cat_->onlineCount()) + " / " + 
+                    QString::number(childCount()) + " )";
+
+				return name;
+			}
+			break;
+		case Qt::DecorationRole:
+			return QVariant();
+			break;
+		default:
+            return QVariant();
+			break;
+		}	
+
+		return QVariant();
+	}
+
+    int index() const
+    { return cat_->index(); }
+
+private:
+    Category *cat_;
 };
 
 #endif //ROSTER_INDEX_H

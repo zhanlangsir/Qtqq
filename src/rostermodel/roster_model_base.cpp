@@ -46,7 +46,7 @@ QVariant __RosterModelBase::data(const QModelIndex &index, int role) const
 			if ( data.isValid() )
 			{
 				QPixmap pix = data.value<QPixmap>();
-				IconDecorator::decorateIcon(roster_index->data(TDR_Status).value<ContactStatus>(), pix);	
+				IconDecorator::decorateIcon(roster_index->status(), pix);	
                 return pix.scaled(icon_size_, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 			}
 			else
