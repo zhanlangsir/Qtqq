@@ -26,10 +26,6 @@
 
 #include "ksnapshotobject.h"
 
-#ifdef Q_WS_X11
-#include <fixx11h.h>
-#endif
-
 #include <QWidget>
 #include <QRegExp>
 #include <QApplication>

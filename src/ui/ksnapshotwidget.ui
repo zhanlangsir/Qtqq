@@ -314,9 +314,6 @@ If &lt;i&gt;no delay&lt;/i&gt; is set, the program will wait for a mouse click b
   <tabstop>spinDelay</tabstop>
   <tabstop>cbIncludeDecorations</tabstop>
  </tabstops>
- <includes>
-  <include location="local">kpushbutton.h</include>
- </includes>
  <resources/>
  <connections/>
 </ui>

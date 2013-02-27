@@ -158,7 +158,10 @@ Contact *StrangerManager::addStranger(const QString &id, const QString &gid, Tal
     if ( !request_gid.isEmpty() )
     {
         Group *group = Roster::instance()->group(gid);
-        assert(group);
+        //能接收到自己没有加入的群的请求信息?不明真相中...
+        if ( !group )
+            return NULL;
+
         stranger->addGroup(group);
         group_request = true;
     }
