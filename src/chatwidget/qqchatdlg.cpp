@@ -205,7 +205,20 @@ QString QQChatDlg::converToShow(const QString &converting_html)
 
 QString QQChatDlg::escape(QString raw_html) const
 {
-    return raw_html.replace(' ', "&nbsp;").replace('<', "&lt").replace('>', "&gt");
+    int i = 0;
+    while ( raw_html[i] == ' ' )
+    {
+        ++i;
+    }
+    QString result = raw_html.mid(i);
+    QString space = "";
+    while ( i > 0 )
+    {
+        space += "&nbsp;";
+        --i;
+    }
+
+    return space + result.replace('<', "&lt").replace('>', "&gt");
 }
 
 void QQChatDlg::openPathDialog(bool)
