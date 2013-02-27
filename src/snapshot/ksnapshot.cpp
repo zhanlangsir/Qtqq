@@ -516,6 +516,17 @@ void KSnapshot::performGrab()
     }
 #endif // HAVE_X11_EXTENSIONS_XFIXES_H
 
+    if ( snapshot.isNull() )
+    {
+        mainWidget->ok_btn->setEnabled(false);
+        mainWidget->save_btn->setEnabled(false);
+    }
+    else
+    {
+        mainWidget->ok_btn->setEnabled(true);
+        mainWidget->save_btn->setEnabled(true);
+    }
+
     updatePreview();
     QApplication::restoreOverrideCursor();
     modified = true;
