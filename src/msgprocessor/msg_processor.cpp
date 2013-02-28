@@ -469,7 +469,13 @@ bool MsgProcessor::isChatContentEmpty(const QQChatMsg *msg, const QString &conte
 
     QQChatItem::ChatItemType type = msg->msgs_[msg->msgs_.size()-1].type();
     if ( type == QQChatItem::kFriendOffpic || type == QQChatItem::kGroupChatImg )
-        return  ( (content.size() == 1 &&  content[0] == ' ') || (content.size() == 2 && content[0] == '\n') );
+    {    
+        if ( content.size() <= 2 )
+        {
+            return content[0] == ' ' || content[0] == '\n' || content[0] == '\r';
+        }
+    }
+    return false;
 }
 
 void MsgProcessor::dispatchMsg(QVector<QQMsg *> &msgs) 
