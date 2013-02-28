@@ -53,7 +53,6 @@ void FriendChatDlg::initUi()
 	if ( pix.isNull() )
 	{
 		QString avatar_path = QQSkinEngine::instance()->skinRes("default_friend_avatar");
-		qDebug() << avatar_path << endl;
 		QFile file(avatar_path);
 		file.open(QIODevice::ReadOnly);
 		pix.loadFromData(file.readAll());
@@ -125,10 +124,11 @@ QQChatLog *FriendChatDlg::getChatlog() const
 
 void FriendChatDlg::onTalkableDataChanged(QVariant data, TalkableDataRole role)
 {
+    Talkable *talkable = qobject_cast<Talkable *>(sender());
 	switch ( role )
 	{
 		case TDR_Avatar:
-			ui->lbl_avatar_->setPixmap(data.value<QPixmap>());
+			ui->lbl_avatar_->setPixmap(talkable->avatar());
 			break;
 		case TDR_Status:
 			{

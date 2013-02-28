@@ -115,7 +115,7 @@ void TabWindow::onTalkableDataChanged(QVariant data, TalkableDataRole role)
         case TDR_Avatar:
             {
                 QIcon icon;
-                QPixmap pix = data.value<QPixmap>();
+                QPixmap pix = talkable->avatar();
                 icon.addPixmap(pix);	
                 ui->tab_widget->setTabIcon(indexOf(changed_page), icon);
             }

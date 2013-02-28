@@ -199,10 +199,11 @@ Contact *GroupChatDlg::findContactById(QString id) const
 
 void GroupChatDlg::onTalkableDataChanged(QVariant data, TalkableDataRole role)
 {
+    Talkable *talkable = qobject_cast<Talkable *>(sender());
     switch ( role )
     {
         case TDR_Avatar:
-            ui->lbl_avatar_->setPixmap(data.value<QPixmap>());
+			ui->lbl_avatar_->setPixmap(talkable->avatar());
             break;
         case TDR_Announcement:
             ui->announcement->setPlainText(data.toString());

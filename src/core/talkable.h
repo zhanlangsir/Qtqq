@@ -90,21 +90,11 @@ public:
 	void setAvatarPath(QString avatar_path) 
 	{
         avatar_path_ = avatar_path;
-
-        QFile file(avatar_path);
-        file.open(QIODevice::ReadOnly);
-        QByteArray data = file.readAll();
-
-        setAvatar(data);
-        file.close();
+        emit dataChanged(avatar_path_, TDR_Avatar);
 	}
 
 	void setAvatar(QByteArray data)
 	{
-		QPixmap pix;	
-		pix.loadFromData(data);
-		pix_ = pix;
-
         QString avatar_dir = QQGlobal::tempDir() + "/avatar/";
 
         QDir avatar_qdir(avatar_dir);
@@ -112,14 +102,28 @@ public:
             avatar_qdir.mkdir(avatar_dir);
 
         avatar_path_ = avatar_dir + id_ + ".jpg";
-        pix.save(avatar_path_); 
+        QFile file(avatar_path_);
+        file.open(QIODevice::WriteOnly);
+        file.write(data);
+        file.close();
 
-		emit dataChanged(pix, TDR_Avatar);
+        emit dataChanged(avatar_path_, TDR_Avatar);
 	}
 
 	QPixmap avatar() const
 	{
-		return pix_;
+        if ( avatar_path_.isEmpty() )
+            return  QPixmap();
+
+        QByteArray data;
+        QFile file(avatar_path_);
+        file.open(QIODevice::ReadOnly);
+        data = file.readAll();
+        file.close();
+
+        QPixmap pix;
+        pix.loadFromData(data);
+        return pix;
 	}
 
 	QString avatarPath() const
@@ -134,7 +138,6 @@ protected:
 	QString id_;
 	QString name_;
 	QString avatar_path_;
-	QPixmap pix_;
 	TalkableType type_;
 };
 
@@ -171,7 +174,6 @@ public:
     {
         Contact *new_cont = new Contact(id_, name_, type_);
         new_cont->avatar_path_ = avatar_path_;
-        new_cont->pix_ = pix_;
         new_cont->markname_ = markname_;
         new_cont->status_ = status_;
         new_cont->client_type_ = client_type_;

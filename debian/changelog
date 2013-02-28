@@ -1,0 +1,11 @@
+qtqq-test (0.8.2-0ubuntu13) precise; urgency=low
+
+  *  重新开放陌生人、群成员聊天
+  *  截图模块
+  *  图片自适应(之前是接收到的图片才能缩放，现在发送的也完成了)
+  *  Tab聊天窗口快捷键alt+number切换,alt+c关闭对话框
+  *  其他界面上的细节修改
+  *  修复全局截屏的一个问题
+  *  降低内存占用
+
+ -- zhanlang <zhanlangsir@gmail.com>  Thu, 28 Feb 2013 10:51:28 +0800
