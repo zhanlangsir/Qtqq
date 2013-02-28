@@ -10,10 +10,15 @@
 #include <QHttp>
 #include <QUuid>
 
-#include "core/types.h"
-
 namespace Protocol
 {
+    struct FileInfo
+    {
+        int size;
+        QString name;
+        QString network_path;
+    };
+
     class ImgSender;
 };
 

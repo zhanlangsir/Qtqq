@@ -9,10 +9,7 @@
 #include "json/json.h"
 
 #include "chatwidget/chatdlg_manager.h"
-#include "core/captchainfo.h"
 #include "core/groupchatlog.h"
-#include "core/groupimgloader.h"
-#include "core/sockethelper.h"
 #include "protocol/qq_protocol.h"
 #include "roster/group_presister.h"
 #include "rostermodel/contact_proxy_model.h"
@@ -167,11 +164,6 @@ void GroupChatDlg::closeEvent(QCloseEvent *event)
     QQChatDlg::closeEvent(event);
 
     GroupPresister::instance()->setActivateFlag(talkable_->id());
-}
-
-ImgLoader *GroupChatDlg::getImgLoader() const
-{
-    return new GroupImgLoader();
 }
 
 QQChatLog *GroupChatDlg::getChatlog() const

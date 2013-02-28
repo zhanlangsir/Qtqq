@@ -4,20 +4,14 @@ set(CORE_HEADERS
 	core/groupchatlog.h
 	core/friendchatlog.h
 	core/request.h
-	core/types.h
     core/qqavatarrequester.h
-    core/groupimgloader.h
 	core/qqmsg.h
-	core/groupimgsender.h
 	core/qqskinable.h
 	core/qqchatlog.h
-	core/imgsender.h
 	core/accountmanager.h
 	core/qqitem.h
-	core/friendimgsender.h
 	core/sockethelper.h
 	core/qqchatitem.h
-    core/imgloader.h
 	core/captchainfo.h
 	core/qqutility.h
     core/singleton.h
@@ -159,21 +153,15 @@ QT4_WRAP_CPP(CORE_HEADERS_MOC ${CORE_HEADERS})
 
 set(CORE_SOURCES
 	core/qqlogincore.cpp
-	core/friendimgsender.cpp
 	core/qqchatitem.cpp
     core/qqavatarrequester.cpp
 	core/groupchatlog.cpp
-    core/imgloader.cpp
-	core/types.cpp
-	core/groupimgsender.cpp
 	core/sockethelper.cpp
 	core/captchainfo.cpp
-    core/groupimgloader.cpp
 	core/qqitem.cpp
 	core/friendchatlog.cpp
 	core/qqchatlog.cpp
 	core/request.cpp
-	core/imgsender.cpp
 	core/qqutility.cpp
 	core/accountmanager.cpp
 	core/qqmsg.cpp

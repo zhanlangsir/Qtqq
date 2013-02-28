@@ -1,8 +1,6 @@
 #ifndef GROUPCHATDLG_H
 #define GROUPCHATDLG_H
 
-#include <QVector>
-
 #include "qqchatdlg.h"
 #include "core/talkable.h"
 
@@ -49,7 +47,6 @@ private slots:
     void onDoubleClicked(const RosterIndex *index);
 
 private:
-    virtual ImgLoader* getImgLoader() const;
     virtual QQChatLog *getChatlog() const;
     virtual Contact *getSender(const QString &id) const;
 
@@ -65,7 +62,6 @@ private:
 
 private:
     Ui::GroupChatDlg *ui;
-    QString connection_name_;
 
     ContactSearcher *searcher_;
 

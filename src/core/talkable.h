@@ -36,7 +36,7 @@ enum TalkableDataRole
 	TDR_CategoryOnlineCount,
 };
 
-class Talkable : public QObject
+class Talkable: public QObject
 {
 	Q_OBJECT
 signals:

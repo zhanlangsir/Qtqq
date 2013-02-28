@@ -7,7 +7,6 @@
 #include <QThread>
 
 #include "request.h"
-#include "types.h"
 #include "core/qqitem.h"
 
 class QQAvatarRequester : public QThread

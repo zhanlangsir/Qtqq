@@ -3,7 +3,6 @@
 
 #include <QWidget>
 
-#include "core/types.h"
 #include "core/qqlogincore.h"
 #include "core/accountmanager.h"
 

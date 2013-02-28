@@ -23,7 +23,6 @@
 #include "core/qqlogincore.h"
 #include "core/qqutility.h"
 #include "core/sockethelper.h"
-#include "core/types.h"
 #include "event_handle/event_handle.h"
 #include "msgprocessor/msg_processor.h"
 #include "pluginmanager/plugin_managedlg.h"

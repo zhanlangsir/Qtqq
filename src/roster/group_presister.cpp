@@ -66,8 +66,9 @@ void GroupPresister::getGroupMember(Group *group)
         QString mark_name = query.value(3).toString();
         ContactStatus stat = (ContactStatus)query.value(4).toInt();
         QString avatar_path = query.value(5).toString();
+        Talkable::TalkableType type = (Talkable::TalkableType)query.value(6).toInt(); 
 
-        Contact *contact = new Contact(uin, nick);
+        Contact *contact = new Contact(uin, nick, type);
         if ( !avatar_path.isEmpty() )
             contact->setAvatarPath(avatar_path);
 
@@ -118,12 +119,12 @@ void GroupPresister::presistGroup(Group *group)
             if ( !gicon_dir.exists() )
                 gicon_dir.mkdir(gicon_path);
 
-            QString insert_command = "INSERT INTO groupmemberinfo VALUES (%1, %2, '%3', '%4', %5, '%6')";
+            QString insert_command = "INSERT INTO groupmemberinfo VALUES (%1, %2, '%3', '%4', %5, '%6', %7)";
             QSqlDatabase::database().transaction();
             foreach ( Contact *contact, group->members() )
             {
-                //uin, gid, name, mark name, status, avatar path
-                query.exec(insert_command.arg(contact->id()).arg(group->id()).arg(contact->name().replace('\'', "''")).arg(contact->markname().replace('\'', "''")).arg(contact->status()).arg(contact->avatarPath()));
+                //uin, gid, name, mark name, status, avatar path, type
+                query.exec(insert_command.arg(contact->id()).arg(group->id()).arg(contact->name().replace('\'', "''")).arg(contact->markname().replace('\'', "''")).arg(contact->status()).arg(contact->avatarPath()).arg(contact->type()));
 
                 if ( query.lastError().isValid() )
                 {
@@ -182,6 +183,7 @@ void GroupPresister::createSql()
             "markname VARCHAR(25),"
             "status INTEGER,"
             "avatarpath VARCHAR(20),"
+            "type INTEGER,"
             "PRIMARY KEY (uin, gid))");
 
     if (query.lastError().isValid())

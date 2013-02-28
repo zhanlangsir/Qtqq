@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QKeyEvent>
 #include <QKeySequence>
+#include <QDateTime>
 #include <QMap>
 #include <QMenu>
 #include <QPointer>
@@ -13,15 +14,13 @@
 #include <QShortcut>
 
 #include "chatlogwin.h"
-#include "core/captchainfo.h"
 #include "core/curr_login_account.h"
-#include "core/curr_login_account.h"
-#include "core/groupchatlog.h"
-#include "core/imgloader.h"
 #include "core/qqchatlog.h"
-#include "skinengine/qqskinengine.h"
 #include "event_handle/event_handle.h"
 #include "protocol/qq_protocol.h"
+#include "qqfacepanel.h"
+#include "setting/setting.h"
+#include "skinengine/qqskinengine.h"
 #include "skinengine/qqskinengine.h"
 #include "soundplayer/soundplayer.h"
 #include "utils/htmltomsgparser.h"
@@ -29,13 +28,11 @@
 QQChatDlg::QQChatDlg(Talkable *talkable, ChatDlgType type, QWidget *parent) :
     QWidget(parent),
     talkable_(talkable),
-    img_loader_(NULL),
     qqface_panel_(NULL),
     type_(type),
     sc_close_win_(NULL)
 {
     setObjectName("chatWindow");
-    qRegisterMetaType<FileInfo>("FileInfo");
 
     te_input_.setMinimumHeight(70);
 
@@ -51,8 +48,7 @@ QQChatDlg::QQChatDlg(Talkable *talkable, ChatDlgType type, QWidget *parent) :
     send_type_menu_->addAction(act_return_);
     send_type_menu_->addAction(act_ctrl_return_);
 
-    QSettings setting(QQGlobal::configDir() + "/options.ini", QSettings::IniFormat);
-    send_by_return_ = setting.value("send_by_return").toBool();
+    send_by_return_ = Setting::instance()->value("send_by_return").toBool();
 
     act_return_->setChecked(send_by_return_);
     act_ctrl_return_->setChecked(!send_by_return_);
@@ -64,19 +60,11 @@ QQChatDlg::QQChatDlg(Talkable *talkable, ChatDlgType type, QWidget *parent) :
 
     connect(&msgbrowse_, SIGNAL(imageDoubleClicked(QString)), this, SLOT(onImageDoubleClicked(QString)));
 
-    EventHandle::instance()->registerObserver(Protocol::ET_OnImgSendDone, this);
     EventHandle::instance()->registerObserver(Protocol::ET_OnImgLoadDone, this);
 }
 
 QQChatDlg::~QQChatDlg()
 {
-    if (img_loader_)
-    {
-        img_loader_->quit();
-        delete img_loader_;
-        img_loader_ = NULL;
-    }
-
     if (qqface_panel_)
         delete qqface_panel_;
     qqface_panel_ = NULL;
@@ -87,8 +75,7 @@ void QQChatDlg::setSendByReturn(bool checked)
     Q_UNUSED(checked)
     if (!send_by_return_)
     {
-        QSettings setting(QQGlobal::configDir() + "/options.ini", QSettings::IniFormat);
-        setting.setValue("send_by_return", true);
+        Setting::instance()->setValue("send_by_return", true);
         send_by_return_ = true;
 
         act_ctrl_return_->setChecked(false);
@@ -106,8 +93,7 @@ void QQChatDlg::setSendByCtrlReturn(bool checked)
     Q_UNUSED(checked)
     if (send_by_return_)
     {
-        QSettings setting(QQGlobal::configDir() + "/options.ini", QSettings::IniFormat);
-        setting.setValue("send_by_return", false);
+        Setting::instance()->setValue("send_by_return", false);
         send_by_return_ = false;
         act_return_->setChecked(false);
     }
@@ -116,7 +102,6 @@ void QQChatDlg::setSendByCtrlReturn(bool checked)
 void QQChatDlg::closeEvent(QCloseEvent *event)
 {
     Q_UNUSED(event)
-        EventHandle::instance()->removeObserver(Protocol::ET_OnImgSendDone, this);
     EventHandle::instance()->removeObserver(Protocol::ET_OnImgLoadDone, this);
     emit chatFinish(this);
 }
@@ -152,11 +137,6 @@ bool QQChatDlg::eventFilter(QObject *obj, QEvent *e)
             break;
     }
     return false;
-}
-
-ImgLoader *QQChatDlg::getImgLoader() const
-{
-    return new ImgLoader();
 }
 
 QString QQChatDlg::converToShow(const QString &converting_html)
@@ -238,16 +218,7 @@ void QQChatDlg::insertImage(const QString &file_path)
 
 void QQChatDlg::onNotify(Protocol::Event *event)
 {
-    if ( event->type() == Protocol::ET_OnImgSendDone )
-    {
-        Protocol::ImgSendDoneEvent *img_e = static_cast<Protocol::ImgSendDoneEvent *>(event);
-        if ( img_e->eventFor()->id() == talkable_->id() && img_e->success()  )
-        {
-            file_path_.insert(img_e->imgId(), img_e->filePath());
-            te_input_.insertImg(img_e->imgId(), img_e->filePath());
-        }
-    }
-    else if ( event->type() == Protocol::ET_OnImgLoadDone )
+    if ( event->type() == Protocol::ET_OnImgLoadDone )
     {
         Protocol::ImgLoadDoneEvent *img_e = static_cast<Protocol::ImgLoadDoneEvent *>(event);
 

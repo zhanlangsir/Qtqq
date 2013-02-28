@@ -1,18 +1,11 @@
-#ifndef QTQQ_QQCHATDLG_H
-#define QTQQ_QQCHATDLG_H
+#ifndef QQCHATDLG_H
+#define QQCHATDLG_H
 
-#include <QDateTime>
-#include <QHash>
-#include <QScrollBar>
-#include <QTcpSocket>
 #include <QVector>
-#include <QUuid>
 
 #include "core/qqmsglistener.h"
-#include "core/qqchatitem.h"
 #include "core/talkable.h"
 #include "msgbrowse.h"
-#include "qqfacepanel.h"
 #include "qqtextedit.h"
 #include "interfaces/iobserver.h"
 
@@ -20,8 +13,8 @@ class QAction;
 class QMenu;
 class QShortcut;
 
-class ImgLoader;
 class QQChatLog;
+class QQFacePanel;
 
 class QQChatDlg : public QWidget, public QQMsgListener, public IObserver
 {
@@ -64,7 +57,6 @@ protected:
 protected:
     MsgBrowse msgbrowse_;
 	QQTextEdit te_input_;
-    QHash<QString, QString> file_path_;
 
 	Talkable *talkable_;
     QVector<QString> unconvert_ids_;
@@ -82,22 +74,16 @@ private slots:
 
 private:
     virtual QQChatLog *getChatlog() const = 0;
-    virtual ImgLoader* getImgLoader() const;
 
     virtual Contact *getSender(const QString &id) const = 0;
     QString converToShow(const QString &converting_html);
     QString escape(QString raw_html) const;
     virtual void onNotify(Protocol::Event *event);
-    QString getUniqueId() const
-    {
-        return QUuid::createUuid().toString();
-    }
 
     QString saveImage(const QString &file, const QByteArray &data);
     QString getImageFormat(const QByteArray &data);
 
 private:    
-    ImgLoader *img_loader_;
     QQFacePanel *qqface_panel_;
 
     ChatDlgType type_;
@@ -110,4 +96,4 @@ private:
     QShortcut *sc_close_win_;
 };
 
-#endif //QTQQ_QQCHATDLG_H
+#endif //QQCHATDLG_H

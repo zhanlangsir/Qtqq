@@ -14,13 +14,10 @@
 #include <QDesktopWidget>
 #include <QSettings>
 #include <QUrl>
-
 #include <QDebug>
 
 #include "json/json.h"
 
-#include "core/types.h"
-#include "core/request.h"
 #include "skinengine/qqskinengine.h"
 
 LoginWin::LoginWin(QWidget *parent) :

@@ -5,7 +5,6 @@
 #include <QByteArray>
 #include <QTcpSocket>
 
-#include "types.h"
 #include "utils/contact_status.h"
 
 class QTcpSocket;

@@ -9,8 +9,6 @@
 #include <QString>
 #include <QUuid>
 
-#include "core/types.h"
-
 namespace Protocol
 {
     class FileSender;
