@@ -42,7 +42,7 @@ private slots:
 	void onNewSystemMsg(ShareQQMsgPtr msg);
 
 private:
-	void updateStranger(const QByteArray &array);
+	void updateStranger(const QByteArray &array, Contact *_for);
 
 private:
 	QList<Contact *> strangers_;

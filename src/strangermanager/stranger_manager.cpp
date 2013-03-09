@@ -41,7 +41,7 @@ bool StrangerManager::hasStrangerInfo(QString id) const
 	return false;
 }
 
-void StrangerManager::updateStranger(const QByteArray &array)
+void StrangerManager::updateStranger(const QByteArray &array, Contact *_for)
 {
 	/*
 	 * argument array example:
@@ -58,6 +58,17 @@ void StrangerManager::updateStranger(const QByteArray &array)
 		qDebug() << "error json:" << array << endl;
 		return;
 	}
+
+    if ( root["retcode"].asInt() == 10000 )
+    {
+        qDebug() << "request Stranger infomation for:" << _for->id() << "failed!, request again!" << endl;
+        if ( _for->groups().isEmpty() )
+            Protocol::QQProtocol::instance()->requestStrangerInfo2(stranger(_for->id()), "0", false);
+        else
+            Protocol::QQProtocol::instance()->requestStrangerInfo2(stranger(_for->id()), _for->groups().at(0)->id(), true);
+
+        return;
+    }
 
 	QString id = QString::number(root["result"]["uin"].asLargestInt());
 	QString name = QString::fromStdString(root["result"]["nick"].asString());
@@ -118,7 +129,7 @@ void StrangerManager::onNotify(Protocol::Event *event)
             }
             break;
         case Protocol::ET_OnStrangerInfoDone:
-                updateStranger(event->data());
+                updateStranger(event->data(), (Contact *)event->eventFor());
                 QString id = event->eventFor()->id();
                 emit newStrangerInfo(event->eventFor()->id(), this->stranger(id));
             break;
