@@ -264,7 +264,8 @@ void Roster::updateTalkableIcon(Talkable *talkable, QByteArray data)
             foreach ( Group *group, contact->groups() )
             {
                 Contact *g_member = group->member(contact->id());
-                g_member->setAvatar(data);
+                if ( g_member )
+                    g_member->setAvatar(data);
 
                 group->notifyMemberDataChanged(contact, TDR_Avatar);
                 GroupPresister::instance()->setModifiedFlag(group->id());
