@@ -1,5 +1,5 @@
-#ifndef QTQQ_QQWINDOWWIDGET_H
-#define QTQQ_QQWINDOWWIDGET_H
+#ifndef QQWIDGET_H
+#define QQWIDGET_H
 
 #include <QWidget>
 #include <QPoint>
@@ -7,13 +7,12 @@
 
 class QMouseEvent;
 class QQTitleBar;
+class QEvent;
 
 class QQWidget : public QWidget
 {
     Q_OBJECT
-
     Q_PROPERTY(QPixmap background READ getBackground WRITE setBackground)
-
 public:
     explicit QQWidget(QWidget *parent = 0);
 
@@ -34,11 +33,11 @@ protected:
 
 private:
     QPoint old_pos_;
-    bool is_mouse_down_;
+    bool resize_, move_;
     bool left_,right_,bottom_;
     QWidget *content_wid_;
 
     QPixmap pix_bg_;
 };
 
-#endif // QTQQ_QQWINDOWWIDGET_H
+#endif //QQWIDGET_H

@@ -107,6 +107,7 @@ private slots:
         header.addValue("Host", host);
         header.addValue("Referer", "http://web.qq.com");
         header.addValue("Cookie", CaptchaInfo::instance()->cookie());
+        pre_req_ = header;
 
         qDebug() << "Image request:\n"
             << header.toString() << endl;
@@ -120,12 +121,23 @@ private slots:
     {
         disconnect(&http_, SIGNAL(done(bool)), this, SLOT(onRedirectDone(bool)));
         QHttpResponseHeader response = http_.lastResponse(); 
-        qDebug() << "Get Group Image redirect response header:\n"
-            << response.toString() << endl;
+        if ( response.statusCode() != 302 )
+        {
+            qDebug() << "Get group image redirect response failed: \n"
+                << response.toString() << endl;
 
-        QString location = response.value("Location");
+            connect(&http_, SIGNAL(done(bool)), this, SLOT(onRedirectDone(bool)));
+            http_.request(pre_req_);
+        }
+        else
+        {
+            qDebug() << "Get group image redirect response header:\n"
+                << response.toString() << endl;
 
-        reciveFile(location);
+            QString location = response.value("Location");
+
+            reciveFile(location);
+        }
     }
 
 private:
@@ -148,6 +160,7 @@ private:
     }
 
 private:
+    QHttpRequestHeader pre_req_;
     QString gid_;
 };
 

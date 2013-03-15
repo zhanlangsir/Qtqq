@@ -146,6 +146,7 @@ set(UI_HEADERS
 	qqwidget.h
 	friendinfodlg.h
     qqglobal.h
+    tabwidget.h
 )
 
 QT4_WRAP_CPP(UI_HEADERS_MOC ${UI_HEADERS})
@@ -288,6 +289,7 @@ set(UI_SOURCES
 	loginwin.cpp
 	qqiteminfohelper.cpp
     qqglobal.cpp
+    tabwidget.cpp
 )
 
 set(UI_FILES

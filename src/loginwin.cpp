@@ -1,5 +1,4 @@
 #include "loginwin.h"
-#include "ui_loginwin.h"
 #include "ui_captcha.h"
 
 #include <assert.h>
@@ -21,21 +20,19 @@
 #include "skinengine/qqskinengine.h"
 
 LoginWin::LoginWin(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::LoginWin()),
+    QQWidget(parent),
     login_core_(new QQLoginCore())
 {
-    ui->setupUi(this);
-
+    setupUi(contentWidget());
     setObjectName("loginWindow");
-
     setWindowIcon(QIcon(QQGlobal::instance()->appIconPath()));
 
-	connect(ui->pb_login, SIGNAL(clicked()), this, SLOT(beginLogin()));
+    setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+	connect(pb_login, SIGNAL(clicked()), this, SLOT(beginLogin()));
     connect(login_core_, SIGNAL(sig_loginDone(QQLoginCore::LoginResult)),
             this, SLOT(loginDone(QQLoginCore::LoginResult)));
-    connect(ui->comb_username_, SIGNAL(currentIndexChanged(QString)), this, SLOT(currentUserChanged(QString)));
-    connect(ui->comb_username_, SIGNAL(editTextChanged(QString)), this, SLOT(idChanged(QString)));
+    connect(comb_username_, SIGNAL(currentIndexChanged(QString)), this, SLOT(currentUserChanged(QString)));
+    connect(comb_username_, SIGNAL(editTextChanged(QString)), this, SLOT(idChanged(QString)));
 
     move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
 
@@ -49,18 +46,16 @@ LoginWin::~LoginWin()
 {
     if ( login_core_ )
         login_core_->deleteLater();
-
-    delete ui;
 }
 
 void LoginWin::setupStatus()
 {
-    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_online")), tr("Online"), QVariant::fromValue<ContactStatus>(CS_Online));
-    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_qme")), tr("CallMe"), QVariant::fromValue<ContactStatus>(CS_CallMe));
-    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_away")), tr("Away"), QVariant::fromValue<ContactStatus>(CS_Away));
-    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_busy")), tr("Busy"), QVariant::fromValue<ContactStatus>(CS_Busy));
-    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_mute")), tr("Silent"), QVariant::fromValue<ContactStatus>(CS_Silent));
-    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_hidden")), tr("Hidden"), QVariant::fromValue<ContactStatus>(CS_Hidden));
+    cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_online")), tr("Online"), QVariant::fromValue<ContactStatus>(CS_Online));
+    cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_qme")), tr("CallMe"), QVariant::fromValue<ContactStatus>(CS_CallMe));
+    cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_away")), tr("Away"), QVariant::fromValue<ContactStatus>(CS_Away));
+    cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_busy")), tr("Busy"), QVariant::fromValue<ContactStatus>(CS_Busy));
+    cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_mute")), tr("Silent"), QVariant::fromValue<ContactStatus>(CS_Silent));
+    cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_hidden")), tr("Hidden"), QVariant::fromValue<ContactStatus>(CS_Hidden));
 }
 
 void LoginWin::setupAccountRecords()
@@ -70,7 +65,7 @@ void LoginWin::setupAccountRecords()
 
     foreach ( AccountRecord *account, accounts )
     {
-       ui->comb_username_->addItem(account->id_);
+       comb_username_->addItem(account->id_);
     }
 
     this->show();
@@ -83,16 +78,16 @@ void LoginWin::setUserLoginInfo(QString text)
     if (!record)
         return;
 
-    ui->le_password_->setText(record->pwd_);
-    ui->cekb_rem_pwd_->setChecked(record->rem_pwd_);
-    ui->cb_status->setCurrentIndex(getStatusIndex(record->login_status_));
+    le_password_->setText(record->pwd_);
+    cekb_rem_pwd_->setChecked(record->rem_pwd_);
+    cb_status->setCurrentIndex(getStatusIndex(record->login_status_));
 }
 
 int LoginWin::getStatusIndex(ContactStatus status) const
 {
-    for (int i = 0; i < ui->cb_status->count(); ++i)
+    for (int i = 0; i < cb_status->count(); ++i)
     {
-        if (ui->cb_status->itemData(i).value<ContactStatus>() == status)
+        if (cb_status->itemData(i).value<ContactStatus>() == status)
             return i;
     }
     return -1;
@@ -100,7 +95,7 @@ int LoginWin::getStatusIndex(ContactStatus status) const
 
 void LoginWin::beginLogin()
 {
-    if (ui->comb_username_->currentText().isEmpty() || ui->le_password_->text().isEmpty())
+    if (comb_username_->currentText().isEmpty() || le_password_->text().isEmpty())
     {
         QMessageBox box(this);
         box.setIcon(QMessageBox::Critical);
@@ -109,13 +104,13 @@ void LoginWin::beginLogin()
         return;
     }
 
-    curr_login_account_.id_ = ui->comb_username_->currentText();
-    curr_login_account_.pwd_ = ui->le_password_->text();
+    curr_login_account_.id_ = comb_username_->currentText();
+    curr_login_account_.pwd_ = le_password_->text();
     curr_login_account_.login_status_ = getLoginStatus();
-    curr_login_account_.rem_pwd_ = ui->cekb_rem_pwd_->isChecked();
+    curr_login_account_.rem_pwd_ = cekb_rem_pwd_->isChecked();
 
 
-    ui->pb_login->setEnabled(false);
+    pb_login->setEnabled(false);
 
     qDebug() << "Begin Login" << endl;
     checkAccoutStatus();
@@ -127,17 +122,17 @@ void LoginWin::loginDone(QQLoginCore::LoginResult result)
     {
     case QQLoginCore::kSucess:
     {
-        curr_login_account_.pwd_ = ui->cekb_rem_pwd_->isChecked() ? ui->le_password_->text() : QString::null;
+        curr_login_account_.pwd_ = cekb_rem_pwd_->isChecked() ? le_password_->text() : QString::null;
 
-		if (ui->comb_username_->findText(curr_login_account_.id_) == -1)
+		if (comb_username_->findText(curr_login_account_.id_) == -1)
         {
-            ui->comb_username_->insertItem(0, curr_login_account_.id_);
+            comb_username_->insertItem(0, curr_login_account_.id_);
         }
 
         account_manager_.setCurrLoginAccount(curr_login_account_);
         account_manager_.saveAccounts();
 
-        ui->pb_login->setEnabled(true);
+        pb_login->setEnabled(true);
         this->hide();
         emit sig_loginFinish();
     }
@@ -152,7 +147,7 @@ void LoginWin::loginDone(QQLoginCore::LoginResult result)
         box.setInformativeText(tr("The password is not correct, the reason may be:\nForgot password; Not case sensitive; Not open small keyboard."));
 
         box.exec();
-        ui->pb_login->setEnabled(true);
+        pb_login->setEnabled(true);
     }
         break;
 
@@ -164,16 +159,16 @@ void LoginWin::loginDone(QQLoginCore::LoginResult result)
         box.setInformativeText(tr("The Authcode is not correct! Please relogin!"));
 
         box.exec();
-        ui->pb_login->setEnabled(true);
+        pb_login->setEnabled(true);
     }
         break;
 
     case QQLoginCore::kUnknowErr:
-        ui->pb_login->setEnabled(true);
+        pb_login->setEnabled(true);
         break;
 
     default:
-        ui->pb_login->setEnabled(true);
+        pb_login->setEnabled(true);
         break;
     }
 }
@@ -181,7 +176,7 @@ void LoginWin::loginDone(QQLoginCore::LoginResult result)
 void LoginWin::onAutoLoginBtnClicked(bool checked)
 {
     if (checked)
-        ui->cekb_rem_pwd_->setChecked(true);
+        cekb_rem_pwd_->setChecked(true);
 }
 
 void LoginWin::currentUserChanged(QString text)
@@ -194,9 +189,9 @@ void LoginWin::idChanged(QString text)
     AccountRecord *record = account_manager_.findAccountById(text);
     if (!record)
     {
-        ui->le_password_->clear();
-        ui->cekb_rem_pwd_->setChecked(false);
-        ui->cb_status->setCurrentIndex(0);
+        le_password_->clear();
+        cekb_rem_pwd_->setChecked(false);
+        cb_status->setCurrentIndex(0);
     }
     else
     {
@@ -230,7 +225,7 @@ void LoginWin::checkAccoutStatus()
 
 bool LoginWin::eventFilter(QObject *obj, QEvent *e)
 {
-	if (obj == ui->comb_username_ || obj == ui->le_password_ ||
+	if (obj == comb_username_ || obj == le_password_ ||
 		obj == this)
     {
         if (e->type() == QEvent::KeyPress)
@@ -285,8 +280,8 @@ ContactStatus LoginWin::getLoginStatus() const
 	}
 	else
 	{
-		int idx = ui->cb_status->currentIndex();
-		status = ui->cb_status->itemData(idx).value<ContactStatus>();
+		int idx = cb_status->currentIndex();
+		status = cb_status->itemData(idx).value<ContactStatus>();
 	}
 
 	return status;

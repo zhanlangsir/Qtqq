@@ -6,6 +6,7 @@
 #include <QSystemTrayIcon>
 
 #include "utils/contact_status.h"
+#include "qqwidget.h"
 
 namespace Ui
 {
@@ -13,6 +14,8 @@ namespace Ui
 }
 
 class QHttp;
+class QTreeView;
+class QListView;
 
 class QxtGlobalShortcut;
 
@@ -26,7 +29,7 @@ class RecentModel;
 class RosterModel;
 class PluginManageDlg;
 
-class MainWindow : public QWidget
+class MainWindow : public QQWidget
 {
     Q_OBJECT
 public:
@@ -83,6 +86,10 @@ private:
 	RosterModel *contact_model_;
     RosterModel *group_model_;
     RecentModel *recent_model_;
+
+    QTreeView *contact_view_;
+    QListView *group_view_;
+    QListView *recent_view_;
 
     ContactSearcher *searcher_;
 	ContactProxyModel *contact_proxy_model_;

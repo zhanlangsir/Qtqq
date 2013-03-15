@@ -1,8 +1,10 @@
-#ifndef QTQQ_LOGINDLG_H
-#define QTQQ_LOGINDLG_H
+#ifndef LOGINDLG_H
+#define LOGINDLG_H
 
 #include <QWidget>
+#include "ui_loginwin.h"
 
+#include "qqwidget.h"
 #include "core/qqlogincore.h"
 #include "core/accountmanager.h"
 
@@ -10,7 +12,7 @@ namespace Ui {
 class LoginWin;
 }
 
-class LoginWin : public QWidget
+class LoginWin : public QQWidget, public Ui::LoginWin
 {
     Q_OBJECT
 signals:
@@ -43,11 +45,9 @@ private:
     int getStatusIndex(ContactStatus status) const;
     
 private:
-    Ui::LoginWin *ui;
-
     AccountManager account_manager_;
     AccountRecord curr_login_account_;
     QQLoginCore *login_core_;
 };
 
-#endif //QTQQ_LOGINDLG_H
+#endif //LOGINDLG_H

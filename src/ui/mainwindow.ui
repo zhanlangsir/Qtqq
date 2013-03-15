@@ -147,68 +147,6 @@
        </item>
       </layout>
      </item>
-     <item>
-      <widget class="QTabWidget" name="tab_main">
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-       <property name="tabPosition">
-        <enum>QTabWidget::North</enum>
-       </property>
-       <property name="tabShape">
-        <enum>QTabWidget::Rounded</enum>
-       </property>
-       <property name="currentIndex">
-        <number>0</number>
-       </property>
-       <property name="elideMode">
-        <enum>Qt::ElideLeft</enum>
-       </property>
-       <property name="usesScrollButtons">
-        <bool>false</bool>
-       </property>
-       <property name="documentMode">
-        <bool>false</bool>
-       </property>
-       <property name="movable">
-        <bool>true</bool>
-       </property>
-       <widget class="QWidget" name="friends">
-        <attribute name="title">
-         <string>Friends</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_5">
-         <item>
-          <widget class="QTreeView" name="tv_friendlist">
-           <attribute name="headerVisible">
-            <bool>false</bool>
-           </attribute>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="groups">
-        <attribute name="title">
-         <string>Groups</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
-         <item>
-          <widget class="QListView" name="lv_grouplist"/>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="recents">
-        <attribute name="title">
-         <string>Recents</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
-         <item>
-          <widget class="QListView" name="lv_recentlist"/>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-     </item>
     </layout>
    </item>
    <item>

@@ -8,6 +8,8 @@
 #include <QFile>
 #include <QHttp>
 #include <QSettings>
+#include <QTreeView>
+#include <QListView>
 #include <QDebug>
 
 #include "qxtglobalshortcut.h"
@@ -43,17 +45,21 @@
 #include "qqiteminfohelper.h"
 #include "setting/setting.h"
 #include "qtqq.h"
+#include "tabwidget.h"
 
 MainWindow::MainWindow(QWidget *parent) :
-    QWidget(parent),
+    QQWidget(parent),
     ui(new Ui::MainWindow),
     main_http_(new QHttp),
 	contact_model_(NULL),
 	group_model_(NULL),
 	recent_model_(NULL),
+    contact_view_(new QTreeView()),
+    group_view_(new QListView()),
+    recent_view_(new QListView()),
 	open_chat_dlg_sc_(NULL)
 {
-    ui->setupUi(this);
+    ui->setupUi(contentWidget());
 
     qRegisterMetaType<ContactClientType>("ContactClientType");
 
@@ -61,7 +67,16 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowIcon(QIcon(QQGlobal::instance()->appIconPath()));
     setWindowTitle(CurrLoginAccount::name());
 
-    ui->tv_friendlist->setSortingEnabled(true);
+    contact_view_->setHeaderHidden(true);
+    contact_view_->setSortingEnabled(true);
+
+    TabWidget *tw = new TabWidget();
+    tw->setObjectName("main_tabwidget");
+    ui->vlo_main->addWidget(tw);
+
+    tw->addTab(contact_view_, QIcon(QQSkinEngine::instance()->skinRes("contact_tab_img")));
+    tw->addTab(group_view_, QIcon(QQSkinEngine::instance()->skinRes("group_tab_img")));
+    tw->addTab(recent_view_, QIcon(QQSkinEngine::instance()->skinRes("recent_tab_img")));
 
     setupLoginStatus();
 
@@ -240,7 +255,7 @@ void MainWindow::getFriendListDone(bool err)
     contact_proxy_model_->setSourceModel(contact_model_);
     contact_model_->setProxyModel(contact_proxy_model_);
 
-    connect(ui->tv_friendlist, SIGNAL(doubleClicked(const QModelIndex &)), contact_model_, SLOT(onDoubleClicked(const QModelIndex &)));
+    connect(contact_view_, SIGNAL(doubleClicked(const QModelIndex &)), contact_model_, SLOT(onDoubleClicked(const QModelIndex &)));
     Roster *roster = Roster::instance();
     connect(roster, SIGNAL(sigNewCategory(Category *)), contact_model_, SLOT(addCategoryItem(Category *)));
     connect(roster, SIGNAL(sigContactDataChanged(QString, QVariant, TalkableDataRole)), contact_model_, SLOT(talkableDataChanged(QString, QVariant, TalkableDataRole)));
@@ -254,7 +269,7 @@ void MainWindow::getFriendListDone(bool err)
     searcher_->initialize(Roster::instance()->contacts());
     connect(ui->le_search, SIGNAL(textChanged(const QString &)), this, SLOT(onSearch(const QString &)));
 
-    ui->tv_friendlist->setModel(contact_proxy_model_);
+    contact_view_->setModel(contact_proxy_model_);
 
     getGroupList();
 }
@@ -297,14 +312,14 @@ void MainWindow::getGroupListDone(bool err)
     qDebug() << "Group List: \n" << groups_info << endl;
 
     group_model_ = new RosterModel(this);
-    connect(ui->lv_grouplist, SIGNAL(doubleClicked(const QModelIndex &)), group_model_, SLOT(onDoubleClicked(const QModelIndex &)));
+    connect(group_view_, SIGNAL(doubleClicked(const QModelIndex &)), group_model_, SLOT(onDoubleClicked(const QModelIndex &)));
     Roster *roster = Roster::instance();
     connect(roster, SIGNAL(sigNewGroup(Group *)), group_model_, SLOT(addGroupItem(Group *)));
     connect(roster, SIGNAL(sigGroupDataChanged(QString, QVariant, TalkableDataRole)), group_model_, SLOT(talkableDataChanged(QString, QVariant, TalkableDataRole)));
 
     roster->parseGroupList(groups_info);
 
-    ui->lv_grouplist->setModel(group_model_);
+    group_view_->setModel(group_model_);
 
     getRecentList();
 }
@@ -407,12 +422,12 @@ void MainWindow::getRecentListDone(bool err)
     QByteArray recent_list = main_http_->readAll();
 	
     recent_model_ = new RecentModel(this);
-    connect(ui->lv_recentlist, SIGNAL(doubleClicked(const QModelIndex &)), recent_model_, SLOT(onDoubleClicked(const QModelIndex &)));
+    connect(recent_view_, SIGNAL(doubleClicked(const QModelIndex &)), recent_model_, SLOT(onDoubleClicked(const QModelIndex &)));
 
     connect(MsgProcessor::instance(), SIGNAL(newChatMsg(ShareQQMsgPtr)), recent_model_, SLOT(slotNewChatMsg(ShareQQMsgPtr)));
 
     recent_model_->parseRecentContact(recent_list);
-    ui->lv_recentlist->setModel(recent_model_);
+    recent_view_->setModel(recent_model_);
 
     getOnlineBuddy();
 }

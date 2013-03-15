@@ -15,6 +15,8 @@ GroupMemberListJob::GroupMemberListJob(Group *job_for, JobType type) :
 
 void GroupMemberListJob::run()
 {
+    qDebug() << "Requesting group member list for: " << for_->markname() << endl;
+
     QString get_group_member_url = "/api/get_group_info_ext2?gcode=" + ((Group *)for_)->gcode() + "&vfwebqq=" +
         CaptchaInfo::instance()->vfwebqq() + "&t="+ QString::number(QDateTime::currentMSecsSinceEpoch());
 
@@ -33,6 +35,9 @@ void GroupMemberListJob::requestDone(bool err)
 	{
 		QByteArray data = http_.readAll();
 		http_.close();
+        qDebug() << "Requeste group member list done: " << data << endl;
+
+
         Protocol::Event *event = Protocol::EventCenter::instance()->createGroupMemberListUpdateEvent((Group *)for_, data);
         Protocol::EventCenter::instance()->triggerEvent(event);
 	}

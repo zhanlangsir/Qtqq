@@ -21,4 +21,8 @@ systray_restore="tray/maximize.png"
 systray_minimize="tray/minimize.png"
 
 loading_img="misc/loading.gif"
+
+contact_tab_img = "main_win/contact.png"
+group_tab_img = "main_win/group.png"
+recent_tab_img = "main_win/recent.png"
 />

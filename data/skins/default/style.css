@@ -2,6 +2,16 @@
     background-color: transparent;
 }
 
+#main_tabwidget QPushButton {
+    background-color: transparent;
+    border-image: url(%skin_path%/main_win/tab.png); 
+}
+
+#main_tabwidget QPushButton:focus {
+    background-color: transparent;
+    border-image: url(%skin_path%/main_win/tab_highlight.png); 
+}
+
 #avatar {
 	border-image:url(%skin_path%/main_win/avatar-border.png) 0 0 0 0;
 }
@@ -59,32 +69,33 @@ QToolButton#tb_skin:pressed {
 	border-image: url(%skin_path%/ui/btn_skin_down.png);
 }
 
-QPushButton#pb_login{
-    border:1px solid gray;
-    border-radius:5px;
+QPushButton{
+    border-image: url(%skin_path%/login_win/btn_down.png);
+    min-width: 60px;
+    min-height: 25px;
 }
 
-QPushButton#pb_login:focus {
-    border:1px solid gray;
-    border-radius:5px;
-    background-image: url(%skin_path%/login_win/btn_focus.png);
+QPushButton:focus {
+    border-image: url(%skin_path%/login_win/btn_focus.png);
 }
 
-QPushButton#pb_login:hover {
-    border:1px solid gray;
-    border-radius:5px;
-    background-image: url(%skin_path%/login_win/btn_highlight.png);
+QPushButton:hover {
+    border-image: url(%skin_path%/login_win/btn_highlight.png);
 }
 
-QPushButton#pb_login:pressed {
-    border:1px solid gray;
-    border-radius:5px;
-    background-image: url(%skin_path%/login_win/btn_down.png);
+QPushButton:pressed {
+    border-image: url(%skin_path%/login_win/btn_down.png);
 }
 
 QFrame#frame_login_btm {
     background-image:url(%skin_path%/login_win/down.png);
 }
+
+/*
+#main_tabwidget QPushButton {
+    background-color: transparent;
+}
+*/
 
 QToolButton#btn_qqface {
     border:none;
@@ -116,6 +127,27 @@ QToolButton#btn_send_img:hover {
     background-color: #E7ECEE;
 }
 
+QWidget#qq_titlebar{
+    border: 5px solid gray;
+}
+
+#loginWindow{
+    qproperty-background:url(%skin_path%/login_win/login_bg.png);
+}
+
+#mainWindow{
+    qproperty-background:url(%skin_path%/main_win/mainwindow_bg.jpg);
+    border:15px solid gray;
+}
+
 QLabel#vip_label {
     color: rgb(255, 0, 0);
+}
+
+QTabBar{
+    background-color: transparent;
+}
+
+QTabBar::tab{
+    background-color: transparent;
 }
