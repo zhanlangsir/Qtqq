@@ -31,7 +31,7 @@ public slots:
 
 protected slots:
     void onImageDoubleClicked(QString img_src);
-    
+
 private slots:
     void onLinkClicked(const QUrl &url);
 

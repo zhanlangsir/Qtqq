@@ -5,6 +5,9 @@
 #include <QTextBlock>
 #include <QTextBlockFormat>
 #include <QTextCharFormat>
+#include <QDragEnterEvent>
+#include <QDragMoveEvent>
+#include <QDropEvent>
 #include <QMimeData>
 #include <QMimeData>
 #include <QDebug>
@@ -13,7 +16,7 @@
 
 QQTextEdit::QQTextEdit(QWidget *parent) : QTextEdit(parent)
 {
-
+    setAcceptDrops(true);
 }
 
 void QQTextEdit::insertImg(const QString &url, const QString &path)
@@ -96,7 +99,6 @@ void QQTextEdit::replaceIdToName(QString id, QString name)
     cursor.insertText(name);
 }
 
-
 void QQTextEdit::insertFromMimeData( const QMimeData *source )
 {
     this->insertHtml(source->text());
@@ -106,4 +108,45 @@ bool QQTextEdit::canInsertFromMimeData( const QMimeData *source )
 {
      qDebug()<<source->html();
      return false;
+}
+
+void QQTextEdit::dragEnterEvent(QDragEnterEvent *e)
+{
+    e->acceptProposedAction();
+}
+
+void QQTextEdit::dragMoveEvent(QDragMoveEvent *e)
+{
+    e->acceptProposedAction();
+}
+
+bool QQTextEdit::isQQFace(const QUrl &url) const
+{
+    if ( url.toString().indexOf("/qqface/default") != -1 )
+    {
+        return true;
+    }
+    return false;
+}
+
+QString QQTextEdit::getQQFaceId(const QUrl &url) const
+{
+    QFileInfo qqface(url.toString());
+    return qqface.baseName();
+}
+
+void QQTextEdit::dropEvent(QDropEvent *e)
+{
+    if ( e->mimeData()->hasUrls() )
+    {
+        QUrl url = e->mimeData()->urls()[0];
+        if ( isQQFace(url) )
+        {
+            insertQQFace(getQQFaceId(url));
+        }
+        else
+            insertImg(url.path(), url.path());
+    }
+
+    e->acceptProposedAction();
 }

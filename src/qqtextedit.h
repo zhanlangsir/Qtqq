@@ -9,6 +9,9 @@
 
 class QWidget;
 class QTextDocument;
+class QDragEnterEvent;
+class QDragMoveEvent;
+class QDropEvent;
 
 const QString kQQFacePre="qqface:";
 
@@ -51,6 +54,13 @@ public slots:
 protected:
     void insertFromMimeData( const QMimeData *source );
     bool canInsertFromMimeData( const QMimeData *source );
+    void dragEnterEvent(QDragEnterEvent *e);
+    void dragMoveEvent(QDragMoveEvent *e);
+    void dropEvent(QDropEvent *e);
+
+private:
+    bool isQQFace(const QUrl &url) const;
+    QString getQQFaceId(const QUrl &url) const;
 
 private:
     QList<QString> file_ids_;
