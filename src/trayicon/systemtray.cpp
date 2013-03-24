@@ -60,6 +60,10 @@ void SystemTrayIcon::removeAction(QAction *act)
 		setIcon(QIcon(QQGlobal::resourceDir() + "/webqq.ico"));
         blink_timer_.stop();
     }
+    else
+    {
+        setIcon(actions_.last()->icon());
+    }
 }
 
 void SystemTrayIcon::addSeparator()

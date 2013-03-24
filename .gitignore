@@ -1,3 +1,4 @@
 *.swp
 *~
 build/
+.clang_complete

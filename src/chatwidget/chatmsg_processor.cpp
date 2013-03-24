@@ -284,8 +284,7 @@ void ChatMsgProcessor::removeAction(QAction *act)
 	actions_.removeOne(act);
 	SystemTrayIcon::instance()->removeAction(act);
 
-	delete act;
-	act = NULL;
+	act->deleteLater();
 }
 
 
