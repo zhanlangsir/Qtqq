@@ -59,7 +59,7 @@ NotifyWidget::NotifyWidget(const Notification &notification)
     }
     else
     {
-        text = notification.sender_name + ": " +  notification.content;
+        text = "<font color=\"blue\">" + notification.sender_name + "</font>: " +  notification.content;
     }
 
 	if (!text.isEmpty())
@@ -215,7 +215,7 @@ void NotifyWidget::appendMessage(const QString &sender_name, const QString &msg)
     }
     else
     {
-        ui.ntbText->append(sender_name + ": " + msg);
+        ui.ntbText->append("<font color=\"blue\">" + sender_name + "</font>: " + msg);
     }
     layoutWidgets();
     close_timer_.start(ms_timeout_);

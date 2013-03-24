@@ -44,7 +44,7 @@ signals:
 
 public:
     //kStranger是指你删除了他好友，但是他还保留你为好友的情况
-    //kSessStranger是指双方都不是好友的情况
+    //kSessStranger是指双方都不是好友的情况,通常为群成员
 	enum TalkableType { kStranger, kSessStranger, kContact, kGroup, kCategory };
 
 	Talkable(QString id, QString name, TalkableType type) :
