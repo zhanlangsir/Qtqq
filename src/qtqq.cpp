@@ -40,11 +40,11 @@ Qtqq::Qtqq() : login_dlg_(NULL),
 	quit_ = new QAction(QIcon(QQSkinEngine::instance()->skinRes("systray_quit")), tr("Quit"), NULL);
 	connect(quit_, SIGNAL(triggered()), this, SLOT(onQuit()));
 
-	tray->addMenuAction(minimize_);
-	tray->addMenuAction(minimize_);
-	tray->addMenuAction(restore_);
+	tray->addMenu(minimize_);
+	tray->addMenu(minimize_);
+	tray->addMenu(restore_);
 	//tray->addMenuAction(logout_);
-	tray->addMenuAction(quit_);
+	tray->addMenu(quit_);
 	tray->addSeparator();
 }
 

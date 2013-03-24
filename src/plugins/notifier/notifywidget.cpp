@@ -38,6 +38,8 @@ NotifyWidget::NotifyWidget(const Notification &notification)
 	FAnimateStep = -1;
 	ms_timeout_ = notification.ms_timeout;
 
+    type_ = notification.type;
+    id_ = notification.id;
 	caption_ = tr("Notification");
 	ui.lblCaption->setVisible(!caption_.isEmpty());
 
@@ -50,7 +52,16 @@ NotifyWidget::NotifyWidget(const Notification &notification)
 	else
 		ui.lblIcon->setVisible(false);
 
-	QString text = notification.content;
+    QString text;
+    if ( notification.type == NFT_Chat || notification.type == NFT_SessChat )
+    {
+        text =  notification.content;
+    }
+    else
+    {
+        text = notification.sender_name + ": " +  notification.content;
+    }
+
 	if (!text.isEmpty())
     {
         ui.ntbText->setHtml(text);
@@ -85,14 +96,17 @@ void NotifyWidget::appear()
 {
 	if (!FWidgets.contains(this))
 	{
-		QTimer *timer = new QTimer(this);
-		timer->setSingleShot(false);
-		timer->setInterval(ANIMATE_STEP_TIME);
-		timer->start();
-		connect(timer,SIGNAL(timeout()),SLOT(onAnimateStep()));
+		animate_timer_.setSingleShot(false);
+		animate_timer_.setInterval(ANIMATE_STEP_TIME);
+		animate_timer_.start();
+		connect(&animate_timer_,SIGNAL(timeout()),SLOT(onAnimateStep()));
 
 		if (ms_timeout_ > 0)
-			QTimer::singleShot(ms_timeout_,this,SLOT(deleteLater()));
+        {
+            close_timer_.setSingleShot(true);
+            connect(&close_timer_, SIGNAL(timeout()), this, SLOT(deleteLater()));
+			close_timer_.start(ms_timeout_);
+        }
 
 		setWindowOpacity(ANIMATE_OPACITY_START);
 
@@ -191,4 +205,18 @@ void NotifyWidget::updateElidedText()
 {
 	ui.lblCaption->setText(ui.lblCaption->fontMetrics().elidedText(caption_,Qt::ElideRight,ui.lblCaption->width() - ui.lblCaption->frameWidth()*2));
 	ui.lblTitle->setText(ui.lblTitle->fontMetrics().elidedText(title_,Qt::ElideRight,ui.lblTitle->width() - ui.lblTitle->frameWidth()*2));
+}
+
+void NotifyWidget::appendMessage(const QString &sender_name, const QString &msg)
+{
+    if ( type_ == NFT_Chat || type_ == NFT_SessChat )
+    {
+        ui.ntbText->append(msg);
+    }
+    else
+    {
+        ui.ntbText->append(sender_name + ": " + msg);
+    }
+    layoutWidgets();
+    close_timer_.start(ms_timeout_);
 }

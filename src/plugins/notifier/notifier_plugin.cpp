@@ -1,5 +1,7 @@
 #include "notifier_plugin.h"
 
+#include <QDebug>
+
 #include "plugins/notifier/notifywidget.h"
 #include "notification_manager/notification_manager.h"
 #include "roster/roster.h"
@@ -33,10 +35,12 @@ void NotifierPlugin::onNewChatMsg(ShareQQMsgPtr msg)
     Notification notification;
     Talkable *talkable = NULL;
     QString sender_id;
+    QString sender_name;
     if ( msg->type() == QQMsg::kSess )
     {
         sender_id = msg->sendUin();
         talkable = StrangerManager::instance()->stranger(sender_id);
+        sender_name = talkable ? talkable->markname() : sender_id;
     }
     else
     {
@@ -44,10 +48,29 @@ void NotifierPlugin::onNewChatMsg(ShareQQMsgPtr msg)
         talkable = Roster::instance()->talkable(sender_id);
         if ( !talkable )
             talkable = StrangerManager::instance()->stranger(sender_id);
+
+        if ( msg->type() == QQMsg::kGroup )
+        {
+            Contact *member = ((Group *)talkable)->member(msg->sendUin());
+            sender_name = member ? member->markname() : msg->sendUin();
+        }
+        else
+        {
+            sender_name = talkable ? talkable->markname() : sender_id;
+        }
     }
 
-    QString sender_name = talkable ?  talkable->markname() : sender_id;
-    notification.title = sender_name + tr(" has new message");  
+    if ( notify_wids_.contains(sender_id) )
+    {
+        notify_wids_[sender_id]->appendMessage(sender_name, msg->msg());
+        return;
+    }
+
+    QString talkto_name = talkable ?  talkable->markname() : sender_id;
+    notification.sender_name = sender_name;
+
+    notification.id = sender_id;
+    notification.title = talkto_name + tr(" has new message");  
     notification.icon = talkable ? talkable->avatar() : QPixmap();
     notification.content = msg->msg();
     notification.ms_timeout = 5000;
@@ -64,13 +87,25 @@ void NotifierPlugin::onNewChatMsg(ShareQQMsgPtr msg)
             notification.type = NFT_SessChat;
             break;
     }
+
     NotifyWidget *w = new NotifyWidget(notification);
+    connect(w, SIGNAL(windowDestroyed()), this, SLOT(onNotifyWidgetDestroyed()));
+    notify_wids_.insert(sender_id, w);
     w->appear();
 }
 
 QWidget *NotifierPlugin::configWidget(QWidget *parent)
 {
     return NULL;
+}
+
+void NotifierPlugin::onNotifyWidgetDestroyed()
+{
+    NotifyWidget *widget = qobject_cast<NotifyWidget *>(sender());
+    if ( notify_wids_.contains(widget->id()) )   
+    {
+        notify_wids_.remove(widget->id());
+    }
 }
 
 Q_EXPORT_PLUGIN2(notifierplugin, NotifierPlugin)

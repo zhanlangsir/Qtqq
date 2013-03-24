@@ -3,6 +3,7 @@
 
 #include <QSystemTrayIcon>
 #include <QMenu>
+#include <QTimer>
 
 #include "core/qqmsg.h"
 
@@ -31,7 +32,7 @@ public:
 
 	void activatedUnReadChat();
 
-	void addMenuAction(QAction *act);
+	void addMenu(QAction *act);
 	void addNotifyAction(QAction *act);
 	void removeAction(QAction *act);
 
@@ -39,12 +40,16 @@ public:
 
 	bool hasNotify();
 
+private slots:
+    void onBlinkTimeout();
+
 private:
 	Roster *roster_;
 
 	QMenu *menu_;
 
 	QList<QAction *> actions_;
+    QTimer blink_timer_;
 
 private:
 	SystemTrayIcon();

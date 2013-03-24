@@ -18,6 +18,8 @@ SystemTrayIcon::SystemTrayIcon()
     qRegisterMetaType<SoundPlayer::SoundType>("SoundPlayer::SoundType");
 	roster_ = Roster::instance();
 
+    blink_timer_.setInterval(800);
+    connect(&blink_timer_, SIGNAL(timeout()), this, SLOT(onBlinkTimeout()));
 	menu_ = new QMenu();
 
 	this->setIcon(QIcon(QQGlobal::resourceDir() + "/webqq.ico"));
@@ -33,18 +35,19 @@ void SystemTrayIcon::activatedUnReadChat()
 	}
 }
 
-void SystemTrayIcon::addMenuAction(QAction *act)
+void SystemTrayIcon::addMenu(QAction *act)
 {
 	menu_->addAction(act);
 }
 
 void SystemTrayIcon::addNotifyAction(QAction *act)
 {
-	if ( actions_.isEmpty() )
-		setIcon(QIcon(QQGlobal::resourceDir() + "/trayicon/newmsg.png"));
+    setIcon(act->icon());
 
 	menu_->addAction(act);
 	actions_.push_back(act);
+
+    blink_timer_.start();
 }
 
 void SystemTrayIcon::removeAction(QAction *act)
@@ -53,17 +56,33 @@ void SystemTrayIcon::removeAction(QAction *act)
 	actions_.removeOne(act);
 
 	if ( actions_.isEmpty() )
+    {
 		setIcon(QIcon(QQGlobal::resourceDir() + "/webqq.ico"));
+        blink_timer_.stop();
+    }
 }
-
 
 void SystemTrayIcon::addSeparator()
 {
 	menu_->addSeparator();
 }
 
-
 bool SystemTrayIcon::hasNotify()
 {
 	return !actions_.isEmpty();
+}
+
+void SystemTrayIcon::onBlinkTimeout()
+{
+    static QIcon storage_icon = QIcon(); 
+
+    if ( !icon().isNull() )
+    {
+        storage_icon = icon();
+        setIcon(QIcon());
+    }
+    else
+    {
+        setIcon(storage_icon);
+    }
 }

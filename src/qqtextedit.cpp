@@ -137,7 +137,7 @@ QString QQTextEdit::getQQFaceId(const QUrl &url) const
 
 void QQTextEdit::dropEvent(QDropEvent *e)
 {
-    if ( e->mimeData()->hasUrls() )
+    if ( e->mimeData()->hasUrls() && e->mimeData()->hasImage() )
     {
         QUrl url = e->mimeData()->urls()[0];
         if ( isQQFace(url) )

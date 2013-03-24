@@ -2,11 +2,14 @@
 #define NOTIFIER_PLUGIN_H
 
 #include <QObject>
+#include <QMap>
 
 #include "interfaces/iplugin.h"
 #include "core/qqmsg.h"
 
 #define NOTIFIERPLUGIN_UUID "{49f286f0-8e35-45da-8c8a-10984123409a}"
+
+class NotifyWidget;
 
 class NotifierPlugin : 
    public QObject,
@@ -25,6 +28,10 @@ public:
 
 private slots:
     void onNewChatMsg(ShareQQMsgPtr msg);
+    void onNotifyWidgetDestroyed();
+    
+private:
+    QMap<QString, NotifyWidget *> notify_wids_;
 };
 
 #endif //NOTIFIER_PLUGIN_H

@@ -2,6 +2,8 @@
 #define NOTIFYWIDGET_H
 
 #include <QMouseEvent>
+#include <QTimer>
+
 #include <QDesktopWidget>
 #include "ui_notifywidget.h"
 
@@ -16,7 +18,10 @@ enum NotificationType
 struct Notification 
 { 
     NotificationType type; 
+
+    QString id;
     QString title;
+    QString sender_name;
     QString content;
     int ms_timeout;
  
@@ -34,11 +39,15 @@ public:
 	void appear();
 	void animateTo(int AYPos);
 	void setAnimated(bool AAnimated);
+    void appendMessage(const QString &sender_name, const QString &msg);
+    QString id() const
+    { return id_; }
 
 signals:
 	void notifyActivated();
 	void notifyRemoved();
 	void windowDestroyed();
+
 protected:
 	virtual void resizeEvent(QResizeEvent *AEvent);
 	virtual void mouseReleaseEvent(QMouseEvent *AEvent);
@@ -52,8 +61,15 @@ private:
 	int FYPos;
 	int ms_timeout_;
 	int FAnimateStep;
+
+    NotificationType type_;
+    QString id_;
 	QString title_;
 	QString caption_;
+
+    QTimer close_timer_;
+    QTimer animate_timer_;
+
 private:
 	static void layoutWidgets();
 	static QList<NotifyWidget *> FWidgets;
