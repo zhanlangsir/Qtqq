@@ -51,6 +51,7 @@ void NotifierPlugin::onNewChatMsg(ShareQQMsgPtr msg)
 
         if ( msg->type() == QQMsg::kGroup )
         {
+            if ( !talkable ) return;
             Contact *member = ((Group *)talkable)->member(msg->sendUin());
             sender_name = member ? member->markname() : msg->sendUin();
         }
