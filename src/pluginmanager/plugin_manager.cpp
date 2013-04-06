@@ -28,7 +28,7 @@ void PluginManager::loadSettings()
     QDir plugin_dir(QQGlobal::configDir());
 
     QFile file(plugin_dir.absoluteFilePath(PLUGIN_CONFIG_FILE));
-    if ( file.exists(PLUGIN_CONFIG_FILE) && file.open(QIODevice::ReadOnly) )
+    if ( file.exists() && file.open(QIODevice::ReadOnly) )
         plugins_config_.setContent(&file, true);
     file.close();
 
