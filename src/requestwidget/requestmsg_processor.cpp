@@ -68,6 +68,7 @@ void RequestMsgProcessor::onNewSystemGMsg(ShareQQMsgPtr msg)
         {
             //你的管理员身份被删除
             case 0:
+                return;  //这个提示有错误
                 if ( sysg_msg->sys_g_type == "group_admin_op" )
                 {
                     msg = tr("You administrator privileges in the group %1 is deleted").arg(group->markname());
@@ -75,6 +76,7 @@ void RequestMsgProcessor::onNewSystemGMsg(ShareQQMsgPtr msg)
                 break;
                 //你被设置为管理员
             case 1:
+                return;  //这个提示有错误
                 {
                     msg = tr("You are set to the administrator of the group %1.").arg(group->markname());
                 }
