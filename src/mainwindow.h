@@ -18,6 +18,7 @@ class QxtGlobalShortcut;
 
 class Menu;
 class ContactProxyModel;
+class QModelIndex;
 class ContactSearcher;
 class FriendSearcher;
 class QQChatDlg;
@@ -25,6 +26,7 @@ class QQLoginCore;
 class RecentModel;
 class RosterModel;
 class PluginManageDlg;
+class RosterIndex;
 
 class MainWindow : public QWidget
 {
@@ -49,6 +51,7 @@ protected:
     virtual void closeEvent(QCloseEvent *);
 
 private slots:
+    void onFriendListItemPressed(const QModelIndex &index);
     void changeMyStatus(int idx);
     void getFriendListDone(bool err);
     void getGroupListDone(bool err);
@@ -62,6 +65,7 @@ private slots:
     void aboutQt();
     void onMainMenuclicked();
     void snapshot();
+    void onBeginChat();
 
 private:
     void getFriendList();
@@ -89,6 +93,8 @@ private:
 
     Menu *main_menu_;
     QAction *act_mute_;
+
+    QAction *begin_chat_;
 
     QxtGlobalShortcut *open_chat_dlg_sc_;
 };

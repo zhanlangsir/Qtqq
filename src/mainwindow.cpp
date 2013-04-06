@@ -3,8 +3,10 @@
 
 #include <QDateTime>
 #include <QDesktopWidget>
+#include <QModelIndex>
 #include <QMessageBox>
 #include <QEvent>
+#include <QCursor>
 #include <QFile>
 #include <QHttp>
 #include <QSettings>
@@ -36,6 +38,7 @@
 #include "skinengine/qqskinengine.h"
 #include "trayicon/systemtray.h"
 #include "rostermodel/contact_searcher.h"
+#include "rostermodel/roster_index.h"
 #include "utils/menu.h"
 #include "hotkeymanager/hotkey_manager.h"
 #include "snapshot/ksnapshot.h"
@@ -97,6 +100,9 @@ MainWindow::MainWindow(QWidget *parent) :
     main_menu_->addAction(about_qt);
     main_menu_->addSeparator();
     main_menu_->addAction(quit);
+    
+    begin_chat_ = new QAction(tr("Begin chat"), this);
+    connect(begin_chat_, SIGNAL(triggered()), this, SLOT(onBeginChat()));
 
     if (!open_chat_dlg_sc_)
     {
@@ -135,6 +141,20 @@ MainWindow::~MainWindow()
 		delete main_http_;
 		main_http_ = NULL;
 	}
+}
+
+void MainWindow::onBeginChat()
+{
+    QModelIndex proxy_index = ui->tv_friendlist->currentIndex();
+    QModelIndex src_index = contact_proxy_model_->mapToSource(proxy_index);
+    if ( !src_index.isValid() )
+        return;
+
+    RosterIndex *roster_index = static_cast<RosterIndex *>(src_index.internalPointer()); 
+    if ( roster_index->type() != RIT_Contact )
+        return;
+
+    ChatDlgManager::instance()->openFriendChatDlg(roster_index->id());
 }
 
 void MainWindow::snapshot()
@@ -241,6 +261,7 @@ void MainWindow::getFriendListDone(bool err)
     contact_model_->setProxyModel(contact_proxy_model_);
 
     connect(ui->tv_friendlist, SIGNAL(doubleClicked(const QModelIndex &)), contact_model_, SLOT(onDoubleClicked(const QModelIndex &)));
+    connect(ui->tv_friendlist, SIGNAL(pressed(const QModelIndex &)), this, SLOT(onFriendListItemPressed(const QModelIndex &)));
     Roster *roster = Roster::instance();
     connect(roster, SIGNAL(sigNewCategory(Category *)), contact_model_, SLOT(addCategoryItem(Category *)));
     connect(roster, SIGNAL(sigContactDataChanged(QString, QVariant, TalkableDataRole)), contact_model_, SLOT(talkableDataChanged(QString, QVariant, TalkableDataRole)));
@@ -543,4 +564,21 @@ void MainWindow::initHotkey()
     QxtGlobalShortcut *snapshot = HotkeyManager::instance()->hotkey(HK_SNAPSHOT);
 
     connect(snapshot, SIGNAL(activated()), this, SLOT(snapshot()));
+}
+
+void MainWindow::onFriendListItemPressed(const QModelIndex &index)
+{
+    QModelIndex src_index = contact_proxy_model_->mapToSource(index);
+    RosterIndex *roster_index = static_cast<RosterIndex *>(src_index.internalPointer()); 
+
+    if ( roster_index->type() != RIT_Contact )
+        return;
+
+    if ( qApp->mouseButtons() == Qt::RightButton )
+    {
+        QMenu friendlist_menu;
+        friendlist_menu.addAction(begin_chat_);
+
+        friendlist_menu.exec(QCursor::pos());
+    }
 }
