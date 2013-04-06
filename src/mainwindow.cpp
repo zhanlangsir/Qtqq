@@ -574,8 +574,11 @@ void MainWindow::onFriendListItemPressed(const QModelIndex &index)
     if ( roster_index->type() != RIT_Contact )
         return;
 
-    QMenu friendlist_menu;
-    friendlist_menu.addAction(begin_chat_);
+    if ( qApp->mouseButtons() == Qt::RightButton )
+    {
+        QMenu friendlist_menu;
+        friendlist_menu.addAction(begin_chat_);
 
-    friendlist_menu.exec(QCursor::pos());
+        friendlist_menu.exec(QCursor::pos());
+    }
 }
