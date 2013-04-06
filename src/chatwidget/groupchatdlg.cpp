@@ -242,7 +242,7 @@ void GroupChatDlg::openSessOrFriendChatDlg(QString id)
     Contact *contact = roster->contact(id);
     if ( contact )
         ChatDlgManager::instance()->openFriendChatDlg(id);
-    else
+    else if ( ((Group *)talkable_)->member(id) )
     {
         ChatDlgManager::instance()->openSessChatDlg(id, talkable_->id());
     }

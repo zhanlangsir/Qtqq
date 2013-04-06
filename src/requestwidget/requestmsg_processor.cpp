@@ -88,13 +88,33 @@ void RequestMsgProcessor::onNewSystemGMsg(ShareQQMsgPtr msg)
                     {
                         Contact *leave_member = group->member(sysg_msg->old_member);
                         QString leave_name = leave_member ? leave_member->markname() : sysg_msg->old_member;
+                        group->removeMember(sysg_msg->old_member);
                         msg = tr("Member %1 has leave group %2").arg(leave_name).arg(group->markname());
                     }
                     else if ( sysg_msg->sys_g_type == "group_join" )
                     {
                         Contact *admin = group->member(sysg_msg->admin_uin);
                         QString admin_name = admin ? admin->markname() : sysg_msg->admin_uin;
-                        msg = tr("Administrator %1 allow %2 to join group %3").arg(admin_name).arg(sysg_msg->new_member).arg(group->markname());
+
+                        Contact *new_member = Roster::instance()->contact(sysg_msg->new_member);
+                        if ( !new_member )
+                        {
+                            new_member = StrangerManager::instance()->stranger(sysg_msg->new_member);
+                        }
+
+                        if( new_member )
+                        {
+                            msg = tr("Administrator %1 allow %2 to join group %3").arg(admin_name).arg(new_member->markname()).arg(group->markname());
+
+                            Contact *clone = new_member->clone();
+                            clone->setCategory(NULL);
+                            group->addMember(clone);
+                        }
+                        else
+                        {
+                            msg = tr("Administrator %1 allow %2 to join group %3").arg(admin_name).arg(sysg_msg->new_member).arg(group->markname());
+                            group->addMember(sysg_msg->new_member);
+                        }
                     }
                 }
                 break;

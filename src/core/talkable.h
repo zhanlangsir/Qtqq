@@ -316,6 +316,9 @@ public:
         {
             Contact *contact =members_.take(id);
             emit memberRemoved(contact); 
+
+            delete contact;
+            contact = NULL;
         }
     }
 
@@ -327,6 +330,11 @@ public:
             ++n_member_;
             emit memberAdded(contact);
         }
+    }
+
+    void addMember(QString id)
+    {
+        
     }
 
 private:
