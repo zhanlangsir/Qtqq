@@ -85,8 +85,7 @@ void GroupPresister::presistGroup(Group *group)
     {
         QStringList connection_names = QSqlDatabase::connectionNames();
         QSqlDatabase db;
-        qDebug() << connection_names << endl;
-        if (connection_names.isEmpty())
+        if ( connection_names.isEmpty() )
         {
             db = QSqlDatabase::addDatabase("QSQLITE");
             db.setDatabaseName(QQGlobal::configDir() + "/qqgroupdb");
@@ -96,7 +95,7 @@ void GroupPresister::presistGroup(Group *group)
             db = QSqlDatabase::database(connection_names[0]);
         }
 
-        if (!db.open())
+        if ( !db.open() )
             return;
 
         createSql();

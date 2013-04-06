@@ -36,29 +36,38 @@ void NotifierPlugin::onNewChatMsg(ShareQQMsgPtr msg)
     Talkable *talkable = NULL;
     QString sender_id;
     QString sender_name;
-    if ( msg->type() == QQMsg::kSess )
-    {
-        sender_id = msg->sendUin();
-        talkable = StrangerManager::instance()->stranger(sender_id);
-        sender_name = talkable ? talkable->markname() : sender_id;
-    }
-    else
-    {
-        sender_id = msg->talkTo();
-        talkable = Roster::instance()->talkable(sender_id);
-        if ( !talkable )
-            talkable = StrangerManager::instance()->stranger(sender_id);
 
-        if ( msg->type() == QQMsg::kGroup )
-        {
-            if ( !talkable ) return;
-            Contact *member = ((Group *)talkable)->member(msg->sendUin());
-            sender_name = member ? member->markname() : msg->sendUin();
-        }
-        else
-        {
+    switch ( msg->type() )
+    {
+        case QQMsg::kSess:
+            sender_id = msg->sendUin();
+            talkable = StrangerManager::instance()->stranger(sender_id);
             sender_name = talkable ? talkable->markname() : sender_id;
-        }
+
+            break;
+        case QQMsg::kGroup:
+            {
+                sender_id = msg->talkTo();
+                talkable = (Group *)Roster::instance()->group(sender_id);
+
+                if ( !talkable ) 
+                    return;
+
+                Contact *member = ((Group *)talkable)->member(msg->sendUin());
+                sender_name = member ? member->markname() : msg->sendUin();
+            }
+
+            break;
+        case QQMsg::kFriend:
+            sender_id = msg->talkTo();
+            talkable = Roster::instance()->talkable(sender_id);
+
+            if ( !talkable )
+                talkable = StrangerManager::instance()->stranger(sender_id);
+
+            sender_name = talkable ? talkable->markname() : sender_id;
+
+            break;
     }
 
     if ( notify_wids_.contains(sender_id) )

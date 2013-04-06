@@ -50,11 +50,11 @@ void PluginManageDlg::onHomePageLinkActivated(const QString &link)
 void PluginManageDlg::updatePluginList(QDomDocument plugin_config)
 {
 	QDomElement plugin_elem = plugin_config.documentElement().firstChildElement();
-	while (!plugin_elem.isNull())
+	while ( !plugin_elem.isNull() )
 	{
 		QString name = plugin_elem.firstChildElement("name").text().isEmpty() ? plugin_elem.tagName() : plugin_elem.firstChildElement("name").text();
 		QTableWidgetItem *name_item = new QTableWidgetItem(name);
-		if (plugin_elem.attribute("enabled","true")=="true")
+		if ( plugin_elem.attribute("enabled","true")=="true" )
 		{
 			if (plugin_mgr_->plugin(plugin_elem.attribute("uuid"))==NULL)
 				name_item->setForeground(Qt::red);

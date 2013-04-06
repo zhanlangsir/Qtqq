@@ -45,7 +45,7 @@ void PluginManager::loadPlugins()
     QDir plugins_dir(QQGlobal::pluginDir());
     removeUnexistPluginInfo(plugins_dir.entryList());
 
-    foreach (QString file_name, plugins_dir.entryList(QDir::Files))
+    foreach ( QString file_name, plugins_dir.entryList(QDir::Files) )
     {
         QPluginLoader loader(plugins_dir.absoluteFilePath(file_name));
         if ( loader.load() )
@@ -145,7 +145,6 @@ void PluginManager::createMenuAction()
     connect(act_plugin, SIGNAL(triggered()), this, SLOT(openPluginManageDlg()));
     main_win->mainMenu()->addPluginAction(act_plugin);
 }
-
 
 void PluginManager::openPluginManageDlg()
 {
