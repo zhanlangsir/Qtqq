@@ -51,16 +51,21 @@ signals:
 protected:
 	virtual void resizeEvent(QResizeEvent *AEvent);
 	virtual void mouseReleaseEvent(QMouseEvent *AEvent);
+    virtual void enterEvent(QEvent *e);
+
 protected slots:
 	void onAnimateStep();
 	void adjustHeight();
 	void updateElidedText();
+
 private:
 	Ui::NotifyWidgetClass ui;
+
 private:
 	int FYPos;
 	int ms_timeout_;
 	int FAnimateStep;
+    double window_opacity_;
 
     NotificationType type_;
     QString id_;

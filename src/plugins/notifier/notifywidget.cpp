@@ -2,6 +2,7 @@
 
 #include <QTimer>
 #include <QScrollBar>
+#include <Qt>
 
 #define ANIMATE_STEPS             17
 #define ANIMATE_TIME              700
@@ -219,4 +220,9 @@ void NotifyWidget::appendMessage(const QString &sender_name, const QString &msg)
     }
     layoutWidgets();
     close_timer_.start(ms_timeout_);
+}
+
+void NotifyWidget::enterEvent(QEvent *e)
+{
+    hide();
 }
