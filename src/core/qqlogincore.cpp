@@ -95,7 +95,10 @@ void QQLoginCore::login(QString id, QString pwd, ContactStatus status)
         QString value = result.mid(value_idx+1, fin_value_idx - value_idx - 1);
 
         if (key == "ptwebqq")
+        {
             ptwebqq = value;
+            CaptchaInfo::instance()->setPtwebqq(ptwebqq);
+        }
 
         if (key == "skey")
             CaptchaInfo::instance()->setSkey(value);

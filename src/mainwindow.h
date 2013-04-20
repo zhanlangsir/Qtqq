@@ -79,6 +79,7 @@ private:
     void setupLoginStatus();
     QString getStatusByIndex(int idx) const;
     void initHotkey();
+    QString hashO(const QString &uin, const QString &ptwebqq);
 
 private:
     Ui::MainWindow *ui;

@@ -230,15 +230,54 @@ void MainWindow::closeEvent(QCloseEvent *)
     }
 }
 
+QString MainWindow::hashO(const QString &uin, const QString &ptwebqq)
+{
+    QString a;
+    a.append(ptwebqq);
+    a.append("password error");
+
+    QString s;
+    while ( true )
+    {
+        if ( s.length() < a.length() )
+        {
+            s.append(uin);
+            if ( s.length() == a.length() )
+                break;
+        }
+        else
+        {
+            s.truncate(a.length());
+            break;
+        }
+    }
+
+    QString j;
+    for ( int i = 0; i < s.length(); ++i )
+    {
+        j.append(s[i].toLatin1() ^ a[i].toLatin1());
+    }
+
+    QString key = "0123456789ABCDEF";
+
+    s[0] = 0;
+    for ( int i = 0; i < a.length(); ++i )
+    {
+        s[2*i] = key[j[i].toLatin1() >> 4 & 15];
+        s[2*i+1] = key[j[i].toLatin1() & 15];
+    }
+    return s;
+}
+
 void MainWindow::getFriendList()
 {
     QString get_friendlist_url = "/api/get_user_friends2";
-    QString msg_content = "r={\"h\":\"hello\",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq() + "\"}";
+    QString msg_content = "r={\"h\":\"hello\",\"hash\":\"" + hashO(CurrLoginAccount::id(), CaptchaInfo::instance()->ptwebqq())+ "\",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq() + "\"}";
 
     QHttpRequestHeader header("POST", get_friendlist_url);
     header.addValue("Host", "s.web2.qq.com");
     setDefaultHeaderValue(header);
-    header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
+    header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=3");
     header.addValue("Cookie", CaptchaInfo::instance()->cookie());
     header.setContentType("application/x-www-form-urlencoded");
     header.setContentLength(msg_content.length());

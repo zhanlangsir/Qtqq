@@ -29,6 +29,13 @@ public:
     void setSkey(QString skey)
     { skey_ = skey; }
 
+    QString ptwebqq() const
+    { return ptwebqq_; }
+    void setPtwebqq(const QString &ptwebqq) 
+    {
+        ptwebqq_ = ptwebqq;
+    }
+
     QString cookie() const
     { return cookie_; }
     void setCookie(QString cookie)
@@ -52,6 +59,7 @@ private:
 
     QString vfwebqq_;
     QString psessionid_;
+    QString ptwebqq_;
     QString skey_;
     QString cookie_;
     int index_;

@@ -2,3 +2,5 @@
 *~
 build/
 .clang_complete
+tags
+cscope.*
