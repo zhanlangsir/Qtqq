@@ -54,6 +54,11 @@ GroupChatDlg::~GroupChatDlg()
     delete ui;
 }
 
+void GroupChatDlg::clear()
+{
+    model_->clean(); 
+}
+
 void GroupChatDlg::setupMemberList()
 {
     Group *group = static_cast<Group *>(talkable_);

@@ -7,6 +7,7 @@
 
 #include "protocol/request_jobs/job_base.h"
 #include "protocol/msgsender.h"
+#include "protocol/qqlogincore.h"
 
 class __JobBase;
 typedef JobType RequestType;
@@ -45,7 +46,8 @@ public:
 	void run();
 	void stop();
 
-	void requestIconFor(Talkable *req_for);
+	void requestAvatar(Talkable *req_for);
+    void requestAvatarForGroupMember(Talkable *req_for, QString gid);
 
 	void requestSingleLongNick(QString id);
 	void requestContactInfo(QString id);
@@ -84,6 +86,20 @@ public:
     Protocol::MsgSender *msgSender() const
     { return msgsender_; }
 
+
+    QQLoginCore::AccountStatus checkAccountStatus(QString uin)
+    {
+        return login_core_->checkStatus(uin);
+    }
+
+    QPixmap getCapImg() 
+    {
+        return login_core_->getCapImg();
+    }
+
+    QQLoginCore::LoginResult login(QString id, QString pwd, ContactStatus status);
+    QQLoginCore::LoginResult login(QString id, QString pwd, ContactStatus status, QString vc);
+
 private slots:
 	void slotJobDone(__JobBase* job, bool error);
 
@@ -101,6 +117,8 @@ private:
     ImgSender *imgsender_;
     FileSender *filesender_;
     MsgSender *msgsender_;
+
+    QQLoginCore *login_core_;
 
 private:
 	QQProtocol(); 

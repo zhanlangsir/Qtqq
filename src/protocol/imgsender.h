@@ -55,6 +55,15 @@ public:
         return sig_;
     }
 
+    void init() 
+    {
+        getKeyAndSig();
+    }
+    void stop()
+    {
+        disconnect(&http_, SIGNAL(done(bool)), this, SLOT(getKeyAndSigDone(bool)));
+    }
+
 private slots:
     void getKeyAndSigDone(bool err);
 

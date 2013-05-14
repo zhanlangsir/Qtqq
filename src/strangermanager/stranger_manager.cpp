@@ -123,15 +123,23 @@ void StrangerManager::onNotify(Protocol::Event *event)
     {
         case Protocol::ET_OnStrangerAvatarUpdate:
             {
-                Contact *stranger = (Contact *)event->eventFor();
-                stranger->setAvatar(event->data());
-                emit newStrangerIcon(stranger->id(), stranger->avatar());
+                Contact *p_stranger = stranger(event->forId());
+                if ( p_stranger )
+                {
+                    p_stranger->setAvatar(event->data());
+                    emit newStrangerIcon(p_stranger->id(), p_stranger->avatar());
+                }
             }
             break;
         case Protocol::ET_OnStrangerInfoDone:
-                updateStranger(event->data(), (Contact *)event->eventFor());
-                QString id = event->eventFor()->id();
-                emit newStrangerInfo(event->eventFor()->id(), this->stranger(id));
+            {
+                Contact *p_stranger = stranger(event->forId());
+                if ( p_stranger )
+                {
+                    updateStranger(event->data(), p_stranger);
+                    emit newStrangerInfo(p_stranger->id(), p_stranger);
+                }
+            }
             break;
     }
 }
@@ -181,7 +189,7 @@ Contact *StrangerManager::addStranger(const QString &id, const QString &gid, Tal
 
     strangers_.append(stranger);
     Protocol::QQProtocol::instance()->requestStrangerInfo2(stranger, request_gid, group_request);
-    Protocol::QQProtocol::instance()->requestIconFor(stranger);
+    Protocol::QQProtocol::instance()->requestAvatar(stranger);
 
     return stranger;
 }

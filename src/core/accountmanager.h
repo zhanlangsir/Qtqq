@@ -8,10 +8,10 @@
 
 struct AccountRecord
 {
-    QString id_;
-    QString pwd_;
-    ContactStatus login_status_;
-    bool rem_pwd_;
+    QString id;
+    QString pwd;
+    ContactStatus login_status;
+    bool rem_pwd;
 };
 
 Q_DECLARE_METATYPE(AccountRecord*)
@@ -42,7 +42,7 @@ public:
     {
         foreach(AccountRecord *record, login_records_)
         {
-            if (record->id_ == id)
+            if (record->id == id)
                 return record;
         }
         return NULL;

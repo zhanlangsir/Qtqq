@@ -3,10 +3,16 @@
 #include <QTcpSocket>
 
 #include "core/captchainfo.h"
+#include <QDebug>
 
 Protocol::PollThread::PollThread(QObject *parent) :
 	QThread(parent),
 	is_stop_(true)
+{
+    setTerminationEnabled();
+}
+
+void Protocol::PollThread::init()
 {
     QString poll_path = "/channel/poll2";
     QByteArray msg = "r={\"clientid\":\"5412354841\",\"psessionid\":\"" + CaptchaInfo::instance()->psessionid().toAscii() + "\","
@@ -20,7 +26,7 @@ Protocol::PollThread::PollThread(QObject *parent) :
     req_.addHeaderItem("Content-Type", "application/x-www-form-urlencoded");
     req_.addRequestContent(msg);
 
-    setTerminationEnabled();
+    qDebug() << req_.toByteArray() << endl;
 }
 
 void Protocol::PollThread::run()
@@ -37,6 +43,14 @@ void Protocol::PollThread::run()
         while(fd.waitForReadyRead(45000))
         {
             result.append(fd.readAll());
+        }
+
+        if ( result.isEmpty() )
+        {
+            result.clear();
+            fd.abort();
+            fd.close();
+            continue;
         }
 
         int retcode_idx = result.indexOf("retcode") + 9;
@@ -58,7 +72,6 @@ void Protocol::PollThread::run()
         fd.close();
     }
 }
-
 
 void Protocol::PollThread::stop()
 {

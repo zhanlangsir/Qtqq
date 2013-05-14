@@ -34,8 +34,18 @@ private:
 	static void setStatus(ContactStatus status)
 	{ status_ = status; }
 
+    static QString pwd()
+    {
+        return pwd_;
+    }
+    static void setPwd(QString pwd) 
+    {
+        pwd_ = pwd;
+    }
+
 private:
 	static QString id_;
+    static QString pwd_;
 	static QString name_;
 	static QString avatar_path_;
 	static ContactStatus status_;
@@ -47,6 +57,7 @@ private:
 
 	friend class QQLoginCore;
 	friend class MainWindow;
+    friend class Qtqq;
 };
 
 #endif //CURR_LOGIN_ACCOUNT_H

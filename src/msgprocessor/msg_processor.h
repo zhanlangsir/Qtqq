@@ -25,6 +25,7 @@ signals:
     void newFileMsg(ShareQQMsgPtr msg);
     void newOffFileMsg(ShareQQMsgPtr msg);
     void newFilesrvTransferMsg(ShareQQMsgPtr msg);
+    void offline();
 
 public:
     ~MsgProcessor();

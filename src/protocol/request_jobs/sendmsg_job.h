@@ -31,6 +31,8 @@ private slots:
 
 private:
     QHttp http_;
+
+    Talkable::TalkableType t_type_;
 };
 
 class SendFriendMsgJob : public SendMsgJob
@@ -61,7 +63,8 @@ class SendGroupMsgJob : public SendMsgJob
 public:
     SendGroupMsgJob(Talkable *_for, const QVector<QQChatItem> &msgs) :
         SendMsgJob(_for, msgs),
-        finish_imgjobs_(0)
+        finish_imgjobs_(0),
+        gcode_(((Group *)_for)->gcode())
     {
     }
 
@@ -75,6 +78,7 @@ private slots:
 private:
     QVector<QString> jobs_;
     int finish_imgjobs_;
+    QString gcode_;
 };
 
 class SendSessMsgJob : public SendMsgJob

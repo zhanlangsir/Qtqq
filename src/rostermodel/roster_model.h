@@ -22,7 +22,6 @@ public:
 	RosterModel(QObject *parent = NULL);
 	~RosterModel();
 
-	void clean();
 
 public slots:
 	void addCategoryItem(Category *cat);
@@ -33,7 +32,7 @@ public slots:
 	void categoryDataChanged(int index, QVariant data, TalkableDataRole role);
 
 	void onDoubleClicked(const QModelIndex &index);
-
+	void clean();
 
 private:
 	RosterIndex *findCategoryIndex(int cat_index);

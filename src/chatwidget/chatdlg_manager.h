@@ -8,6 +8,8 @@ class QQChatDlg;
 class MainWindow;
 class NameConvertor;
 class TabWindow;
+class RosterIndex;
+class Menu;
 
 class ChatDlgManager : public QObject
 {
@@ -36,6 +38,8 @@ public:
     TabWindow *tabWin() const
     { return tab_win_; }
 
+    void initConnections();
+
 public slots:
 	void openFriendChatDlg(const QString &id);
     void openGroupChatDlg(QString id, QString gcode);
@@ -45,6 +49,8 @@ public slots:
 
 private slots:
     void closeChatDlg(QQChatDlg *listener);
+    void onBeginChat();
+    void onIndexContextMenu(RosterIndex *index, Menu *menu);
 
 private:
     QVector<QQChatDlg*> opening_chatdlg_;

@@ -25,7 +25,8 @@ Protocol::QQProtocol::QQProtocol() :
 	poll_thread_(new Protocol::PollThread(this)),
     imgsender_(new ImgSender()),
     filesender_(new FileSender()),
-    msgsender_(new MsgSender())
+    msgsender_(new MsgSender()),
+    login_core_(new QQLoginCore())
 {
 	connect(poll_thread_, SIGNAL(newMsgArrive(QByteArray)), this, SIGNAL(newQQMsg(QByteArray)));
 }
@@ -36,21 +37,38 @@ Protocol::QQProtocol::~QQProtocol()
     reciving_jobs_.clear();
     sending_jobs_.clear();
     requesting_.clear();
+
+    if ( login_core_ )
+    {
+        delete login_core_;
+        login_core_ = NULL;
+    }
 }
 
 void Protocol::QQProtocol::run()
 {
+    imgsender_->init();
+    poll_thread_->init();
 	poll_thread_->start();
 }
 
 void Protocol::QQProtocol::stop()
 {
 	poll_thread_->stop();
+    imgsender_->stop();
 }
 
-void Protocol::QQProtocol::requestIconFor(Talkable *req_for)
+void Protocol::QQProtocol::requestAvatar(Talkable *req_for)
 {
 	__JobBase *job = new IconJob(req_for);
+    requesting_[job->type()].push_back(job->requesterId());
+    runJob(job);
+}
+
+void Protocol::QQProtocol::requestAvatarForGroupMember(Talkable *req_for, QString gid)
+{
+    IconJob *job = new IconJob(req_for);
+    job->setGid(gid);
     requesting_[job->type()].push_back(job->requesterId());
     runJob(job);
 }
@@ -206,14 +224,21 @@ void Protocol::QQProtocol::slotJobDone(__JobBase* job, bool error)
             sending_jobs_.remove(((SendFileJob *)job)->filePath());
             break;
         case JT_Icon:
-            if ( job->jobFor() )
-                requesting_[job->type()].removeOne(job->requesterId());
-            else
-                qDebug() << "Wraning: lost one job, job type: " << job->type() << endl;
+            requesting_[job->type()].removeOne(job->requesterId());
             break;
         default:
             break;
     }
 
     job->deleteLater();
+}
+
+QQLoginCore::LoginResult Protocol::QQProtocol::login(QString id, QString pwd, ContactStatus status)
+{
+    return login_core_->login(id, pwd, status);
+}
+
+QQLoginCore::LoginResult Protocol::QQProtocol::login(QString id, QString pwd, ContactStatus status, QString vc)
+{
+    return login_core_->login(id, pwd, status, vc);
 }

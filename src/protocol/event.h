@@ -12,6 +12,7 @@ namespace Protocol
     enum EventType
     {
         ET_OnAvatarUpdate,
+        ET_OnGroupMemberAvatarUpdate,
         ET_OnStrangerAvatarUpdate,
         ET_OnSlnUpdate,
         ET_OnGroupMemberListUpdate,
@@ -35,9 +36,10 @@ namespace Protocol
 class Protocol::Event
 {
 public:
-    Event(Protocol::EventType type, Talkable *event_for, QByteArray data) :
+    Event(Protocol::EventType type, QString for_id, Talkable::TalkableType t_type, QByteArray data) :
         type_(type),
-        for_(event_for),
+        for_id_(for_id),
+        t_type_(t_type),
         data_(data)
     {
     }
@@ -46,31 +48,48 @@ public:
     { return type_; }
     QByteArray data() const
     { return  data_; }
-    Talkable *eventFor() const
-    { return for_; }
-    virtual QString forId() const
-    { return for_->id(); }
+    QString forId() const
+    { return for_id_; }
+    Talkable::TalkableType forType() const
+    { return t_type_; }
 
 private:
     EventType type_;
-    Talkable *for_;
+    QString for_id_;
+    Talkable::TalkableType t_type_;
     QByteArray data_;
 };
 
 class Protocol::AvatarUpdateEvent : public Protocol::Event
 {
 public:
-    AvatarUpdateEvent(Talkable *updateing, QByteArray data, EventType type = Protocol::ET_OnAvatarUpdate) :
-        Event(type, updateing, data)
+    AvatarUpdateEvent(QString id, Talkable::TalkableType t_type, QByteArray data, EventType type = Protocol::ET_OnAvatarUpdate) :
+        Event(type, id, t_type, data)
     {
     }
+};
+
+class Protocol::GroupMemberAvatarUpdateEvent : public Protocol::Event
+{
+public:
+    GroupMemberAvatarUpdateEvent(QString id, QString gid, Talkable::TalkableType t_type, QByteArray data, EventType e_type = Protocol::ET_OnGroupMemberAvatarUpdate) :
+        Event(e_type, id, t_type, data),
+        gid_(gid)
+    {
+    }
+
+    QString gid() const
+    { return gid_; }
+
+private:
+    QString gid_;
 };
 
 class Protocol::StrangerAvatarUpdateEvent : public Protocol::Event
 {
 public:
-    StrangerAvatarUpdateEvent(Talkable *updateing, QByteArray data, EventType type = Protocol::ET_OnStrangerAvatarUpdate) :
-        Event(type, updateing, data)
+    StrangerAvatarUpdateEvent(QString id, Talkable::TalkableType t_type, QByteArray data, EventType type = Protocol::ET_OnStrangerAvatarUpdate) :
+        Event(type, id, t_type, data)
     {
     }
 };
@@ -78,8 +97,8 @@ public:
 class Protocol::GroupMemberListUpdateEvent : public Protocol::Event
 {
 public:
-    GroupMemberListUpdateEvent(Talkable *group,  QByteArray data, Protocol::EventType type = Protocol::ET_OnGroupMemberListUpdate) :
-        Event(type, group, data)
+    GroupMemberListUpdateEvent(QString id, Talkable::TalkableType t_type,  QByteArray data, Protocol::EventType type = Protocol::ET_OnGroupMemberListUpdate) :
+        Event(type, id, t_type, data)
     {
 
     }
@@ -88,8 +107,8 @@ public:
 class Protocol::MsgSendDoneEvent : public Protocol::Event
 {
 public:
-    MsgSendDoneEvent(Talkable *_for,  QByteArray data, Protocol::EventType type = Protocol::ET_OnMsgSendDone) :
-        Event(type, _for, data)
+    MsgSendDoneEvent(QString id, Talkable::TalkableType t_type,  QByteArray data, Protocol::EventType type = Protocol::ET_OnMsgSendDone) :
+        Event(type, id, t_type, data)
     {
     }
 };
@@ -97,8 +116,8 @@ public:
 class Protocol::ImgSendDoneEvent : public Protocol::Event
 {
 public:
-    ImgSendDoneEvent(Talkable *_for, bool is_success, QString file_path, QString img_id, Protocol::EventType type = Protocol::ET_OnImgSendDone) :
-        Event(type, _for, QByteArray()),
+    ImgSendDoneEvent(QString id, Talkable::TalkableType t_type, bool is_success, QString file_path, QString img_id, Protocol::EventType type = Protocol::ET_OnImgSendDone) :
+        Event(type, id, t_type, QByteArray()),
         is_success_(is_success),
         file_path_(file_path),
         img_id_(img_id)
@@ -124,8 +143,8 @@ class Protocol::StrangerInfoDoneEvent :
     public Event
 {
 public:
-    StrangerInfoDoneEvent(Talkable *_for, QByteArray data, Protocol::EventType type = Protocol::ET_OnStrangerInfoDone) :
-        Event(type, _for, data)
+    StrangerInfoDoneEvent(QString id, Talkable::TalkableType t_type, QByteArray data, Protocol::EventType type = Protocol::ET_OnStrangerInfoDone) :
+        Event(type, id, t_type, data)
     {
     }
 };
@@ -135,16 +154,10 @@ class Protocol::ImgLoadDoneEvent :
 {
 public:
     ImgLoadDoneEvent(QString file_name, QString for_id, ImgType img_type, QByteArray data, Protocol::EventType type = Protocol::ET_OnImgLoadDone) :
-        Event(type, NULL, data),
+        Event(type, for_id, (Talkable::TalkableType)-1, data),
         file_(file_name),
-        for_id_(for_id),
         img_type_(img_type)
     {
-    }
-
-    virtual QString forId() const
-    {
-        return for_id_;
     }
 
     ImgType type() const
@@ -154,7 +167,6 @@ public:
 
 private:
     QString file_;
-    QString for_id_;
     ImgType img_type_;
 };
 

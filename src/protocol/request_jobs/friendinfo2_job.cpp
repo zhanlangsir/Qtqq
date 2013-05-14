@@ -7,7 +7,7 @@
 #include "core/captchainfo.h"
 
 FriendInfo2Job::FriendInfo2Job(Talkable *job_for, JobType type) :
-	__JobBase(job_for, type),
+	__JobBase(job_for->id(), type),
 	http_(this)
 {
 	connect(&http_, SIGNAL(done(bool)), this, SLOT(requestDone(bool)));
@@ -15,7 +15,7 @@ FriendInfo2Job::FriendInfo2Job(Talkable *job_for, JobType type) :
 
 void FriendInfo2Job::run()
 {
-	QString get_friend_info_url = "/api/get_friend_info2?tuin="+ for_->id() +"&verifysession=&code=&vfwebqq=" +
+	QString get_friend_info_url = "/api/get_friend_info2?tuin="+ id_ +"&verifysession=&code=&vfwebqq=" +
 		CaptchaInfo::instance()->vfwebqq() + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
 
 	QHttpRequestHeader header;
@@ -42,7 +42,7 @@ void FriendInfo2Job::requestDone(bool error)
 	}
 	else
 	{
-		qDebug() << "request icon for " << for_->id() << " failed! " << endl;
+		qDebug() << "request icon for " << id_ << " failed! " << endl;
 		qDebug() << "error: " << http_.errorString() << endl;
 	}
 

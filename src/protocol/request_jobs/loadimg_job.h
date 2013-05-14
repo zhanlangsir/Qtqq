@@ -91,15 +91,22 @@ public:
     }
 
 private slots:
-    void onRequestLocationDone(bool err)
+    void onGetImgDone(bool err)
     {
         QHttpResponseHeader response = http_.lastResponse(); 
         qDebug() << "Get Group Image response header:\n"
             << response.toString() << endl;
 
+        QByteArray data = http_.readAll();
+        if ( response.statusCode() == 200 )
+        {
+            triggerEvent(data);
+            return;
+        }
+
         QString location = response.value("Location");
         qDebug() << location << endl;
-        disconnect(&http_, SIGNAL(done(bool)), this, SLOT(onRequestLocationDone(bool)));
+        disconnect(&http_, SIGNAL(done(bool)), this, SLOT(onGetImgDone(bool)));
 
         QString host = getHost(location);
         QHttpRequestHeader header;
@@ -123,15 +130,19 @@ private slots:
         qDebug() << "Get Group Image redirect response header:\n"
             << response.toString() << endl;
 
-        QString location = response.value("Location");
-
-        reciveFile(location);
+        QByteArray data = http_.readAll();
+        triggerEvent(data);
     }
 
 private:
+    virtual void run()
+    {
+        getImg();
+    }
+
     virtual void triggerEvent(const QByteArray &data);
 
-    virtual void getImgUrl()
+    virtual void getImg()
     {
         QHttpRequestHeader header;
         header.setRequest("GET", request_url_);
@@ -143,7 +154,7 @@ private:
             << header.toString() << endl;
 
         http_.setHost(host_);
-        connect(&http_, SIGNAL(done(bool)), this, SLOT(onRequestLocationDone(bool)));
+        connect(&http_, SIGNAL(done(bool)), this, SLOT(onGetImgDone(bool)));
         http_.request(header);
     }
 

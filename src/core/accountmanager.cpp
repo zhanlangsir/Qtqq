@@ -34,10 +34,10 @@ void AccountManager::readAccounts()
     for (unsigned int i = 0; i < users.size(); ++i)
     {
         AccountRecord *record = new AccountRecord;
-        record->id_ =  QString::fromStdString(users[i]["id"].asString());
-        record->pwd_ =  QString::fromStdString(users[i]["pwd"].asString());
-        record->login_status_  = (ContactStatus)users[i]["login_status"].asInt();
-        record->rem_pwd_ =  users[i]["rem_pwd"].asBool();
+        record->id =  QString::fromStdString(users[i]["id"].asString());
+        record->pwd =  QString::fromStdString(users[i]["pwd"].asString());
+        record->login_status  = (ContactStatus)users[i]["login_status"].asInt();
+        record->rem_pwd =  users[i]["rem_pwd"].asBool();
 
         login_records_.append(record);
     }
@@ -52,10 +52,10 @@ void AccountManager::saveAccounts()
 
     foreach(AccountRecord *record, login_records_)
     {
-        login_info["id"] = record->id_.toStdString();
-        login_info["pwd"] = record->rem_pwd_ ? record->pwd_.toStdString() : "";
-        login_info["login_status"] = (int)record->login_status_;
-        login_info["rem_pwd"] = record->rem_pwd_;
+        login_info["id"] = record->id.toStdString();
+        login_info["pwd"] = record->rem_pwd ? record->pwd.toStdString() : "";
+        login_info["login_status"] = (int)record->login_status;
+        login_info["rem_pwd"] = record->rem_pwd;
         users.append(login_info);
     }
 
@@ -70,25 +70,25 @@ void AccountManager::saveAccounts()
 
 void AccountManager::setCurrLoginAccount(const AccountRecord &account)
 {
-    curr_login_id_ = account.id_;
+    curr_login_id_ = account.id;
 
-    AccountRecord *same_account = findAccountById(account.id_);
+    AccountRecord *same_account = findAccountById(account.id);
     if ( same_account )
     {
         login_records_.remove(login_records_.indexOf(same_account));
         login_records_.push_front(same_account);
 
-        same_account->login_status_ = account.login_status_;
-        same_account->pwd_ = account.pwd_;
-        same_account->rem_pwd_ = account.rem_pwd_;
+        same_account->login_status = account.login_status;
+        same_account->pwd = account.pwd;
+        same_account->rem_pwd = account.rem_pwd;
     }
     else
     {
         same_account = new AccountRecord();
-        same_account->id_ = account.id_;
-        same_account->login_status_ = account.login_status_;
-        same_account->pwd_ = account.pwd_;
-        same_account->rem_pwd_ = account.rem_pwd_;
+        same_account->id = account.id;
+        same_account->login_status = account.login_status;
+        same_account->pwd = account.pwd;
+        same_account->rem_pwd = account.rem_pwd;
 
         login_records_.push_front(same_account);
     }

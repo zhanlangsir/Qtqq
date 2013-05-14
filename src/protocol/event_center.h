@@ -28,29 +28,35 @@ public:
         return instance_;
     }
 
-    Event *createGroupMemberListUpdateEvent(Group *group, QByteArray data)
+    Event *createGroupMemberListUpdateEvent(QString id, Talkable::TalkableType type, QByteArray data)
     {
-        return new GroupMemberListUpdateEvent(group, data);
+        return new GroupMemberListUpdateEvent(id, type, data);
     }
-    Event *createAvatarUpdateEvent(Talkable *event_for, QByteArray data)
+
+    Event *createAvatarUpdateEvent(QString id, Talkable::TalkableType type, QByteArray data)
     {
-        return new AvatarUpdateEvent(event_for, data);
+        return new AvatarUpdateEvent(id, type, data);
     }
-    Event *createMsgSendDoneEvent(Talkable *sender, QByteArray data)
+    Event *createGroupMemberAvatarUpdateEvent(QString id, QString gid, Talkable::TalkableType type, QByteArray data)
     {
-        return new MsgSendDoneEvent(sender, data);
+        return new GroupMemberAvatarUpdateEvent(id, gid, type, data);
     }
-    Event *createImgSendDoneEvent(Talkable *sender, bool is_sucess, QString file_path, QString img_id)
+    Event *createStrangerAvatarUpdateEvent(QString id, Talkable::TalkableType type, QByteArray data)
     {
-        return new ImgSendDoneEvent(sender, is_sucess, file_path, img_id);
+        return new StrangerAvatarUpdateEvent(id, type, data);
     }
-    Event *createStrangerInfoDoneEvent(Talkable *_for, QByteArray data)
+
+    Event *createMsgSendDoneEvent(QString id, Talkable::TalkableType type, QByteArray data)
     {
-        return new StrangerInfoDoneEvent(_for, data);
+        return new MsgSendDoneEvent(id, type, data);
     }
-    Event *createStrangerAvatarUpdateEvent(Talkable *_for, QByteArray data)
+    Event *createImgSendDoneEvent(QString id, Talkable::TalkableType type, bool is_sucess, QString file_path, QString img_id)
     {
-        return new StrangerAvatarUpdateEvent(_for, data);
+        return new ImgSendDoneEvent(id, type, is_sucess, file_path, img_id);
+    }
+    Event *createStrangerInfoDoneEvent(QString id, Talkable::TalkableType type, QByteArray data)
+    {
+        return new StrangerInfoDoneEvent(id, type, data);
     }
     Event *createImgLoadDoneEvent(QString file_name, QString for_id, ImgType type, QByteArray data)
     {

@@ -13,7 +13,8 @@
 #include "protocol/qq_protocol.h"
 
 SendMsgJob::SendMsgJob(Talkable *_for, const QVector<QQChatItem> &msgs, JobType type) : 
-	__JobBase(_for, type),
+	__JobBase(_for->id(), type),
+    t_type_(_for->type()),
 	http_(this),
     msgs_(msgs)
 {
@@ -25,14 +26,15 @@ void SendMsgJob::requestDone(bool error)
 	if ( !error )
 	{
 		QByteArray data = http_.readAll();
+        qDebug() << "SendMsgJob::requestDone, " << data << endl;
 		http_.close();
 
-        Protocol::Event *event = Protocol::EventCenter::instance()->createMsgSendDoneEvent(for_, data);
+        Protocol::Event *event = Protocol::EventCenter::instance()->createMsgSendDoneEvent(id_, t_type_, data);
         Protocol::EventCenter::instance()->triggerEvent(event);
 	}
 	else
 	{
-		qDebug() << "send msg for " << for_->id() << " " << for_->name() << " failed! " << endl;
+		qDebug() << "send msg for " << id_ << " failed! " << endl;
 		qDebug() << "error: " << http_.errorString() << endl;
 	}
 
@@ -52,14 +54,17 @@ void SendMsgJob::sendMsg()
 
     QHttpRequestHeader header;
     header.setRequest("POST", send_url);
-    header.addValue("Host", "d.web2.qq.com");
-    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
-    header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002");
-    header.addValue("Content-Length", QString::number(data.length()));
-    header.addValue("Content-Type", "application/x-www-form-urlencoded");
+    header.setValue("Host", "d.web2.qq.com");
+    header.setValue("Cookie", CaptchaInfo::instance()->cookie());
+    header.setValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002");
+    header.setValue("Content-Length", QString::number(data.length()));
+    header.setValue("Content-Type", "application/x-www-form-urlencoded");
 
     http_.setHost("d.web2.qq.com");
     http_.request(header, data);
+
+    qDebug() << data << endl;
+    qDebug() << header.toString() << endl;
 }
 
 void SendFriendMsgJob::onImgSendDone(__JobBase *job, bool error)
@@ -114,7 +119,7 @@ QString SendFriendMsgJob::getPath() const
 
 QByteArray SendFriendMsgJob::getData() const
 {
-    return Protocol::QQProtocol::instance()->msgSender()->msgToJson((Contact *)for_, msgs_).toAscii();
+    return Protocol::QQProtocol::instance()->msgSender()->msgToJson(id_, msgs_).toAscii();
 }
 
 
@@ -169,7 +174,7 @@ QString SendGroupMsgJob::getPath() const
 
 QByteArray SendGroupMsgJob::getData() const
 {
-    return Protocol::QQProtocol::instance()->msgSender()->groupMsgToJson((Group *)for_, msgs_).toAscii();
+    return Protocol::QQProtocol::instance()->msgSender()->groupMsgToJson(id_, gcode_, msgs_).toAscii();
 }
 
 
@@ -181,5 +186,5 @@ QString SendSessMsgJob::getPath() const
 
 QByteArray SendSessMsgJob::getData() const
 {
-    return Protocol::QQProtocol::instance()->msgSender()->sessMsgToJson((Contact *)for_, group_, msgs_).toAscii();
+    return Protocol::QQProtocol::instance()->msgSender()->sessMsgToJson(id_, group_->id(), msgs_).toAscii();
 }

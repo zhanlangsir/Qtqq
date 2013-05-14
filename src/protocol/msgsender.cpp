@@ -12,9 +12,9 @@
 
 int Protocol::MsgSender::msg_id_ = 4462000;  //arbitrary
 
-QString Protocol::MsgSender::msgToJson(Contact *to, const QVector<QQChatItem> &items)
+QString Protocol::MsgSender::msgToJson(QString id, const QVector<QQChatItem> &items)
 {
-    QString json_msg = "r={\"to\":" + to->id() +",\"face\":525,\"content\":\"[";
+    QString json_msg = "r={\"to\":" + id +",\"face\":525,\"content\":\"[";
 
     foreach ( const QQChatItem &item, items )
     {
@@ -44,7 +44,7 @@ QString Protocol::MsgSender::msgToJson(Contact *to, const QVector<QQChatItem> &i
     return json_msg;
 }
 
-QString Protocol::MsgSender::groupMsgToJson(Group *to, const QVector<QQChatItem> &items)
+QString Protocol::MsgSender::groupMsgToJson(QString id, QString gcode, const QVector<QQChatItem> &items)
 {
     bool has_gface = false;
     QString json_msg;
@@ -81,18 +81,18 @@ QString Protocol::MsgSender::groupMsgToJson(Group *to, const QVector<QQChatItem>
     if (has_gface)
     {
         Protocol::ImgSender *sender = Protocol::QQProtocol::instance()->imgSender();
-        json_msg = "r={\"group_uin\":" + to->id() +",\"group_code\":" + to->gcode() + "," + "\"key\":\"" + sender->key()+ "\"," +
+        json_msg = "r={\"group_uin\":" + id +",\"group_code\":" + gcode + "," + "\"key\":\"" + sender->key()+ "\"," +
             "\"sig\":\"" + sender->sig() + "\", \"content\":\"[" + json_msg;
     }
     else
-        json_msg = "r={\"group_uin\":" + to->id() + ",\"content\":\"[" + json_msg;
+        json_msg = "r={\"group_uin\":" + id + ",\"content\":\"[" + json_msg;
 
     return json_msg;
 }
 
-QString Protocol::MsgSender::sessMsgToJson(Contact *to, Group *group, const QVector<QQChatItem> &msgs)
+QString Protocol::MsgSender::sessMsgToJson(QString id, QString gid, const QVector<QQChatItem> &msgs)
 {
-    QString json_msg = "r={\"to\":" + to->id() + ",\"group_sig\":\"" + getGroupSig(group->id(), to->id()) + "\",\"face\":291,\"content\":\"[";
+    QString json_msg = "r={\"to\":" + id + ",\"group_sig\":\"" + getGroupSig(gid, id) + "\",\"face\":291,\"content\":\"[";
 
     foreach ( const QQChatItem &item, msgs )
     {

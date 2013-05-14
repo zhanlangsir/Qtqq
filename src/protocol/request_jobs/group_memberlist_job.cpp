@@ -8,14 +8,16 @@
 #include "protocol/event_center.h"
 
 GroupMemberListJob::GroupMemberListJob(Group *job_for, JobType type) :
-    __JobBase(job_for, type)
+    __JobBase(job_for->id(), type),
+    t_type_(job_for->type()),
+    gcode_(job_for->gcode())
 {
 	connect(&http_, SIGNAL(done(bool)), this, SLOT(requestDone(bool)));
 }
 
 void GroupMemberListJob::run()
 {
-    QString get_group_member_url = "/api/get_group_info_ext2?gcode=" + ((Group *)for_)->gcode() + "&vfwebqq=" +
+    QString get_group_member_url = "/api/get_group_info_ext2?gcode=" + gcode_ + "&vfwebqq=" +
         CaptchaInfo::instance()->vfwebqq() + "&t="+ QString::number(QDateTime::currentMSecsSinceEpoch());
 
     QHttpRequestHeader header("GET", get_group_member_url);
@@ -33,12 +35,12 @@ void GroupMemberListJob::requestDone(bool err)
 	{
 		QByteArray data = http_.readAll();
 		http_.close();
-        Protocol::Event *event = Protocol::EventCenter::instance()->createGroupMemberListUpdateEvent((Group *)for_, data);
+        Protocol::Event *event = Protocol::EventCenter::instance()->createGroupMemberListUpdateEvent(id_, t_type_, data);
         Protocol::EventCenter::instance()->triggerEvent(event);
 	}
 	else
 	{
-		qDebug() << "request group member list for " << for_->id() << " failed! " << endl;
+		qDebug() << "request group member list for " << id_ << " failed! " << endl;
 		qDebug() << "error: " << http_.errorString() << endl;
 	}
 

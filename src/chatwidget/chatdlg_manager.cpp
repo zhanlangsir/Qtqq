@@ -4,6 +4,7 @@
 
 #include <QDesktopWidget>
 #include <QApplication>
+#include <QAction>
 
 #include "json/json.h"
 
@@ -16,7 +17,11 @@
 #include "roster/roster.h"
 #include "chatwidget/tabwindow.h"
 #include "strangermanager/stranger_manager.h"
+#include "rostermodel/roster_index.h"
+#include "rosterview/rosterview.h"
+#include "utils/menu.h"
 #include "mainwindow.h"
+#include "qtqq.h"
 
 ChatDlgManager* ChatDlgManager::instance_ = NULL;
 
@@ -39,6 +44,49 @@ ChatDlgManager::~ChatDlgManager()
     }
 
     instance_ = NULL;
+}
+
+void ChatDlgManager::initConnections()
+{
+    MainWindow *main_win = Qtqq::instance()->mainWin();
+    connect(main_win->friendView(), SIGNAL(indexContextMenu(RosterIndex *, Menu *)), this, SLOT(onIndexContextMenu(RosterIndex *, Menu *)));
+    connect(main_win->groupView(), SIGNAL(indexContextMenu(RosterIndex *, Menu *)), this, SLOT(onIndexContextMenu(RosterIndex *, Menu *)));
+    connect(main_win->recentView(), SIGNAL(indexContextMenu(RosterIndex *, Menu *)), this, SLOT(onIndexContextMenu(RosterIndex *, Menu *)));
+}
+
+void ChatDlgManager::onIndexContextMenu(RosterIndex *index, Menu *menu)
+{
+    if ( !menu )
+        return;
+
+    if ( index->type() == RIT_Category )
+        return;
+
+    RosterView *view = qobject_cast<RosterView *>(sender());
+    QAction *begin_chat_act = new QAction(tr("Begin chat"), menu);
+    begin_chat_act->setData(QVariant::fromValue<void *>(view)); 
+    connect(begin_chat_act, SIGNAL(triggered()), this, SLOT(onBeginChat()));
+
+    menu->addAction(begin_chat_act);
+}
+
+void ChatDlgManager::onBeginChat()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    RosterView *view = (RosterView *)action->data().value<void *>();
+
+    QModelIndex src_index = view->currentSelectedIndex();
+    RosterIndex *roster_index = static_cast<RosterIndex *>(src_index.internalPointer()); 
+    if ( roster_index->type() == RIT_Contact )
+    {
+        openFriendChatDlg(roster_index->id());
+    }
+    else if ( roster_index->type() == RIT_Group )
+    {
+        TalkableIndex *t_index = (TalkableIndex *)roster_index;
+
+        openGroupChatDlg(t_index->id(), t_index->gcode());
+    }
 }
 
 void ChatDlgManager::openFriendChatDlg(const QString &id)
@@ -192,6 +240,11 @@ void ChatDlgManager::setMainWin(MainWindow *main_win)
     main_win_ = main_win;
 }
 
+QQChatDlg *ChatDlgManager::currentChatdlg() const
+{
+    return tab_win_->currentChatdlg();
+}
+
 void ChatDlgManager::clean()
 {
     foreach ( QQChatDlg *dlg, opening_chatdlg_ )
@@ -202,9 +255,11 @@ void ChatDlgManager::clean()
     }
 
     opening_chatdlg_.clear();
+
+
+    MainWindow *main_win = Qtqq::instance()->mainWin();
+    disconnect(main_win->friendView(), SIGNAL(indexContextMenu(RosterIndex *, Menu *)), this, SLOT(onIndexContextMenu(RosterIndex *, Menu *)));
+    disconnect(main_win->groupView(), SIGNAL(indexContextMenu(RosterIndex *, Menu *)), this, SLOT(onIndexContextMenu(RosterIndex *, Menu *)));
+    disconnect(main_win->recentView(), SIGNAL(indexContextMenu(RosterIndex *, Menu *)), this, SLOT(onIndexContextMenu(RosterIndex *, Menu *)));
 }
 
-QQChatDlg *ChatDlgManager::currentChatdlg() const
-{
-    return tab_win_->currentChatdlg();
-}

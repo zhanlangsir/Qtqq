@@ -36,7 +36,6 @@ public:
         return icon_size_;
     }
 
-protected:
 	virtual RosterIndex *rosterIndexByModelIndex(const QModelIndex &index) const;
 	virtual QModelIndex modelIndexByRosterIndex(const RosterIndex *index) const;
 

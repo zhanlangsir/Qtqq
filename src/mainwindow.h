@@ -16,9 +16,10 @@ class QHttp;
 
 class QxtGlobalShortcut;
 
+class QModelIndex;
+
 class Menu;
 class ContactProxyModel;
-class QModelIndex;
 class ContactSearcher;
 class FriendSearcher;
 class QQChatDlg;
@@ -27,6 +28,7 @@ class RecentModel;
 class RosterModel;
 class PluginManageDlg;
 class RosterIndex;
+class RosterView;
 
 class MainWindow : public QWidget
 {
@@ -46,12 +48,18 @@ public:
 
     Menu *mainMenu() const
     { return main_menu_; }
+    void stop();
+    const RosterView *friendView() const
+    { return friend_view_; }
+    const RosterView *groupView() const
+    { return group_view_; }
+    const RosterView *recentView() const
+    { return recent_view_; }
 
 protected:
     virtual void closeEvent(QCloseEvent *);
 
 private slots:
-    void onFriendListItemPressed(const QModelIndex &index);
     void changeMyStatus(int idx);
     void getFriendListDone(bool err);
     void getGroupListDone(bool err);
@@ -65,9 +73,9 @@ private slots:
     void aboutQt();
     void onMainMenuclicked();
     void snapshot();
-    void onBeginChat();
 
 private:
+    void initUi();
     void getFriendList();
     void getGroupList();
     void getOnlineBuddy();
@@ -85,6 +93,10 @@ private:
     Ui::MainWindow *ui;
     QHttp *main_http_;
 
+    RosterView *friend_view_;
+    RosterView *group_view_;
+    RosterView *recent_view_;
+
 	RosterModel *contact_model_;
     RosterModel *group_model_;
     RecentModel *recent_model_;
@@ -94,8 +106,6 @@ private:
 
     Menu *main_menu_;
     QAction *act_mute_;
-
-    QAction *begin_chat_;
 
     QxtGlobalShortcut *open_chat_dlg_sc_;
 };

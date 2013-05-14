@@ -12,7 +12,6 @@
 Protocol::ImgSender::ImgSender()
 {
     boundary_ = "----WebKitFormBoundaryk5nH7APtIbShxvqE";// + QString(QByteArray::number(QDateTime::currentDateTime().toMSecsSinceEpoch()).toHex()).toAscii();
-    getKeyAndSig();
 }
 
 QByteArray Protocol::ImgSender::createOffpicBody(const QString &file_path, const QByteArray &file_data)

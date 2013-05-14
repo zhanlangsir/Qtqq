@@ -22,7 +22,6 @@
 #include "chatwidget/groupchatdlg.h"
 #include "core/captchainfo.h"
 #include "core/curr_login_account.h"
-#include "core/qqlogincore.h"
 #include "core/qqutility.h"
 #include "core/sockethelper.h"
 #include "event_handle/event_handle.h"
@@ -34,6 +33,7 @@
 #include "rostermodel/contact_proxy_model.h"
 #include "rostermodel/recent_model.h"
 #include "rostermodel/roster_model.h"
+#include "rosterview/rosterview.h"
 #include "roster/roster.h"
 #include "skinengine/qqskinengine.h"
 #include "trayicon/systemtray.h"
@@ -51,6 +51,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MainWindow),
     main_http_(new QHttp),
+    friend_view_(new RosterView(this)),
+    group_view_(new RosterView(this)),
+    recent_view_(new RosterView(this)),
 	contact_model_(NULL),
 	group_model_(NULL),
 	recent_model_(NULL),
@@ -59,18 +62,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     qRegisterMetaType<ContactClientType>("ContactClientType");
-
     setObjectName("mainWindow");
-    setWindowIcon(QIcon(QQGlobal::instance()->appIconPath()));
-    setWindowTitle(CurrLoginAccount::name());
 
-    ui->tv_friendlist->setSortingEnabled(true);
-
-    setupLoginStatus();
-
-    move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
-
-    
+    initUi();
     connect(ui->cb_status, SIGNAL(currentIndexChanged(int)), this, SLOT(changeMyStatus(int)));
     connect(Protocol::EventCenter::instance(), SIGNAL(eventTrigger(Protocol::Event *)), EventHandle::instance(), SLOT(onEventTrigger(Protocol::Event *)));
 
@@ -101,9 +95,6 @@ MainWindow::MainWindow(QWidget *parent) :
     main_menu_->addSeparator();
     main_menu_->addAction(quit);
     
-    begin_chat_ = new QAction(tr("Begin chat"), this);
-    connect(begin_chat_, SIGNAL(triggered()), this, SLOT(onBeginChat()));
-
     if (!open_chat_dlg_sc_)
     {
         open_chat_dlg_sc_ = new QxtGlobalShortcut(QKeySequence("Ctrl+Alt+Z"), this);
@@ -143,18 +134,22 @@ MainWindow::~MainWindow()
 	}
 }
 
-void MainWindow::onBeginChat()
+void MainWindow::initUi()
 {
-    QModelIndex proxy_index = ui->tv_friendlist->currentIndex();
-    QModelIndex src_index = contact_proxy_model_->mapToSource(proxy_index);
-    if ( !src_index.isValid() )
-        return;
+    setWindowIcon(QIcon(QQGlobal::instance()->appIconPath()));
+    setWindowTitle(CurrLoginAccount::name());
 
-    RosterIndex *roster_index = static_cast<RosterIndex *>(src_index.internalPointer()); 
-    if ( roster_index->type() != RIT_Contact )
-        return;
+    friend_view_->setHeaderHidden(true);
+    group_view_->setHeaderHidden(true);
+    recent_view_->setHeaderHidden(true);
+    ui->tab_main->insertTab(0, friend_view_, tr("friend"));
+    ui->tab_main->insertTab(1, group_view_, tr("group"));
+    ui->tab_main->insertTab(2, recent_view_, tr("recent"));
 
-    ChatDlgManager::instance()->openFriendChatDlg(roster_index->id());
+    friend_view_->setSortingEnabled(true);
+
+    move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
+    setupLoginStatus();
 }
 
 void MainWindow::snapshot()
@@ -189,7 +184,7 @@ void MainWindow::clean()
 	if ( recent_model_ )
 		recent_model_->clean();
 
-    main_http_->close();
+    //main_http_->close();
 }
 
 void MainWindow::setMute(bool mute)
@@ -299,10 +294,10 @@ void MainWindow::getFriendListDone(bool err)
     contact_proxy_model_->setSourceModel(contact_model_);
     contact_model_->setProxyModel(contact_proxy_model_);
 
-    connect(ui->tv_friendlist, SIGNAL(doubleClicked(const QModelIndex &)), contact_model_, SLOT(onDoubleClicked(const QModelIndex &)));
-    connect(ui->tv_friendlist, SIGNAL(pressed(const QModelIndex &)), this, SLOT(onFriendListItemPressed(const QModelIndex &)));
+    connect(friend_view_, SIGNAL(doubleClicked(const QModelIndex &)), contact_model_, SLOT(onDoubleClicked(const QModelIndex &)));
     Roster *roster = Roster::instance();
     connect(roster, SIGNAL(sigNewCategory(Category *)), contact_model_, SLOT(addCategoryItem(Category *)));
+    connect(roster, SIGNAL(beginClean()), contact_model_, SLOT(clean()));
     connect(roster, SIGNAL(sigContactDataChanged(QString, QVariant, TalkableDataRole)), contact_model_, SLOT(talkableDataChanged(QString, QVariant, TalkableDataRole)));
     connect(roster, SIGNAL(sigCategoryDataChanged(int, QVariant, TalkableDataRole)), contact_model_, SLOT(categoryDataChanged(int, QVariant, TalkableDataRole)));
 
@@ -314,7 +309,8 @@ void MainWindow::getFriendListDone(bool err)
     searcher_->initialize(Roster::instance()->contacts());
     connect(ui->le_search, SIGNAL(textChanged(const QString &)), this, SLOT(onSearch(const QString &)));
 
-    ui->tv_friendlist->setModel(contact_proxy_model_);
+    friend_view_->setProxyModel(contact_proxy_model_);
+    friend_view_->setRosterModel(contact_model_);
 
     getGroupList();
 }
@@ -357,14 +353,15 @@ void MainWindow::getGroupListDone(bool err)
     qDebug() << "Group List: \n" << groups_info << endl;
 
     group_model_ = new RosterModel(this);
-    connect(ui->lv_grouplist, SIGNAL(doubleClicked(const QModelIndex &)), group_model_, SLOT(onDoubleClicked(const QModelIndex &)));
+    connect(group_view_, SIGNAL(doubleClicked(const QModelIndex &)), group_model_, SLOT(onDoubleClicked(const QModelIndex &)));
     Roster *roster = Roster::instance();
     connect(roster, SIGNAL(sigNewGroup(Group *)), group_model_, SLOT(addGroupItem(Group *)));
+    connect(roster, SIGNAL(beginClean()), group_model_, SLOT(clean()));
     connect(roster, SIGNAL(sigGroupDataChanged(QString, QVariant, TalkableDataRole)), group_model_, SLOT(talkableDataChanged(QString, QVariant, TalkableDataRole)));
 
     roster->parseGroupList(groups_info);
 
-    ui->lv_grouplist->setModel(group_model_);
+    group_view_->setRosterModel(group_model_);
 
     getRecentList();
 }
@@ -397,6 +394,14 @@ void MainWindow::getOnlineBuddyDone(bool err)
 
     protocol->run();
     msg_processor->start();
+}
+
+void MainWindow::stop()
+{
+    Protocol::QQProtocol *protocol = Protocol::QQProtocol::instance();
+    MsgProcessor *msg_processor = MsgProcessor::instance();
+    disconnect(protocol, SIGNAL(newQQMsg(QByteArray)), msg_processor, SLOT(pushRawMsg(QByteArray)));
+    disconnect(msg_processor, SIGNAL(contactStatusChanged(QString, ContactStatus, ContactClientType)), Roster::instance(), SLOT(slotContactStatusChanged(QString, ContactStatus, ContactClientType)));
 }
 
 void MainWindow::getPersonalFace()
@@ -463,16 +468,18 @@ void MainWindow::getRecentList()
 void MainWindow::getRecentListDone(bool err)
 {
     Q_UNUSED(err)
-            disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getRecentListDone(bool)));
+    disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getRecentListDone(bool)));
     QByteArray recent_list = main_http_->readAll();
 	
     recent_model_ = new RecentModel(this);
-    connect(ui->lv_recentlist, SIGNAL(doubleClicked(const QModelIndex &)), recent_model_, SLOT(onDoubleClicked(const QModelIndex &)));
+    connect(recent_view_, SIGNAL(doubleClicked(const QModelIndex &)), recent_model_, SLOT(onDoubleClicked(const QModelIndex &)));
 
     connect(MsgProcessor::instance(), SIGNAL(newChatMsg(ShareQQMsgPtr)), recent_model_, SLOT(slotNewChatMsg(ShareQQMsgPtr)));
+    connect(Roster::instance(), SIGNAL(beginClean()), recent_model_, SLOT(clean()));
 
     recent_model_->parseRecentContact(recent_list);
-    ui->lv_recentlist->setModel(recent_model_);
+
+    recent_view_->setRosterModel(recent_model_);
 
     getOnlineBuddy();
 }
@@ -488,6 +495,7 @@ void MainWindow::initialize()
     getFriendList();
 
     ChatDlgManager *chat_manager = ChatDlgManager::instance();
+    ChatDlgManager::instance()->initConnections();
     chat_manager->setMainWin(this);
 }
 
@@ -601,23 +609,5 @@ void MainWindow::onMainMenuclicked()
 void MainWindow::initHotkey()
 {
     QxtGlobalShortcut *snapshot = HotkeyManager::instance()->hotkey(HK_SNAPSHOT);
-
     connect(snapshot, SIGNAL(activated()), this, SLOT(snapshot()));
-}
-
-void MainWindow::onFriendListItemPressed(const QModelIndex &index)
-{
-    QModelIndex src_index = contact_proxy_model_->mapToSource(index);
-    RosterIndex *roster_index = static_cast<RosterIndex *>(src_index.internalPointer()); 
-
-    if ( roster_index->type() != RIT_Contact )
-        return;
-
-    if ( qApp->mouseButtons() == Qt::RightButton )
-    {
-        QMenu friendlist_menu;
-        friendlist_menu.addAction(begin_chat_);
-
-        friendlist_menu.exec(QCursor::pos());
-    }
 }

@@ -19,11 +19,13 @@
 #include "json/json.h"
 
 #include "skinengine/qqskinengine.h"
+#include "protocol/qq_protocol.h"
+#include "qtqq.h"
 
-LoginWin::LoginWin(QWidget *parent) :
+LoginWin::LoginWin(AccountManager &account_mgr, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::LoginWin()),
-    login_core_(new QQLoginCore())
+    account_manager_(account_mgr)
 {
     ui->setupUi(this);
 
@@ -31,15 +33,13 @@ LoginWin::LoginWin(QWidget *parent) :
 
     setWindowIcon(QIcon(QQGlobal::instance()->appIconPath()));
 
-	connect(ui->pb_login, SIGNAL(clicked()), this, SLOT(beginLogin()));
-    connect(login_core_, SIGNAL(sig_loginDone(QQLoginCore::LoginResult)),
-            this, SLOT(loginDone(QQLoginCore::LoginResult)));
+    connect(ui->pb_login, SIGNAL(clicked()), this, SLOT(beginLogin()));
     connect(ui->comb_username_, SIGNAL(currentIndexChanged(QString)), this, SLOT(currentUserChanged(QString)));
     connect(ui->comb_username_, SIGNAL(editTextChanged(QString)), this, SLOT(idChanged(QString)));
 
     move((QApplication::desktop()->width() - this->width()) /2, (QApplication::desktop()->height() - this->height()) /2);
 
-	installEventFilter(this);
+    installEventFilter(this);
 
     setupStatus();
     setupAccountRecords();
@@ -47,9 +47,6 @@ LoginWin::LoginWin(QWidget *parent) :
 
 LoginWin::~LoginWin()
 {
-    if ( login_core_ )
-        login_core_->deleteLater();
-
     delete ui;
 }
 
@@ -65,27 +62,26 @@ void LoginWin::setupStatus()
 
 void LoginWin::setupAccountRecords()
 {
-    account_manager_.readAccounts();
-    QVector<AccountRecord*> accounts = account_manager_.accounts(); 
+    QVector<AccountRecord*> accounts = Qtqq::instance()->account_mgr_.accounts(); 
 
     foreach ( AccountRecord *account, accounts )
     {
-       ui->comb_username_->addItem(account->id_);
+        ui->comb_username_->addItem(account->id);
     }
 
     this->show();
- }
+}
 
-inline
+    inline
 void LoginWin::setUserLoginInfo(QString text)
 {
     AccountRecord *record = account_manager_.findAccountById(text);
     if (!record)
         return;
 
-    ui->le_password_->setText(record->pwd_);
-    ui->cekb_rem_pwd_->setChecked(record->rem_pwd_);
-    ui->cb_status->setCurrentIndex(getStatusIndex(record->login_status_));
+    ui->le_password_->setText(record->pwd);
+    ui->cekb_rem_pwd_->setChecked(record->rem_pwd);
+    ui->cb_status->setCurrentIndex(getStatusIndex(record->login_status));
 }
 
 int LoginWin::getStatusIndex(ContactStatus status) const
@@ -109,73 +105,25 @@ void LoginWin::beginLogin()
         return;
     }
 
-    curr_login_account_.id_ = ui->comb_username_->currentText();
-    curr_login_account_.pwd_ = ui->le_password_->text();
-    curr_login_account_.login_status_ = getLoginStatus();
-    curr_login_account_.rem_pwd_ = ui->cekb_rem_pwd_->isChecked();
+    QString uin = ui->comb_username_->currentText();
+    QString pwd = ui->le_password_->text();
+    ContactStatus status = getLoginStatus();
+    bool rem_pwd = ui->cekb_rem_pwd_->isChecked();
 
+    login(uin, pwd, status, rem_pwd);
+}
+
+void LoginWin::login(QString uin, QString pwd, ContactStatus status, bool rem_pwd)
+{
+    curr_login_account_.id = uin;
+    curr_login_account_.pwd = pwd;
+    curr_login_account_.login_status = status;
+    curr_login_account_.rem_pwd = rem_pwd;
 
     ui->pb_login->setEnabled(false);
 
     qDebug() << "Begin Login" << endl;
-    checkAccoutStatus();
-}
-
-void LoginWin::loginDone(QQLoginCore::LoginResult result)
-{
-    switch (result)
-    {
-    case QQLoginCore::kSucess:
-    {
-        curr_login_account_.pwd_ = ui->cekb_rem_pwd_->isChecked() ? ui->le_password_->text() : QString::null;
-
-		if (ui->comb_username_->findText(curr_login_account_.id_) == -1)
-        {
-            ui->comb_username_->insertItem(0, curr_login_account_.id_);
-        }
-
-        account_manager_.setCurrLoginAccount(curr_login_account_);
-        account_manager_.saveAccounts();
-
-        ui->pb_login->setEnabled(true);
-        this->hide();
-        emit sig_loginFinish();
-    }
-
-        break;
-
-    case QQLoginCore::kIdOrPwdWrong:
-    {
-        QMessageBox box;
-        box.setIcon(QMessageBox::Critical);
-        box.setText(tr("Password validation error!!"));
-        box.setInformativeText(tr("The password is not correct, the reason may be:\nForgot password; Not case sensitive; Not open small keyboard."));
-
-        box.exec();
-        ui->pb_login->setEnabled(true);
-    }
-        break;
-
-    case QQLoginCore::kAuthcodeWrong:
-    {
-        QMessageBox box;
-        box.setIcon(QMessageBox::Critical);
-        box.setText(tr("Authcode error!!"));
-        box.setInformativeText(tr("The Authcode is not correct! Please relogin!"));
-
-        box.exec();
-        ui->pb_login->setEnabled(true);
-    }
-        break;
-
-    case QQLoginCore::kUnknowErr:
-        ui->pb_login->setEnabled(true);
-        break;
-
-    default:
-        ui->pb_login->setEnabled(true);
-        break;
-    }
+    checkAccoutStatus(uin, pwd, status);
 }
 
 void LoginWin::onAutoLoginBtnClicked(bool checked)
@@ -214,31 +162,95 @@ void LoginWin::on_find_password_linkActivated(const QString &link)
     QDesktopServices::openUrl(QUrl(link));
 }
 
-void LoginWin::checkAccoutStatus()
+void LoginWin::checkAccoutStatus(QString uin, QString pwd, ContactStatus status)
 {
-    if (login_core_->checkState( curr_login_account_.id_ ) == QQLoginCore::kExceptionCpaImg)
+    Protocol::QQProtocol *proto = Protocol::QQProtocol::instance();
+
+    QQLoginCore::LoginResult ret;
+    if (proto->checkAccountStatus(uin) == QQLoginCore::kExceptionCpaImg)
     {
         qDebug()<<"Need captcha Image"<<endl;
-        QPixmap pix = login_core_->getCapImg();
-        showCapImg(pix);
+        QPixmap pix = proto->getCapImg();
+        QString vc = showCapImg(pix);
+        ret = proto->login(uin, pwd, status, vc);
     }
     else
     {
-        login_core_->login(curr_login_account_.id_, curr_login_account_.pwd_, curr_login_account_.login_status_);
+        ret = proto->login(uin, pwd, status);
+
+    }
+
+    switch (ret)
+    {
+        case QQLoginCore::kSucess:
+            {
+                curr_login_account_.pwd = ui->cekb_rem_pwd_->isChecked() ? ui->le_password_->text() : QString::null;
+
+                if (ui->comb_username_->findText(curr_login_account_.id) == -1)
+                {
+                    ui->comb_username_->insertItem(0, curr_login_account_.id);
+                }
+
+                account_manager_.setCurrLoginAccount(curr_login_account_);
+                account_manager_.saveAccounts();
+
+                ui->pb_login->setEnabled(true);
+                this->hide();
+                emit sig_loginFinish();
+            }
+
+            break;
+
+        case QQLoginCore::kIdOrPwdWrong:
+            {
+                QMessageBox box;
+                box.setIcon(QMessageBox::Critical);
+                box.setText(tr("Password validation error!!"));
+                box.setInformativeText(tr("The password is not correct, the reason may be:\nForgot password; Not case sensitive; Not open small keyboard."));
+
+                box.exec();
+                ui->pb_login->setEnabled(true);
+            }
+            break;
+
+        case QQLoginCore::kAuthcodeWrong:
+            {
+                QMessageBox box;
+                box.setIcon(QMessageBox::Critical);
+                box.setText(tr("Authcode error!!"));
+                box.setInformativeText(tr("The Authcode is not correct! Please relogin!"));
+
+                box.exec();
+                ui->pb_login->setEnabled(true);
+            }
+            break;
+
+        case QQLoginCore::kUnknowErr:
+        default:
+            {
+                QMessageBox box;
+                box.setIcon(QMessageBox::Critical);
+                box.setText(tr("Unkown error!!"));
+                box.setInformativeText(tr("Unknown error occur! Please relogin!"));
+
+                ui->pb_login->setEnabled(true);
+            }
+
+            break;
     }
 }
 
 bool LoginWin::eventFilter(QObject *obj, QEvent *e)
 {
-	if (obj == ui->comb_username_ || obj == ui->le_password_ ||
-		obj == this)
+    if (obj == ui->comb_username_ || obj == ui->le_password_ ||
+            obj == this)
     {
         if (e->type() == QEvent::KeyPress)
         {
             QKeyEvent *key_event = static_cast<QKeyEvent*>(e);
             if (key_event->key() == Qt::Key_Enter || key_event->key() == Qt::Key_Return)
             {
-				beginLogin();
+                beginLogin();
                 return true;
             }
         }
@@ -250,44 +262,44 @@ bool LoginWin::eventFilter(QObject *obj, QEvent *e)
 
 void LoginWin::closeEvent(QCloseEvent *event)
 {
-	Q_UNUSED(event)
-		qApp->quit();
+    Q_UNUSED(event)
+    qApp->quit();
 }
 
 
-void LoginWin::showCapImg(QPixmap pix)
+QString LoginWin::showCapImg(QPixmap pix)
 {
-	QDialog *captcha_dialog = new QDialog();
-	Ui::QQCaptcha *cap_ui = new Ui::QQCaptcha;
-	cap_ui->setupUi(captcha_dialog);
-	cap_ui->lbl_captcha_->setPixmap(pix);
+    QDialog *captcha_dialog = new QDialog();
+    Ui::QQCaptcha *cap_ui = new Ui::QQCaptcha;
+    cap_ui->setupUi(captcha_dialog);
+    cap_ui->lbl_captcha_->setPixmap(pix);
 
-	QString vc;
-	if (captcha_dialog->exec())
-	{
-		vc = cap_ui->le_captcha_->text().toUpper();
-	}
+    QString vc;
+    if (captcha_dialog->exec())
+    {
+        vc = cap_ui->le_captcha_->text().toUpper();
+    }
 
-	delete captcha_dialog;
-	captcha_dialog = NULL;
+    delete captcha_dialog;
+    captcha_dialog = NULL;
 
-	login_core_->login(curr_login_account_.id_, curr_login_account_.pwd_, getLoginStatus(), vc);
+    return vc;
 }
 
 ContactStatus LoginWin::getLoginStatus() const
 {
-	QSettings setting(QQGlobal::configDir() + "/options.ini", QSettings::IniFormat);
-	ContactStatus status;
+    QSettings setting(QQGlobal::configDir() + "/options.ini", QSettings::IniFormat);
+    ContactStatus status;
 
-	if (setting.value("auto_login").toBool())
-	{
-		status = setting.value("login_status").value<ContactStatus>();
-	}
-	else
-	{
-		int idx = ui->cb_status->currentIndex();
-		status = ui->cb_status->itemData(idx).value<ContactStatus>();
-	}
+    if (setting.value("auto_login").toBool())
+    {
+        status = setting.value("login_status").value<ContactStatus>();
+    }
+    else
+    {
+        int idx = ui->cb_status->currentIndex();
+        status = ui->cb_status->itemData(idx).value<ContactStatus>();
+    }
 
-	return status;
+    return status;
 }

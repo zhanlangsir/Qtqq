@@ -23,6 +23,8 @@ signals:
 	void sigGroupDataChanged(QString id, QVariant data, TalkableDataRole role);
 	void sigCategoryDataChanged(int index, QVariant data, TalkableDataRole role);
 	void sigTalkableDataChanged(QString, QVariant data, TalkableDataRole role); 
+    void beginClean();
+    void endClean();
 
 public:
 	~Roster();
@@ -57,7 +59,6 @@ public:
 	void clean();
 
 private slots:
-	void slotIconRequestDone(QString id, QByteArray icon_data);
 	void slotContactStatusChanged(QString id, ContactStatus status, ContactClientType type);
 
 private:

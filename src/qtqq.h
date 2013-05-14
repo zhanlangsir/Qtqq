@@ -3,7 +3,8 @@
 
 #include <QObject>
 
-#include "core/qqlogincore.h"
+#include "core/accountmanager.h"
+#include "protocol/qqlogincore.h"
 
 class LoginWin;
 class MainWindow;
@@ -29,6 +30,9 @@ public:
     MainWindow *mainWindow() const
     { return main_win_; }
 
+    void offline();
+
+    AccountManager account_mgr_;
 
 public slots:
     void aboutQtqq();
@@ -40,6 +44,12 @@ private slots:
 	void onRestore();
     void onLogout();
 	void onQuit();
+    void onOffline();
+    void onReloginDone();
+
+private:
+    void doOffline();
+    void relogin();
 
 private:
     LoginWin *login_dlg_;

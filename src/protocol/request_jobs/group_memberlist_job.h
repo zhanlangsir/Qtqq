@@ -21,6 +21,8 @@ private slots:
 
 private:
     QHttp http_;
+    Talkable::TalkableType t_type_;
+    QString gcode_;
 };
 
 #endif //GROUPMEMBERLISTJOB_H

@@ -3,7 +3,6 @@
 
 #include <QWidget>
 
-#include "core/qqlogincore.h"
 #include "core/accountmanager.h"
 
 namespace Ui {
@@ -17,8 +16,10 @@ signals:
     void sig_loginFinish();
 
 public:
-    explicit LoginWin(QWidget *parent = NULL);
+    explicit LoginWin(AccountManager &account_mgr, QWidget *parent = NULL);
     ~LoginWin();
+
+    void login(QString uin, QString pwd, ContactStatus status, bool rem_pwd = false);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *e);
@@ -26,7 +27,6 @@ protected:
 
 private slots:
 	void beginLogin();
-    void loginDone(QQLoginCore::LoginResult result);
     void onAutoLoginBtnClicked(bool checked);
     void currentUserChanged(QString text);
     void idChanged(QString text);
@@ -35,8 +35,8 @@ private slots:
 
 private:
     void setupStatus();
-    void checkAccoutStatus();
-    void showCapImg(QPixmap pix);
+    void checkAccoutStatus(QString uin, QString pwd, ContactStatus status);
+    QString showCapImg(QPixmap pix);
     ContactStatus getLoginStatus() const;
     void setupAccountRecords();
     void setUserLoginInfo(QString text);
@@ -45,9 +45,8 @@ private:
 private:
     Ui::LoginWin *ui;
 
-    AccountManager account_manager_;
+    AccountManager &account_manager_;
     AccountRecord curr_login_account_;
-    QQLoginCore *login_core_;
 };
 
 #endif //QTQQ_LOGINDLG_H

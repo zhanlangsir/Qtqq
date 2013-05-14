@@ -32,7 +32,7 @@ public:
     { return talkable_->gcode(); }
     const RosterModel* model() const
     { return model_; }
-
+    void clear();
 
 protected:
     virtual void closeEvent(QCloseEvent *event);

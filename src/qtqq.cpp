@@ -1,5 +1,7 @@
 #include "qtqq.h"
 
+#include <cassert>
+
 #include <QSettings>
 #include <QMessageBox>
 
@@ -20,6 +22,7 @@
 #include "file_transfer/file_transfer_manager.h"
 #include "hotkeymanager/hotkey_manager.h"
 #include "setting/setting.h"
+#include "offlinenotifydlg.h"
 
 Qtqq *Qtqq::instance_ = NULL;
 
@@ -64,8 +67,43 @@ Qtqq::~Qtqq()
 
 void Qtqq::start()
 {
-    login_dlg_ = new LoginWin();
+    account_mgr_.readAccounts();
+
+    login_dlg_ = new LoginWin(account_mgr_);
     connect(login_dlg_, SIGNAL(sig_loginFinish()), this, SLOT(showMainPanel()));
+}
+
+void Qtqq::relogin()
+{
+    login_dlg_ = new LoginWin(account_mgr_);
+    connect(login_dlg_, SIGNAL(sig_loginFinish()), this, SLOT(onReloginDone()));
+    AccountRecord *curr_account = account_mgr_.findAccountById(CurrLoginAccount::id());
+    assert(curr_account);
+    login_dlg_->login(curr_account->id, curr_account->pwd, curr_account->login_status, curr_account->rem_pwd);
+
+    ChatDlgManager::instance()->clean();
+    main_win_->clean();
+	main_win_->initialize();
+	main_win_->updateLoginUser();
+}
+
+void Qtqq::onReloginDone()
+{
+	main_win_->initialize();
+    main_win_->show();
+	main_win_->updateLoginUser();
+
+    login_dlg_->deleteLater();
+    login_dlg_ = NULL;
+
+    /*
+    PluginManager *plugin_mgr = PluginManager::instance();
+    plugin_mgr->loadSettings();
+    plugin_mgr->loadPlugins();
+    */
+
+	SystemTrayIcon *trayicon = SystemTrayIcon::instance();
+	trayicon->show();
 }
 
 void Qtqq::showMainPanel()
@@ -73,6 +111,7 @@ void Qtqq::showMainPanel()
 	//instantiate them
 	Protocol::QQProtocol::instance();
 	MsgProcessor::instance();
+    connect(MsgProcessor::instance(), SIGNAL(offline()), this, SLOT(onOffline()));
 	ChatMsgProcessor::instance();
     NotificationManager::instance();
 	RequestMsgProcessor::instance();
@@ -131,7 +170,7 @@ void Qtqq::onLogout()
 
 void Qtqq::onQuit()
 {
-	delete Protocol::QQProtocol::instance();
+	Protocol::QQProtocol::instance()->deleteLater();
 	delete MsgProcessor::instance();
 	delete ChatMsgProcessor::instance();
 	delete RequestMsgProcessor::instance();
@@ -169,4 +208,26 @@ void Qtqq::aboutQtqq()
                 "用c++和Qt写的基于webqq3.0协议的Linux qq客户端!\n\n"
                 "主页: http://www.aitilife.com/qtqq\n"
                 "代码托管在: https://github.com/zhanlangsir/Qtqq").arg(QQGlobal::version()));
+}
+
+void Qtqq::onOffline()
+{
+    doOffline();
+    OfflineNotifyDlg dlg;
+    if ( dlg.exec() )
+    {
+        qDebug() << "reloging" << endl;
+        relogin();        
+    }
+}
+
+void Qtqq::doOffline()
+{
+    Protocol::QQProtocol::instance()->stop();
+	MsgProcessor::instance()->stop();
+	ChatMsgProcessor::instance()->stop();
+	RequestMsgProcessor::instance()->stop();
+    ChatDlgManager::instance()->clean();
+    Roster::instance()->clean();
+    main_win_->stop();
 }

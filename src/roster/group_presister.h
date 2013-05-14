@@ -30,6 +30,8 @@ public:
     void setActivateFlag(const QString &gid);
     void clearActivateFlag(const QString &gid);
     void getGroupMember(Group *group);
+    void start();
+    void stop();
 
 private slots:
     void onPresistTimeout();
@@ -52,5 +54,15 @@ private:
 
     static GroupPresister *instance_;
 };
+
+inline 
+void GroupPresister::start()
+{
+    presist_timer_.start();
+}
+inline void GroupPresister::stop()
+{
+    presist_timer_.stop();
+}
 
 #endif //GROUP_PRESISTER_H

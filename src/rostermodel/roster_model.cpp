@@ -145,6 +145,7 @@ void RosterModel::onDoubleClicked(const QModelIndex &index)
 
 void RosterModel::clean()
 {
+    beginResetModel();
 	foreach ( RosterIndex *index, indexs_ )
 	{
 		delete index;
@@ -153,4 +154,5 @@ void RosterModel::clean()
 
 	root_->childs().clear();
 	indexs_.clear();
+    endResetModel();
 }

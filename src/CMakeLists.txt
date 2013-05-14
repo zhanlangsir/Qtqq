@@ -1,5 +1,4 @@
 set(CORE_HEADERS
-	core/qqlogincore.h
 	core/qqmsglistener.h
 	core/groupchatlog.h
 	core/friendchatlog.h
@@ -81,6 +80,7 @@ set(CORE_HEADERS
 	protocol/request_jobs/strangerinfo2_job.h
 	protocol/request_jobs/loadimg_job.h
 	protocol/request_jobs/refusefile_job.h
+	protocol/qqlogincore.h
 
 	#roster
 	roster/roster.h
@@ -93,6 +93,9 @@ set(CORE_HEADERS
 	rostermodel/recent_model.h
 	rostermodel/contact_proxy_model.h
     rostermodel/contact_searcher.h
+
+    #roster view
+    rosterview/rosterview.h
 
     #setting
     setting/setting.h
@@ -146,13 +149,13 @@ set(UI_HEADERS
 	qqwidget.h
 	friendinfodlg.h
     qqglobal.h
+    offlinenotifydlg.h
 )
 
 QT4_WRAP_CPP(UI_HEADERS_MOC ${UI_HEADERS})
 QT4_WRAP_CPP(CORE_HEADERS_MOC ${CORE_HEADERS})
 
 set(CORE_SOURCES
-	core/qqlogincore.cpp
 	core/qqchatitem.cpp
     core/qqavatarrequester.cpp
 	core/groupchatlog.cpp
@@ -197,6 +200,7 @@ set(CORE_SOURCES
 	protocol/imgsender.cpp
 	protocol/filesender.cpp
     protocol/msgsender.cpp
+	protocol/qqlogincore.cpp
 
     #request_jobs
 	protocol/request_jobs/friendinfo2_job.cpp
@@ -222,6 +226,9 @@ set(CORE_SOURCES
 	rostermodel/roster_model.cpp
 	rostermodel/contact_proxy_model.cpp
     rostermodel/contact_searcher.cpp
+
+    #roster view
+    rosterview/rosterview.cpp
 
     #setting
     setting/setting.cpp
@@ -310,6 +317,7 @@ set(UI_FILES
     ui/hotkeydlg.ui
     ui/sendfilewidget.ui
     ui/recvfilewidget.ui
+    ui/offlinenotifydlg.ui
 )
 
 QT4_WRAP_UI(UI_FILES_HEADERS ${UI_FILES})

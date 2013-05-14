@@ -8,8 +8,10 @@
 #include "protocol/event.h"
 #include "protocol/event_center.h"
 
-IconJob::IconJob(Talkable *_for, JobType type) : 
-	__JobBase(_for, type),
+IconJob::IconJob(Talkable *job_for, JobType type) : 
+	__JobBase(job_for->id(), type),
+    t_type_(job_for->type()),
+    talkable_(job_for),
 	http_(this)
 {
 	connect(&http_, SIGNAL(done(bool)), this, SLOT(requestDone(bool)));
@@ -28,13 +30,17 @@ int IconJob::getRequestType(Talkable *job_for)
 void IconJob::triggerEvent(const QByteArray &data)
 {
     Protocol::Event *event = NULL;
-    if ( for_->type() == Talkable::kStranger || for_->type() == Talkable::kSessStranger )
+    if ( t_type_ == Talkable::kStranger )
     {
-        event = Protocol::EventCenter::instance()->createStrangerAvatarUpdateEvent(for_, data);
+        event = Protocol::EventCenter::instance()->createStrangerAvatarUpdateEvent(id_, t_type_, data);
+    }
+    else if ( t_type_ == Talkable::kSessStranger )
+    {
+        event = Protocol::EventCenter::instance()->createGroupMemberAvatarUpdateEvent(id_, gid_, t_type_, data);
     }
     else
     {
-        event = Protocol::EventCenter::instance()->createAvatarUpdateEvent(for_, data);
+        event = Protocol::EventCenter::instance()->createAvatarUpdateEvent(id_, t_type_, data);
     }
     Protocol::EventCenter::instance()->triggerEvent(event);
 }
@@ -50,7 +56,7 @@ void IconJob::requestDone(bool error)
 	}
 	else
 	{
-		qDebug() << "request icon for " << for_->id() << " failed! " << endl;
+		qDebug() << "request icon for " << id_ << " failed! " << endl;
 		qDebug() << "error: " << http_.errorString() << endl;
 	}
 
@@ -75,7 +81,7 @@ void IconJob::run()
 	QHttpRequestHeader header;
 	http_.setHost("face1.qun.qq.com");
 	QString request_path = "/cgi/svr/face/getface?cache=0&type=%1&fid=0&uin=%2&vfwebqq=%3";
-	header.setRequest("GET", request_path.arg(getRequestType(for_)).arg(getRequestId(for_)).arg(CaptchaInfo::instance()->vfwebqq()));
+	header.setRequest("GET", request_path.arg(getRequestType(talkable_)).arg(getRequestId(talkable_)).arg(CaptchaInfo::instance()->vfwebqq()));
 	header.addValue("Host", "face1.qun.qq.com");
 	header.addValue("Referer", "http://web.qq.com");
 	header.addValue("Cookie", CaptchaInfo::instance()->cookie());

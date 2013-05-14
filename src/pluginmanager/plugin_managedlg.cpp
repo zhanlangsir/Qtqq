@@ -54,7 +54,7 @@ void PluginManageDlg::updatePluginList(QDomDocument plugin_config)
 	{
 		QString name = plugin_elem.firstChildElement("name").text().isEmpty() ? plugin_elem.tagName() : plugin_elem.firstChildElement("name").text();
 		QTableWidgetItem *name_item = new QTableWidgetItem(name);
-		if ( plugin_elem.attribute("enabled","true")=="true" )
+		if ( plugin_elem.attribute("enabled","true") == "true" )
 		{
 			if (plugin_mgr_->plugin(plugin_elem.attribute("uuid"))==NULL)
 				name_item->setForeground(Qt::red);
@@ -94,11 +94,13 @@ void PluginManageDlg::onAcceptBtnClicked()
         {
             plugin_mgr_->enablePlugin(QUuid(plugin_elem.attribute("uuid", "")));
             plugin_elem.removeAttribute("enabled");
+			itor.key()->setForeground(Qt::black);
         }
         else if (  itor.key()->checkState() == Qt::Unchecked && plugin_elem.attribute("enabled", "true") == "true" )
         {
             plugin_mgr_->disablePlugin(QUuid(plugin_elem.attribute("uuid", "")));
             plugin_elem.setAttribute("enabled", "false");
+			itor.key()->setForeground(Qt::gray);
         }
 
         ++itor;

@@ -26,9 +26,9 @@ signals:
 	void sigJobDone(__JobBase *job, bool error);
 
 public:
-	__JobBase(Talkable *_for, JobType type) : 
+	__JobBase(QString id, JobType type) : 
 		type_(type),
-        for_(_for)
+        id_(id)
 	{
     }
 
@@ -40,22 +40,22 @@ public:
 	{
 		return type_;
 	}
-    Talkable *jobFor() const
+
+    QString jobFor() const
     {
-        return for_;
+        return id_;
     }
 
     QString requesterId()
     {
-        return for_->id();
+        return id_;
     }
 
 	virtual void run() = 0;
 	
 protected:
 	JobType type_;
-
-    Talkable *for_;
+    QString id_;
 };
 
 #endif //JOB_BASE_H

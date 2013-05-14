@@ -53,7 +53,11 @@ void PluginManager::loadPlugins()
             IPlugin *plugin = qobject_cast<IPlugin *>(loader.instance());
             if (plugin) 
             {
-                plugin->load();
+                QDomElement plugin_elem = plugins_config_.documentElement().firstChildElement(file_name);
+                if ( plugin_elem.attribute("enabled", "true") == "true" )
+                {
+                    plugin->load();
+                }
                 savePluginInfo(file_name, plugin);
                 plugins_.insert(plugin->uuid(), plugin);
             }

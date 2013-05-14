@@ -10,9 +10,6 @@
 
 #include "core/qqchatitem.h"
 
-class Contact;
-class Group;
-
 namespace Protocol
 {
     class MsgSender;
@@ -21,9 +18,9 @@ namespace Protocol
 class Protocol::MsgSender
 {
 public:
-    QString msgToJson(Contact *to, const QVector<QQChatItem> &items);
-    QString groupMsgToJson(Group *to, const QVector<QQChatItem> &items);
-    QString sessMsgToJson(Contact *to, Group *group, const QVector<QQChatItem> &msgs);
+    QString msgToJson(QString id, const QVector<QQChatItem> &items);
+    QString groupMsgToJson(QString id, QString gocde, const QVector<QQChatItem> &items);
+    QString sessMsgToJson(QString id, QString gid, const QVector<QQChatItem> &msgs);
 
     QString getGroupSig(QString gid, QString to_id);
 

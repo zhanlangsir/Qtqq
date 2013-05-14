@@ -18,8 +18,8 @@ Roster::Roster()
 	connect(this, SIGNAL(sigContactDataChanged(QString, QVariant, TalkableDataRole)), this, SIGNAL(sigTalkableDataChanged(QString, QVariant, TalkableDataRole)));
 	connect(this, SIGNAL(sigGroupDataChanged(QString, QVariant, TalkableDataRole)), this, SIGNAL(sigTalkableDataChanged(QString, QVariant, TalkableDataRole)));
 
-
     EventHandle::instance()->registerObserver(Protocol::ET_OnAvatarUpdate, this);
+    EventHandle::instance()->registerObserver(Protocol::ET_OnGroupMemberAvatarUpdate, this);
     EventHandle::instance()->registerObserver(Protocol::ET_OnGroupMemberListUpdate, this);
     EventHandle::instance()->registerObserver(Protocol::ET_OnStrangerAvatarUpdate, this);
 }
@@ -29,6 +29,7 @@ Roster::~Roster()
 	clean();
 
     EventHandle::instance()->removeObserver(Protocol::ET_OnAvatarUpdate, this);
+    EventHandle::instance()->removeObserver(Protocol::ET_OnGroupMemberAvatarUpdate, this);
     EventHandle::instance()->removeObserver(Protocol::ET_OnGroupMemberListUpdate, this);
     EventHandle::instance()->removeObserver(Protocol::ET_OnStrangerAvatarUpdate, this);
 
@@ -120,7 +121,7 @@ void Roster::addContact(Contact *contact, Category *cat)
 	Protocol::QQProtocol *proto = Protocol::QQProtocol::instance();
 	if ( !proto->isRequesting(contact->id(), JT_Icon) && contact->avatar().isNull() )
 	{
-		proto->requestIconFor(contact);
+		proto->requestAvatar(contact);
 	}
 }
 
@@ -150,7 +151,7 @@ void Roster::parseGroupList(const QByteArray &array)
 
 		emit sigNewGroup(group);
 
-		proto->requestIconFor(group);
+		proto->requestAvatar(group);
 	}
 }
 
@@ -199,7 +200,7 @@ void Roster::parseGroupMemberList(const QString &gid, const QByteArray &data)
         Protocol::QQProtocol *proto = Protocol::QQProtocol::instance();
         if ( contact->avatar().isNull() && !proto->isRequesting(contact->id(), JT_Icon) )
         {
-            proto->requestIconFor(contact);
+            proto->requestAvatarForGroupMember(contact, group->id());
         }
     }
 
@@ -222,6 +223,8 @@ void Roster::parseGroupMemberList(const QString &gid, const QByteArray &data)
     Json::Value ginfo = root["result"]["ginfo"];
     QString g_announcement = QString::fromStdString(ginfo["memo"].asString());
     group->setAnnouncement(g_announcement);
+
+    GroupPresister::instance()->start();
 }
 
 void Roster::parseContactStatus(const QByteArray &array)
@@ -287,29 +290,42 @@ void Roster::onNotify(Protocol::Event *e)
     switch ( e->type() )
     {
         case Protocol::ET_OnAvatarUpdate:
-            updateTalkableIcon(e->eventFor(), e->data());
+            {
+                Talkable *t = this->talkable(e->forId());
+                if ( t )
+                {
+                    updateTalkableIcon(t, e->data());
+                }
+            }
+            break;
+        case Protocol::ET_OnGroupMemberAvatarUpdate:
+            {
+                Protocol::GroupMemberAvatarUpdateEvent *gm_avatar_update_event = (Protocol::GroupMemberAvatarUpdateEvent *)e;
+                Group *group = this->group(gm_avatar_update_event->gid());
+                if ( !group )
+                {
+                    qDebug() << "recive wrong group member avatar update event, group:" <<  gm_avatar_update_event->gid() << " no exist!" << endl;
+                    return;
+                }
+                Contact *member = group->member(e->forId());
+                updateTalkableIcon(member, e->data());
+            }
             break;
         case Protocol::ET_OnStrangerAvatarUpdate:
-            updateTalkableIcon(e->eventFor(), e->data());
+            {
+                Talkable *t = this->talkable(e->forId());
+                if ( t )
+                {
+                    updateTalkableIcon(t, e->data());
+                }
+            }
             break;
         case Protocol::ET_OnGroupMemberListUpdate:
             {
-                Talkable *group = e->eventFor();
-                parseGroupMemberList(group->id(), e->data());
+                parseGroupMemberList(e->forId(), e->data());
             }
             break;
     }
-}
-
-void Roster::slotIconRequestDone(QString id, QByteArray icon_data)
-{
-	Talkable *talkable = this->talkable(id);	
-	talkable->setAvatar(icon_data);
-
-	if ( talkable->type() == Talkable::kContact )
-		emit sigContactDataChanged(talkable->id(), talkable->avatar(), TDR_Avatar);
-	else if ( talkable->type() == Talkable::kGroup )
-		emit sigGroupDataChanged(talkable->id(), talkable->avatar(), TDR_Avatar);
 }
 
 void Roster::slotContactStatusChanged(QString id, ContactStatus status, ContactClientType type)
@@ -385,6 +401,9 @@ Category *Roster::category(int cat_idx) const
 
 void Roster::clean()
 {
+    emit beginClean();
+    GroupPresister::instance()->stop();
+
 	foreach ( Contact *contact, contacts_.values() )
 	{
 		delete contact;
@@ -407,4 +426,6 @@ void Roster::clean()
 		cat = NULL;
 	}
 	categorys_.clear();
+
+    emit endClean();
 }

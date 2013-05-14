@@ -14,8 +14,6 @@ GroupPresister::GroupPresister()
 {
     presist_timer_.setInterval(60000);
     connect(&presist_timer_, SIGNAL(timeout()), this, SLOT(onPresistTimeout()));
-
-    presist_timer_.start();
 }
 
 GroupPresister *GroupPresister::instance_ = NULL;

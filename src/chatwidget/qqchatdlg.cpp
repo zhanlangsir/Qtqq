@@ -463,7 +463,7 @@ void QQChatDlg::showMsg(ShareQQMsgPtr msg)
                             talkable_->id(),
                             file, 
                             group_msg->sendUin(), 
-                            group_msg->info_seq_,
+                            group_msg->gCode(),
                             group_msg->msgs_[i].file_id(),
                             group_msg->msgs_[i].server_ip(),
                             group_msg->msgs_[i].server_port(),

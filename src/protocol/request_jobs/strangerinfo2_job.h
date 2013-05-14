@@ -24,6 +24,7 @@ private:
 
     QString gid_;
     QString code_;
+    Talkable::TalkableType t_type_;
 };
 
 #endif //STRANGERINFO2_JOB_H

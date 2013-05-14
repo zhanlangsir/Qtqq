@@ -3,6 +3,7 @@
 #include <QDebug>
 
 #include "core/qqutility.h"
+#include "qtqq.h"
 
 #define FRIEND_MSG_TYPE "message"
 #define GROUP_MSG_TYPE "group_message"
@@ -68,24 +69,31 @@ void MsgProcessor::run()
 
 		if (root["retcode"].asInt() == 121)
 		{
-
+            emit offline();
+            return;
 		}
 
 		QVector<QQMsg *> be_sorting_msg;
 		for (unsigned int i = 0; i < root["result"].size(); ++i)
-		{
-			const Json::Value result = root["result"][i];
+        {
+            const Json::Value result = root["result"][i];
 
-			if ( isMsgRepeat(result) )
-				continue;
+            if ( result["poll_type"].asString() == "kick_message" )
+            {
+                emit offline();
+                return;
+            }
 
-			QString type = QString::fromStdString(result["poll_type"].asString());
+            if ( isMsgRepeat(result) )
+                continue;
 
-			QQMsg *msg = createMsg(type, result);
+            QString type = QString::fromStdString(result["poll_type"].asString());
 
-			if ( msg )
-				be_sorting_msg.append(msg);
-		}
+            QQMsg *msg = createMsg(type, result);
+
+            if ( msg )
+                be_sorting_msg.append(msg);
+        }
 
 		if ( be_sorting_msg.size() > 1 )
 			sortByTime(be_sorting_msg);

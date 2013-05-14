@@ -10,17 +10,18 @@
 #include "protocol/event_center.h"
 
 StrangerInfo2Job::StrangerInfo2Job(Talkable *job_for, QString gid, QString code, JobType type) :
-    __JobBase(job_for, type),
+    __JobBase(job_for->id(), type),
     http_(this),
     gid_(gid),
-    code_(code)
+    code_(code),
+    t_type_(job_for->type())
 {
     connect(&http_, SIGNAL(done(bool)), this, SLOT(requestDone(bool)));
 }
 
 void StrangerInfo2Job::run()
 {
-    QString get_stranger_info_url = "/api/get_stranger_info2?tuin=" + for_->id() + "&verifysession=&gid=0&code=" + code_ + "&vfwebqq=" + CaptchaInfo::instance()->vfwebqq() + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
+    QString get_stranger_info_url = "/api/get_stranger_info2?tuin=" + id_ + "&verifysession=&gid=0&code=" + code_ + "&vfwebqq=" + CaptchaInfo::instance()->vfwebqq() + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
 
     QHttpRequestHeader header;
     http_.setHost("s.web2.qq.com");
@@ -42,12 +43,12 @@ void StrangerInfo2Job::requestDone(bool error)
         http_.close();
 
 
-        Protocol::Event *e = Protocol::EventCenter::instance()->createStrangerInfoDoneEvent(for_, data);
+        Protocol::Event *e = Protocol::EventCenter::instance()->createStrangerInfoDoneEvent(id_, t_type_, data);
         Protocol::EventCenter::instance()->triggerEvent(e);
     }
     else
     {
-        qDebug() << "request stranger for " << for_->id() << " failed! " << endl;
+        qDebug() << "request stranger for " << id_ << " failed! " << endl;
         qDebug() << "error: " << http_.errorString() << endl;
     }
 

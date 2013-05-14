@@ -21,9 +21,10 @@ public:
     PollThread(QObject *parent = NULL);
 
 	void stop();
+    void init();
 
 protected:
-    void run();
+   virtual void run();
 
 private: 
    Request req_;

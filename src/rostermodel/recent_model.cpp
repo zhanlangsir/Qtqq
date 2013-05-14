@@ -168,6 +168,7 @@ void RecentModel::onDoubleClicked(const QModelIndex &index)
 
 void RecentModel::clean()
 {
+    beginResetModel();
 	foreach ( RosterIndex *index, root_->childs() )
 	{
 		delete index;
@@ -176,4 +177,5 @@ void RecentModel::clean()
 
 	root_->childs().clear();
 	recents_.clear();
+    endResetModel();
 }
