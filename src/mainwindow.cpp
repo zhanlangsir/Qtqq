@@ -516,7 +516,9 @@ void MainWindow::openFirstChatDlg()
             raise();
         }
         else
+        {
             hide();
+        }
     }
 }
 

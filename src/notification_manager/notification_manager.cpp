@@ -13,7 +13,7 @@ NotificationManager::NotificationManager()
 
 void NotificationManager::onNewChatMsg(ShareQQMsgPtr msg)
 {
-    if ( !ChatDlgManager::instance()->isOpening(msg->talkTo())  || ChatDlgManager::instance()->tabWin()->isMinimized() )
+    if ( !ChatDlgManager::instance()->isOpening(msg->talkTo()) || !ChatDlgManager::instance()->tabWin()->isActiveWindow() )
     {
         emit newChatMsg(msg);
     }
