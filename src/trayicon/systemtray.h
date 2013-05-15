@@ -51,6 +51,8 @@ private:
     QList<QAction *> actions_;
     QTimer blink_timer_;
 
+    bool is_in_gnome_classic_;
+
 private:
     SystemTrayIcon();
     SystemTrayIcon(const SystemTrayIcon &);

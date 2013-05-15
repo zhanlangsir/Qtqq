@@ -13,7 +13,7 @@
 
 SystemTrayIcon* SystemTrayIcon::system_tray_ = NULL;
 
-SystemTrayIcon::SystemTrayIcon() 
+SystemTrayIcon::SystemTrayIcon()
 {
     qRegisterMetaType<SoundPlayer::SoundType>("SoundPlayer::SoundType");
     roster_ = Roster::instance();
@@ -24,6 +24,13 @@ SystemTrayIcon::SystemTrayIcon()
 
     this->setIcon(QIcon(QQGlobal::resourceDir() + "/webqq.ico"));
     this->setContextMenu(menu_);
+
+    QByteArray de = qgetenv("DESKTOP_SESSION");
+
+    if ( de.isEmpty() || de == "gnome-classic" )
+    {
+        is_in_gnome_classic_ = true;
+    }
 }
 
 void SystemTrayIcon::activatedUnReadChat()
@@ -42,7 +49,10 @@ void SystemTrayIcon::addMenu(QAction *act)
 
 void SystemTrayIcon::addNotifyAction(QAction *act)
 {
-    setIcon(act->icon());
+    if ( !is_in_gnome_classic_ )
+    {
+        setIcon(act->icon());
+    }
 
     menu_->addAction(act);
     actions_.push_back(act);
@@ -62,7 +72,10 @@ void SystemTrayIcon::removeAction(QAction *act)
     }
     else
     {
-        setIcon(actions_.last()->icon());
+        if ( !is_in_gnome_classic_ )
+        {
+            setIcon(actions_.last()->icon());
+        }
     }
 }
 
