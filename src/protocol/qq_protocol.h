@@ -29,7 +29,6 @@ class Protocol::QQProtocol : public QObject
 	Q_OBJECT
 signals:
 	void newQQMsg(QByteArray msg);
-
     void fileTransferProgress(int session_id, int recived_byte, int totol_byte);
     void sendFileProgress(QString file, int send_byte, int totol_byte);
 

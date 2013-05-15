@@ -21,13 +21,13 @@ public:
 	~RecentModel();
 
 	void parseRecentContact(QByteArray &array);
+	void clean();
 
 public slots:
 	void slotMsgSended(QString id);
 	void slotNewChatMsg(ShareQQMsgPtr msg);
 	void slotTalkableDataChanged(QString id, QVariant data, TalkableDataRole role);
 	void onDoubleClicked(const QModelIndex &index);
-	void clean();
 
 private:
 	Talkable *talkable(QString id) const;

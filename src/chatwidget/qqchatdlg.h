@@ -49,8 +49,8 @@ public:
     void removeEditorEventFilter(QObject *filter_obj);
 
 protected:
-    void closeEvent(QCloseEvent *);
-    bool eventFilter(QObject * obj, QEvent * e);
+    void closeEvent(QCloseEvent *ev);
+    bool eventFilter(QObject * obj, QEvent * ev);
     virtual void showOtherMsg(ShareQQMsgPtr msg);
     virtual void send(const QVector<QQChatItem> &msgs);
 
@@ -67,7 +67,6 @@ private slots:
     void openQQFacePanel();
     void openChatLogWin();
     void sendMsg();
-    virtual void onMsgSendDone(bool ok, QString msg);
     void setSendByReturn(bool checked);
     void setSendByCtrlReturn(bool checked);
     void onImageDoubleClicked(QString src);

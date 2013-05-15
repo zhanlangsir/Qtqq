@@ -46,10 +46,6 @@ public:
         return new StrangerAvatarUpdateEvent(id, type, data);
     }
 
-    Event *createMsgSendDoneEvent(QString id, Talkable::TalkableType type, QByteArray data)
-    {
-        return new MsgSendDoneEvent(id, type, data);
-    }
     Event *createImgSendDoneEvent(QString id, Talkable::TalkableType type, bool is_sucess, QString file_path, QString img_id)
     {
         return new ImgSendDoneEvent(id, type, is_sucess, file_path, img_id);

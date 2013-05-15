@@ -179,3 +179,4 @@ void RecentModel::clean()
 	recents_.clear();
     endResetModel();
 }
+

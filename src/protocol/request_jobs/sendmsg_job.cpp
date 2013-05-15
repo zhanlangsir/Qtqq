@@ -21,27 +21,6 @@ SendMsgJob::SendMsgJob(Talkable *_for, const QVector<QQChatItem> &msgs, JobType 
 	connect(&http_, SIGNAL(done(bool)), this, SLOT(requestDone(bool)));
 }
 
-void SendMsgJob::requestDone(bool error)
-{
-	if ( !error )
-	{
-		QByteArray data = http_.readAll();
-        qDebug() << "SendMsgJob::requestDone, " << data << endl;
-		http_.close();
-
-        Protocol::Event *event = Protocol::EventCenter::instance()->createMsgSendDoneEvent(id_, t_type_, data);
-        Protocol::EventCenter::instance()->triggerEvent(event);
-	}
-	else
-	{
-		qDebug() << "send msg for " << id_ << " failed! " << endl;
-		qDebug() << "error: " << http_.errorString() << endl;
-	}
-
-	http_.disconnect(this);
-	emit sigJobDone(this, error);
-}
-
 void SendMsgJob::run()
 {
     sendMsg();
@@ -67,19 +46,24 @@ void SendMsgJob::sendMsg()
     qDebug() << header.toString() << endl;
 }
 
-void SendFriendMsgJob::onImgSendDone(__JobBase *job, bool error)
+void SendMsgJob::requestDone(bool error)
 {
-    SendImgJob *imgjob = (SendImgJob *)job;
-    if ( !error )
-    {
-        ++finish_imgjobs_;
-        if ( finish_imgjobs_ == jobs_.count() )
-        {
-            sendMsg();
-        }
-    }
+    QByteArray data = http_.readAll();
+    qDebug() << "SendMsgJob::requestDone, " << data << endl;
+    http_.close();
 
-    job->deleteLater();
+    Protocol::MsgSendDoneEvent *event = new Protocol::MsgSendDoneEvent(id_, t_type_, error);
+    if ( error )
+    {
+        qDebug() << "send msg for " << id_ << " failed! " << endl;
+        qDebug() << "error: " << http_.errorString() << endl;
+        event->setErrStr(http_.errorString());
+        event->setMsgs(msgs_);
+    }
+    Protocol::EventCenter::instance()->triggerEvent(event);
+
+    http_.disconnect(this);
+    emit sigJobDone(this, error);
 }
 
 void SendFriendMsgJob::run()
@@ -122,6 +106,20 @@ QByteArray SendFriendMsgJob::getData() const
     return Protocol::QQProtocol::instance()->msgSender()->msgToJson(id_, msgs_).toAscii();
 }
 
+void SendFriendMsgJob::onImgSendDone(__JobBase *job, bool error)
+{
+    SendImgJob *imgjob = (SendImgJob *)job;
+    if ( !error )
+    {
+        ++finish_imgjobs_;
+        if ( finish_imgjobs_ == jobs_.count() )
+        {
+            sendMsg();
+        }
+    }
+
+    job->deleteLater();
+}
 
 void SendGroupMsgJob::run()
 {

@@ -5,6 +5,7 @@
 #include <QByteArray>
 
 #include "protocol/request_jobs/img_type.h"
+#include "core/qqchatitem.h"
 #include "core/talkable.h"
 
 namespace Protocol
@@ -107,10 +108,37 @@ public:
 class Protocol::MsgSendDoneEvent : public Protocol::Event
 {
 public:
-    MsgSendDoneEvent(QString id, Talkable::TalkableType t_type,  QByteArray data, Protocol::EventType type = Protocol::ET_OnMsgSendDone) :
-        Event(type, id, t_type, data)
+    MsgSendDoneEvent(QString id, Talkable::TalkableType t_type,bool error, Protocol::EventType type = Protocol::ET_OnMsgSendDone) :
+        Event(type, id, t_type, QByteArray()),
+        error_(error)
     {
     }
+
+    bool error()
+    {
+        return error_;
+    }
+    void setMsgs(const QVector<QQChatItem> &msgs)
+    {
+        msgs_ = msgs;
+    }
+    const QVector<QQChatItem> &msgs() const
+    {
+        return msgs_;
+    }
+    void setErrStr(QString err_str)
+    {
+        err_str_ = err_str;
+    }
+    QString errStr() const
+    { 
+        return err_str_;
+    }
+
+private:
+    bool error_;
+    QVector<QQChatItem> msgs_;
+    QString err_str_;
 };
 
 class Protocol::ImgSendDoneEvent : public Protocol::Event

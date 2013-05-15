@@ -61,6 +61,7 @@ QQChatDlg::QQChatDlg(Talkable *talkable, ChatDlgType type, QWidget *parent) :
     connect(&msgbrowse_, SIGNAL(imageDoubleClicked(QString)), this, SLOT(onImageDoubleClicked(QString)));
 
     EventHandle::instance()->registerObserver(Protocol::ET_OnImgLoadDone, this);
+    EventHandle::instance()->registerObserver(Protocol::ET_OnMsgSendDone, this);
 }
 
 QQChatDlg::~QQChatDlg()
@@ -82,12 +83,6 @@ void QQChatDlg::setSendByReturn(bool checked)
     }
 }
 
-void QQChatDlg::onMsgSendDone(bool ok, QString msg)
-{
-    Q_UNUSED(msg)
-    emit sigMsgSended(talkable_->id());
-}
-
 void QQChatDlg::setSendByCtrlReturn(bool checked)
 {
     Q_UNUSED(checked)
@@ -103,15 +98,16 @@ void QQChatDlg::closeEvent(QCloseEvent *event)
 {
     Q_UNUSED(event)
     EventHandle::instance()->removeObserver(Protocol::ET_OnImgLoadDone, this);
+    EventHandle::instance()->removeObserver(Protocol::ET_OnMsgSendDone, this);
     emit chatFinish(this);
 }
 
-bool QQChatDlg::eventFilter(QObject *obj, QEvent *e)
+bool QQChatDlg::eventFilter(QObject *obj, QEvent *ev)
 {
-    if (obj != &te_input_ || e->type() != QEvent::KeyPress)
-        return QWidget::eventFilter(obj, e);
+    if (obj != &te_input_ || ev->type() != QEvent::KeyPress)
+        return QWidget::eventFilter(obj, ev);
 
-    QKeyEvent *key_event = static_cast<QKeyEvent *>(e);
+    QKeyEvent *key_event = static_cast<QKeyEvent *>(ev);
 
     switch (key_event->key())
     {
@@ -244,6 +240,14 @@ void QQChatDlg::onNotify(Protocol::Event *event)
 
         QString save_path = saveImage(img_e->file(), img_e->data());
         msgbrowse_.replaceRealImg(img_e->file(), save_path);
+    }
+    else if ( event->type() == Protocol::ET_OnMsgSendDone )
+    {
+        Protocol::MsgSendDoneEvent *msg_ev = (Protocol::MsgSendDoneEvent *)event;
+        if ( !msg_ev->error() )
+        {
+            emit sigMsgSended(talkable_->id());
+        }
     }
 }
 
