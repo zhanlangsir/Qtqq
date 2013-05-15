@@ -167,6 +167,13 @@ void MainWindow::onTrayIconClicked(QSystemTrayIcon::ActivationReason reason)
     if ( reason != QSystemTrayIcon::Trigger )
         return;
 
+    SystemTrayIcon *tray = SystemTrayIcon::instance();
+    if ( tray->hasNotify() )
+    {
+        tray->activatedUnReadChat();
+        return;
+    }
+    
     if (isMinimized() || !isVisible())
         showNormal();
     else
