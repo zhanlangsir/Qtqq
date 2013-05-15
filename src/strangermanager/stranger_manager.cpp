@@ -98,18 +98,20 @@ void StrangerManager::onNewSystemMsg(ShareQQMsgPtr msg)
 
 	QString gid = "";
     bool group_request = false;
+    Talkable::TalkableType type = Talkable::kStranger; 
 	if ( msg->type() == QQMsg::kSystemG )
 	{
 		QQSystemGMsg *sysg_msg = (QQSystemGMsg *)msg.data();	
 		gid = sysg_msg->from_uin;
         group_request = true;
+        type = Talkable::kSessStranger;
 		if ( sysg_msg->sys_g_type == "group_leave" || sysg_msg->sys_g_type == "group_join" )
 		{
 			return;
 		}
 	}
 
-    addStranger(msg->sendUin(), gid, Talkable::kSessStranger );
+    addStranger(msg->sendUin(), gid, type);
 }
 
 void StrangerManager::onNewSessChatMsg(ShareQQMsgPtr msg)
