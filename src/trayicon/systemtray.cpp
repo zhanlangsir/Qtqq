@@ -49,15 +49,18 @@ void SystemTrayIcon::addMenu(QAction *act)
 
 void SystemTrayIcon::addNotifyAction(QAction *act)
 {
-    if ( !is_in_gnome_classic_ )
-    {
-        setIcon(act->icon());
-    }
-
     menu_->addAction(act);
     actions_.push_back(act);
 
-    blink_timer_.start();
+    if ( !is_in_gnome_classic_ )
+    {
+        setIcon(act->icon());
+        blink_timer_.start();
+    }
+    else
+    {
+        setIcon(QIcon(QQGlobal::resourceDir() + "/trayicon/newmsg.png"));
+    }
 }
 
 void SystemTrayIcon::removeAction(QAction *act)
