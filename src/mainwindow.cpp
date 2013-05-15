@@ -510,10 +510,13 @@ void MainWindow::openFirstChatDlg()
     else
     {
         if ( !isVisible() )
+        {
             showNormal();
-
-        activateWindow();
-        raise();
+            activateWindow();
+            raise();
+        }
+        else
+            hide();
     }
 }
 
