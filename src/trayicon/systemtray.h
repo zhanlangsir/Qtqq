@@ -14,13 +14,13 @@ class SysTrayActionHandle;
 
 class SystemTrayIcon : public QSystemTrayIcon
 {
-	Q_OBJECT
+    Q_OBJECT
 signals:
-	void sigActivateFriendRequestDlg(ShareQQMsgPtr msg);
-	void sigActivateGroupRequestDlg(ShareQQMsgPtr msg);
+    void sigActivateFriendRequestDlg(ShareQQMsgPtr msg);
+    void sigActivateGroupRequestDlg(ShareQQMsgPtr msg);
 
 public:
-   	static SystemTrayIcon *instance()
+    static SystemTrayIcon *instance()
     {
         if (!system_tray_)
         {
@@ -30,33 +30,33 @@ public:
     }
     ~SystemTrayIcon(){}
 
-	void activatedUnReadChat();
+    void activatedUnReadChat();
 
-	void addMenu(QAction *act);
-	void addNotifyAction(QAction *act);
-	void removeAction(QAction *act);
+    void addMenu(QAction *act);
+    void addNotifyAction(QAction *act);
+    void removeAction(QAction *act);
 
-	void addSeparator();
+    void addSeparator();
 
-	bool hasNotify();
+    bool hasNotify();
 
 private slots:
     void onBlinkTimeout();
 
 private:
-	Roster *roster_;
+    Roster *roster_;
 
-	QMenu *menu_;
+    QMenu *menu_;
 
-	QList<QAction *> actions_;
+    QList<QAction *> actions_;
     QTimer blink_timer_;
 
 private:
-	SystemTrayIcon();
-	SystemTrayIcon(const SystemTrayIcon &);
-	SystemTrayIcon &operator=(const SystemTrayIcon &);
+    SystemTrayIcon();
+    SystemTrayIcon(const SystemTrayIcon &);
+    SystemTrayIcon &operator=(const SystemTrayIcon &);
 
-	static SystemTrayIcon *system_tray_;
+    static SystemTrayIcon *system_tray_;
 };
 
 #endif //SYSTEMTRAY_H
