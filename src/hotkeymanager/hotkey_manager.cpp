@@ -55,6 +55,7 @@ HotkeyManager::~HotkeyManager()
     }
 }
 
+/*
 void HotkeyManager::initHotkeys()
 {
     QKeySequence snapshot_ks = Setting::instance()->value("hotkeymanager/snapshot", QKeySequence("Ctrl+Alt+S")).value<QKeySequence>();
@@ -62,7 +63,9 @@ void HotkeyManager::initHotkeys()
 
     hotkeys_.append(snapshot);
 }
+*/
 
+/*
 void HotkeyManager::onHotKeyApply()
 {
     QString hot_key = hotkey_dlg_->key_editor->text();
@@ -101,6 +104,7 @@ void HotkeyManager::onHotKeyApply()
         }
     }
 }
+*/
 
 void HotkeyManager::openHotkeyDlg()
 {

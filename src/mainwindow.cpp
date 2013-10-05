@@ -42,10 +42,14 @@
 #include "utils/menu.h"
 #include "hotkeymanager/hotkey_manager.h"
 #include "snapshot/ksnapshot.h"
+#include "shortcutmanager/shortcut_manager.h"
 #include "qqglobal.h"
 #include "qqiteminfohelper.h"
 #include "setting/setting.h"
 #include "qtqq.h"
+
+#define OPEN_CHATDLG_SC "open-chatdlg"
+#define SC_SNAPSHOT "Global.Snapshot"
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
@@ -56,8 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
     recent_view_(new RosterView(this)),
 	contact_model_(NULL),
 	group_model_(NULL),
-	recent_model_(NULL),
-	open_chat_dlg_sc_(NULL)
+	recent_model_(NULL)
 {
     ui->setupUi(this);
 
@@ -76,7 +79,7 @@ MainWindow::MainWindow(QWidget *parent) :
     main_menu_ = new Menu(this);
     act_mute_ = new QAction(tr("Mute"), main_menu_);
     act_mute_->setCheckable(true);
-    act_mute_->setChecked(Setting::instance()->value("mute").toBool());
+    act_mute_->setChecked(Setting::instance()->value("mute") == "True" ? true : false);
     connect(act_mute_, SIGNAL(toggled(bool)), this, SLOT(setMute(bool)));
 
     QAction *quit = new QAction(tr("Quit"), main_menu_);
@@ -95,13 +98,6 @@ MainWindow::MainWindow(QWidget *parent) :
     main_menu_->addSeparator();
     main_menu_->addAction(quit);
     
-    if (!open_chat_dlg_sc_)
-    {
-        open_chat_dlg_sc_ = new QxtGlobalShortcut(QKeySequence("Ctrl+Alt+Z"), this);
-        connect(open_chat_dlg_sc_, SIGNAL(activated()), this, SLOT(openFirstChatDlg()));
-    }
-
-
     SystemTrayIcon *tray = SystemTrayIcon::instance();
     connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(onTrayIconClicked(QSystemTrayIcon::ActivationReason)));
 }
@@ -191,12 +187,13 @@ void MainWindow::clean()
 	if ( recent_model_ )
 		recent_model_->clean();
 
-    //main_http_->close();
+    ShortcutManager::instance()->removeShortcut(OPEN_CHATDLG_SC);
+    ShortcutManager::instance()->removeShortcut(SC_SNAPSHOT);
 }
 
 void MainWindow::setMute(bool mute)
 {
-    Setting::instance()->setValue("mute", mute);
+    Setting::instance()->setValue("mute", mute ? "True" : "False");
 }
 
 void MainWindow::openMainMenu()
@@ -493,7 +490,7 @@ void MainWindow::getRecentListDone(bool err)
 
 void MainWindow::initialize()
 {
-    initHotkey();
+    initShortcut();
 
     getPersonalInfo();
     getPersonalFace();
@@ -618,8 +615,11 @@ void MainWindow::onMainMenuclicked()
     main_menu_->exec(ui->mainmenu_btn->mapToGlobal(pos));
 }
 
-void MainWindow::initHotkey()
+void MainWindow::initShortcut()
 {
-    QxtGlobalShortcut *snapshot = HotkeyManager::instance()->hotkey(HK_SNAPSHOT);
+    const Shortcut *open_chat_dlg_sc = ShortcutManager::instance()->createGlobalShortcut(OPEN_CHATDLG_SC, tr("Active Chat Window"), QKeySequence(ShortcutManager::instance()->keyFromShortcutId(OPEN_CHATDLG_SC, SCG_GLOBAL "Ctrl+Alt+Z")), this);
+    connect(open_chat_dlg_sc, SIGNAL(activated()), this, SLOT(openFirstChatDlg()));
+
+    const Shortcut *snapshot = ShortcutManager::instance()->createGlobalShortcut(SC_SNAPSHOT, tr("Snapshot"), QKeySequence(ShortcutManager::instance()->keyFromShortcutId(SC_SNAPSHOT, SCG_GLOBAL, "Ctrl+Alt+S")), this);
     connect(snapshot, SIGNAL(activated()), this, SLOT(snapshot()));
 }

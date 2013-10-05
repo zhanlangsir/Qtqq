@@ -86,7 +86,7 @@ private:
     int getStatusIndex(ContactStatus status);
     void setupLoginStatus();
     QString getStatusByIndex(int idx) const;
-    void initHotkey();
+    void initShortcut();
     QString hashO(const QString &uin, const QString &ptwebqq);
 
 private:
@@ -106,8 +106,6 @@ private:
 
     Menu *main_menu_;
     QAction *act_mute_;
-
-    QxtGlobalShortcut *open_chat_dlg_sc_;
 };
 
 #endif //MAINWINDOW_H

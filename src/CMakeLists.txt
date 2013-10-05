@@ -37,8 +37,8 @@ set(CORE_HEADERS
     file_transfer/recvfile_widget.h
 
     #hotkey manager
-    hotkeymanager/hotkey_manager.h
-    hotkeymanager/hotkeys.h
+    #hotkeymanager/hotkey_manager.h
+    #hotkeymanager/hotkeys.h
 
     #interfaces/
     interfaces/iobserver.h
@@ -100,6 +100,12 @@ set(CORE_HEADERS
     #setting
     setting/setting.h
 
+    #shortcut manager
+    shortcutmanager/shortcut.h
+    shortcutmanager/shortcut_manager.h
+    shortcutmanager/shortcut_delegate.h
+    shortcutmanager/shortcuts_dlg.h
+
 	#skinengine
 	skinengine/qqskinengine.h
 	skinengine/msgstyle_manager.h
@@ -113,7 +119,6 @@ set(CORE_HEADERS
     snapshot/regiongrabber.h
     snapshot/snapshottimer.h
     snapshot/windowgrabber.h
-
 
 	#sound player
 	soundplayer/soundplayer.h
@@ -181,7 +186,7 @@ set(CORE_SOURCES
     file_transfer/recvfile_widget.cpp
 
     #hotkey manager
-    hotkeymanager/hotkey_manager.cpp
+    #hotkeymanager/hotkey_manager.cpp
 
 	#msgprocessor
 	msgprocessor/msg_processor.cpp
@@ -232,6 +237,11 @@ set(CORE_SOURCES
 
     #setting
     setting/setting.cpp
+
+    #shortcut manager
+    shortcutmanager/shortcut_manager.cpp
+    shortcutmanager/shortcut_delegate.cpp
+    shortcutmanager/shortcuts_dlg.cpp
 
 	#skinengine
 	skinengine/qqskinengine.cpp
@@ -318,6 +328,7 @@ set(UI_FILES
     ui/sendfilewidget.ui
     ui/recvfilewidget.ui
     ui/offlinenotifydlg.ui
+    ui/shortcutsdlg.ui
 )
 
 QT4_WRAP_UI(UI_FILES_HEADERS ${UI_FILES})

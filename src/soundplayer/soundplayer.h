@@ -34,8 +34,8 @@ protected:
 public:
     void play(SoundType type, QString file_name = "")
     {
-        bool mute = Setting::instance()->value("mute").toBool();
-        if (mute)
+        QString mute = Setting::instance()->value("mute", "True");
+        if (mute == "True")
             return;
 
         QString file_be_play;

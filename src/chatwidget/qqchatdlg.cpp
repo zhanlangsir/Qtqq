@@ -48,7 +48,14 @@ QQChatDlg::QQChatDlg(Talkable *talkable, ChatDlgType type, QWidget *parent) :
     send_type_menu_->addAction(act_return_);
     send_type_menu_->addAction(act_ctrl_return_);
 
-    send_by_return_ = Setting::instance()->value("send_by_return").toBool();
+    if ( Setting::instance()->value("send_by_return", "True") == "True" )
+    {
+        send_by_return_ = true; 
+    }
+    else
+    {
+        send_by_return_ = false;
+    }
 
     act_return_->setChecked(send_by_return_);
     act_ctrl_return_->setChecked(!send_by_return_);
@@ -76,7 +83,7 @@ void QQChatDlg::setSendByReturn(bool checked)
     Q_UNUSED(checked)
     if (!send_by_return_)
     {
-        Setting::instance()->setValue("send_by_return", true);
+        Setting::instance()->setValue("send_by_return", "True");
         send_by_return_ = true;
 
         act_ctrl_return_->setChecked(false);
@@ -88,7 +95,7 @@ void QQChatDlg::setSendByCtrlReturn(bool checked)
     Q_UNUSED(checked)
     if (send_by_return_)
     {
-        Setting::instance()->setValue("send_by_return", false);
+        Setting::instance()->setValue("send_by_return", "False");
         send_by_return_ = false;
         act_return_->setChecked(false);
     }

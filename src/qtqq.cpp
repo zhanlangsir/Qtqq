@@ -20,7 +20,7 @@
 #include "pluginmanager/plugin_manager.h"
 #include "trayicon/systemtray.h"
 #include "file_transfer/file_transfer_manager.h"
-#include "hotkeymanager/hotkey_manager.h"
+//#include "hotkeymanager/hotkey_manager.h"
 #include "setting/setting.h"
 #include "offlinenotifydlg.h"
 
@@ -120,7 +120,7 @@ void Qtqq::showMainPanel()
 	
 	main_win_ = new MainWindow();
 
-    HotkeyManager::instance();
+    //HotkeyManager::instance();
     FileTransferManager::instance();
 
 	main_win_->initialize();
@@ -159,7 +159,7 @@ void Qtqq::onLogout()
 	delete ChatDlgManager::instance();
 	delete Roster::instance();
     delete main_win_;
-    HotkeyManager::instance()->reset();
+    //HotkeyManager::instance()->reset();
     Setting::instance()->reset();
 
 	SystemTrayIcon *trayicon = SystemTrayIcon::instance();
@@ -178,7 +178,7 @@ void Qtqq::onQuit()
 	delete ChatDlgManager::instance();
 	delete Roster::instance();
     delete PluginManager::instance();
-    delete HotkeyManager::instance();
+    //delete HotkeyManager::instance();
     delete FileTransferManager::instance();
     delete Setting::instance();
 
