@@ -9,6 +9,7 @@
 class OfflineNotifyDlg : public QDialog, public Ui::OfflineNotifyDlg
 {
     Q_OBJECT
+
 public:
     OfflineNotifyDlg(QWidget *parent = 0) :
         QDialog(parent)

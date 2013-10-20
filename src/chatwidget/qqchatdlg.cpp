@@ -541,7 +541,7 @@ void QQChatDlg::showOtherMsg(ShareQQMsgPtr msg)
 
 void QQChatDlg::onImageDoubleClicked(QString src)
 {
-    QDesktopServices::openUrl(QUrl::fromPercentEncoding(src.toAscii()));
+    QDesktopServices::openUrl(QUrl::fromPercentEncoding(src.toLatin1()));
 }
 
 void QQChatDlg::installEditorEventFilter(QObject *filter_obj)

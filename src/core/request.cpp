@@ -14,7 +14,7 @@ void Request::addDefaultHeader()
 
 void Request::addHeaderItem(QString key, QString value)
 {
-    req_str_ = req_str_ + key.toAscii() + ": " + value.toAscii() + "\r\n";
+    req_str_ = req_str_ + key.toLatin1() + ": " + value.toLatin1() + "\r\n";
 }
 
 void Request::addRequestContent(QByteArray content)
@@ -38,7 +38,7 @@ void Request::create(RequestModes mode, QString url)
             break;
     }
 
-    req_str_ = req_str_ + url.toAscii() + " HTTP/1.1\r\n";
+    req_str_ = req_str_ + url.toLatin1() + " HTTP/1.1\r\n";
 
     addDefaultHeader();
 }

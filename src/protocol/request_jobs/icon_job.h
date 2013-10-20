@@ -1,8 +1,6 @@
 #ifndef ICON_JOB_H
 #define ICON_JOB_H
 
-#include <QHttp>
-
 #include "job_base.h"
 
 class Talkable;
@@ -24,13 +22,12 @@ public:
     static QString getRequestId(Talkable *job_for);
 
 private slots:
-	void requestDone(bool error);
+	void requestDone();
 
 private:
     void triggerEvent(const QByteArray &data);
 
 private:
-	QHttp http_;
     Talkable::TalkableType t_type_;
     Talkable *talkable_;
 

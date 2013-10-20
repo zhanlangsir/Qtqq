@@ -4,8 +4,10 @@
 #include <QPointF>
 #include <QPixmap>
 #include <QIcon>
+#include <QDebug>
 
 #include "utils/contact_status.h"
+#include "skinengine/qqskinengine.h"
 #include "qqglobal.h"
 
 void IconDecorator::decorateIcon(ContactStatus status, QPixmap &pix)
@@ -34,19 +36,19 @@ void IconDecorator::setStatusDecoration(ContactStatus status, QPixmap &pix)
 
 	if ( status == CS_CallMe )
 	{
-		img.load(QQGlobal::resourceDir() + "/status/Qme.png");
+		img.load(QQSkinEngine::instance()->skinRes("status_qme"));
 	}
 	else if ( status == CS_Busy )
 	{
-		img.load(QQGlobal::resourceDir() + "/status/busy.png");
+		img.load(QQSkinEngine::instance()->skinRes("status_busy"));
 	}
 	else if ( status == CS_Away )
 	{
-		img.load(QQGlobal::resourceDir() + "/status/away.png");
+		img.load(QQSkinEngine::instance()->skinRes("status_away"));
 	}
 	else if ( status == CS_Silent )
 	{
-		img.load(QQGlobal::resourceDir() + "/status/mute.png");
+		img.load(QQSkinEngine::instance()->skinRes("status_silent"));
 	}
 
 	QSize avatar_size = pix.size();

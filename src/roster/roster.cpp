@@ -339,9 +339,11 @@ void Roster::slotContactStatusChanged(QString id, ContactStatus status, ContactC
 		return;
 
 	ContactStatus before_status = contact->status();
-
-	contact->setStatus(status);
-	emit sigContactDataChanged(id, QVariant::fromValue<ContactStatus>(status), TDR_Status);
+    if ( before_status != status )
+    {
+        contact->setStatus(status);
+        emit sigContactDataChanged(id, QVariant::fromValue<ContactStatus>(status), TDR_Status);
+    }
 
 	if ( contact->clientType() != type )
 	{

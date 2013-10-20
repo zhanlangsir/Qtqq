@@ -1,7 +1,6 @@
 #ifndef SENDIMG_JOB_H
 #define SENDIMG_JOB_H
 
-#include <QHttp>
 
 #include "protocol/request_jobs/job_base.h"
 
@@ -20,11 +19,9 @@ public:
     virtual void run();
 
 private slots:
-    void requestDone(bool error);
+    void requestDone();
 
 private:
-    QHttp http_;
-
     SendImgType sendimg_type_;
     QString file_path_;
     QByteArray data_;

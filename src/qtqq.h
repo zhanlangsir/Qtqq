@@ -32,6 +32,7 @@ public:
 
     void offline();
 
+public:
     AccountManager account_mgr_;
 
 public slots:

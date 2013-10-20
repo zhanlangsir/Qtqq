@@ -408,7 +408,7 @@ namespace Log4Qt
 				break;
 			case 'r':
 				mPatternConverters << new DatePatternConverter(rFormattingInfo,
-	                                                           QLatin1String("RELATIVE")); 
+                                                               QLatin1String("TIME_RELATIVE"));
 				break;
 			case 't':
 				mPatternConverters << new BasicPatternConverter(rFormattingInfo,

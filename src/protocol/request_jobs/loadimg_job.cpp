@@ -1,6 +1,5 @@
 #include "loadimg_job.h"
 
-#include <QHttpRequestHeader>
 #include <QDebug>
 
 #include "core/talkable.h"
@@ -10,7 +9,6 @@
 
 LoadImgJob::LoadImgJob(QString file, ImgType img_type, JobType type) : 
 	__JobBase(NULL, type),
-	http_(this),
     file_(file),
     img_type_(img_type)
 {
@@ -20,61 +18,65 @@ void LoadImgJob::reciveFile(QString file_url)
 {
     QString host = getHost(file_url);
 
-    QHttpRequestHeader header;
-    header.setRequest("GET", getRequestUrl(file_url));
-    header.addValue("Host", host);
-    header.addValue("Referer", "http://web.qq.com");
-    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
+    qDebug() << file_url << endl;
+    QNetworkRequest request(file_url);
+    request.setRawHeader("Host", host.toLatin1());
+    request.setRawHeader("Referer", "http://web.qq.com");
+    request.setRawHeader("Cookie", CaptchaInfo::instance()->cookie().toLatin1());
 
-    http_.setHost(host);
-    connect(&http_, SIGNAL(done(bool)), this, SLOT(onRequestImgDone(bool)));
-    http_.request(header);
+    QNetworkReply *reply = Protocol::QQProtocol::instance()->networkMgr()->get(request);
+    connect(reply, SIGNAL(finished()), this, SLOT(onRequestImgDone()));
 }
 
-void LoadImgJob::onRequestImgDone(bool err)
+void LoadImgJob::onRequestImgDone()
 {
-	if ( !err )
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+	if ( !reply->error() )
 	{
-		QByteArray data = http_.readAll();
-		http_.close();
+		QByteArray data = reply->readAll();
+        reply->deleteLater();
 
         triggerEvent(data);
 	}
 	else
 	{
 		qDebug() << "request img failed! " << endl;
-		qDebug() << "error: " << http_.errorString() << endl;
+		qDebug() << "error: " << reply->error() << endl;
 	}
 
-	http_.disconnect(this);
-	emit sigJobDone(this, err);
+	emit sigJobDone(this, reply->error());
 }
 
 void LoadImgJob::getImgUrl()
 {
-    QHttpRequestHeader header;
-    header.setRequest("GET", request_url_);
-    header.addValue("Host", host_);
-    header.addValue("Referer", "http://web.qq.com");
-    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
-    qDebug() << "Get Img Url " << header.toString() << endl;
+    QNetworkRequest request(request_url_);
+    request.setRawHeader("Host", host_.toLatin1());
+    request.setRawHeader("Referer", "http://web.qq.com");
+    request.setRawHeader("Cookie", CaptchaInfo::instance()->cookie().toLatin1());
+    qDebug() << "Get Img Url " << request.rawHeaderList() << endl;
     
-    http_.setHost(host_);
-    connect(&http_, SIGNAL(done(bool)), this, SLOT(onGetImgUrlDone(bool)));
-    http_.request(header);
+    QNetworkReply *reply = Protocol::QQProtocol::instance()->networkMgr()->get(request);
+    connect(reply, SIGNAL(finished()), this, SLOT(onGetImgUrlDone()));
 }
 
-void LoadImgJob::onGetImgUrlDone(bool err)
+void LoadImgJob::onGetImgUrlDone()
 {
-    disconnect(&http_, SIGNAL(done(bool)), this, SLOT(onGetImgUrlDone(bool)));
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
-    QHttpResponseHeader response = http_.lastResponse();
+    qDebug() << "Get Image url done:\n" << endl;
+    QString location = reply->rawHeader("Location");
+    if ( location.isEmpty() )
+    {
+		QByteArray data = reply->readAll();
+        reply->deleteLater();
 
-    qDebug() << "Get Image url done:\n" 
-        << response.toString() << endl;
-    QString location = response.value("Location");
-
-    reciveFile(location);
+        triggerEvent(data);
+        emit sigJobDone(this, reply->error());
+    }
+    else
+    {
+        reciveFile(location);
+    }
 }
 
 void LoadImgJob::run()

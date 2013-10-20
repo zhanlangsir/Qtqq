@@ -68,12 +68,12 @@ namespace Log4Qt
 	    if (format == QLatin1String("NONE"))
 	        return QString();
 	
-	    if (format == QLatin1String("RELATIVE"))
+        if (format == QLatin1String("TIME_RELATIVE"))
 	        return QString::number(toMilliSeconds() - InitialisationHelper::startTime());
 	    
 	    if (format == QLatin1String("ISO8601"))
 	        format = QLatin1String("yyyy-MM-dd hh:mm:ss.zzz");
-	    if (format == QLatin1String("ABSOLUTE"))
+        if (format == QLatin1String("TIME_ABSOLUTE"))
 	        format = QLatin1String("HH:mm:ss.zzz");
 	    if (format == QLatin1String("DATE"))
 	        format = QLatin1String("dd MMM YYYY HH:mm:ss.zzzz");

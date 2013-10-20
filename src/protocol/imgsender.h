@@ -7,7 +7,6 @@
 #include <QMap>
 #include <QObject>
 #include <QString>
-#include <QHttp>
 #include <QUuid>
 
 namespace Protocol
@@ -55,17 +54,17 @@ public:
         return sig_;
     }
 
+    void stop()
+    {
+    }
+
     void init() 
     {
         getKeyAndSig();
     }
-    void stop()
-    {
-        disconnect(&http_, SIGNAL(done(bool)), this, SLOT(getKeyAndSigDone(bool)));
-    }
 
 private slots:
-    void getKeyAndSigDone(bool err);
+    void getKeyAndSigDone();
 
 private:
     QString getUniqueId()
@@ -81,8 +80,6 @@ private:
 
     QString boundary_;
     QMap<QString, FileInfo> sended_imgs_;
-
-    QHttp http_;
 };
 
 #endif //IMGSENDER_H

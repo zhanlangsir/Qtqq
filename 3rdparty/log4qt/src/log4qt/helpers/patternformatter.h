@@ -161,7 +161,7 @@ namespace Log4Qt
 	 * <tt>
 	 * %PatternFormatter(pattern:"%r [%t] %p %c %x - %m%n" 
 	 *                   converters:(
-	 *                   DatePatternConverter(FormattingInfo(min:"0" max:"INT_MAX" left:false) format: "RELATIVE" )  , 
+     *                   DatePatternConverter(FormattingInfo(min:"0" max:"INT_MAX" left:false) format: "TIME_RELATIVE" )  ,
 	 *                   LiteralPatternConverter(FormattingInfo(min:"0" max:"INT_MAX" left:false) literal: " [" )  , 
 	 *                   BasicPatternConverter(FormattingInfo(min:"0" max:"INT_MAX" left:false) type: "THREAD_CONVERTER" )  ,
 	 *                   LiteralPatternConverter(FormattingInfo(min:"0" max:"INT_MAX" left:false) literal: "] " )  ,

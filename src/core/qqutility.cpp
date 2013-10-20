@@ -42,7 +42,7 @@ int QQUtility::httpgzdecompress(Byte *zdata, uLong nzdata,
 
 int QQUtility::gzdecompress(const QByteArray &data, QByteArray &out)
 {
-    const int buf_size = 5000;
+    const int buf_size = 50000;
     Byte odata[buf_size];
     uLong odata_len = buf_size;
 

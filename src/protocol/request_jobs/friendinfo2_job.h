@@ -1,8 +1,6 @@
 #ifndef FRIENDINFO2_JOB_H
 #define FRIENDINFO2_JOB_H
 
-#include <QHttp>
-
 #include "protocol/request_jobs/job_base.h"
 
 class FriendInfo2Job : public __JobBase
@@ -18,9 +16,6 @@ public:
 
 private slots:
 	void requestDone(bool error);
-
-private:
-	QHttp http_;
 };
 
 #endif //FRIENDINFO2_JOB_H

@@ -104,7 +104,7 @@ void QQTextEdit::insertFromMimeData( const QMimeData *source )
     this->insertHtml(source->text());
 }
 
-bool QQTextEdit::canInsertFromMimeData( const QMimeData *source )
+bool QQTextEdit::canInsertFromMimeData( const QMimeData *source ) const
 {
      qDebug()<<source->html();
      return false;

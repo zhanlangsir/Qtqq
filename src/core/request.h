@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CORE_REQUEST_H
+#define CORE_REQUEST_H
 
 #include <QString>
 #include <QByteArray>
@@ -16,13 +17,15 @@ public:
     void addRequestContent(QByteArray content);
     void create(RequestModes mode, QString url);
 
+    void clear();
     QByteArray toByteArray();
 
 private:
     void addDefaultHeader();
-    void clear();
 
 private:
     QByteArray req_str_; //The real request String;
     bool has_content_;
 };
+
+#endif //CORE_REQUEST

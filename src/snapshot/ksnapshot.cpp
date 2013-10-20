@@ -43,6 +43,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QVBoxLayout>
+#include <QMimeData>
 
 #include "regiongrabber.h"
 #include "freeregiongrabber.h"

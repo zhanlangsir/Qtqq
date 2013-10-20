@@ -31,6 +31,7 @@ public:
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
     {
         Q_UNUSED(option)
+        Q_UNUSED(index)
 
         QLineEdit *editor = new QLineEdit(parent);
         editor->installEventFilter((QObject *)this);
@@ -69,7 +70,7 @@ public:
         {
             if ( ev->type() == QEvent::KeyPress )
             {
-                static const int esc_key = 0x010000000;
+                //static const int esc_key = 0x010000000;
                 static const QList<int> control_key = QList<int>() << Qt::Key_Shift << Qt::Key_Control << Qt::Key_Alt << Qt::Key_Meta;
                 static const int modif_key = Qt::ALT | Qt::SHIFT | Qt::CTRL;
 

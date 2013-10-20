@@ -1,46 +1,50 @@
 #include "strangerinfo2_job.h"
 
-#include <QHttpRequestHeader>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 #include <QDateTime>
 #include <QDebug>
 
 #include "core/captchainfo.h"
 #include "strangermanager/stranger_manager.h"
+#include "protocol/qq_protocol.h"
 #include "protocol/event.h"
 #include "protocol/event_center.h"
 
 StrangerInfo2Job::StrangerInfo2Job(Talkable *job_for, QString gid, QString code, JobType type) :
     __JobBase(job_for->id(), type),
-    http_(this),
     gid_(gid),
     code_(code),
     t_type_(job_for->type())
 {
-    connect(&http_, SIGNAL(done(bool)), this, SLOT(requestDone(bool)));
 }
 
 void StrangerInfo2Job::run()
 {
     QString get_stranger_info_url = "/api/get_stranger_info2?tuin=" + id_ + "&verifysession=&gid=0&code=" + code_ + "&vfwebqq=" + CaptchaInfo::instance()->vfwebqq() + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
 
-    QHttpRequestHeader header;
-    http_.setHost("s.web2.qq.com");
-    header.setRequest("GET", get_stranger_info_url);
-    header.addValue("Host", "s.web2.qq.com");
-    header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
-    header.addValue("Connection", "keep-live");
-    header.addValue("Content-Type","utf-8");
-    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
 
-    http_.request(header);
+    QNetworkRequest request(get_stranger_info_url);
+    //http_.setHost("s.web2.qq.com");
+    //header.setRequest("GET", get_stranger_info_url);
+    request.setRawHeader("Host", "s.web2.qq.com");
+    request.setRawHeader("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
+    request.setRawHeader("Connection", "keep-live");
+    request.setRawHeader("Content-Type","utf-8");
+    request.setRawHeader("Cookie", CaptchaInfo::instance()->cookie().toLatin1());
+
+    QNetworkReply *reply = Protocol::QQProtocol::instance()->networkMgr()->get(request);
+    connect(reply, SIGNAL(finished()), this, SLOT(requestDone()));
 }
 
-void StrangerInfo2Job::requestDone(bool error)
+void StrangerInfo2Job::requestDone()
 {
-    if ( !error )
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if ( !reply->error() )
     {
-        QByteArray data = http_.readAll();
-        http_.close();
+        QByteArray data = reply->readAll();
+        reply->close();
+        reply->deleteLater();
 
 
         Protocol::Event *e = Protocol::EventCenter::instance()->createStrangerInfoDoneEvent(id_, t_type_, data);
@@ -49,9 +53,8 @@ void StrangerInfo2Job::requestDone(bool error)
     else
     {
         qDebug() << "request stranger for " << id_ << " failed! " << endl;
-        qDebug() << "error: " << http_.errorString() << endl;
+        qDebug() << "error: " << reply->error() << endl;
     }
 
-    http_.disconnect(this);
-    emit sigJobDone(this, error);
+    emit sigJobDone(this, reply->error());
 }

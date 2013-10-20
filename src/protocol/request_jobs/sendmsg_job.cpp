@@ -1,6 +1,7 @@
 #include "sendmsg_job.h"
 
-#include <QHttpRequestHeader>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 #include <QDebug>
 
 #include "core/talkable.h"
@@ -15,10 +16,8 @@
 SendMsgJob::SendMsgJob(Talkable *_for, const QVector<QQChatItem> &msgs, JobType type) : 
 	__JobBase(_for->id(), type),
     t_type_(_for->type()),
-	http_(this),
     msgs_(msgs)
 {
-	connect(&http_, SIGNAL(done(bool)), this, SLOT(requestDone(bool)));
 }
 
 void SendMsgJob::run()
@@ -28,42 +27,41 @@ void SendMsgJob::run()
 
 void SendMsgJob::sendMsg()
 {
-    QString send_url = getPath();
+    QString send_url = "http://d.web2.qq.com" + getPath();
     QByteArray data = getData();
 
-    QHttpRequestHeader header;
-    header.setRequest("POST", send_url);
-    header.setValue("Host", "d.web2.qq.com");
-    header.setValue("Cookie", CaptchaInfo::instance()->cookie());
-    header.setValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002");
-    header.setValue("Content-Length", QString::number(data.length()));
-    header.setValue("Content-Type", "application/x-www-form-urlencoded");
+    QNetworkRequest request(send_url);
+    request.setRawHeader("Host", "d.web2.qq.com");
+    request.setRawHeader("Cookie", CaptchaInfo::instance()->cookie().toLatin1());
+    request.setRawHeader("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002");
+    request.setRawHeader("Content-Length", QString::number(data.length()).toLatin1());
+    request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
 
-    http_.setHost("d.web2.qq.com");
-    http_.request(header, data);
+    QNetworkReply *reply = Protocol::QQProtocol::instance()->networkMgr()->post(request, data);
+    connect(reply, SIGNAL(finished()), this, SLOT(requestDone()));
 
     qDebug() << data << endl;
-    qDebug() << header.toString() << endl;
+    qDebug() << request.rawHeaderList() << endl;
 }
 
-void SendMsgJob::requestDone(bool error)
+void SendMsgJob::requestDone()
 {
-    QByteArray data = http_.readAll();
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    QByteArray data = reply->readAll();
     qDebug() << "SendMsgJob::requestDone, " << data << endl;
-    http_.close();
+    reply->deleteLater();
 
-    Protocol::MsgSendDoneEvent *event = new Protocol::MsgSendDoneEvent(id_, t_type_, error);
-    if ( error )
+    Protocol::MsgSendDoneEvent *event = new Protocol::MsgSendDoneEvent(id_, t_type_, reply->error());
+    if ( reply->error() )
     {
         qDebug() << "send msg for " << id_ << " failed! " << endl;
-        qDebug() << "error: " << http_.errorString() << endl;
-        event->setErrStr(http_.errorString());
+        qDebug() << "error: " << reply->error() << endl;
+        event->setErrStr(QString());
         event->setMsgs(msgs_);
     }
     Protocol::EventCenter::instance()->triggerEvent(event);
 
-    http_.disconnect(this);
-    emit sigJobDone(this, error);
+    emit sigJobDone(this, reply->error());
 }
 
 void SendFriendMsgJob::run()
@@ -103,7 +101,7 @@ QString SendFriendMsgJob::getPath() const
 
 QByteArray SendFriendMsgJob::getData() const
 {
-    return Protocol::QQProtocol::instance()->msgSender()->msgToJson(id_, msgs_).toAscii();
+    return Protocol::QQProtocol::instance()->msgSender()->msgToJson(id_, msgs_).toUtf8();
 }
 
 void SendFriendMsgJob::onImgSendDone(__JobBase *job, bool error)
@@ -172,7 +170,7 @@ QString SendGroupMsgJob::getPath() const
 
 QByteArray SendGroupMsgJob::getData() const
 {
-    return Protocol::QQProtocol::instance()->msgSender()->groupMsgToJson(id_, gcode_, msgs_).toAscii();
+    return Protocol::QQProtocol::instance()->msgSender()->groupMsgToJson(id_, gcode_, msgs_).toUtf8();
 }
 
 
@@ -184,5 +182,5 @@ QString SendSessMsgJob::getPath() const
 
 QByteArray SendSessMsgJob::getData() const
 {
-    return Protocol::QQProtocol::instance()->msgSender()->sessMsgToJson(id_, group_->id(), msgs_).toAscii();
+    return Protocol::QQProtocol::instance()->msgSender()->sessMsgToJson(id_, group_->id(), msgs_).toLatin1();
 }

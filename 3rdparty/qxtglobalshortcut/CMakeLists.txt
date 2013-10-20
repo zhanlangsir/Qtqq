@@ -12,8 +12,13 @@ set(qxtglobalshortcut_SOURCES
 PKG_CHECK_MODULES(X11 REQUIRED "x11")
 
 include_directories(X11_INCLUDE_DIRS)
-include(${QT_USE_FILE})
-QT4_WRAP_CPP(qxtglobalshortcut_HEADERS_MOC ${qxtglobalshortcut_HEADERS})
+include_directories(${Qt5Widgets_INCLUDE_DIRS})
+include_directories(${Qt5X11Extras_INCLUDE_DIRS})
+include_directories(${Qt5Core_INCLUDE_DIRS})
+include_directories(${Qt5Gui_INCLUDE_DIRS})
+include_directories(${Qt5Gui_PRIVATE_INCLUDE_DIRS})
+
+QT_WRAP_CPP(qxtglobalshortcut_HEADERS_MOC ${qxtglobalshortcut_HEADERS})
 
 add_library(qxtglobalshortcut
 	SHARED

@@ -11,7 +11,7 @@ class QTcpSocket;
 class QQLoginCore
 {
 public:
-    enum AccountStatus {kNormal, kExceptionCpaImg};
+    enum AccountStatus {kNormal, kExceptionCpaImg, kUnknowStatus};
     enum LoginResult {kIdOrPwdWrong, kAuthcodeWrong, kGetLoginInfoFailed, kSucess, kUnknowErr};
     QQLoginCore();
     ~QQLoginCore();
@@ -33,12 +33,15 @@ private:
     void getCaptchaImg(QByteArray sum);
     void setupStatus(QString id, QString pwd, ContactStatus status);
 	QByteArray getMd5Uin(const QByteArray &result, int begin_idx);
+    QString getLoginSig();
+    int getToken(QString get_token_url);
     
 private:
     QTcpSocket *fd_;
     QString vc_;
     QByteArray sum_;
 	QByteArray md5_uin_;
+    QString login_sig_;
 
     QString id_;
     QString pwd_;

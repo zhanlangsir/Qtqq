@@ -101,8 +101,8 @@ void FriendRequestDlg::slotOkClicked()
         QString allow_and_add_url = "/api/allow_and_add2";
 
         int category_idx = ui_->cb_group_->itemData(ui_->cb_group_->currentIndex()).toInt();
-        QByteArray msg = "r={\"account\":" + qq_number_.toAscii() + ",\"gid\":"+ QString::number(category_idx).toAscii() +
-                ",\"mname\":\"" + markname.toAscii() + "\",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq().toAscii() + "\"}";
+        QByteArray msg = "r={\"account\":" + qq_number_.toLatin1() + ",\"gid\":"+ QString::number(category_idx).toLatin1() +
+                ",\"mname\":\"" + markname.toLatin1() + "\",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq().toLatin1() + "\"}";
 
         Request req;
         req.create(kPost, allow_and_add_url);
@@ -143,7 +143,7 @@ void FriendRequestDlg::slotOkClicked()
             return;
 
         QString allow_add_request_url = "/api/allow_added_request2";
-        QByteArray msg = "r={\"account\":" + qq_number_.toAscii() + ",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq().toAscii() + "\"}";
+        QByteArray msg = "r={\"account\":" + qq_number_.toLatin1() + ",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq().toLatin1() + "\"}";
 
         Request req;
         req.create(kPost, allow_add_request_url);
@@ -167,8 +167,8 @@ void FriendRequestDlg::slotOkClicked()
     {
         QString deny_add_request = "/api/deny_added_request2";
 
-        QByteArray msg = "r={\"account\":" + qq_number_.toAscii() + ",\"msg\":\""+ ui_->le_deny_reason_->text().toAscii() +
-                "\",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq().toAscii() + "\"}";
+        QByteArray msg = "r={\"account\":" + qq_number_.toLatin1() + ",\"msg\":\""+ ui_->le_deny_reason_->text().toLatin1() +
+                "\",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq().toLatin1() + "\"}";
 
         Request req;
         req.create(kPost, deny_add_request);

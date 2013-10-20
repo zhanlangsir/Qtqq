@@ -20,7 +20,7 @@ QByteArray Protocol::FileSender::createFileData(const QString &file_path, const 
 
     QString file_name = QFileInfo(file_path).fileName();
     QByteArray msg = boundary + "\r\n" + 
-    "Content-Disposition: form-data; name=\"file\"; filename=\"" + file_name.toAscii() + "\"\r\n" +
+    "Content-Disposition: form-data; name=\"file\"; filename=\"" + file_name.toLatin1() + "\"\r\n" +
     "Content-Type: application/octet-stream\r\n\r\n" + file_data + "\r\n" + boundary + "--\r\n";
 
     return msg;
@@ -37,17 +37,17 @@ QByteArray Protocol::FileSender::createOffFileData(const QString &file_path, con
         boundary+
         "Content-Disposition: form-data; name=\"clientversion\"\r\n\r\n1409\r\n"+
         boundary+
-        "Content-Disposition: form-data; name=\"uin\"\r\n\r\n" + CurrLoginAccount::id().toAscii() + "\r\n" +
+        "Content-Disposition: form-data; name=\"uin\"\r\n\r\n" + CurrLoginAccount::id().toLatin1() + "\r\n" +
         boundary+
-        "Content-Disposition: form-data; name=\"skey\"\r\n\r\n" + CaptchaInfo::instance()->skey().toAscii() + "\r\n" +
+        "Content-Disposition: form-data; name=\"skey\"\r\n\r\n" + CaptchaInfo::instance()->skey().toLatin1() + "\r\n" +
         boundary+
         "Content-Disposition: form-data; name=\"appid\"\r\n\r\n1002101\r\n"+
         boundary+
-        "Content-Disposition: form-data; name=\"peeruin\"\r\n\r\n" + to_id.toAscii() + "\r\n"+
+        "Content-Disposition: form-data; name=\"peeruin\"\r\n\r\n" + to_id.toLatin1() + "\r\n"+
         boundary+
-        "Content-Disposition: form-data; name=\"vfwebqq\"\r\n\r\n" + CaptchaInfo::instance()->vfwebqq().toAscii() + "\r\n" +
+        "Content-Disposition: form-data; name=\"vfwebqq\"\r\n\r\n" + CaptchaInfo::instance()->vfwebqq().toLatin1() + "\r\n" +
         boundary +
-        "Content-Disposition: form-data; name=\"file\"; filename=\"" + QFileInfo(file_path).fileName().toAscii() + "\"\r\n"
+        "Content-Disposition: form-data; name=\"file\"; filename=\"" + QFileInfo(file_path).fileName().toLatin1() + "\"\r\n"
         "Content-Type: application/octet-stream\r\n\r\n" + file_data +"\r\n"+
         boundary+
         "Content-Disposition: form-data; name=\"fileid\"\r\n\r\n1\r\n"+

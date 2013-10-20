@@ -1,8 +1,6 @@
 #ifndef MSGSENDER_H
 #define MSGSENDER_H
 
-#include <QHttp>
-#include <QHttpRequestHeader>
 #include <QVector>
 #include <QString>
 #include <QObject>

@@ -16,9 +16,10 @@ set(UIS
     notifywidget.ui
     )
 
+include_directories(${Qt5Network_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ".")
-QT4_WRAP_CPP(MOCA_SOURCES ${HEADERS})
-qt4_wrap_ui(NOTIFIER_UI_HEADERS ${UIS})
+QT_WRAP_CPP(MOCA_SOURCES ${HEADERS})
+qt5_wrap_ui(NOTIFIER_UI_HEADERS ${UIS})
 
 add_library(notifierplugin SHARED
     ${SOURCES}

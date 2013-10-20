@@ -334,7 +334,6 @@ public:
 
     void addMember(QString id)
     {
-        
     }
 
 private:

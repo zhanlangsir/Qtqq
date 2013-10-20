@@ -1,5 +1,8 @@
 #include "qq_protocol.h"
 
+#include <QDateTime>
+#include <QJSEngine>
+#include <QJSValue>
 #include <QDebug>
 
 #include "roster/roster.h"
@@ -18,6 +21,8 @@
 #include "protocol/request_jobs/group_memberlist_job.h"
 #include "protocol/request_jobs/refusefile_job.h"
 #include "protocol/pollthread.h"
+#include "core/curr_login_account.h"
+#include "core/sockethelper.h"
 
 Protocol::QQProtocol* Protocol::QQProtocol::instance_ = NULL;
 
@@ -241,4 +246,127 @@ QQLoginCore::LoginResult Protocol::QQProtocol::login(QString id, QString pwd, Co
 QQLoginCore::LoginResult Protocol::QQProtocol::login(QString id, QString pwd, ContactStatus status, QString vc)
 {
     return login_core_->login(id, pwd, status, vc);
+}
+
+QNetworkReply *Protocol::QQProtocol::getFriendList()
+{
+    QJSEngine js_engien;
+    QString file_name = "hash.js";
+    QFile hash_js(QQGlobal::dataDir() + '/' + file_name);
+    hash_js.open(QIODevice::ReadOnly);
+    QString hash_content = hash_js.readAll();
+    hash_js.close();
+    QJSValue hash_value = js_engien.evaluate(hash_content, file_name, 6);
+    QJSValueList args;
+    args << CurrLoginAccount::id() << CaptchaInfo::instance()->ptwebqq();
+    QJSValue result = hash_value.call(args);
+    qDebug() << "hasho js result: " << result.toString() << endl;
+
+    QString get_friendlist_url = "http://s.web2.qq.com/api/get_user_friends2";
+    QString msg_content = "r={\"h\":\"hello\",\"hash\":\"" + result.toString() + "\",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq() + "\"}";
+
+    QNetworkRequest request(get_friendlist_url);
+    request.setRawHeader("Host", "s.web2.qq.com");
+    setDefaultHeaderValue(request);
+    request.setRawHeader("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=3");
+    request.setRawHeader("Cookie", CaptchaInfo::instance()->cookie().toLatin1());
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setHeader(QNetworkRequest::ContentLengthHeader, msg_content.length());
+
+    QNetworkReply *reply = network_mgr_.post(request, msg_content.toLatin1());
+    return reply;
+}
+
+QNetworkReply *Protocol::QQProtocol::getGroupList()
+{
+    QString get_grouplist_url = "http://s.web2.qq.com/api/get_group_name_list_mask2";
+    QString msg_content = "r={\"h\":\"hello\",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq() + "\"}";
+
+    QNetworkRequest request(get_grouplist_url);
+    request.setRawHeader("Host", "s.web2.qq.com");
+    setDefaultHeaderValue(request);
+    request.setRawHeader("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
+    request.setRawHeader("Cookie", CaptchaInfo::instance()->cookie().toLatin1());
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setHeader(QNetworkRequest::ContentLengthHeader, msg_content.length());
+
+    QNetworkReply *reply = network_mgr_.post(request, msg_content.toLatin1());
+    return reply;
+    //main_http_->setHost("s.web2.qq.com");
+    //connect(main_http_, SIGNAL(done(bool)), this, SLOT(getGroupListDone(bool)));
+    //main_http_->request(header, msg_content.toAscii());
+}
+
+QNetworkReply *Protocol::QQProtocol::getOnlineBuddy()
+{
+    QString get_online_buddy = "http://d.web2.qq.com/channel/get_online_buddies2?clientid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid() + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
+    QNetworkRequest request(get_online_buddy);
+    request.setRawHeader("Host", "d.web2.qq.com");
+    setDefaultHeaderValue(request);
+    request.setRawHeader("Referer", "http://d.web2.qq.com/proxy.html?v=2011033100");
+    request.setRawHeader("Cookie", CaptchaInfo::instance()->cookie().toLatin1());
+
+    QNetworkReply *reply = network_mgr_.get(request);
+    return reply;
+    //main_http_->setHost("d.web2.qq.com");
+}
+
+QNetworkReply *Protocol::QQProtocol::getRecentList()
+{
+    QString recent_list_url ="http://d.web2.qq.com/channel/get_recent_list2";
+    QString msg_content = "r={\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq() +
+            "\",\"clientid\":\"5412354841\",\"psessionid\":\"" + CaptchaInfo::instance()->psessionid() +
+            "\"}&cliendid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid();
+
+    QNetworkRequest request(recent_list_url);
+    request.setRawHeader("Host", "d.web2.qq.com");
+    setDefaultHeaderValue(request);
+    request.setRawHeader("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1");
+    request.setRawHeader("Cookie", CaptchaInfo::instance()->cookie().toLatin1());
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setHeader(QNetworkRequest::ContentLengthHeader, msg_content.length());
+
+    //main_http_->setHost("d.web2.qq.com");
+    QNetworkReply *reply = network_mgr_.post(request, msg_content.toLatin1());
+    return reply;
+}
+
+QNetworkReply *Protocol::QQProtocol::changeStatus(ContactStatus status)
+{
+    QString change_status_url = "http://d.web2.qq.com/channel/change_status2?newstatus=" + getOnlineStatusStr(status) + 
+        "&clientid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid() + 
+        "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
+
+    QNetworkRequest request(change_status_url);
+    request.setRawHeader("Host", "d.web2.qq.com");
+    request.setRawHeader("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1");
+    request.setRawHeader("Cookie", CaptchaInfo::instance()->cookie().toLatin1());
+    setDefaultHeaderValue(request);
+    QNetworkReply *reply = network_mgr_.get(request);
+    //main_http_->setHost("d.web2.qq.com");
+    return reply;
+}
+
+QString Protocol::QQProtocol::getOnlineStatusStr(ContactStatus status)
+{
+    switch ( status )
+    {
+        case CS_Online:
+            return "online";
+        case CS_CallMe:
+            return "callme";
+        case CS_Away:
+            return "away";
+        case CS_Busy:
+            return "busy";
+        case CS_Silent:
+            return "silent";
+        case CS_Hidden:
+            return "hidden";
+        case CS_Offline:
+            return "offline";
+        default:
+            break;
+    }
+    return "offline";
 }

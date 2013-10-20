@@ -1,6 +1,8 @@
 #ifndef STORAGE_H
 #define STORAGE_H
 
+#include <QString>
+#include <QByteArray>
 #include <QHash>
 
 class Storage

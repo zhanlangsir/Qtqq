@@ -1,7 +1,7 @@
 #ifndef CHATLOGWIN_H
 #define CHATLOGWIN_H
 
-#include <QWidget>
+#include <QtWidgets/QWidget>
 #include <QMap>
 
 #include "core/qqmsg.h"

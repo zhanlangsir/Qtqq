@@ -74,7 +74,9 @@ public:
         groups_.insert(sc_group->id, sc_group);
 
         emit groupAdded(sc_group);
+        return true;
     }
+
     QList<SCGroup *> groups() const
     {
         return groups_.values();
@@ -86,7 +88,7 @@ public:
         if ( !group )
             return NULL;
 
-        Shortcut *sc = new NormalShortcut(id, descript, key, wid);
+        Shortcut *sc = new NormalShortcut(id, descript, key.toString(), wid);
         sc->setGroup(group);
         shortcuts_.insert(sc->id(), sc);
 
@@ -100,7 +102,7 @@ public:
         if ( !group )
             return NULL;
 
-        GlobalShortcut *g_sc = new GlobalShortcut(id, descript, key, parent);
+        GlobalShortcut *g_sc = new GlobalShortcut(id, descript, key.toString(), parent);
         g_sc->setGroup(group);
         shortcuts_.insert(g_sc->id(), g_sc);
 
@@ -110,7 +112,8 @@ public:
 
     int stopShortcut(const QString &id)
     {
-        
+        Q_UNUSED(id)
+        return 0; 
     }
 
     int removeShortcut(const QString &id)
@@ -131,12 +134,12 @@ public:
     {
         if ( shortcuts_.contains(id) )
         {
-            shortcuts_[id]->setKey(key);
+            shortcuts_[id]->setKey(key.toString());
         }
     }
     void updateShortcuts(const QVector<Shortcut *> shortcuts)
     {
-
+        Q_UNUSED(shortcuts)
     }
 
     Shortcut *shortcut(const QString &id) const

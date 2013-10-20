@@ -14,6 +14,7 @@
 #include <QDesktopServices>
 #include <QDebug>
 
+#include "common/log_mgr.h"
 #include "core/captchainfo.h"
 #include "skinengine/msgstyle_manager.h"
 
@@ -109,6 +110,7 @@ void MsgBrowse::converLink(QString &content)
     QRegExp link_reg("((http|https)://|www\\.)[0-9A-Za-z:/\\.?=\\-_&{}#]*");
     QString a_templace = "<a href=\"";
 
+    LogMgr::logger_->trace("MsgBrowse::converLink! content: %1", content);
     int pos = 0;
     while ( (pos = link_reg.indexIn(content, pos)) != -1 )
     {
@@ -116,9 +118,11 @@ void MsgBrowse::converLink(QString &content)
             a_templace += "http://";
 
         QString after = a_templace  + link_reg.cap(0) + "\">" + link_reg.cap(0)+ "</a>";
-        content.replace(link_reg.cap(0), after);
+        LogMgr::logger_->trace("MsgBrowse::converLink! cap: %1, index: %2, after: %3", link_reg.cap(0), pos, after);
+        content.replace(pos, link_reg.cap(0).length(), after);
 
         pos += after.length();
+        LogMgr::logger_->trace("MsgBrowse::converLink! after replace content: %1, pos length: %2, pos[205]: %3", content, pos, content.mid(pos));
     }
 }
 

@@ -3,11 +3,14 @@
 #include <QTcpSocket>
 #include <QDateTime>
 #include <QFileInfo>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 
 #include "core/captchainfo.h"
 #include "core/talkable.h"
 #include "core/curr_login_account.h"
 #include "core/request.h"
+#include "protocol/qq_protocol.h"
 
 Protocol::ImgSender::ImgSender()
 {
@@ -16,7 +19,7 @@ Protocol::ImgSender::ImgSender()
 
 QByteArray Protocol::ImgSender::createOffpicBody(const QString &file_path, const QByteArray &file_data)
 {
-    QByteArray boundary_convenience ="--" + boundary_.toAscii() + "\r\n";
+    QByteArray boundary_convenience ="--" + boundary_.toLatin1() + "\r\n";
 
     QByteArray msg = boundary_convenience + 
         "Content-Disposition: form-data; name=\"callback\"\r\n\r\n"
@@ -26,45 +29,45 @@ QByteArray Protocol::ImgSender::createOffpicBody(const QString &file_path, const
         boundary_convenience+
         "Content-Disposition: form-data; name=\"clientversion\"\r\n\r\n1409\r\n"+
         boundary_convenience+
-        "Content-Disposition: form-data; name=\"uin\"\r\n\r\n" + CurrLoginAccount::id().toAscii() + "\r\n"+
+        "Content-Disposition: form-data; name=\"uin\"\r\n\r\n" + CurrLoginAccount::id().toLatin1() + "\r\n"+
         boundary_convenience+
-        "Content-Disposition: form-data; name=\"skey\"\r\n\r\n" + CaptchaInfo::instance()->skey().toAscii() + "\r\n"+
+        "Content-Disposition: form-data; name=\"skey\"\r\n\r\n" + CaptchaInfo::instance()->skey().toLatin1() + "\r\n"+
         boundary_convenience+
         "Content-Disposition: form-data; name=\"appid\"\r\n\r\n1002101\r\n"+
         boundary_convenience+
         "Content-Disposition: form-data; name=\"peeruin\"\r\n\r\n593023668\r\n"+
         boundary_convenience+
-        "Content-Disposition: form-data; name=\"file\"; filename=\"" + QFileInfo(file_path).fileName().toAscii() + "\"\r\n"
+        "Content-Disposition: form-data; name=\"file\"; filename=\"" + QFileInfo(file_path).fileName().toLatin1() + "\"\r\n"
         "Content-Type: image/jpeg\r\n\r\n" + file_data +"\r\n"+
         boundary_convenience+
         "Content-Disposition: form-data; name=\"fileid\"\r\n\r\n1\r\n"+
         boundary_convenience+
-        "Content-Disposition: form-data; name=\"vfwebqq\"\r\n\r\n" + CaptchaInfo::instance()->vfwebqq().toAscii() + "\r\n"+
+        "Content-Disposition: form-data; name=\"vfwebqq\"\r\n\r\n" + CaptchaInfo::instance()->vfwebqq().toLatin1() + "\r\n"+
         boundary_convenience+
         "Content-Disposition: form-data; name=\"senderviplevel\"\r\n\r\n0\r\n"+
         boundary_convenience+
         "Content-Disposition: form-data; name=\"reciverviplevel\"\r\n\r\n0\r\n" + 
-        "--" + boundary_.toAscii() +"--\r\n\r\n";
+        "--" + boundary_.toLatin1() +"--\r\n\r\n";
 
     return msg;
 }
 
 QByteArray Protocol::ImgSender::createGroupImgBody(const QString &file_path, const QByteArray &file_data)
 {
-    QByteArray boundary_convenience ="--" + boundary_.toAscii() + "\r\n";
+    QByteArray boundary_convenience ="--" + boundary_.toLatin1() + "\r\n";
 
     QByteArray msg = boundary_convenience + 
         "Content-Disposition: form-data; name=\"from\"\r\n\r\ncontrol\r\n"+
         boundary_convenience+
         "Content-Disposition: form-data; name=\"f\"\r\n\r\nEQQ.Model.ChatMsg.callbackSendPicGroup\r\n"+
         boundary_convenience+
-        "Content-Disposition: form-data; name=\"vfwebqq\"\r\n\r\n" + CaptchaInfo::instance()->vfwebqq().toAscii()+ "\r\n"+
+        "Content-Disposition: form-data; name=\"vfwebqq\"\r\n\r\n" + CaptchaInfo::instance()->vfwebqq().toLatin1()+ "\r\n"+
         boundary_convenience+
-        "Content-Disposition: form-data; name=\"custom_face\"; filename=\""+ QFileInfo(file_path).fileName().toAscii() + "\"\r\n"
+        "Content-Disposition: form-data; name=\"custom_face\"; filename=\""+ QFileInfo(file_path).fileName().toLatin1() + "\"\r\n"
         "Content-Type: image/jpeg\r\n\r\n" + file_data +"\r\n"+
         boundary_convenience+
         "Content-Disposition: form-data; name=\"fileid\"\r\n\r\n1\r\n" + 
-        "--"+boundary_.toAscii() +"--\r\n\r\n";
+        "--"+boundary_.toLatin1() +"--\r\n\r\n";
 
     return msg;
 }
@@ -136,24 +139,24 @@ bool Protocol::ImgSender::parseGroupMsgResult(QString file_path, const QByteArra
 
 void Protocol::ImgSender::getKeyAndSig()
 {
-    QString gface_sig_url = "/channel/get_gface_sig2?clientid=5412354841&psessionid="+CaptchaInfo::instance()->psessionid() +
+    QString gface_sig_url = "http://d.web2.qq.com/channel/get_gface_sig2?clientid=5412354841&psessionid="+CaptchaInfo::instance()->psessionid() +
         "&t="+QString::number(QDateTime::currentMSecsSinceEpoch());
 
-    QHttpRequestHeader header;
-    header.setRequest("GET", gface_sig_url);
-    header.addValue("Host", "d.web2.qq.com");
-    header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002");
-    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
+    QNetworkRequest request(gface_sig_url);
+    request.setRawHeader("Host", "d.web2.qq.com");
+    request.setRawHeader("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002");
+    request.setRawHeader("Cookie", CaptchaInfo::instance()->cookie().toLatin1());
 
-    http_.setHost("d.web2.qq.com");
-    connect(&http_, SIGNAL(done(bool)), this, SLOT(getKeyAndSigDone(bool)));
+    qDebug() << "GetKeyAndSig: " << request.rawHeaderList() << endl;
 
-    http_.request(header);
+    QNetworkReply *reply = Protocol::QQProtocol::instance()->networkMgr()->get(request);
+    connect(reply, SIGNAL(finished()), this, SLOT(getKeyAndSigDone()));
 }
 
-void Protocol::ImgSender::getKeyAndSigDone(bool err)
+void Protocol::ImgSender::getKeyAndSigDone()
 {
-    QByteArray array = http_.readAll();
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    QByteArray array = reply->readAll();
 
     int gface_key_idx = array.indexOf("gface_key")+12;
     int gface_key_end_idx = array.indexOf(",",gface_key_idx)-1;

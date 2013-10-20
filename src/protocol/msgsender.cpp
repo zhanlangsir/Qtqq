@@ -9,6 +9,7 @@
 #include "core/captchainfo.h"
 #include "protocol/imgsender.h"
 #include "core/sockethelper.h"
+#include "core/request.h"
 
 int Protocol::MsgSender::msg_id_ = 4462000;  //arbitrary
 
@@ -127,17 +128,17 @@ QString Protocol::MsgSender::getGroupSig(QString gid, QString to_id)
     QString msg_sig_url = "/channel/get_c2cmsg_sig2?id="+ gid +"&to_uin=" + to_id +
         "&service_type=0&clientid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid() +"&t=" + QString::number(QDateTime::currentMSecsSinceEpoch());
 
-    QHttpRequestHeader header;
+    Request request;
+    request.create(kGet, msg_sig_url);
     QString host = "d.web2.qq.com";
-    header.setRequest("GET", msg_sig_url);
-    header.addValue("Host", host);
-    header.addValue("Content-Type", "utf-8");
-    header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002");
-    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
+    request.addHeaderItem("Host", host);
+    request.addHeaderItem("Content-Type", "utf-8");
+    request.addHeaderItem("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002");
+    request.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie().toLatin1());
 
     QTcpSocket fd;
     fd.connectToHost(host, 80);
-    fd.write(header.toString().toAscii());
+    fd.write(request.toByteArray());
 
     QByteArray result;
     socketReceive(&fd, result);

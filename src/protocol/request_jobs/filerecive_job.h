@@ -1,7 +1,6 @@
 #ifndef FILERECIVE_JOB_H
 #define FILERECIVE_JOB_H
 
-#include <QHttp>
 #include <QString>
 
 #include "protocol/request_jobs/job_base.h"
@@ -29,7 +28,6 @@ private slots:
     void onDataReadProgress(int done, int total);
 
 private:
-    QHttp http_;
     QFile *save_to_;
     int session_id_;
     QString file_;

@@ -1,8 +1,6 @@
 #ifndef GROUPMEMBERLISTJOB_H
 #define GROUPMEMBERLISTJOB_H
 
-#include <QHttp>
-
 #include "protocol/request_jobs/job_base.h"
 
 class GroupMemberListJob : public __JobBase
@@ -17,10 +15,9 @@ public:
     virtual void run();
 
 private slots:
-    void requestDone(bool err);
+    void requestDone();
 
 private:
-    QHttp http_;
     Talkable::TalkableType t_type_;
     QString gcode_;
 };

@@ -4,6 +4,10 @@
 #include <QObject>
 #include <QList>
 #include <QMap>
+#include <QTcpSocket>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 
 #include "protocol/request_jobs/job_base.h"
 #include "protocol/msgsender.h"
@@ -99,15 +103,26 @@ public:
     QQLoginCore::LoginResult login(QString id, QString pwd, ContactStatus status);
     QQLoginCore::LoginResult login(QString id, QString pwd, ContactStatus status, QString vc);
 
+    QNetworkReply *getFriendList();
+    QNetworkReply *getRecentList();
+    QNetworkReply *getOnlineBuddy();
+    QNetworkReply *getGroupList();
+    QNetworkReply *changeStatus(ContactStatus status);
+
+    QNetworkAccessManager *networkMgr()
+    {
+        return &network_mgr_;
+    }
+
 private slots:
 	void slotJobDone(__JobBase* job, bool error);
 
 private:
     void runJob(__JobBase *job);
+    QString getOnlineStatusStr(ContactStatus status);
 
 private:
     QMap<JobType, QList<QString> > requesting_;
-	//QMap<JobType, QString> requesting_;
     QMap<int, FileReciveJob *> reciving_jobs_;
     QMap<QString, SendFileJob *> sending_jobs_;
 
@@ -118,6 +133,8 @@ private:
     MsgSender *msgsender_;
 
     QQLoginCore *login_core_;
+    QTcpSocket http_socket_;
+    QNetworkAccessManager network_mgr_;
 
 private:
 	QQProtocol(); 

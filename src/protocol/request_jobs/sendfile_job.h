@@ -1,8 +1,6 @@
 #ifndef SENDFILE_JOB_H
 #define SENDFILE_JOB_H
 
-#include <QHttp>
-
 #include "protocol/request_jobs/job_base.h"
 
 class Talkable;
@@ -27,7 +25,7 @@ public:
     void stop();
 
 private slots:
-    void requestDone(bool error);
+    void requestDone();
     void onDataSendProgress(int done, int total);
 
 private:
@@ -35,7 +33,6 @@ private:
     QString getFilePath(const QByteArray &data);
 
 private:
-    QHttp http_;
 
     SendFileJobType filejob_type_;
 

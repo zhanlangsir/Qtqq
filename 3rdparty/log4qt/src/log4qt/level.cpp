@@ -32,6 +32,7 @@
 #include "log4qt/level.h"
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDataStream>
 #include <QtCore/QDebug>
 #include "log4qt/logger.h"
 

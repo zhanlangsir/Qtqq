@@ -1,6 +1,5 @@
 #include "sendimg_job.h"
 
-#include <QHttpRequestHeader>
 #include <QDateTime>
 #include <QDebug>
 
@@ -13,20 +12,20 @@
 
 SendImgJob::SendImgJob(const QString &file_path, const QByteArray &data, SendImgType sendimg_type, JobType type) : 
 	__JobBase(NULL, type),
-	http_(this),
     sendimg_type_(sendimg_type),
     file_path_(file_path),
     data_(data)
 {
-	connect(&http_, SIGNAL(done(bool)), this, SLOT(requestDone(bool)));
 }
 
-void SendImgJob::requestDone(bool error)
+void SendImgJob::requestDone()
 {
-	if ( !error )
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+	if ( !reply->error() )
     {
-        QByteArray data = http_.readAll();
-        http_.close();
+		QByteArray data = reply->readAll();
+		reply->close();
+        reply->deleteLater();
 
         qDebug() << "Image request done, data:\n" << data << endl;
         Protocol::ImgSender *sender = Protocol::QQProtocol::instance()->imgSender();
@@ -48,11 +47,10 @@ void SendImgJob::requestDone(bool error)
 	else
 	{
 		qDebug() << "Send image " << file_path_ << " " << " failed! " << endl;
-		qDebug() << "error: " << http_.errorString() << endl;
+		qDebug() << "error: " << reply->error() << endl;
 	}
 
-	http_.disconnect(this);
-	emit sigJobDone(this, error);
+	emit sigJobDone(this, reply->error());
 }
 
 void SendImgJob::run()
@@ -61,28 +59,28 @@ void SendImgJob::run()
     QString host;
     if (  sendimg_type_ == kOffpic )
     {
-        send_url = "/ftn_access/upload_offline_pic?time=" + QString::number(QDateTime::currentMSecsSinceEpoch());
+        send_url = "http://weboffline.ftn.qq.com/ftn_access/upload_offline_pic?time=" + QString::number(QDateTime::currentMSecsSinceEpoch());
 ;
         host = "weboffline.ftn.qq.com";
     }
     else if ( sendimg_type_ == kGroupImg )
     {
-        send_url = "/cgi-bin/cface_upload?time=" + QString::number(QDateTime::currentMSecsSinceEpoch());
+        send_url = "http://up.web2.qq.com/cgi-bin/cface_upload?time=" + QString::number(QDateTime::currentMSecsSinceEpoch());
 ;
         host = "up.web2.qq.com";
     }
 
-    QHttpRequestHeader header;
+    QNetworkRequest request(send_url);
 
-    header.setRequest("POST", send_url);
-    header.addValue("Host", host);
-    header.addValue("Content-Length", QString::number(data_.length()));
-    header.addValue("Cache-Control", "max-age=0");
-    header.addValue("Origin", "http://web.qq.com");
-    header.addValue("Content-Type", "multipart/form-data; boundary="+Protocol::QQProtocol::instance()->imgSender()->boundary());
-    header.addValue("Referer", "http://web.qq.com/");
-    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
+    //header.setRequest("POST", send_url);
+    request.setRawHeader("Host", host.toLatin1());
+    request.setRawHeader("Content-Length", QString::number(data_.length()).toLatin1());
+    request.setRawHeader("Cache-Control", "max-age=0");
+    request.setRawHeader("Origin", "http://web.qq.com");
+    request.setRawHeader("Content-Type", "multipart/form-data; boundary="+Protocol::QQProtocol::instance()->imgSender()->boundary().toLatin1());
+    request.setRawHeader("Referer", "http://web.qq.com/");
+    request.setRawHeader("Cookie", CaptchaInfo::instance()->cookie().toLatin1());
 
-    http_.setHost(host);
-    http_.request(header, data_);
+    QNetworkReply *reply = Protocol::QQProtocol::instance()->networkMgr()->post(request, data_);
+    connect(reply, SIGNAL(finished()), this, SLOT(requestDone()));
 }

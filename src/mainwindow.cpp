@@ -1,15 +1,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QDateTime>
 #include <QDesktopWidget>
 #include <QModelIndex>
 #include <QMessageBox>
 #include <QEvent>
 #include <QCursor>
 #include <QFile>
-#include <QHttp>
 #include <QSettings>
+#include <QJSEngine>
 #include <QDebug>
 
 #include "qxtglobalshortcut.h"
@@ -54,7 +53,6 @@
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MainWindow),
-    main_http_(new QHttp),
     friend_view_(new RosterView(this)),
     group_view_(new RosterView(this)),
     recent_view_(new RosterView(this)),
@@ -121,13 +119,6 @@ MainWindow::~MainWindow()
     CLEAN(group_model_)
     CLEAN(recent_model_)
 #undef CLEAN
-
-	if ( main_http_ )
-	{
-		main_http_->close();
-		delete main_http_;
-		main_http_ = NULL;
-	}
 }
 
 void MainWindow::initUi()
@@ -150,7 +141,9 @@ void MainWindow::initUi()
 
 void MainWindow::snapshot()
 {
+    //it will be release in KSnapshot class
     KSnapshot *snap = new KSnapshot();
+    Q_UNUSED(snap)
 }
 
 void MainWindow::aboutQt()
@@ -203,20 +196,9 @@ void MainWindow::openMainMenu()
 
 void MainWindow::changeMyStatus(int idx)
 {
-    QString change_status_url = "/channel/change_status2?newstatus=" + getStatusByIndex(idx) + 
-        "&clientid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid() + 
-        "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
-
-    QHttpRequestHeader header("GET", change_status_url);
-    header.addValue("Host", "d.web2.qq.com");
-    setDefaultHeaderValue(header);
-    header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1");
-    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
-
-    main_http_->setHost("d.web2.qq.com");
-    main_http_->request(header);
-
-	CurrLoginAccount::setStatus(ui->cb_status->itemData(idx).value<ContactStatus>());
+    ContactStatus new_status = ui->cb_status->itemData(idx).value<ContactStatus>();
+    Protocol::QQProtocol::instance()->changeStatus(new_status);
+	CurrLoginAccount::setStatus(new_status);
 
 	updateLoginUser();
 }
@@ -270,27 +252,15 @@ QString MainWindow::hashO(const QString &uin, const QString &ptwebqq)
 
 void MainWindow::getFriendList()
 {
-    QString get_friendlist_url = "/api/get_user_friends2";
-    QString msg_content = "r={\"h\":\"hello\",\"hash\":\"" + hashO(CurrLoginAccount::id(), CaptchaInfo::instance()->ptwebqq())+ "\",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq() + "\"}";
-
-    QHttpRequestHeader header("POST", get_friendlist_url);
-    header.addValue("Host", "s.web2.qq.com");
-    setDefaultHeaderValue(header);
-    header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=3");
-    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
-    header.setContentType("application/x-www-form-urlencoded");
-    header.setContentLength(msg_content.length());
-
-    main_http_->setHost("s.web2.qq.com");
-    connect(main_http_, SIGNAL(done(bool)), this, SLOT(getFriendListDone(bool)));
-    main_http_->request(header, msg_content.toAscii());
+    QNetworkReply *reply = Protocol::QQProtocol::instance()->getFriendList();
+    connect(reply, SIGNAL(finished()), this, SLOT(getFriendListDone()));
 }
 
-void MainWindow::getFriendListDone(bool err)
+void MainWindow::getFriendListDone()
 {
-    Q_UNUSED(err)
-    disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getFriendListDone(bool)));
-    QByteArray contact_info = main_http_->readAll();
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    QByteArray contact_info = reply->readAll();
+    reply->deleteLater();
     qDebug() << "Contact list:\n" << contact_info << endl;
 
     contact_model_ = new RosterModel(this);
@@ -334,26 +304,15 @@ void MainWindow::getSingleLongNick()
 
 void MainWindow::getGroupList()
 {
-    QString get_grouplist_url = "/api/get_group_name_list_mask2";
-    QString msg_content = "r={\"h\":\"hello\",\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq() + "\"}";
-    QHttpRequestHeader header("POST", get_grouplist_url);
-    header.addValue("Host", "s.web2.qq.com");
-    setDefaultHeaderValue(header);
-    header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001&callback=1&id=1");
-    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
-    header.setContentType("application/x-www-form-urlencoded");
-    header.setContentLength(msg_content.length());
-
-    main_http_->setHost("s.web2.qq.com");
-    connect(main_http_, SIGNAL(done(bool)), this, SLOT(getGroupListDone(bool)));
-    main_http_->request(header, msg_content.toAscii());
+    QNetworkReply *reply = Protocol::QQProtocol::instance()->getGroupList();
+    connect(reply, SIGNAL(finished()), this, SLOT(getGroupListDone()));
 }
 
-void MainWindow::getGroupListDone(bool err)
+void MainWindow::getGroupListDone()
 {
-    Q_UNUSED(err)
-            disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getGroupListDone(bool)));
-    QByteArray groups_info = main_http_->readAll();
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    QByteArray groups_info = reply->readAll();
+    reply->deleteLater();
     qDebug() << "Group List: \n" << groups_info << endl;
 
     group_model_ = new RosterModel(this);
@@ -372,23 +331,15 @@ void MainWindow::getGroupListDone(bool err)
 
 void MainWindow::getOnlineBuddy()
 {
-    QString get_online_buddy = "/channel/get_online_buddies2?clientid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid() + "&t=" + QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
-    QHttpRequestHeader header("GET", get_online_buddy);
-    header.addValue("Host", "d.web2.qq.com");
-    setDefaultHeaderValue(header);
-    header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=2011033100");
-    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
-
-    main_http_->setHost("d.web2.qq.com");
-    connect(main_http_, SIGNAL(done(bool)), this, SLOT(getOnlineBuddyDone(bool)));
-    main_http_->request(header);
+    QNetworkReply *reply = Protocol::QQProtocol::instance()->getOnlineBuddy();
+    connect(reply, SIGNAL(finished()), this, SLOT(getOnlineBuddyDone()));
 }
 
-void MainWindow::getOnlineBuddyDone(bool err)
+void MainWindow::getOnlineBuddyDone()
 {
-    Q_UNUSED(err)
-    disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getOnlineBuddyDone(bool)));
-    QByteArray online_buddies = main_http_->readAll();
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    QByteArray online_buddies = reply->readAll();
+    reply->deleteLater();
     Roster::instance()->parseContactStatus(online_buddies);
 
     Protocol::QQProtocol *protocol = Protocol::QQProtocol::instance();
@@ -451,29 +402,15 @@ void MainWindow::getPersonalInfo()
 
 void MainWindow::getRecentList()
 {
-    QString recent_list_url ="/channel/get_recent_list2";
-    QString msg_content = "r={\"vfwebqq\":\"" + CaptchaInfo::instance()->vfwebqq() +
-            "\",\"clientid\":\"5412354841\",\"psessionid\":\"" + CaptchaInfo::instance()->psessionid() +
-            "\"}&cliendid=5412354841&psessionid=" + CaptchaInfo::instance()->psessionid();
-
-    QHttpRequestHeader header("POST", recent_list_url);
-    header.addValue("Host", "d.web2.qq.com");
-    setDefaultHeaderValue(header);
-    header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1");
-    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
-    header.setContentType("application/x-www-form-urlencoded");
-    header.setContentLength(msg_content.length());
-
-    main_http_->setHost("d.web2.qq.com");
-    connect(main_http_, SIGNAL(done(bool)), this, SLOT(getRecentListDone(bool)));
-    main_http_->request(header, msg_content.toAscii());
+    QNetworkReply *reply = Protocol::QQProtocol::instance()->getRecentList();
+    connect(reply, SIGNAL(finished()), this, SLOT(getRecentListDone()));
 }
 
-void MainWindow::getRecentListDone(bool err)
+void MainWindow::getRecentListDone()
 {
-    Q_UNUSED(err)
-    disconnect(main_http_, SIGNAL(done(bool)), this, SLOT(getRecentListDone(bool)));
-    QByteArray recent_list = main_http_->readAll();
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    QByteArray recent_list = reply->readAll();
+    reply->deleteLater();
 	
     recent_model_ = new RecentModel(this);
     connect(recent_view_, SIGNAL(doubleClicked(const QModelIndex &)), recent_model_, SLOT(onDoubleClicked(const QModelIndex &)));
@@ -526,37 +463,13 @@ void MainWindow::openFirstChatDlg()
     }
 }
 
-QString MainWindow::getStatusByIndex(int idx) const
-{
-    switch (ui->cb_status->itemData(idx).value<ContactStatus>())
-    {
-        case CS_Online:
-            return "online";
-        case CS_CallMe:
-            return "callme";
-        case CS_Away:
-            return "away";
-        case CS_Busy:
-            return "busy";
-        case CS_Silent:
-            return "silent";
-        case CS_Hidden:
-            return "hidden";
-        case CS_Offline:
-            return "offline";
-        default:
-            break;
-    }
-    return "offline";
-}
-
 void MainWindow::setupLoginStatus()
 {
     ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_online")), tr("Online"), QVariant::fromValue<ContactStatus>(CS_Online));
     ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_qme")), tr("CallMe"), QVariant::fromValue<ContactStatus>(CS_CallMe));
     ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_away")), tr("Away"), QVariant::fromValue<ContactStatus>(CS_Away));
     ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_busy")), tr("Busy"), QVariant::fromValue<ContactStatus>(CS_Busy));
-    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_mute")), tr("Silent"), QVariant::fromValue<ContactStatus>(CS_Silent));
+    ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_silent")), tr("Silent"), QVariant::fromValue<ContactStatus>(CS_Silent));
     ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_hidden")), tr("Hidden"), QVariant::fromValue<ContactStatus>(CS_Hidden));
     ui->cb_status->addItem(QIcon(QQSkinEngine::instance()->skinRes("status_offline")), tr("Offline"), QVariant::fromValue<ContactStatus>(CS_Offline));
 

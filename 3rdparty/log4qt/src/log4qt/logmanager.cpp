@@ -188,12 +188,20 @@ namespace Log4Qt
 	    if (instance()->mHandleQtMessages)
 	    {
 	        static_logger()->trace("Activate Qt message handling");
-	        instance()->mOldQtMsgHandler = qInstallMsgHandler(qtMessageHandler);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+            instance()->mOldQtMsgHandler = qInstallMsgHandler(qtMessageHandler);
+#else
+            instance()->mOldQtMsgHandler = qInstallMessageHandler(qtMessageHandler);
+#endif
 	    }
 	    else
 	    {
 	        static_logger()->trace("Deactivate Qt message handling");
-	        qInstallMsgHandler(instance()->mOldQtMsgHandler);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+            qInstallMsgHandler(instance()->mOldQtMsgHandler);
+#else
+            qInstallMessageHandler(instance()->mOldQtMsgHandler);
+#endif
 	    }
 	}
 	
@@ -363,55 +371,106 @@ namespace Log4Qt
         }
     }
     
-    
-	void LogManager::qtMessageHandler(QtMsgType type, const char *pMessage)
-	{
-	    Level level;
-	    switch (type)
-	    {
-	        case QtDebugMsg:
-	            level = Level::DEBUG_INT;
-	            break;
-	        case QtWarningMsg:
-	            level = Level::WARN_INT;
-	            break;
-	        case QtCriticalMsg:
-	            level = Level::ERROR_INT;
-	            break;
-	        case QtFatalMsg:
-	            level = Level::FATAL_INT;
-	            break;
-	        default:
-	            level = Level::TRACE_INT;
-	    }
-	    instance()->qtLogger()->log(level, pMessage);
-	    
-	    // Qt fatal behaviour copied from global.cpp qt_message_output()
-	    // begin {
-	    
-	    if ((type == QtFatalMsg) || 
-	        ((type == QtWarningMsg) && (!qgetenv("QT_FATAL_WARNINGS").isNull())) )
-	    {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    void LogManager::qtMessageHandler(QtMsgType type, const char *pMessage)
+    {
+        Level level;
+        switch (type)
+        {
+            case QtDebugMsg:
+                level = Level::DEBUG_INT;
+                break;
+            case QtWarningMsg:
+                level = Level::WARN_INT;
+                break;
+            case QtCriticalMsg:
+                level = Level::ERROR_INT;
+                break;
+            case QtFatalMsg:
+                level = Level::FATAL_INT;
+                break;
+            default:
+                level = Level::TRACE_INT;
+        }
+        instance()->qtLogger()->log(level, pMessage);
+
+        // Qt fatal behaviour copied from global.cpp qt_message_output()
+        // begin {
+
+        if ((type == QtFatalMsg) ||
+            ((type == QtWarningMsg) && (!qgetenv("QT_FATAL_WARNINGS").isNull())) )
+        {
 #if defined(Q_CC_MSVC) && defined(QT_DEBUG) && defined(_DEBUG) && defined(_CRT_ERROR)
-	        // get the current report mode
-	        int reportMode = _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_WNDW);
-	        _CrtSetReportMode(_CRT_ERROR, reportMode);
-	        int ret = _CrtDbgReport(_CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, pMessage);
-	        if (ret == 0  && reportMode & _CRTDBG_MODE_WNDW)
-	            return; // ignore
-	        else if (ret == 1)
-	            _CrtDbgBreak();
+            // get the current report mode
+            int reportMode = _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_WNDW);
+            _CrtSetReportMode(_CRT_ERROR, reportMode);
+            int ret = _CrtDbgReport(_CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, pMessage);
+            if (ret == 0  && reportMode & _CRTDBG_MODE_WNDW)
+                return; // ignore
+            else if (ret == 1)
+                _CrtDbgBreak();
 #endif
-	        
+
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
-	        abort(); // trap; generates core dump
+            abort(); // trap; generates core dump
 #else
-	        exit(1); // goodbye cruel world
+            exit(1); // goodbye cruel world
 #endif
-	    }
-	    
-	    // } end
-	}
+        }
+
+        // } end
+    }
+#else
+    void LogManager::qtMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &message)
+    {
+        Level level;
+        switch (type)
+        {
+            case QtDebugMsg:
+                level = Level::DEBUG_INT;
+                break;
+            case QtWarningMsg:
+                level = Level::WARN_INT;
+                break;
+            case QtCriticalMsg:
+                level = Level::ERROR_INT;
+                break;
+            case QtFatalMsg:
+                level = Level::FATAL_INT;
+                break;
+            default:
+                level = Level::TRACE_INT;
+        }
+        instance()->qtLogger()->log(level, message);
+
+        // Qt fatal behaviour copied from global.cpp qt_message_output()
+        // begin {
+
+        if ((type == QtFatalMsg) ||
+            ((type == QtWarningMsg) && (!qgetenv("QT_FATAL_WARNINGS").isNull())) )
+        {
+#if defined(Q_CC_MSVC) && defined(QT_DEBUG) && defined(_DEBUG) && defined(_CRT_ERROR)
+            // get the current report mode
+            int reportMode = _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_WNDW);
+            _CrtSetReportMode(_CRT_ERROR, reportMode);
+            int ret = _CrtDbgReport(_CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, message.toUtf8().constData());
+            if (ret == 0  && reportMode & _CRTDBG_MODE_WNDW)
+                return; // ignore
+            else if (ret == 1)
+                _CrtDbgBreak();
+#endif
+
+#if defined(Q_OS_UNIX) && defined(QT_DEBUG)
+            abort(); // trap; generates core dump
+#else
+            exit(1); // goodbye cruel world
+#endif
+        }
+
+        // } end
+    }
+#endif
+
 	
 	
 	LogManager *LogManager::mspInstance = 0;

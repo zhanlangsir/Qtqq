@@ -36,8 +36,8 @@ public:
         id_(id),
         descript_(desc),
         key_(key),
-        type_(type),
-        group_(NULL)
+        group_(NULL),
+        type_(type)
     {
     }
 

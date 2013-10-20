@@ -1,6 +1,7 @@
 #include "roster_model_base.h"
 
 #include <QIcon>
+#include <QPixmap>
 
 #include "rostermodel/roster_index.h"
 #include "utils/icon_decorator.h"

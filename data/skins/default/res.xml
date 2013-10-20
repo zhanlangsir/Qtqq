@@ -8,7 +8,7 @@ status_online="status/imonline.png"
 status_qme="status/Qme.png"
 status_away="status/away.png"
 status_busy="status/busy.png"
-status_mute="status/mute.png"
+status_silent="status/silent.png"
 status_hidden="status/invisible.png"
 status_offline="status/imoffline.png"
 

@@ -124,7 +124,7 @@ namespace Log4Qt
 	     * <th width="20%"> String </th>
 	     * <th> Format </th>
 	     * </tr><tr>
-	     * <td> ABSOLUTE </td>     
+         * <td> TIME_ABSOLUTE </td>
 	     * <td> uses the format HH:mm:ss.zzz </td>
 	     * </tr><tr bgcolor="#ffffff">
 	     * <td> DATE </td>     
@@ -136,7 +136,7 @@ namespace Log4Qt
 	     * <td> NONE </td>
 	     * <td> uses an empty string as format </td>
 	     * </tr><tr bgcolor="#ffffff">
-	     * <td> RELATIVE </td>
+         * <td> TIME_RELATIVE </td>
 	     * <td> returns the milliseconds since start of the program</td>
 	     * </tr>
 	     * </table>

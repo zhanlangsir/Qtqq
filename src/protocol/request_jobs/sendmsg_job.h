@@ -2,7 +2,6 @@
 #define SENDMSG_JOB_H
 
 #include <QVector>
-#include <QHttp>
 
 #include "job_base.h"
 #include "core/qqchatitem.h"
@@ -27,11 +26,9 @@ protected:
     QVector<QQChatItem> msgs_;
 
 private slots:
-    void requestDone(bool error);
+    void requestDone();
 
 private:
-    QHttp http_;
-
     Talkable::TalkableType t_type_;
 };
 

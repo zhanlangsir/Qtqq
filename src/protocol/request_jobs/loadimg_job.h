@@ -1,12 +1,15 @@
 #ifndef LOADIMG_JOB_H
 #define LOADIMG_JOB_H
 
-#include <QHttp>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QTcpSocket>
 #include <QUrl>
 #include <QDebug>
 
 #include "protocol/request_jobs/job_base.h"
 #include "protocol/request_jobs/img_type.h"
+#include "protocol/qq_protocol.h"
 #include "core/captchainfo.h"
 
 class LoadImgJob : public __JobBase
@@ -26,14 +29,14 @@ public:
 protected:
     QString request_url_;
     QString host_;
-	QHttp http_;
+	QTcpSocket http_socket_;
 
     QString file_;
     ImgType img_type_;
 
 private slots:
-    void onRequestImgDone(bool err);
-    void onGetImgUrlDone(bool err);
+    void onRequestImgDone();
+    void onGetImgUrlDone();
 
 private:
     virtual void triggerEvent(const QByteArray &data) = 0;
@@ -47,7 +50,7 @@ public:
         LoadImgJob(file_name, type),
         to_id_(to_id)
     {
-        request_url_ = "/channel/get_offpic2?file_path=" +file_name + "&f_uin=" + to_id + "&clientid=5412354841&psessionid="+
+        request_url_ = "http://d.web2.qq.com/channel/get_offpic2?file_path=" +file_name + "&f_uin=" + to_id + "&clientid=5412354841&psessionid="+
             CaptchaInfo::instance()->psessionid();
         host_ = "d.web2.qq.com";   
     }
@@ -67,7 +70,7 @@ public:
         LoadImgJob(file_name, type),
         to_id_(to_id)
     {
-        request_url_ = "/channel/get_cface2?lcid=" + msg_id+ "&guid=" + file_name + "&to=" + to_id + "&count=5&time=1&clientid=5412354841&psessionid="+CaptchaInfo::instance()->psessionid();
+        request_url_ = "http://d.web2.qq.com/channel/get_cface2?lcid=" + msg_id+ "&guid=" + file_name + "&to=" + to_id + "&count=5&time=1&clientid=5412354841&psessionid="+CaptchaInfo::instance()->psessionid();
         host_ = "d.web2.qq.com";
     }
 
@@ -86,51 +89,52 @@ public:
         LoadImgJob(file_name, type),
         gid_(gid)
     {
-        request_url_ = "/cgi-bin/get_group_pic?type=0&gid=" + gcode + "&uin=" + uin + "&rip=" +rip + "&rport=" + rport + "&fid=" + fid + "&pic=" + file_name + "&vfwebqq="+ CaptchaInfo::instance()->vfwebqq() + "&t="+time;
+        request_url_ = "http://web.qq.com/cgi-bin/get_group_pic?type=0&gid=" + gcode + "&uin=" + uin + "&rip=" +rip + "&rport=" + rport + "&fid=" + fid + "&pic=" + file_name + "&vfwebqq="+ CaptchaInfo::instance()->vfwebqq() + "&t="+time;
         host_ = "web.qq.com";
     }
 
 private slots:
     void onGetImgDone(bool err)
     {
-        QHttpResponseHeader response = http_.lastResponse(); 
-        qDebug() << "Get Group Image response header:\n"
-            << response.toString() << endl;
+        QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
-        QByteArray data = http_.readAll();
+        QByteArray data = reply->readAll();
+        qDebug() << "Get Group Image response:\n"
+            << reply->rawHeaderList() << "\ndata: " << data << endl;
+        /*
         if ( response.statusCode() == 200 )
         {
             triggerEvent(data);
             return;
         }
+        */
 
-        QString location = response.value("Location");
+        QString location = reply->rawHeader("Location");
         qDebug() << location << endl;
-        disconnect(&http_, SIGNAL(done(bool)), this, SLOT(onGetImgDone(bool)));
+        disconnect(reply, SIGNAL(finished()), this, SLOT(onGetImgDone()));
+        reply->deleteLater();
 
+        QNetworkRequest request(getRequestUrl(location));
         QString host = getHost(location);
-        QHttpRequestHeader header;
-        header.setRequest("GET", getRequestUrl(location));
-        header.addValue("Host", host);
-        header.addValue("Referer", "http://web.qq.com");
-        header.addValue("Cookie", CaptchaInfo::instance()->cookie());
+        request.setRawHeader("Host", host.toLatin1());
+        request.setRawHeader("Referer", "http://web.qq.com");
+        request.setRawHeader("Cookie", CaptchaInfo::instance()->cookie().toLatin1());
 
         qDebug() << "Image request:\n"
-            << header.toString() << endl;
+            << request.rawHeaderList() << endl;
 
-        http_.setHost(host);
-        connect(&http_, SIGNAL(done(bool)), this, SLOT(onRedirectDone(bool)));
-        http_.request(header);
+        reply = Protocol::QQProtocol::instance()->networkMgr()->get(request);
+        connect(reply, SIGNAL(finished()), this, SLOT(onRedirectDone()));
     }
 
     void onRedirectDone(bool err)
     {
-        disconnect(&http_, SIGNAL(done(bool)), this, SLOT(onRedirectDone(bool)));
-        QHttpResponseHeader response = http_.lastResponse(); 
+        QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+        disconnect(reply, SIGNAL(done(bool)), this, SLOT(onRedirectDone()));
         qDebug() << "Get Group Image redirect response header:\n"
-            << response.toString() << endl;
+            << reply->rawHeaderList() << endl;
 
-        QByteArray data = http_.readAll();
+        QByteArray data = reply->readAll();
         triggerEvent(data);
     }
 
@@ -144,18 +148,16 @@ private:
 
     virtual void getImg()
     {
-        QHttpRequestHeader header;
-        header.setRequest("GET", request_url_);
-        header.addValue("Host", host_);
-        header.addValue("Referer", "http://web.qq.com");
-        header.addValue("Cookie", CaptchaInfo::instance()->cookie());
+        QNetworkRequest request(request_url_);
+        request.setRawHeader("Host", host_.toLatin1());
+        request.setRawHeader("Referer", "http://web.qq.com");
+        request.setRawHeader("Cookie", CaptchaInfo::instance()->cookie().toLatin1());
 
         qDebug() << "Image request:\n"
-            << header.toString() << endl;
+            << request.rawHeaderList() << endl;
 
-        http_.setHost(host_);
-        connect(&http_, SIGNAL(done(bool)), this, SLOT(onGetImgDone(bool)));
-        http_.request(header);
+        QNetworkReply *reply = Protocol::QQProtocol::instance()->networkMgr()->get(request);
+        connect(reply, SIGNAL(finished()), this, SLOT(onGetImgUrlDone()));
     }
 
 private:

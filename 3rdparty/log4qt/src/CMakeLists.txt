@@ -40,7 +40,7 @@ set(log4qt_HEADERS
 	log4qt/helpers/patternformatter.h
 )	
 
-QT4_WRAP_CPP(log4qt_HEADERS_MOC ${log4qt_HEADERS})
+QT_WRAP_CPP(log4qt_HEADERS_MOC ${log4qt_HEADERS})
 
 set(helpers_SOURCES
 	log4qt/helpers/logerror.cpp
@@ -94,8 +94,10 @@ set(log4qt_SOURCES
 	log4qt/patternlayout.cpp
 )
 
-include(${QT_USE_FILE})
-
+include_directories(${Qt5Widgets_INCLUDE_DIRS})
+include_directories(${Qt5Core_INCLUDE_DIRS})
+include_directories(${Qt5Gui_INCLUDE_DIRS})
+include_directories(${Qt5Network_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_library(log4qt SHARED
@@ -103,6 +105,7 @@ add_library(log4qt SHARED
 	${spi_SOURCES}
 	${varia_SOURCES}
 	${log4qt_SOURCES}
+    ${log4qt_HEADERS}
 	${log4qt_HEADERS_MOC}
 )
 

@@ -72,6 +72,7 @@ public:
 
 	virtual QVariant data(int role) const
 	{
+        Q_UNUSED(role)
 		return QVariant();
 	}
 

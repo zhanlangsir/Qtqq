@@ -3,6 +3,7 @@
 #include <QByteArray>
 #include <QDebug>
 #include <QPixmap>
+#include <QByteArray>
 #include <QCryptographicHash>
 #include <QTcpSocket>
 #include <assert.h>
@@ -30,23 +31,64 @@ QQLoginCore::~QQLoginCore()
     delete fd_;
 }
 
+QString QQLoginCore::getLoginSig()
+{
+    QString get_sig_url = "/cgi-bin/login?daid=164&target=self&style=5&mibao_css=m_webqq&appid=1003903&enable_qlogin=0&s_url=http%3A%2F%2Fweb2.qq.com%2Floginproxy.html";
+
+    Request req;
+    req.create(kGet, get_sig_url);
+    req.addHeaderItem("Host", "ui.ptlogin2.qq.com");
+    req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
+
+    fd_->connectToHost("ui.ptlogin2.qq.com", 80);
+    fd_->write(req.toByteArray());
+    
+    QByteArray result;
+    socketReceive(fd_, result);
+
+    if ( result.isEmpty() )
+    {
+        return QString();
+    }
+
+    QByteArray result_body;
+    QQUtility::gzdecompress(result.mid(result.indexOf("\r\n\r\n")+4), result_body);
+    //qDebug() << "get login sig result: " << result_body << endl;
+
+    if ( result_body.isEmpty() )
+    {
+        return QString();
+    }
+
+    QRegExp sig_reg("var g_login_sig=encodeURIComponent\\(\"(.*)\"\\)");
+    sig_reg.setMinimal(true);
+    if ( sig_reg.indexIn(result_body) == -1 )
+    {
+        return QString();
+    }
+
+    return sig_reg.cap(1);
+}
+
 QQLoginCore::LoginResult QQLoginCore::login(QString id, QString pwd, ContactStatus status)
 {
 	id_ = id;
 	pwd_ = pwd;
     status_ = status;
 
-    QString login_url = "/login?u=" + id + "&p=" + getPwMd5(pwd) + "&verifycode="+vc_+
-            "&webqq_type=10&remember_uin=0&login2qq=1&aid=1003903&u1=http%3A%2F%2Fweb.qq.com%2Floginproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&h=1&ptredirect=0&ptlang=2052&from_ui=1&pttype=1&dumy=&fp=loginerroralert&action=2-6-22950&mibao_css=m_webqq&t=1&g=1";
+    QString login_url = "/login?u="+ id + "&p=" + getPwMd5(pwd) + "&verifycode=" + vc_ + "&webqq_type=10&remember_uin=1&login2qq=1&aid=1003903&u1=http%3A%2F%2Fweb2.qq.com%2Floginproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&h=1&ptredirect=0&ptlang=2052&daid=164&from_ui=1&pttype=1&dumy=&fp=loginerroralert&action=9-27-9657582&mibao_css=m_webqq&t=2&g=1&js_type=0&js_ver=10049&login_sig="+login_sig_;
 
     Request req;
     req.create(kGet, login_url);
     req.addHeaderItem("Host", "ptlogin2.qq.com");
     req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
-    req.addHeaderItem("Referer", "http://ui.ptlogin2.qq.com/cgi-bin/login?target=self&style=5&mibao_css=m_webqq&appid=1003903&enable_qlogin=0&no_verifyimg=1&s_url=http%3A%2F%2Fweb.qq.com%2Floginproxy.html&f_url=loginerroralert&strong_login=1&login_state=10&t=20120504001");
+    req.addHeaderItem("Referer", "http://ui.ptlogin2.qq.com/cgi-bin/login?daid=164&target=self&style=5&mibao_css=m_webqq&appid=1003903&enable_qlogin=0&no_verifyimg=1&s_url=http%3A%2F%2Fweb2.qq.com%2Floginproxy.html&f_url=loginerroralert&strong_login=1&login_state=10&t=20130903001");
 
+    fd_->disconnectFromHost();
     fd_->connectToHost("ptlogin2.qq.com", 80);
     fd_->write(req.toByteArray());
+    
+    qDebug() << "login request: \n" << req.toByteArray() << endl;
     
     QByteArray result;
     while (result.indexOf(");") == -1 && fd_->waitForReadyRead(5000))
@@ -108,6 +150,13 @@ QQLoginCore::LoginResult QQLoginCore::login(QString id, QString pwd, ContactStat
         CaptchaInfo::instance()->setCookie(CaptchaInfo::instance()->cookie() + key + "=" + value + ";");
     }
 
+    int url_begin_idx = result.indexOf("http");
+    int url_end_idx = result.indexOf("'", url_begin_idx);
+    QString get_token_url = result.mid(url_begin_idx, url_end_idx - url_begin_idx);
+    qDebug() << "get_token_url: " << get_token_url << endl;
+
+    getToken(get_token_url);
+
     if ( getLoginInfo(ptwebqq) != 0 )
     {
         return kGetLoginInfoFailed;
@@ -115,6 +164,55 @@ QQLoginCore::LoginResult QQLoginCore::login(QString id, QString pwd, ContactStat
 
     CurrLoginAccount::setPwd(pwd);
     return kSucess;
+}
+
+int QQLoginCore::getToken(QString get_token_url)
+{
+    int host_start_idx = get_token_url.indexOf("http://")+7;
+    int host_end_idx = get_token_url.indexOf("com/", host_start_idx)+3;
+    QString host = get_token_url.mid(host_start_idx, host_end_idx - host_start_idx);
+    QString get_token_query_path = get_token_url.mid(host_end_idx);
+    qDebug() << "get token host: " << host << "query path:" << get_token_query_path << endl;
+
+    Request req;
+    req.create(kGet, get_token_query_path);
+    req.addHeaderItem("Host", host);
+    req.addHeaderItem("Cookie", CaptchaInfo::instance()->cookie());
+
+    qDebug() << "get token request: \n" << req.toByteArray() << endl;
+    fd_->disconnectFromHost();
+    fd_->connectToHost(host, 80);
+    fd_->write(req.toByteArray());
+    
+    QByteArray result;
+    socketReceive(fd_, result);
+
+    if ( result.isEmpty() )
+    {
+        return -1;
+    }
+    qDebug() << "getToken result: \n" << result << endl;
+
+    int idx = 0;
+    while ((idx = result.indexOf("Set-Cookie:", idx)) != -1) 
+    {
+        idx += strlen("Set-Cookie: ");
+
+        int value_idx = result.indexOf("=", idx); 
+        int fin_value_idx = result.indexOf(";", idx);
+
+        if (fin_value_idx == (value_idx + 1)) continue;
+
+        QString key = result.mid(idx, value_idx - idx); 
+        QString value = result.mid(value_idx+1, fin_value_idx - value_idx - 1);
+
+        if ( (key == "p_skey" || key == "pt4_token" || key == "p_uin" ) && !value.isEmpty() )
+        {
+            qDebug() << key << value << endl;
+            CaptchaInfo::instance()->setCookie(CaptchaInfo::instance()->cookie() + key + "=" + value + ";");
+        }
+    }
+    return 0;
 }
 
 QQLoginCore::LoginResult QQLoginCore::login(QString id, QString pwd, ContactStatus status, QString vc)
@@ -148,13 +246,23 @@ QByteArray QQLoginCore::getMd5Uin(const QByteArray &result, int begin_idx)
 QQLoginCore::AccountStatus QQLoginCore::checkStatus(QString id)
 {
     qDebug()<<"Checking Account Status"<<endl;
+    if ( login_sig_.isEmpty() )
+    {
+        login_sig_ = getLoginSig();
+        if ( login_sig_.isEmpty() )
+        {
+            return kUnknowStatus;
+        }
+        qDebug() << "QQLoginCore::checkStatus! get loginsig: " << login_sig_ << endl;
+    }
+
 	CurrLoginAccount::setId(id);
-    QString check_url = "/check?uin=%1&appid=1003903&r=0.5354662109559408";
-    fd_ = new QTcpSocket();
+    QString check_url = "/check?uin=%1&appid=1003903&js_ver=10049&js_type=0&login_sig=%2&u1=http%3A%2F%2Fweb2.qq.com%2Floginproxy.html&r=0.8177125074315685";
+    fd_->disconnectFromHost();
     fd_->connectToHost("check.ptlogin2.qq.com",80);
 
     Request req;
-    req.create(kGet, check_url.arg(id));
+    req.create(kGet, check_url.arg(id).arg(login_sig_));
     req.addHeaderItem("Host", "check.ptlogin2.qq.com");
     req.addHeaderItem("Connection", "Keep-Alive");
 
@@ -247,7 +355,7 @@ QString QQLoginCore::getLoginStatus() const
 int QQLoginCore::getLoginInfo(QString ptwebqq)
 {
     QString login_info_path = "/channel/login2";
-    QByteArray msg = "r={\"status\":\""+ getLoginStatus().toAscii() +"\",\"ptwebqq\":\"" + ptwebqq.toAscii() + "\","
+    QByteArray msg = "r={\"status\":\""+ getLoginStatus().toLatin1() +"\",\"ptwebqq\":\"" + ptwebqq.toLatin1() + "\","
             "\"passwd_sig\":""\"\",\"clientid\":\"5412354841\""
             ",\"psessionid\":null}&clientid=12354654&psessionid=null";
 
@@ -260,6 +368,7 @@ int QQLoginCore::getLoginInfo(QString ptwebqq)
     req.addHeaderItem("Content-Type", "application/x-www-form-urlencoded");
     req.addRequestContent(msg);
 
+    fd_->disconnectFromHost();
     fd_->connectToHost("d.web2.qq.com", 80);
     fd_->write(req.toByteArray());
 
@@ -354,7 +463,7 @@ QByteArray QQLoginCore::hexchar2bin(const QByteArray &str)
     for ( int i = 0; i < str.length(); i += 2 )
     {
         bool ok;
-        result += QString::number(str.mid(i, i + 2).toInt(&ok, 16)).toAscii();
+        result += QString::number(str.mid(i, i + 2).toInt(&ok, 16)).toLatin1();
     }
     return result;
 }
@@ -362,7 +471,7 @@ QByteArray QQLoginCore::hexchar2bin(const QByteArray &str)
 QByteArray QQLoginCore::getPwMd5(QString pwd)
 {
     QByteArray md5;   
-    md5 = QCryptographicHash::hash(pwd.toAscii(), QCryptographicHash::Md5);
+    md5 = QCryptographicHash::hash(pwd.toLatin1(), QCryptographicHash::Md5);
 	md5 = QCryptographicHash::hash(md5.append(md5_uin_), QCryptographicHash::Md5).toHex().toUpper();
     md5 = QCryptographicHash::hash(md5.append(vc_.toUpper()), QCryptographicHash::Md5).toHex().toUpper();
 

@@ -4,7 +4,19 @@ project(Qtqq)
 set(version 0.8.2-alpha)
 
 INCLUDE(FindX11)
-find_package(Qt4 REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Gui REQUIRED)
+find_package(Qt5Network REQUIRED)
+find_package(Qt5X11Extras REQUIRED)
+find_package(Qt5Xml REQUIRED)
+find_package(Qt5Qml REQUIRED)
+find_package(Qt5Sql REQUIRED)
+find_package(Qt5WebKitWidgets REQUIRED)
+
+if (Qt5_POSITION_INDEPENDENT_CODE)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
 
 set(HAVE_X11_EXTENSIONS_SHAPE_H ${X11_Xshape_FOUND})
 set(HAVE_X11_EXTENSIONS_XFIXES_H ${X11_Xfixes_FOUND})
@@ -15,8 +27,7 @@ configure_file(
     "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
     IMMEDIATE @ONLY)
 
-add_custom_target(uninstall
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
 include(CheckIncludeFiles)
 include(FindPkgConfig)
@@ -45,6 +56,7 @@ set(bindir ${prefix}/bin)
 set(libdir ${prefix}/lib)
 set(includedir ${prefix}/include)
 
+set(CMAKE_AUTOMOC ON)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib)

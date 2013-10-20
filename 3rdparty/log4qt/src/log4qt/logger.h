@@ -125,18 +125,31 @@ namespace Log4Qt
 				}                                                             \
 			return p_logger;                                                  \
 		}
+#elif QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    #define LOG4QT_DECLARE_STATIC_LOGGER(FUNCTION, CLASS)                     \
+        static Log4Qt::Logger *FUNCTION()                                     \
+        {                                                                     \
+            static QBasicAtomicPointer<Log4Qt::Logger > p_logger =            \
+                Q_BASIC_ATOMIC_INITIALIZER(0);                                \
+            if (!p_logger)                                                    \
+            {                                                                 \
+                p_logger.testAndSetOrdered(0,                                 \
+                    Log4Qt::Logger::logger( #CLASS ));                        \
+            }                                                                 \
+            return p_logger;                                                  \
+        }
 #else
 	#define LOG4QT_DECLARE_STATIC_LOGGER(FUNCTION, CLASS)                     \
 	    static Log4Qt::Logger *FUNCTION()                                     \
 	    {                                                                     \
 			static QBasicAtomicPointer<Log4Qt::Logger > p_logger =            \
 				Q_BASIC_ATOMIC_INITIALIZER(0);                                \
-	        if (!p_logger)                                                    \
+            if (!p_logger.loadAcquire())                                      \
 	        {                                                                 \
 	        	p_logger.testAndSetOrdered(0,                                 \
 					Log4Qt::Logger::logger( #CLASS ));                        \
             }                                                                 \
-	        return p_logger;                                                  \
+            return p_logger.loadAcquire();                                    \
 	    }
 #endif
 

@@ -61,10 +61,10 @@ protected:
 
 private slots:
     void changeMyStatus(int idx);
-    void getFriendListDone(bool err);
-    void getGroupListDone(bool err);
-    void getOnlineBuddyDone(bool err);
-    void getRecentListDone(bool err);
+    void getFriendListDone();
+    void getGroupListDone();
+    void getOnlineBuddyDone();
+    void getRecentListDone();
     void openMainMenu();
     void setMute(bool mute);
     void openFirstChatDlg();
@@ -85,7 +85,6 @@ private:
     void getSingleLongNick();
     int getStatusIndex(ContactStatus status);
     void setupLoginStatus();
-    QString getStatusByIndex(int idx) const;
     void initShortcut();
     QString hashO(const QString &uin, const QString &ptwebqq);
 

@@ -15,8 +15,8 @@ Protocol::PollThread::PollThread(QObject *parent) :
 void Protocol::PollThread::init()
 {
     QString poll_path = "/channel/poll2";
-    QByteArray msg = "r={\"clientid\":\"5412354841\",\"psessionid\":\"" + CaptchaInfo::instance()->psessionid().toAscii() + "\","
-        "\"key\":0,\"ids\":[]}&clientid=" + "5412354841" + "&psessionid=" + CaptchaInfo::instance()->psessionid().toAscii();
+    QByteArray msg = "r={\"clientid\":\"5412354841\",\"psessionid\":\"" + CaptchaInfo::instance()->psessionid().toLatin1() + "\","
+        "\"key\":0,\"ids\":[]}&clientid=" + "5412354841" + "&psessionid=" + CaptchaInfo::instance()->psessionid().toLatin1();
 
     req_.create(kPost, poll_path);
     req_.addHeaderItem("Host", "d.web2.qq.com");

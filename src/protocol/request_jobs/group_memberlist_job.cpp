@@ -1,6 +1,8 @@
 #include "group_memberlist_job.h"
 
 #include <QDateTime>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 #include <QDebug>
 
 #include "core/captchainfo.h"
@@ -12,38 +14,39 @@ GroupMemberListJob::GroupMemberListJob(Group *job_for, JobType type) :
     t_type_(job_for->type()),
     gcode_(job_for->gcode())
 {
-	connect(&http_, SIGNAL(done(bool)), this, SLOT(requestDone(bool)));
 }
 
 void GroupMemberListJob::run()
 {
-    QString get_group_member_url = "/api/get_group_info_ext2?gcode=" + gcode_ + "&vfwebqq=" +
+    QString get_group_member_url = "http://s.web2.qq.com/api/get_group_info_ext2?gcode=" + gcode_ + "&vfwebqq=" +
         CaptchaInfo::instance()->vfwebqq() + "&t="+ QString::number(QDateTime::currentMSecsSinceEpoch());
 
-    QHttpRequestHeader header("GET", get_group_member_url);
-    header.addValue("Host", "s.web2.qq.com");
-    header.addValue("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001");
-    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
+    QNetworkRequest request(get_group_member_url);
+    request.setRawHeader("Host", "s.web2.qq.com");
+    request.setRawHeader("Referer", "http://s.web2.qq.com/proxy.html?v=20110412001");
+    request.setRawHeader("Cookie", CaptchaInfo::instance()->cookie().toLatin1());
 
-    http_.setHost("s.web2.qq.com");
-    http_.request(header);
+
+    QNetworkReply *reply = Protocol::QQProtocol::instance()->networkMgr()->get(request);
+    connect(reply, SIGNAL(finished()), this, SLOT(requestDone()));
 }
 
-void GroupMemberListJob::requestDone(bool err)
+void GroupMemberListJob::requestDone()
 {
-	if ( !err )
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+	if ( !reply->error() )
 	{
-		QByteArray data = http_.readAll();
-		http_.close();
+		QByteArray data = reply->readAll();
+        reply->deleteLater();
+
         Protocol::Event *event = Protocol::EventCenter::instance()->createGroupMemberListUpdateEvent(id_, t_type_, data);
         Protocol::EventCenter::instance()->triggerEvent(event);
 	}
 	else
 	{
 		qDebug() << "request group member list for " << id_ << " failed! " << endl;
-		qDebug() << "error: " << http_.errorString() << endl;
+		qDebug() << "error: " << reply->error() << endl;
 	}
 
-	http_.disconnect(this);
-	emit sigJobDone(this, err);
+	emit sigJobDone(this, reply->error());
 }

@@ -41,8 +41,8 @@ public:
         tw_shortcuts->setItemDelegate(sc_delegate);
         tw_shortcuts->setModel(&proxy_);
 
-        tw_shortcuts->header()->setResizeMode(NAME_COL,QHeaderView::Stretch);
-        tw_shortcuts->header()->setResizeMode(KEY_COL,QHeaderView::ResizeToContents);
+        tw_shortcuts->header()->setSectionResizeMode(NAME_COL,QHeaderView::Stretch);
+        tw_shortcuts->header()->setSectionResizeMode(KEY_COL,QHeaderView::ResizeToContents);
         tw_shortcuts->expandAll();
     }
 
@@ -51,6 +51,7 @@ public:
 private slots:
     void onShortcutChanged(const QString &id, const QString &key)
     {
+        Q_UNUSED(key)
         changed_scs_.append(id);
     }
 

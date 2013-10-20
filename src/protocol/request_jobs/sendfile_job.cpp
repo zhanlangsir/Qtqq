@@ -1,7 +1,5 @@
 #include "sendfile_job.h"
 
-#include <QHttpRequestHeader>
-#include <QHttpResponseHeader>
 #include <QDateTime>
 #include <QTcpSocket>
 #include <QDebug>
@@ -16,29 +14,29 @@
 
 SendFileJob::SendFileJob(const QString &to_id,  const QString &file_path, const QByteArray &data, SendFileJobType filejob_type, JobType type) : 
 	__JobBase(NULL, type),
-	http_(this),
     filejob_type_(filejob_type),
     to_id_(to_id),
     file_path_(file_path),
     data_(data)
 {
-	connect(&http_, SIGNAL(done(bool)), this, SLOT(requestDone(bool)));
     file_ = QFileInfo(file_path_).fileName();
 }
 
-void SendFileJob::requestDone(bool error)
+void SendFileJob::requestDone()
 {
-	if ( !error )
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+	if ( !reply->error() )
 	{
-		QByteArray data = http_.readAll();
-		http_.close();
+		QByteArray data = reply->readAll();
+		reply->close();
+        reply->deleteLater();
 
         if ( filejob_type_ == kOffFile )
         {
             QString file_path = getFilePath(data);
             notifyServer(file_path);
         }
-        qDebug() << "File send done response: " << http_.lastResponse().toString() << endl;
+        qDebug() << "File send done response: " << reply->rawHeaderList() << endl;
         qDebug() << "File send done body:\n" << data << endl;
         //Useless result, so no event
         //Protocol::Event *event = Protocol::EventCenter::instance()->createImgSendDoneEvent(for_, success, file_path_, img_id);
@@ -47,11 +45,10 @@ void SendFileJob::requestDone(bool error)
 	else
 	{
 		qDebug() << "Send file failed " << endl;
-		qDebug() << "Error: " << http_.errorString() << endl;
+		qDebug() << "Error: " << reply->error() << endl;
 	}
 
-	http_.disconnect(this);
-	emit sigJobDone(this, error);
+	emit sigJobDone(this, reply->error());
 }
 
 void SendFileJob::run()
@@ -70,26 +67,23 @@ void SendFileJob::run()
         host = "file1.web.qq.com";
     }
 
-    QHttpRequestHeader header;
+    QNetworkRequest request(send_url);
+    request.setRawHeader("Host", host.toLatin1());
+    request.setRawHeader("Connection", "keep-alive");
+    request.setRawHeader("Content-Length", QByteArray::number(data_.length()));
+    request.setRawHeader("Cache-Control", "max-age=0");
+    request.setRawHeader("Origin", "http://web.qq.com");
+    request.setRawHeader("User-Agent", " User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.70 Safari/537.17");
+    request.setRawHeader("Content-Type", "multipart/form-data; boundary="+Protocol::QQProtocol::instance()->fileSender()->boundary());
+    request.setRawHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+    request.setRawHeader("Referer", "http://web.qq.com/");
+    request.setRawHeader("Accept-Encoding", "gzip,deflate,sdch");
+    request.setRawHeader("Accept-Language", "zh-CN,zh;q=0.8");
+    request.setRawHeader("Accept-Charset", "UTF-8,*;q=0.5");
+    request.setRawHeader("Cookie", CaptchaInfo::instance()->cookie().toLatin1());
 
-    header.setRequest("POST", send_url);
-    header.addValue("Host", host);
-    header.addValue("Connection", "keep-alive");
-    header.addValue("Content-Length", QString::number(data_.length()));
-    header.addValue("Cache-Control", "max-age=0");
-    header.addValue("Origin", "http://web.qq.com");
-    header.addValue("User-Agent", " User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.70 Safari/537.17");
-    header.addValue("Content-Type", "multipart/form-data; boundary="+Protocol::QQProtocol::instance()->fileSender()->boundary());
-    header.addValue("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-    header.addValue("Referer", "http://web.qq.com/");
-    header.addValue("Accept-Encoding", "gzip,deflate,sdch");
-    header.addValue("Accept-Language", "zh-CN,zh;q=0.8");
-    header.addValue("Accept-Charset", "UTF-8,*;q=0.5");
-    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
-
-    http_.setHost(host);
-    connect(&http_, SIGNAL(dataSendProgress(int, int)), this, SLOT(onDataSendProgress(int, int)));
-    http_.request(header, data_);
+    QNetworkReply *reply = Protocol::QQProtocol::instance()->networkMgr()->post(request, data_);
+    connect(reply, SIGNAL(downloadProgress(int, int)), this, SLOT(onDataSendProgress(int, int)));
 }
 
 void SendFileJob::onDataSendProgress(int done, int total)
@@ -99,33 +93,35 @@ void SendFileJob::onDataSendProgress(int done, int total)
 
 void SendFileJob::stop()
 {
-    http_.close();
     emit sigJobDone(this, false);
 }
 
 void SendFileJob::notifyServer(QString file_path)
 {
     QString pse_id =  CaptchaInfo::instance()->psessionid();
-    QByteArray data = "r={\"to\":\"" + to_id_.toAscii() + "\",\"file_path\":\"" + file_path.toAscii() + "\",\"filename\":\""+ file_.toAscii() +"\",\"to_uin\":\"" +to_id_.toAscii() + "\",\"clientid\":\"5412354841\",\"psessionid\":\"" + pse_id.toAscii() + "\"}&clientid=5412354841&psessionid=" + pse_id.toAscii();
+    QByteArray data = "r={\"to\":\"" + to_id_.toLatin1() + "\",\"file_path\":\"" + file_path.toLatin1() + "\",\"filename\":\""+ file_.toLatin1() +"\",\"to_uin\":\"" +to_id_.toLatin1() + "\",\"clientid\":\"5412354841\",\"psessionid\":\"" + pse_id.toLatin1() + "\"}&clientid=5412354841&psessionid=" + pse_id.toLatin1();
 
     QString send_url = "/channel/send_offfile2";
     QString host = "d.web2.qq.com";
 
-    QHttpRequestHeader header;
-    header.setRequest("POST", send_url);
-    header.addValue("Host", host);
-    header.addValue("Pragma", "no-cache");
-    header.addValue("Content-Length", QString::number(data.length()));
-    header.addValue("Content-Type", "application/x-www-form-urlencoded");
-    header.addValue("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1&id=3");
-    header.addValue("Cookie", CaptchaInfo::instance()->cookie());
+    QNetworkRequest request(send_url);
+    request.setRawHeader("Host", host.toLatin1());
+    request.setRawHeader("Pragma", "no-cache");
+    request.setRawHeader("Content-Length", QByteArray::number(data.length()));
+    request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
+    request.setRawHeader("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1&id=3");
+    request.setRawHeader("Cookie", CaptchaInfo::instance()->cookie().toLatin1());
 
+
+    Protocol::QQProtocol::instance()->networkMgr()->post(request, data);
+    /*
     QTcpSocket fd;
     fd.connectToHost(host, 80);
     fd.write(header.toString().toAscii() + data);
 
     fd.waitForReadyRead();
     qDebug() << fd.readAll() << endl;;
+    */
 }
 
 QString SendFileJob::getFilePath(const QByteArray &data)

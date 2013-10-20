@@ -24,9 +24,6 @@
 
 INCLUDEPATH += $$PWD/..
 DEPENDPATH += $$PWD/..
-
-LIBLOG4QT_NAME=$$qtLibraryTarget(log4qt)
-
 HEADERS += \
     $$PWD/appender.h \
     $$PWD/appenderskeleton.h \

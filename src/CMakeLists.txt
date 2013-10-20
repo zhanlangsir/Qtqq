@@ -27,6 +27,8 @@ set(CORE_HEADERS
 	chatwidget/chatmsg_processor.h
 	chatwidget/chatdlg_manager.h
 
+    common/log_mgr.h
+
     #event handle
     event_handle/event_handle.h
 
@@ -157,8 +159,8 @@ set(UI_HEADERS
     offlinenotifydlg.h
 )
 
-QT4_WRAP_CPP(UI_HEADERS_MOC ${UI_HEADERS})
-QT4_WRAP_CPP(CORE_HEADERS_MOC ${CORE_HEADERS})
+#QT4_WRAP_CPP(UI_HEADERS_MOC ${UI_HEADERS})
+#QT4_WRAP_CPP(CORE_HEADERS_MOC ${CORE_HEADERS})
 
 set(CORE_SOURCES
 	core/qqchatitem.cpp
@@ -281,6 +283,8 @@ set(CORE_SOURCES
 	chatwidget/chatmsg_processor.cpp
 	chatwidget/chatdlg_manager.cpp
 
+    common/log_mgr.cpp
+
 	#request widget
 	requestwidget/grouprequestdlg.cpp
 	requestwidget/friendrequestdlg.cpp
@@ -331,7 +335,8 @@ set(UI_FILES
     ui/shortcutsdlg.ui
 )
 
-QT4_WRAP_UI(UI_FILES_HEADERS ${UI_FILES})
+#QT5_WRAP_CPP(UI_HEADERS_MOC ${UI_HEADERS})
+QT5_WRAP_UI(UI_FILES_HEADERS ${UI_FILES})
 
 PKG_CHECK_MODULES(ZLIB REQUIRED "zlib")
 
@@ -340,8 +345,16 @@ set(QT_USE_QTWEBKIT TRUE)
 set(QT_USE_QTSQL TRUE)
 set(QT_USE_QTXML TRUE)
 
-include(${QT_USE_FILE})
+#include(${QT_USE_FILE})
 
+include_directories(${Qt5X11Extras_INCLUDE_DIRS})
+include_directories(${Qt5WebKitWidgets_INCLUDE_DIRS})
+include_directories(${Qt5Sql_INCLUDE_DIRS})
+include_directories(${Qt5Qml_INCLUDE_DIRS})
+include_directories(${Qt5Widgets_INCLUDE_DIRS})
+include_directories(${Qt5Network_INCLUDE_DIRS})
+include_directories(${Qt5Core_INCLUDE_DIRS})
+include_directories(${Qt5Xml_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${JSONCPP_INCLUDE_DIR})
 include_directories(${LOG4QT_INCLUDE_DIR})
@@ -372,11 +385,25 @@ option(UPDATE_TRANSLATIONS "Update source translation files" OFF)
 add_subdirectory(plugins)
 
 add_executable(qtqq
-	${CORE_SOURCES} ${CORE_HEADERS_MOC}
+	${CORE_SOURCES} ${CORE_HEADERS}
 	${UI_SOURCES} ${UI_HEADERS_MOC}
 	${UI_FILES_HEADERS}
 	${QM_FILES}
+    ${UI_HEADERS}
 )
+
+qt5_use_modules(qtqq 
+    Widgets
+    Core
+    Gui
+    Network
+    X11Extras
+    Xml
+    Qml
+    Sql
+    WebKitWidgets
+    )
+
 
 if (X11_Xfixes_FOUND)
     target_link_libraries(qtqq ${X11_Xfixes_LIB})

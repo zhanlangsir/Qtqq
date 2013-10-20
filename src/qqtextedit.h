@@ -52,8 +52,8 @@ public slots:
     void insertQQFace(const QString &face_id);
 
 protected:
-    void insertFromMimeData( const QMimeData *source );
-    bool canInsertFromMimeData( const QMimeData *source );
+    void insertFromMimeData(const QMimeData *source);
+    bool canInsertFromMimeData(const QMimeData *source) const;
     void dragEnterEvent(QDragEnterEvent *e);
     void dragMoveEvent(QDragMoveEvent *e);
     void dropEvent(QDropEvent *e);
