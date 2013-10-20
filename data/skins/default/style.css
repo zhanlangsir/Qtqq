@@ -1,8 +1,4 @@
-﻿#mainWindow QComboBox {
-    background-color: transparent;
-}
-
-#avatar {
+﻿#avatar {
 	border-image:url(%skin_path%/main_win/avatar-border.png) 0 0 0 0;
 }
 
